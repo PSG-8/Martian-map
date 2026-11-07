@@ -1,15 +1,15 @@
-REAL 3D DATA PACKS  (one folder per site)
+REAL NASA 3D MODELS (optional)
 
-regions/jezero/
-    terrain.json     (made by make_heightmap.py)
-    heightmap.png    (made by make_heightmap.py)
-    texture.jpg      (optional, made by make_texture.py from the Caltech CTX mosaic)
+The site draws its own rover and astronaut from code. To use real NASA models instead:
+1. Download a glTF/GLB model from NASA 3D Resources (https://science.nasa.gov/3d-resources/)
+   or NASA Eyes on the Solar System. Check the license of each model and credit NASA.
+2. Put the .glb file(s) in this folder and create models/models.json, for example:
 
-Folder names must match the site list in worldmap.js:
-jezero, gale, meridiani, gusev, olympus, valles, hellas, utopia.
+   {
+     "rover":     { "file": "perseverance.glb", "targetLength": 3.2, "rotYDeg": 0 },
+     "astronaut": { "file": "astronaut.glb",    "targetLength": 2.0, "rotYDeg": 0 }
+   }
 
-Steps for one site:
-  python make_heightmap.py dem.tif --pixel-m 20 --name "Jezero Crater" --source "USGS CTX DEM" --out regions/jezero
-  python make_texture.py E076_N16.tif --out regions/jezero          (optional, needs the CTX tile)
-
-A site without a folder opens with SIMULATED terrain and the page says so.
+   targetLength = size on the map (about 3 for a rover). rotYDeg turns the model so it faces
+   the +x direction (try 90, 180 or -90 if it drives sideways or backwards).
+Keys you can use: rover, crewed, astronaut. Without models.json nothing changes.
