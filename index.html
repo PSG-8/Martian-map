@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Martian Map · Starseekers</title>
+  <meta name="description" content="Interactive 3D map of Mars for planning risk-aware routes.">
+  <link rel="icon" type="image/svg+xml" href="logo-icon.svg">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Three.js (3D) is loaded as an ES module through an import map -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo-img" src="logo-icon.svg" alt="" onerror="this.style.display='none'">
+      <h1>Martian Map</h1>
+      <span class="by">by Team Starseekers</span>
+    </div>
+    <div class="badges">
+      <span class="badge" id="region-badge">Region: …</span>
+      <span class="badge" id="data-badge">Loading data…</span>
+    </div>
+  </header>
+
+  <div class="file-warning" id="file-warning" hidden>
+    This page must be opened through a local server (for example the VS Code "Live Server" extension) or a hosting site.
+    Opening index.html by double-clicking it will not work.
+  </div>
+  <div class="file-warning" id="start-warning" hidden></div>
+
+  <main class="layout">
+
+    <!-- ============ Control panel ============ -->
+    <aside class="panel" aria-label="Controls">
+
+      <section class="block">
+        <h2>1. Vehicle</h2>
+        <label class="sr-only" for="vehicle">Vehicle type</label>
+        <select id="vehicle"></select>
+        <div class="vehicle-preview" id="vehicle-preview" aria-label="3D preview of the selected vehicle"></div>
+        <p class="hint" id="vehicle-info"></p>
+        <p class="hint">The 3D model is drawn larger than real scale so it stays visible on the map.</p>
+      </section>
+
+      <section class="block">
+        <h2>2. Plan a route</h2>
+        <div class="quick" id="quick-route" hidden>
+          <label class="field">From <select id="qr-from"></select></label>
+          <label class="field">To <select id="qr-to"></select></label>
+          <button id="qr-go" class="btn primary wide">Plan route between craters</button>
+        </div>
+        <p class="hint">Or click any two points on the terrain (A, then B).</p>
+        <input type="range" id="risk" min="0" max="100" value="60" aria-label="Route priority: fastest to safest">
+        <div class="range-labels"><span>Fastest</span><span>Lowest risk</span></div>
+        <p class="hint" id="risk-info"></p>
+      </section>
+
+      <section class="block">
+        <h2>3. Journey</h2>
+        <div class="btn-row">
+          <button id="btn-play" class="btn primary" disabled>▶ Play journey</button>
+          <button id="btn-clear" class="btn">Clear route</button>
+        </div>
+        <label class="check"><input type="checkbox" id="chk-follow" checked> Camera follows the traveler</label>
+        <button id="btn-reset-view" class="btn small">Reset camera</button>
+      </section>
+
+      <section class="block">
+        <h2>Map layers</h2>
+        <label class="check"><input type="checkbox" id="chk-layer" checked> Terrain difficulty layer</label>
+        <label class="check"><input type="checkbox" id="chk-contours" checked> Contour lines</label>
+        <label class="check"><input type="checkbox" id="chk-labels" checked> Crater labels</label>
+        <label class="field">Relief height: <b id="exag-val">3×</b>
+          <input type="range" id="exag" min="1" max="6" step="0.5" value="3" aria-label="Relief exaggeration">
+        </label>
+        <p class="hint">Relief height only changes how tall the land looks. The calculations use the real heights.</p>
+      </section>
+
+      <section class="block" id="legend-terrain-wrap">
+        <h2>Terrain difficulty</h2>
+        <ul class="legend" id="legend-terrain"></ul>
+        <p class="hint">Classes depend on the chosen vehicle's slope limit. Soft ground is an estimate.</p>
+      </section>
+
+      <section class="block">
+        <h2>Route legend</h2>
+        <ul class="legend">
+          <li><i class="dot" style="background:#3ddc84"></i> Route: easy ground</li>
+          <li><i class="dot" style="background:#ffd23f"></i> Route: medium difficulty</li>
+          <li><i class="dot" style="background:#ff4d4d"></i> Route: risky ground</li>
+          <li><i class="dot" style="background:#ffffff;opacity:.6"></i> Shortest route (for comparison)</li>
+          <li><i class="dot" style="background:#ffb347;opacity:.7"></i> Ring = position uncertainty</li>
+          <li><i class="dot" style="background:#4fc3ff"></i> A = start &nbsp; <i class="dot" style="background:#ff4fd8"></i> B = destination</li>
+        </ul>
+      </section>
+
+      <section class="block">
+        <h2>Your own data</h2>
+        <details class="details">
+          <summary>Load a heightmap PNG</summary>
+          <p class="hint">Grayscale PNG: dark = low, bright = high. Tell the map what the colors mean.</p>
+          <input type="file" id="file-hm" accept="image/png,image/jpeg">
+          <label class="field">Lowest elevation (m) <input type="number" id="in-min" value="-2800"></label>
+          <label class="field">Highest elevation (m) <input type="number" id="in-max" value="-2000"></label>
+          <label class="field">Map width (km) <input type="number" id="in-width" value="24" min="0.1" step="0.1"></label>
+          <button id="btn-load-hm" class="btn small">Load heightmap</button>
+          <p class="hint" id="hm-msg"></p>
+        </details>
+      </section>
+
+      <section class="block">
+        <h2>How to use</h2>
+        <ol class="howto">
+          <li>Pick two craters and press "Plan route", or click two points on the terrain.</li>
+          <li>Move the slider or change the vehicle: the route updates.</li>
+          <li>Press Play to follow the live tracking panel.</li>
+          <li>Drag to rotate, scroll to zoom, right-drag to pan.</li>
+        </ol>
+        <p class="hint">Prototype for planning support only. It cannot guarantee safety, and the results depend on the quality of the data.</p>
+      </section>
+    </aside>
+
+    <!-- ============ 3D view ============ -->
+    <section class="viewport" id="viewport" aria-label="3D terrain view">
+      <div class="status info" id="status">Loading terrain…</div>
+      <div class="compass" aria-label="Compass"><span class="n">N</span><div class="needle" id="compass-needle"></div></div>
+      <div class="tip" id="tip" hidden></div>
+      <div class="live" id="live" hidden>
+        <div class="live-title">Live tracking</div>
+        <div class="live-grid">
+          <div class="cell"><span>Trip distance</span><strong id="hud-dist">—</strong></div>
+          <div class="cell"><span>Time remaining</span><strong id="hud-time">—</strong></div>
+          <div class="cell"><span>Energy used</span><strong id="hud-energy">—</strong></div>
+          <div class="cell" id="hud-slip-cell"><span>Slip alert</span><strong id="hud-slip">—</strong></div>
+        </div>
+        <div class="live-acc" id="hud-acc"></div>
+      </div>
+      <div class="map-info" id="map-info"></div>
+      <div class="loading" id="loading">Loading terrain…</div>
+    </section>
+
+    <!-- ============ Dashboard ============ -->
+    <section class="dashboard" aria-label="Route dashboard">
+      <div class="dash-left">
+        <div class="cards">
+          <div class="card"><span class="label">Distance</span><strong id="m-dist">—</strong></div>
+          <div class="card"><span class="label">Est. travel time</span><strong id="m-time">—</strong></div>
+          <div class="card"><span class="label">Elevation gain</span><strong id="m-gain">—</strong></div>
+          <div class="card"><span class="label">Max slope</span><strong id="m-slope">—</strong></div>
+          <div class="card"><span class="label">Hazard zones</span><strong id="m-zones">—</strong></div>
+          <div class="card"><span class="label">Average risk</span><strong id="m-risk">—</strong></div>
+          <div class="card"><span class="label">Est. energy</span><strong id="m-energy">—</strong></div>
+          <div class="card"><span class="label">Max slip (est.)</span><strong id="m-slip">—</strong></div>
+          <div class="card"><span class="label">Max position error</span><strong id="m-sigma">—</strong></div>
+        </div>
+        <table class="compare" id="compare">
+          <thead><tr><th>Route comparison</th><th>Selected</th><th>Shortest</th></tr></thead>
+          <tbody><tr><td colspan="3" class="muted">Choose a start and a destination to compare routes.</td></tr></tbody>
+        </table>
+        <p class="verdict" id="verdict"></p>
+        <p class="hint" id="assumption"></p>
+        <details class="details">
+          <summary>Model assumptions</summary>
+          <div id="assumptions-body"></div>
+        </details>
+        <p class="hint" id="data-note"></p>
+      </div>
+      <div class="dash-right">
+        <h2>Elevation profile</h2>
+        <div class="chart-wrap"><canvas id="elevChart"></canvas></div>
+        <h2 class="gap">Slip and position accuracy</h2>
+        <div class="chart-wrap"><canvas id="accChart"></canvas></div>
+      </div>
+      <div class="team">
+        <img class="team-logo" src="logo.svg" alt="Starseekers team logo" onerror="this.style.display='none'">
+        <p>Martian Map is a prototype for risk-aware route planning on Mars, built by <strong>Team Starseekers</strong>.
+          Real elevation data: USGS CTX digital elevation model (public domain).</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Friendly warnings if the page was opened directly from the disk, or did not start
+    if (location.protocol === 'file:') document.getElementById('file-warning').hidden = false;
+    setTimeout(function () {
+      if (window.__mmReady) return;
+      var el = document.getElementById('start-warning'), msg;
+      if (!window.__mmStarted) {
+        msg = 'The map could not start. Common reasons: (1) the page was opened by double-clicking the file instead of through a hosting site or Live Server; ' +
+              '(2) the Three.js library from cdn.jsdelivr.net is blocked or you are offline; (3) your browser has WebGL turned off. ' +
+              'Press F12 and open the Console tab to see the exact error.';
+      } else {
+        msg = 'The map is still loading. A large heightmap can take a few seconds. If nothing changes, press F12 and check the Console tab.';
+      }
+      el.textContent = msg;
+      el.hidden = false;
+    }, 9000);
+    // hide the notice once the map is ready
+    var iv = setInterval(function () {
+      if (window.__mmReady) { document.getElementById('start-warning').hidden = true; clearInterval(iv); }
+    }, 500);
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script type="module" src="script.js"></script>
+</body>
+</html>
