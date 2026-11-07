@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Martian Map · Starseekers</title>
+  <meta name="description" content="Global Mars map and 3D mission planner with terrain, radiation, UV, dust and power hazards.">
+  <link rel="icon" type="image/svg+xml" href="logo-icon.svg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Three.js (3D) is loaded as an ES module through an import map -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo-img" src="logo-icon.svg" alt="" onerror="this.style.display='none'">
+      <h1>Martian Map</h1>
+      <span class="by">by Team Starseekers</span>
+    </div>
+    <nav class="tabs" aria-label="Views">
+      <button class="tab active" id="tab-world">🌍 Global map</button>
+      <button class="tab" id="tab-3d">🛰 3D mission</button>
+    </nav>
+    <div class="badges">
+      <span class="badge" id="region-badge">Region: —</span>
+      <span class="badge" id="data-badge">Global map</span>
+      <button class="btn small icon" id="btn-fullscreen" title="Full screen">⛶ Full screen</button>
+    </div>
+  </header>
+
+  <div class="file-warning" id="file-warning" hidden>
+    This page must be opened through a local server (for example the VS Code "Live Server" extension) or a hosting site.
+    Opening index.html by double-clicking it will not work.
+  </div>
+  <div class="file-warning warn" id="start-warning" hidden></div>
+
+  <main class="stage">
+
+    <!-- ================= Global map (Google-Maps style) ================= -->
+    <section class="view" id="view-world" aria-label="Global Mars map">
+      <div id="worldmap"></div>
+      <div class="float tl" id="world-search">
+        <label class="sr-only" for="site-select">Site</label>
+        <select id="site-select"></select>
+        <p class="hint">Drag to move, scroll to zoom, click the map to pick any point on Mars.</p>
+      </div>
+      <div class="float tr" id="layer-switch"></div>
+      <div class="float card" id="site-card" hidden></div>
+      <div class="float bl small" id="world-coords">Move the mouse over the map</div>
+      <div class="chip" id="world-status" hidden></div>
+    </section>
+
+    <!-- ================= 3D mission ================= -->
+    <section class="view" id="view-3d" hidden aria-label="3D mission">
+      <div class="viewport" id="viewport">
+        <div class="status info" id="status">Loading terrain…</div>
+        <div class="compass" aria-label="Compass"><span class="n">N</span><div class="needle" id="compass-needle"></div></div>
+        <div class="tip" id="tip" hidden></div>
+        <div class="alerts" id="alert-bar" hidden></div>
+        <div class="live" id="live" hidden>
+          <div class="live-title">Live tracking</div>
+          <div class="live-grid">
+            <div class="cell"><span>Trip distance</span><strong id="hud-dist">—</strong></div>
+            <div class="cell"><span>Time remaining</span><strong id="hud-time">—</strong></div>
+            <div class="cell"><span>Energy used</span><strong id="hud-energy">—</strong></div>
+            <div class="cell" id="hud-slip-cell"><span>Slip alert</span><strong id="hud-slip">—</strong></div>
+          </div>
+          <div class="live-acc" id="hud-acc"></div>
+          <div class="live-env" id="hud-env"></div>
+        </div>
+        <div class="map-info" id="map-info"></div>
+        <div class="loading hidden" id="loading">Loading terrain…</div>
+
+        <div class="toolbar">
+          <button class="btn small" id="btn-panel">☰ Controls</button>
+          <button class="btn small" id="btn-dash">📊 Dashboard</button>
+          <button class="btn small" id="btn-back-world">← Global map</button>
+        </div>
+      </div>
+
+      <!-- ============ Control panel (floating) ============ -->
+      <aside class="panel" id="panel" aria-label="Controls">
+
+        <section class="block">
+          <h2>1. Traveler</h2>
+          <label class="sr-only" for="vehicle">Vehicle type</label>
+          <select id="vehicle"></select>
+          <div class="vehicle-preview" id="vehicle-preview" aria-label="3D preview of the selected vehicle"></div>
+          <p class="hint" id="vehicle-info"></p>
+          <p class="hint">Models are drawn larger than real scale so they stay visible on the map.</p>
+        </section>
+
+        <section class="block">
+          <h2>2. Plan a route</h2>
+          <div class="quick" id="quick-route" hidden>
+            <label class="field">From <select id="qr-from"></select></label>
+            <label class="field">To <select id="qr-to"></select></label>
+            <button id="qr-go" class="btn primary wide">Plan route between craters</button>
+          </div>
+          <p class="hint">Or click any two points on the terrain (A, then B).</p>
+          <input type="range" id="risk" min="0" max="100" value="60" aria-label="Route priority: fastest to safest">
+          <div class="range-labels"><span>Fastest</span><span>Lowest risk</span></div>
+          <p class="hint" id="risk-info"></p>
+        </section>
+
+        <section class="block">
+          <h2>3. Journey</h2>
+          <div class="btn-row">
+            <button id="btn-play" class="btn primary" disabled>▶ Play journey</button>
+            <button id="btn-clear" class="btn">Clear route</button>
+          </div>
+          <label class="check"><input type="checkbox" id="chk-follow" checked> Camera follows the traveler</label>
+          <button id="btn-reset-view" class="btn small">Reset camera</button>
+        </section>
+
+        <section class="block">
+          <h2>4. Mission conditions</h2>
+          <label class="field">Local solar time: <b id="env-hour-val">10:00</b>
+            <input type="range" id="env-hour" min="0" max="24" step="0.25" value="10" aria-label="Local solar time">
+          </label>
+          <p class="hint" id="env-sun-info"></p>
+          <label class="field">Season (Ls): <b id="env-ls-val">90°</b>
+            <input type="range" id="env-ls" min="0" max="355" step="5" value="90" aria-label="Season">
+          </label>
+          <label class="field">Dust in the air (τ): <b id="env-tau-val">0.5</b>
+            <input type="range" id="env-tau" min="0.3" max="5" step="0.1" value="0.5" aria-label="Dust opacity">
+          </label>
+          <label class="field">Earth distance: <b id="env-au-val">1.5 AU</b>
+            <input type="range" id="env-au" min="0.4" max="2.6" step="0.05" value="1.5" aria-label="Earth distance">
+          </label>
+          <p class="hint" id="env-delay"></p>
+          <label class="check"><input type="checkbox" id="env-spe"> Solar particle storm scenario (assumed)</label>
+          <div class="btn-row wrap">
+            <button class="btn small" id="preset-clear">☀ Clear day</button>
+            <button class="btn small" id="preset-storm">🌪 Dust storm</button>
+            <button class="btn small" id="preset-night">🌙 Night</button>
+          </div>
+        </section>
+
+        <section class="block">
+          <h2>Map layers</h2>
+          <label class="field">Overlay
+            <select id="overlay-mode">
+              <option value="difficulty">Terrain difficulty</option>
+              <option value="sun">Sun, shadow and UV</option>
+              <option value="shield">Radiation shielding</option>
+              <option value="temp">Temperature</option>
+              <option value="none">None (surface only)</option>
+            </select>
+          </label>
+          <label class="check"><input type="checkbox" id="chk-contours" checked> Contour lines</label>
+          <label class="check"><input type="checkbox" id="chk-labels" checked> Crater labels</label>
+          <label class="field">Relief height: <b id="exag-val">3×</b>
+            <input type="range" id="exag" min="1" max="6" step="0.5" value="3" aria-label="Relief exaggeration">
+          </label>
+          <label class="field">Detail quality
+            <select id="quality">
+              <option value="256">Standard (256 grid)</option>
+              <option value="384">High (384 grid)</option>
+              <option value="512">Ultra (512 grid, slower)</option>
+            </select>
+          </label>
+          <p class="hint">Relief height only changes how tall the land looks. Calculations use real heights.</p>
+        </section>
+
+        <section class="block" id="legend-terrain-wrap">
+          <h2>Legend</h2>
+          <ul class="legend" id="legend-terrain"></ul>
+          <div id="legend-mode"></div>
+        </section>
+
+        <section class="block">
+          <h2>Route legend</h2>
+          <ul class="legend">
+            <li><i class="dot" style="background:#3ddc84"></i> Route: easy ground</li>
+            <li><i class="dot" style="background:#ffd23f"></i> Route: medium difficulty</li>
+            <li><i class="dot" style="background:#ff4d4d"></i> Route: risky ground</li>
+            <li><i class="dot" style="background:#ffffff;opacity:.6"></i> Shortest route (for comparison)</li>
+            <li><i class="dot" style="background:#ffb347;opacity:.7"></i> Ring = position uncertainty</li>
+            <li><i class="dot" style="background:#4fc3ff"></i> A = start &nbsp; <i class="dot" style="background:#ff4fd8"></i> B = destination</li>
+          </ul>
+        </section>
+
+        <section class="block">
+          <h2>Your own data</h2>
+          <details class="details">
+            <summary>Load a heightmap PNG</summary>
+            <p class="hint">Grayscale PNG: dark = low, bright = high. Tell the map what the colors mean.</p>
+            <input type="file" id="file-hm" accept="image/png,image/jpeg">
+            <label class="field">Lowest elevation (m) <input type="number" id="in-min" value="-2800"></label>
+            <label class="field">Highest elevation (m) <input type="number" id="in-max" value="-2000"></label>
+            <label class="field">Map width (km) <input type="number" id="in-width" value="24" min="0.1" step="0.1"></label>
+            <button id="btn-load-hm" class="btn small">Load heightmap</button>
+            <p class="hint" id="hm-msg"></p>
+          </details>
+        </section>
+
+        <section class="block">
+          <h2>How to use</h2>
+          <ol class="howto">
+            <li>Pick a site on the global map and press "Open 3D mission".</li>
+            <li>Pick two craters and press "Plan route", or click two points on the terrain.</li>
+            <li>Change the time, dust and season: the hazards update.</li>
+            <li>Press Play to follow the live tracking panel.</li>
+          </ol>
+          <p class="hint">Prototype for planning support only. It cannot guarantee safety, and the results depend on the quality of the data.</p>
+        </section>
+      </aside>
+
+      <!-- ============ Dashboard (bottom sheet) ============ -->
+      <section class="dashboard" id="dashboard" aria-label="Route dashboard" hidden>
+        <div class="dash-left">
+          <h2>Route</h2>
+          <div class="cards">
+            <div class="card"><span class="label">Distance</span><strong id="m-dist">—</strong></div>
+            <div class="card"><span class="label">Est. travel time</span><strong id="m-time">—</strong></div>
+            <div class="card"><span class="label">Elevation gain</span><strong id="m-gain">—</strong></div>
+            <div class="card"><span class="label">Max slope</span><strong id="m-slope">—</strong></div>
+            <div class="card"><span class="label">Hazard zones</span><strong id="m-zones">—</strong></div>
+            <div class="card"><span class="label">Average risk</span><strong id="m-risk">—</strong></div>
+            <div class="card"><span class="label">Est. energy</span><strong id="m-energy">—</strong></div>
+            <div class="card"><span class="label">Max slip (est.)</span><strong id="m-slip">—</strong></div>
+            <div class="card"><span class="label">Max position error</span><strong id="m-sigma">—</strong></div>
+          </div>
+          <h2>Environment and hazards (estimates)</h2>
+          <div class="cards">
+            <div class="card"><span class="label">Radiation dose</span><strong id="h-dose">—</strong></div>
+            <div class="card"><span class="label">Peak UV index</span><strong id="h-uv">—</strong></div>
+            <div class="card"><span class="label">Temperature range</span><strong id="h-temp">—</strong></div>
+            <div class="card"><span class="label">Time in shade / night</span><strong id="h-shade">—</strong></div>
+            <div class="card"><span class="label" id="h-supply-label">Battery at arrival</span><strong id="h-supply">—</strong></div>
+            <div class="card"><span class="label">Signal delay (one way)</span><strong id="h-delay">—</strong></div>
+          </div>
+          <ul class="alert-list" id="alerts"></ul>
+          <table class="compare" id="compare">
+            <thead><tr><th>Route comparison</th><th>Selected</th><th>Shortest</th></tr></thead>
+            <tbody><tr><td colspan="3" class="muted">Choose a start and a destination to compare routes.</td></tr></tbody>
+          </table>
+          <p class="verdict" id="verdict"></p>
+          <p class="hint" id="assumption"></p>
+          <details class="details">
+            <summary>Model assumptions</summary>
+            <div id="assumptions-body"></div>
+          </details>
+          <details class="details">
+            <summary>Astronaut needs: what this prototype covers</summary>
+            <div id="needs-body"></div>
+          </details>
+          <p class="hint" id="data-note"></p>
+        </div>
+        <div class="dash-right">
+          <h2>Elevation profile</h2>
+          <div class="chart-wrap"><canvas id="elevChart"></canvas></div>
+          <h2 class="gap">Slip and position accuracy</h2>
+          <div class="chart-wrap"><canvas id="accChart"></canvas></div>
+          <h2 class="gap">UV and temperature along the route</h2>
+          <div class="chart-wrap"><canvas id="hazChart"></canvas></div>
+        </div>
+        <div class="team">
+          <img class="team-logo" src="logo.svg" alt="Starseekers team logo" onerror="this.style.display='none'">
+          <p>Martian Map is a prototype for risk-aware route planning on Mars, built by <strong>Team Starseekers</strong>.
+            Imagery and elevation: NASA / JPL / USGS / MOLA / CTX (credit: NASA/JPL/MSSS/The Murray Lab for CTX).</p>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+  <script>
+    // Friendly warnings if the page was opened directly from the disk, or did not start
+    if (location.protocol === 'file:') document.getElementById('file-warning').hidden = false;
+    setTimeout(function () {
+      if (window.__mmReady) return;
+      var el = document.getElementById('start-warning'), msg;
+      if (!window.__mmStarted) {
+        msg = 'The app could not start. Common reasons: (1) the page was opened by double-clicking the file instead of through a hosting site or Live Server; ' +
+              '(2) the Three.js library from cdn.jsdelivr.net is blocked or you are offline; (3) your browser has WebGL turned off. ' +
+              'Press F12 and open the Console tab to see the exact error.';
+      } else {
+        msg = 'Still starting. If nothing changes, press F12 and check the Console tab.';
+      }
+      el.textContent = msg;
+      el.hidden = false;
+    }, 9000);
+    var iv = setInterval(function () {
+      if (window.__mmReady) { document.getElementById('start-warning').hidden = true; clearInterval(iv); }
+    }, 500);
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script type="module" src="script.js"></script>
+</body>
+</html>
