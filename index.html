@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Martian Map</title>
+  <meta name="description" content="Interactive 3D map of Mars for planning risk-aware routes.">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Three.js (3D) is loaded as an ES module through an import map -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <h1>Martian Map</h1>
+    </div>
+    <div class="badges">
+      <span class="badge" id="region-badge">Region: Jezero Crater</span>
+      <span class="badge" id="data-badge">Loading data…</span>
+    </div>
+  </header>
+
+  <div class="file-warning" id="file-warning" hidden>
+    This page must be opened through a local server (for example the VS Code "Live Server" extension) or a hosting site.
+    Opening index.html by double-clicking it will not work.
+  </div>
+
+  <main class="layout">
+
+    <!-- ============ Control panel ============ -->
+    <aside class="panel" aria-label="Controls">
+
+      <section class="block">
+        <h2>1. Vehicle</h2>
+        <label class="sr-only" for="vehicle">Vehicle type</label>
+        <select id="vehicle"></select>
+        <p class="hint" id="vehicle-info"></p>
+      </section>
+
+      <section class="block">
+        <h2>2. Route priority</h2>
+        <input type="range" id="risk" min="0" max="100" value="60" aria-label="Route priority: fastest to safest">
+        <div class="range-labels"><span>Fastest</span><span>Lowest risk</span></div>
+        <p class="hint" id="risk-info"></p>
+      </section>
+
+      <section class="block">
+        <h2>3. Journey</h2>
+        <div class="btn-row">
+          <button id="btn-play" class="btn primary" disabled>▶ Play journey</button>
+          <button id="btn-clear" class="btn">Clear route</button>
+        </div>
+        <label class="check"><input type="checkbox" id="chk-hazard"> Show hazard map on terrain</label>
+        <label class="check"><input type="checkbox" id="chk-follow" checked> Camera follows the traveler</label>
+        <button id="btn-reset-view" class="btn small">Reset camera</button>
+      </section>
+
+      <section class="block">
+        <h2>Legend</h2>
+        <ul class="legend">
+          <li><i class="dot" style="background:#3ddc84"></i> Easy terrain</li>
+          <li><i class="dot" style="background:#ffd23f"></i> Medium difficulty</li>
+          <li><i class="dot" style="background:#ff4d4d"></i> Risky terrain</li>
+          <li><i class="dot" style="background:#ffffff;opacity:.6"></i> Shortest route (for comparison)</li>
+          <li><i class="dot" style="background:#4fc3ff"></i> A = start &nbsp; <i class="dot" style="background:#ff4fd8"></i> B = destination</li>
+        </ul>
+      </section>
+
+      <section class="block">
+        <h2>How to use</h2>
+        <ol class="howto">
+          <li>Click on the terrain to place the start point (A).</li>
+          <li>Click again to place the destination (B).</li>
+          <li>Move the slider or change the vehicle: the route updates instantly.</li>
+          <li>Drag to rotate, scroll to zoom, right-drag to pan.</li>
+        </ol>
+        <p class="hint">Prototype for planning support only. It cannot guarantee safety, and the results depend on the quality of the data.</p>
+      </section>
+    </aside>
+
+    <!-- ============ 3D view ============ -->
+    <section class="viewport" id="viewport" aria-label="3D terrain view">
+      <div class="status info" id="status">Loading terrain…</div>
+      <div class="sim-hud" id="sim-hud" hidden></div>
+      <div class="loading" id="loading">Loading terrain…</div>
+    </section>
+
+    <!-- ============ Dashboard ============ -->
+    <section class="dashboard" aria-label="Route dashboard">
+      <div class="dash-left">
+        <div class="cards">
+          <div class="card"><span class="label">Distance</span><strong id="m-dist">—</strong></div>
+          <div class="card"><span class="label">Est. travel time</span><strong id="m-time">—</strong></div>
+          <div class="card"><span class="label">Elevation gain</span><strong id="m-gain">—</strong></div>
+          <div class="card"><span class="label">Max slope</span><strong id="m-slope">—</strong></div>
+          <div class="card"><span class="label">Hazard zones</span><strong id="m-zones">—</strong></div>
+          <div class="card"><span class="label">Average risk</span><strong id="m-risk">—</strong></div>
+        </div>
+        <table class="compare" id="compare">
+          <thead><tr><th>Route comparison</th><th>Selected</th><th>Shortest</th></tr></thead>
+          <tbody><tr><td colspan="3" class="muted">Choose a start and a destination to compare routes.</td></tr></tbody>
+        </table>
+        <p class="verdict" id="verdict"></p>
+        <p class="hint" id="assumption"></p>
+      </div>
+      <div class="dash-right">
+        <h2>Elevation profile</h2>
+        <div class="chart-wrap"><canvas id="elevChart"></canvas></div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Friendly warning if the page was opened directly from the disk
+    if (location.protocol === 'file:') document.getElementById('file-warning').hidden = false;
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script type="module" src="script.js"></script>
+</body>
+</html>
