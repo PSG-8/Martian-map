@@ -195,13 +195,18 @@ async function readImage(lat0, lon0, km, size) {
   const tiles = new Map();
   let got = 0;
   await TIFF.pool([...need.values()], 16, async ([r, c]) => {
-    try {
-      const resp = await fetch(`${CTX_TILES}${L}/${r}/${c}`, { headers: { 'User-Agent': 'MartianMap/1.0 (MR_PSG, Team Starseekers; educational)' } });
-      if (!resp.ok) return;
-      const buf = Buffer.from(await resp.arrayBuffer());
-      if (buf.readUInt32BE(0) !== 0x89504e47) return;
-      tiles.set(`${r}/${c}`, PNG.decode(buf)); got++;
-    } catch (e) { /* missing tile */ }
+    let best = null;
+    for (let attempt = 0; attempt < 2 && !(best && best.complete); attempt++) {
+      try {
+        const resp = await fetch(`${CTX_TILES}${L}/${r}/${c}`, { headers: { 'User-Agent': 'MartianMap/1.0 (MR_PSG, Team Starseekers; educational)' } });
+        if (!resp.ok) continue;
+        const buf = Buffer.from(await resp.arrayBuffer());
+        if (buf.length < 8 || buf.readUInt32BE(0) !== 0x89504e47) continue;
+        const d = PNG.decode(buf);
+        if (!best || d.complete) best = d;
+      } catch (e) { /* try again */ }
+    }
+    if (best) { tiles.set(`${r}/${c}`, best); got++; }
   });
   const gray = new Uint8Array(size * size), valid = new Uint8Array(size * size);
   const px = (la, lo) => {

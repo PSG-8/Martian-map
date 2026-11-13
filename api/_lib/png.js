@@ -55,10 +55,12 @@ function decode(buf) {
   if (depth !== 8 || interlace) throw new Error('unsupported PNG layout');
   const ch = { 0: 1, 2: 3, 3: 1, 4: 2, 6: 4 }[ctype];
   // some tile servers end the zlib stream early: SYNC_FLUSH still returns all complete data
-  const raw = zlib.inflateSync(Buffer.concat(idat), { finishFlush: zlib.constants.Z_SYNC_FLUSH });
-  if (raw.length < (width * ch + 1) * height) throw new Error('truncated PNG');
+  let raw;
+  try { raw = zlib.inflateSync(Buffer.concat(idat), { finishFlush: zlib.constants.Z_SYNC_FLUSH }); }
+  catch (e) { raw = Buffer.alloc(0); }
+  const fullRows = Math.min(height, Math.floor(raw.length / (width * ch + 1)));   // rows we really have
   const stride = width * ch, img = Buffer.alloc(stride * height);
-  for (let y = 0; y < height; y++) {
+  for (let y = 0; y < fullRows; y++) {
     const f = raw[y * (stride + 1)], src = y * (stride + 1) + 1, dst = y * stride, prv = dst - stride;
     for (let x = 0; x < stride; x++) {
       const a = x >= ch ? img[dst + x - ch] : 0, b = y > 0 ? img[prv + x] : 0, c = (x >= ch && y > 0) ? img[prv + x - ch] : 0;
@@ -70,6 +72,10 @@ function decode(buf) {
   }
   const n = width * height, gray = new Uint8Array(n);
   let alpha = null;
+  const finish = () => {                                  // rows missing from a cut-off file count as no data
+    if (fullRows < height) { if (!alpha) alpha = new Uint8Array(n).fill(255); alpha.fill(0, fullRows * width); }
+    return { width, height, gray, alpha, complete: fullRows === height };
+  };
   if (ctype === 0) { gray.set(img); if (trns) { alpha = new Uint8Array(n).fill(255); const t = trns.readUInt16BE(0); for (let i = 0; i < n; i++) if (gray[i] === t) alpha[i] = 0; } }
   else if (ctype === 4) { alpha = new Uint8Array(n); for (let i = 0; i < n; i++) { gray[i] = img[2 * i]; alpha[i] = img[2 * i + 1]; } }
   else if (ctype === 2 || ctype === 6) {
@@ -79,7 +85,7 @@ function decode(buf) {
     if (trns) alpha = new Uint8Array(n);
     for (let i = 0; i < n; i++) { const k = img[i] * 3; gray[i] = (palette[k] * 77 + palette[k + 1] * 150 + palette[k + 2] * 29) >> 8; if (alpha) alpha[i] = img[i] < trns.length ? trns[img[i]] : 255; }
   }
-  return { width, height, gray, alpha };
+  return finish();
 }
 
 module.exports = { encodeRGB, decode };
