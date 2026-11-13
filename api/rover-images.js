@@ -64,12 +64,16 @@ module.exports = async function handler(req, res) {
       headers: { 'Accept': 'application/json', 'User-Agent': 'MartianMap/1.0 (Team Starseekers; educational)' }
     });
     clearTimeout(timer);
+    if (q.debug === '1') {
+      const text = await r.text();
+      return send(200, { status: r.status, url: r.url, type: r.headers.get('content-type'), head: text.slice(0, 1500) }, 'no-store');
+    }
     if (!r.ok) return send(502, { error: `NASA answered ${r.status}` }, 'public, s-maxage=60');
     const images = normalize(rover, await r.json()).slice(0, num);
     return send(200, { rover, fetched: new Date().toISOString(), source: 'NASA/JPL-Caltech raw images', images },
       'public, s-maxage=1800, stale-while-revalidate=86400');
   } catch (e) {
-    return send(502, { error: 'Could not reach NASA right now.' }, 'public, s-maxage=60');
+    return send(502, { error: 'Could not reach NASA right now.', detail: q.debug === '1' ? String(e && (e.cause && e.cause.code || e.message)) : undefined }, 'public, s-maxage=60');
   }
 };
 
