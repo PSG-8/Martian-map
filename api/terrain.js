@@ -146,11 +146,18 @@ async function readDEM(lat0, lon0, km, n) {
 
   // 2) global HRSC + MOLA DEM, using an overview when the area is large
   const H = DEMS.hrsc;
-  const info = await TIFF.open(H.url);
-  const cand = info.ifds.filter(o => !o.tiled && o.compression === 1 && o.width > 1000);
-  let ifd = cand[0];
-  for (const o of cand) if (H.res * o.factor <= cellM * 1.4 && o.factor > ifd.factor) ifd = o;
-  const resDeg = info.main.scale[0] * ifd.factor, lonL = info.main.tie[3], latT = info.main.tie[4];
+  const main = await TIFF.open(H.url);
+  // overviews (2x, 4x, ...) live in the companion .ovr file
+  let levels = [{ info: main, ifd: main.main, factor: 1 }];
+  try {
+    const ovr = await TIFF.open(H.url + '.ovr');
+    for (const o of ovr.ifds) levels.push({ info: Object.assign({}, ovr, { nodata: main.nodata }), ifd: o, factor: main.main.width / o.width });
+  } catch (e) { /* no overviews: full resolution only */ }
+  levels = levels.filter(l => !l.ifd.tiled && l.ifd.compression === 1 && l.ifd.width > 1000);
+  let pick = levels[0];
+  for (const l of levels) if (H.res * l.factor <= cellM * 1.4 && l.factor > pick.factor) pick = l;
+  const info = pick.info, ifd = pick.ifd;
+  const resDeg = main.main.scale[0] * pick.factor, lonL = main.main.tie[3], latT = main.main.tie[4];
   const toPix = (la, lo) => [(lo - lonL) / resDeg, (latT - la) / resDeg];
   let c0 = Infinity, c1 = -Infinity, r0 = Infinity, r1 = -Infinity;
   for (let i = 0; i < n * n; i++) {
@@ -164,7 +171,7 @@ async function readDEM(lat0, lon0, km, n) {
     const [c, r] = toPix(pts[2 * i], pts[2 * i + 1]);
     g[i] = sampleWin(win, c, r);
   }
-  return { grid: fillGaps(g, n), source: H.name, resM: Math.round(H.res * ifd.factor), key: 'hrsc' };
+  return { grid: fillGaps(g, n), source: H.name, resM: Math.round(H.res * pick.factor), key: 'hrsc' };
 }
 
 /* ---------- orbital image (CTX) ---------- */

@@ -54,7 +54,9 @@ function decode(buf) {
   }
   if (depth !== 8 || interlace) throw new Error('unsupported PNG layout');
   const ch = { 0: 1, 2: 3, 3: 1, 4: 2, 6: 4 }[ctype];
-  const raw = zlib.inflateSync(Buffer.concat(idat));
+  // some tile servers end the zlib stream early: SYNC_FLUSH still returns all complete data
+  const raw = zlib.inflateSync(Buffer.concat(idat), { finishFlush: zlib.constants.Z_SYNC_FLUSH });
+  if (raw.length < (width * ch + 1) * height) throw new Error('truncated PNG');
   const stride = width * ch, img = Buffer.alloc(stride * height);
   for (let y = 0; y < height; y++) {
     const f = raw[y * (stride + 1)], src = y * (stride + 1) + 1, dst = y * stride, prv = dst - stride;
