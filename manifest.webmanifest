@@ -1,0 +1,20 @@
+{
+  "name": "Martian Map · Team Starseekers",
+  "short_name": "Martian Map",
+  "description": "Global Mars map, 3D risk-aware route planning, live Mars time and the newest NASA rover images.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d0807",
+  "theme_color": "#160c0a",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "logo-icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "shortcuts": [
+    { "name": "Mars today", "url": "./#today", "description": "Live Mars clock and the newest rover images" }
+  ]
+}

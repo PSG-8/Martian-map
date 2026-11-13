@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { buildTravelerModel, animateModel, celebrateModel, resetCelebration, loadOptionalModels, makeMarsEnv, applyModelEnv, CELEBRATIONS, CELEBRATION_TEXT } from './models.js?v=5';
-import * as HZ from './hazards.js?v=5';
-import { initWorldMap, SITES } from './worldmap.js?v=5';
+import { buildTravelerModel, animateModel, celebrateModel, resetCelebration, loadOptionalModels, makeMarsEnv, applyModelEnv, CELEBRATIONS, CELEBRATION_TEXT } from './models.js?v=6';
+import * as HZ from './hazards.js?v=6';
+import { initWorldMap, SITES } from './worldmap.js?v=6';
+import { mars24, earthMars } from './marsclock.js?v=6';
 
 window.__mmStarted = true; // tells index.html that this file loaded (used by the start-up check)
 
@@ -1858,19 +1859,34 @@ async function main() {
   $('preset-clear').addEventListener('click', () => setEnv({ hour: 11, tau: 0.5, spe: false }));
   $('preset-storm').addEventListener('click', () => setEnv({ hour: 12, tau: 4.5 }));
   $('preset-night').addEventListener('click', () => setEnv({ hour: 23 }));
+  // today's real season and Earth distance (computed in marsclock.js, no internet needed)
+  const todayEnv = (ls, au) => ({ ls: Math.round(ls) % 360, au: clamp(Math.round(au * 100) / 100, 0.4, 2.6) });
+  $('preset-today').addEventListener('click', () => {
+    const now = new Date();
+    setEnv(todayEnv(mars24(now).ls, earthMars(now).au));
+    setStatus(`Conditions set to today on Mars: season Ls ${env.ls}°, Earth ${env.au.toFixed(2)} AU away.`, 'ok');
+  });
 
   /* ----- Views: global map <-> 3D mission, panels, full screen ----- */
   const worldmap = initWorldMap({ onOpen: site => loadSite(site) });
   function showView(v) {
     currentView = v;
+    document.body.dataset.view = v;
     $('view-world').hidden = v !== 'world';
     $('view-3d').hidden = v !== '3d';
+    $('view-today').hidden = v !== 'today';
     $('tab-world').classList.toggle('active', v === 'world');
     $('tab-3d').classList.toggle('active', v === '3d');
+    $('tab-today').classList.toggle('active', v === 'today');
+    try { history.replaceState(null, '', v === 'world' ? location.pathname : '#' + v); } catch (e) { /* ignore */ }
     if (v === 'world') {
       worldmap.show();
       $('data-badge').textContent = 'Global map';
       $('region-badge').textContent = 'Region: whole planet';
+    } else if (v === 'today') {
+      $('data-badge').textContent = 'Live: NASA data';
+      $('region-badge').textContent = 'Mars today';
+      if (window.MarsToday) window.MarsToday.show();
     } else {
       resize();
       if (T) {
@@ -2004,7 +2020,18 @@ async function main() {
   updateInfoTexts();
   $('exag').value = CONFIG.exaggeration;
   $('exag-val').textContent = `${CONFIG.exaggeration}×`;
-  showView('world');
+  // small API used by the "Mars today" page (marstoday.js)
+  window.MM = {
+    showView,
+    useToday(ls, au) {
+      setEnv(todayEnv(ls, au));
+      const msg = () => setStatus(`Conditions set to today on Mars: season Ls ${env.ls}°, Earth ${env.au.toFixed(2)} AU away.`, 'ok');
+      if (T) { showView('3d'); msg(); } else Promise.resolve(loadSite()).then(msg, () => {});
+    },
+    focusMission(m) { showView('world'); if (worldmap.focusMission) worldmap.focusMission(m); }
+  };
+  const startHash = (location.hash || '').slice(1);
+  showView(startHash === 'today' ? 'today' : 'world');
   applyEnvironment(true);
   window.__mmReady = true;
 }

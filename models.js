@@ -16,6 +16,7 @@
    ===================================================================== */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { drawOmanFlag, FLAG_RATIO } from './flag.js?v=6';
 
 /* ---------- Fine fabric / dust bump texture (small canvas, cheap) ---------- */
 let _fabric = null;
@@ -262,31 +263,19 @@ function buildCrewedRover() {
   return g;
 }
 
-/* ---------- Flag of Oman (simplified emblem) ---------- */
+/* ---------- Flag of Oman (official 4:7 layout, see flag.js) ---------- */
 let _flagTex = null;
 function omanFlagTexture() {
   if (_flagTex) return _flagTex;
   if (typeof document === 'undefined') return null;
-  const c = document.createElement('canvas');
-  c.width = 600; c.height = 400;
-  const g = c.getContext('2d');
-  g.fillStyle = '#ffffff'; g.fillRect(0, 0, 600, 134);          // white stripe (top)
-  g.fillStyle = '#db161b'; g.fillRect(0, 133, 600, 134);        // red stripe (middle)
-  g.fillStyle = '#008000'; g.fillRect(0, 266, 600, 134);        // green stripe (bottom)
-  g.fillStyle = '#db161b'; g.fillRect(0, 0, 150, 400);          // red band at the pole side
-  g.strokeStyle = '#ffffff'; g.fillStyle = '#ffffff'; g.lineCap = 'round';
-  g.lineWidth = 7;                                              // simplified emblem: crossed swords and a curved dagger
-  g.beginPath(); g.moveTo(32, 28); g.lineTo(118, 112); g.moveTo(118, 28); g.lineTo(32, 112); g.stroke();
-  g.lineWidth = 6;
-  g.beginPath(); g.arc(75, 86, 30, 0.2 * Math.PI, 0.8 * Math.PI); g.stroke();
-  g.beginPath(); g.arc(75, 68, 7, 0, Math.PI * 2); g.fill();
+  const c = drawOmanFlag(document.createElement('canvas'), 896);
   _flagTex = new THREE.CanvasTexture(c);
   _flagTex.colorSpace = THREE.SRGBColorSpace;
-  _flagTex.anisotropy = 4;
+  _flagTex.anisotropy = 8;
   return _flagTex;
 }
 
-const FLAG_W = 2.5, FLAG_H = 1.6, POLE_H = 5.4;
+const FLAG_W = 2.6, FLAG_H = FLAG_W / FLAG_RATIO, POLE_H = 5.4;
 function buildFlag() {
   const grp = new THREE.Group();
   const pole = cyl(0.05, 0.05, POLE_H, MAT.alu, 0, POLE_H / 2, 0, 0, 0, 0, 12);
@@ -390,7 +379,7 @@ function buildAstronaut() {
   // Oman flag patch on the shoulder (the astronaut's left)
   const patchTex = omanFlagTexture();
   if (patchTex) {
-    const patch = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.2), new THREE.MeshStandardMaterial({ map: patchTex, roughness: 0.9 }));
+    const patch = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.3 / FLAG_RATIO), new THREE.MeshStandardMaterial({ map: patchTex, roughness: 0.9 }));
     patch.position.set(0.02, -0.2, -0.19);
     patch.rotation.y = Math.PI;
     armR.add(patch);
