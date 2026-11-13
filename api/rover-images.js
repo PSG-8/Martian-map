@@ -59,7 +59,8 @@ module.exports = async function handler(req, res) {
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), 9000);
     // Curiosity's feed mixes thumbnails in, so ask for more and keep the full frames
-    const r = await fetch(SOURCES[rover](rover === 'curiosity' ? num * 3 : num), {
+    const tryUrl = q.debug === '1' && typeof q.try === 'string' && q.try.startsWith('https://mars.nasa.gov/') ? q.try : null;
+    const r = await fetch(tryUrl || SOURCES[rover](rover === 'curiosity' ? num * 3 : num), {
       signal: ctl.signal,
       headers: { 'Accept': 'application/json', 'User-Agent': 'MartianMap/1.0 (Team Starseekers; educational)' }
     });
