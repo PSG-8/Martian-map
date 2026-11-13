@@ -7,8 +7,8 @@
    ===================================================================== */
 
 const SOURCES = {
-  perseverance: n => `https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&num=${n}&page=0&order=sol+desc&extended=sample_type::full,`,
-  curiosity: n => `https://mars.nasa.gov/api/v1/raw_image_items/?order=sol%20desc,date_taken%20desc&per_page=${n}&page=0&condition_1=msl:mission`
+  perseverance: n => `https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&num=${n}&page=0&order=sol+desc`,
+  curiosity: n => `https://mars.nasa.gov/api/v1/raw_image_items/?order=sol%20desc,date_taken%20desc&per_page=${n}&page=0&condition_1=msl:mission&extended=thumbnail::sample_type::noteq`
 };
 
 const pick = (...v) => v.find(x => typeof x === 'string' && x.length > 0) || '';
@@ -19,7 +19,7 @@ function normalize(rover, json) {
   const out = [];
   for (const it of list) {
     if (!it || typeof it !== 'object') continue;
-    const type = String(it.sample_type || '').toLowerCase();
+    const type = String(it.sample_type || (it.extended && it.extended.sample_type) || '').toLowerCase();
     if (type.includes('thumb') || it.is_thumbnail === true) continue;
     const files = it.image_files || {};
     const full = abs(pick(files.full_res, files.large, it.https_url, it.url));
@@ -58,23 +58,18 @@ module.exports = async function handler(req, res) {
   try {
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), 9000);
-    // Curiosity's feed mixes thumbnails in, so ask for more and keep the full frames
-    const tryUrl = q.debug === '1' && typeof q.try === 'string' && q.try.startsWith('https://mars.nasa.gov/') ? q.try : null;
-    const r = await fetch(tryUrl || SOURCES[rover](rover === 'curiosity' ? num * 3 : num), {
+    // thumbnails are filtered out below, so ask for a few more than we show
+    const r = await fetch(SOURCES[rover](num * 2), {
       signal: ctl.signal,
       headers: { 'Accept': 'application/json', 'User-Agent': 'MartianMap/1.0 (Team Starseekers; educational)' }
     });
     clearTimeout(timer);
-    if (q.debug === '1') {
-      const text = await r.text();
-      return send(200, { status: r.status, url: r.url, type: r.headers.get('content-type'), head: text.slice(0, 1500) }, 'no-store');
-    }
     if (!r.ok) return send(502, { error: `NASA answered ${r.status}` }, 'public, s-maxage=60');
     const images = normalize(rover, await r.json()).slice(0, num);
     return send(200, { rover, fetched: new Date().toISOString(), source: 'NASA/JPL-Caltech raw images', images },
       'public, s-maxage=1800, stale-while-revalidate=86400');
   } catch (e) {
-    return send(502, { error: 'Could not reach NASA right now.', detail: q.debug === '1' ? String(e && (e.cause && e.cause.code || e.message)) : undefined }, 'public, s-maxage=60');
+    return send(502, { error: 'Could not reach NASA right now.'}, 'public, s-maxage=60');
   }
 };
 

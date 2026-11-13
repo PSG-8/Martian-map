@@ -31,14 +31,14 @@ async function cached(key, fn) {
 
 /* ---------- Rover raw images ---------- */
 const DIRECT = {
-  perseverance: 'https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&num=24&page=0&order=sol+desc&extended=sample_type::full,',
-  curiosity: 'https://mars.nasa.gov/api/v1/raw_image_items/?order=sol%20desc,date_taken%20desc&per_page=60&page=0&condition_1=msl:mission'
+  perseverance: 'https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&num=40&page=0&order=sol+desc',
+  curiosity: 'https://mars.nasa.gov/api/v1/raw_image_items/?order=sol%20desc,date_taken%20desc&per_page=40&page=0&condition_1=msl:mission&extended=thumbnail::sample_type::noteq'
 };
 const pick = (...v) => v.find(x => typeof x === 'string' && x.length > 0) || '';
 const abs = u => (u && u.startsWith('/') ? 'https://mars.nasa.gov' + u : u);
 function normalizeDirect(rover, json) {
   const list = (json && (json.images || json.items)) || [];
-  return list.filter(it => it && it.is_thumbnail !== true && !String(it.sample_type || '').toLowerCase().includes('thumb')).map(it => {
+  return list.filter(it => it && it.is_thumbnail !== true && !String(it.sample_type || (it.extended && it.extended.sample_type) || '').toLowerCase().includes('thumb')).map(it => {
     const f = it.image_files || {}, cam = it.camera || {};
     return {
       rover, sol: +it.sol, date: pick(it.date_taken_utc, it.date_taken), camera: pick(cam.instrument, it.instrument),
