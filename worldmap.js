@@ -194,6 +194,7 @@ export function initWorldMap({ onOpen }) {
   setStatus('');
   return {
     show() { setTimeout(() => map.invalidateSize(), 50); },
+    hide() { map.stop(); },                                  // stop a running fly animation before the map is hidden
     invalidate() { map.invalidateSize(); },
     focusMission(mi) {
       setTimeout(() => goTo([mi.lat, lonToLng(mi.lonE)], 5), 60);

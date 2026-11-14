@@ -2112,6 +2112,7 @@ async function main() {
     $('tab-3d').classList.toggle('active', v === '3d');
     $('tab-today').classList.toggle('active', v === 'today');
     try { history.replaceState(null, '', v === 'world' ? location.pathname : '#' + v); } catch (e) { /* ignore */ }
+    if (v !== 'world' && worldmap.hide) worldmap.hide();
     if (v === 'world') {
       worldmap.show();
       $('data-badge').textContent = 'Global map';
