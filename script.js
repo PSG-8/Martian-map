@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { buildTravelerModel, animateModel, celebrateModel, resetCelebration, loadOptionalModels, makeMarsEnv, applyModelEnv, CELEBRATIONS, CELEBRATION_TEXT } from './models.js?v=6';
-import * as HZ from './hazards.js?v=6';
-import { initWorldMap, SITES } from './worldmap.js?v=6';
-import { mars24, earthMars } from './marsclock.js?v=6';
-import { MotionRig, Dust } from './physics.js?v=6';
+import { buildTravelerModel, animateModel, celebrateModel, resetCelebration, loadOptionalModels, makeMarsEnv, applyModelEnv, CELEBRATIONS, CELEBRATION_TEXT, celebrationTrack, BEAT, gaitPose } from './models.js?v=7';
+import * as HZ from './hazards.js?v=7';
+import { initWorldMap, SITES } from './worldmap.js?v=7';
+import { mars24, earthMars } from './marsclock.js?v=7';
+import { MotionRig, Dust } from './physics.js?v=7';
+import { MarsSound } from './sound.js?v=7';
+const sound = new MarsSound();
 
 window.__mmStarted = true; // tells index.html that this file loaded (used by the start-up check)
 
@@ -251,9 +253,12 @@ function detectBasins(T, max = 4) {
 }
 
 /* ---------------------------------------------------------------------
-   A* pathfinding
-   cost of a step = real 3D distance * (1 + w * riskGain * difficulty^2)
-   w = 0  -> shortest route      w = 1 -> strongly avoids difficult ground
+   A* pathfinding: the EASIEST route
+   cost of a step = real 3D distance * (1 + w * penalty)
+   penalty = riskGain * difficulty^2           (slope + roughness + soft ground of the cells)
+           + 6 * (step slope / vehicle limit)^4  (climbing or descending close to the limit is avoided hard)
+           + 3 * soft^2                        (sand traps: wheels and boots slip)
+   w = 0  -> shortest route      w = 1 -> strongly avoids difficult ground (default 0.85)
    Cells steeper than the vehicle limit are never entered.
    --------------------------------------------------------------------- */
 class MinHeap {
@@ -319,10 +324,7 @@ function findRoute(T, start, end, vehicle, w) {
       if (closed[ni] || (blocked(ni) && ni !== end)) continue;
       if (dx && dy && (blocked(cy * n + nx) || blocked(ny * n + cx))) continue; // do not cut corners through steep cells
 
-      const run = Math.hypot(dx, dy) * cell;
-      const d3 = Math.hypot(run, h[ni] - h[cur]);
-      const dAvg = (diff[cur] + diff[ni]) / 2;
-      const ng = g[cur] + d3 * (1 + w * CONFIG.riskGain * dAvg * dAvg);
+      const ng = g[cur] + stepCost(T, cur, ni, dx, dy, vehicle, w);
       if (ng < g[ni]) {
         g[ni] = ng; prev[ni] = cur;
         open.push(ng + heuristic(nx, ny), ni);
@@ -334,6 +336,29 @@ function findRoute(T, start, end, vehicle, w) {
   const path = [];
   for (let i = end; i !== -1; i = prev[i]) path.push(i);
   return path.reverse();
+}
+
+function stepCost(T, a, b, dx, dy, v, w) {
+  const run = Math.hypot(dx, dy) * T.cell, dz = T.h[b] - T.h[a];
+  const d3 = Math.hypot(run, dz);
+  const dAvg = (T.diff[a] + T.diff[b]) / 2, sAvg = (T.soft[a] + T.soft[b]) / 2;
+  const sN = Math.atan2(Math.abs(dz), run) * 180 / Math.PI / v.maxSlope;
+  return d3 * (1 + w * (CONFIG.riskGain * dAvg * dAvg + 6 * sN * sN * sN * sN + 3 * sAvg * sAvg));
+}
+// total "effort" of a path with the same weights the planner uses (lower = easier)
+function pathCost(T, path, v, w) {
+  let c = 0;
+  for (let i = 1; i < path.length; i++) {
+    const a = path[i - 1], b = path[i];
+    c += stepCost(T, a, b, (b % T.n) - (a % T.n), ((b / T.n) | 0) - ((a / T.n) | 0), v, w);
+  }
+  return c;
+}
+// cells on the straight line between two cells (what "just go straight" would cross)
+function lineCells(n, a, b) {
+  const ax = a % n, ay = (a / n) | 0, bx = b % n, by = (b / n) | 0, N = Math.max(Math.abs(bx - ax), Math.abs(by - ay), 1), out = [];
+  for (let k = 0; k <= N; k++) out.push(Math.round(ay + (by - ay) * k / N) * n + Math.round(ax + (bx - ax) * k / N));
+  return out;
 }
 
 /* ---------------------------------------------------------------------
@@ -610,7 +635,7 @@ async function main() {
   const env = HZ.makeEnv();
   let svf = null, texImg = null, lastSource = null, currentView = 'world', lastRegionName = '', lastBadge = '';
   let pathCanvas = null;               // real rover traverse drawn over the terrain (set by drawTraverses)
-  const state = { celebrate: null, path: null, basePath: null, haz: null, bhaz: null, start: null, end: null, vehicle: 'astronaut', w: 0.6, route: null, base: null, playing: false, progress: 0, sim: null };
+  const state = { celebrate: null, path: null, basePath: null, haz: null, bhaz: null, start: null, end: null, vehicle: 'astronaut', w: 0.85, ask: false, redZones: [], inRed: -1, route: null, base: null, playing: false, progress: 0, sim: null };
   const baseCache = new Map();
   const DURATION = 18; // seconds the journey animation takes
 
@@ -912,6 +937,8 @@ async function main() {
     traveler.add(travelerModel);
     if (rig) { rig.setModel(travelerModel); if (traveler.visible) rig.snap(traveler.position.x, traveler.position.z, traveler.rotation.y); }
     else rig = new MotionRig(traveler, travelerModel, groundAt);
+    rig.gaitPose = gaitPose;                                   // SINBAD walking pose (models.js)
+    rig.onStep = slip => sound.step(slip);
   }
   setTravelerModel('astronaut');
 
@@ -1010,12 +1037,43 @@ async function main() {
     return pts.map(p => toWorld(p[0], p[1]));
   }
 
-  let routeMesh = null, baseMesh = null;
+  let routeMesh = null, baseMesh = null, hazardMesh = null, askMesh = null;
+  const warnSigns = [];
+  function dropMesh(m) { if (m) { scene.remove(m); m.geometry.dispose(); m.material.dispose(); } }
+  function removeAsk() { dropMesh(askMesh); askMesh = null; }
   function removeRibbons() {
-    for (const m of [routeMesh, baseMesh]) {
-      if (m) { scene.remove(m); m.geometry.dispose(); m.material.dispose(); }
+    for (const m of [routeMesh, baseMesh, hazardMesh]) dropMesh(m);
+    routeMesh = baseMesh = hazardMesh = null;
+    removeAsk();
+    for (const s of warnSigns) { scene.remove(s); s.material.map.dispose(); s.material.dispose(); }
+    warnSigns.length = 0;
+  }
+  // warning sign over each red stretch of the route: "⚠ 23° · slip 40%"
+  function warnTexture(line1, line2) {
+    const c = makeCanvas(256, 168), g = c.getContext('2d');
+    g.beginPath(); g.moveTo(128, 8); g.lineTo(212, 120); g.lineTo(44, 120); g.closePath();
+    g.fillStyle = '#ffd23f'; g.fill(); g.lineWidth = 9; g.strokeStyle = '#d7191c'; g.lineJoin = 'round'; g.stroke();
+    g.fillStyle = '#1a0d08'; g.font = 'bold 66px system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText('!', 128, 80);
+    g.fillStyle = 'rgba(20,8,6,0.82)'; g.fillRect(6, 126, 244, 40);
+    g.fillStyle = '#ffffff'; g.font = 'bold 25px system-ui, sans-serif';
+    g.fillText(line1 + (line2 ? ' · ' + line2 : ''), 128, 147);
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+  // red stretches of a path: [{i0, i1, maxSlope, maxSlip, len}] (path indices)
+  function findRedZones(m) {
+    const zones = []; let cur = null;
+    for (let i = 0; i < m.path.length; i++) {
+      const c = m.path[i], red = riskClass(T.diff[c]) === 2;
+      if (red) {
+        if (!cur) cur = { i0: i, i1: i, maxSlope: 0, maxSlip: 0 };
+        cur.i1 = i; cur.maxSlope = Math.max(cur.maxSlope, T.slope[c]); cur.maxSlip = Math.max(cur.maxSlip, m.slipArr[i]);
+      } else if (cur) { zones.push(cur); cur = null; }
     }
-    routeMesh = baseMesh = null;
+    if (cur) zones.push(cur);
+    for (const z of zones) z.len = m.cumDist[z.i1] - m.cumDist[z.i0];
+    return zones;
   }
 
   /* ----- Charts (Chart.js) ----- */
@@ -1129,8 +1187,8 @@ async function main() {
     const v = vehicle();
     $('vehicle-info').textContent = `Slope limit: ${v.maxSlope}°. Speed on flat ground: ${v.speed} m/s. Power: ${v.power.label}.`;
     const pct = Math.round(state.w * 100);
-    const name = pct === 0 ? 'Fastest route' : pct >= 90 ? 'Lowest-risk route' : pct < 40 ? 'Mostly fastest' : pct > 65 ? 'Mostly low-risk' : 'Balanced';
-    $('risk-info').textContent = `${name} (${pct}% weight on terrain risk)`;
+    const name = pct === 0 ? 'Shortest route' : pct >= 80 ? 'Easiest route (recommended)' : pct < 40 ? 'Mostly shortest' : pct > 65 ? 'Mostly easy' : 'Balanced';
+    $('risk-info').textContent = `${name} (${pct}% weight on difficult ground)`;
     $('assumption').textContent = `Estimates use assumed values (see "Model assumptions"). Travel time uses ${v.speed} m/s on flat ground, slower on steep or soft ground.`;
   }
 
@@ -1211,7 +1269,7 @@ async function main() {
     $('alerts').innerHTML = alerts.map(a => `<li class="${a[0] === 'bad' ? '' : a[0]}">${a[1]}</li>`).join('');
     const bar = $('alert-bar'), top = alerts.filter(a => a[0] !== 'good').slice(0, 3);
     bar.innerHTML = top.map(a => `<div class="a ${a[0] === 'bad' ? '' : 'info'}">${a[1]}</div>`).join('');
-    bar.hidden = !top.length;
+    bar.hidden = !top.length || !!state.celebrate;
 
     if (chart) {
       chartRisk = m.path.map(c => riskClass(T.diff[c]));
@@ -1274,6 +1332,24 @@ async function main() {
     uncRing.position.set(pt.x, pt.y + 0.35, pt.z);
     uncRing.visible = true;
 
+    // red ground: banner + soft warning tone when the traveler gets close to or is on a red stretch
+    let zi = -1, soon = false;
+    for (let k = 0; k < state.redZones.length; k++) {
+      const z = state.redZones[k];
+      if (i0 >= z.i0 && i0 <= z.i1) { zi = k; break; }
+      if (i0 >= z.i0 - 6 && i0 < z.i0) { zi = k; soon = true; break; }
+    }
+    const banner = $('hazard-banner');
+    if (zi >= 0 && state.playing) {
+      const z = state.redZones[zi];
+      if (state.inRed !== zi) { state.inRed = zi; sound.alert(); }
+      banner.innerHTML = `⚠ <b>${soon ? 'Difficult ground ahead' : 'On difficult ground'}</b> · slope up to ${z.maxSlope.toFixed(0)}° · slip up to ${(z.maxSlip * 100).toFixed(0)}% · ${fmtDist(z.len)} · slowing down`;
+      banner.hidden = false;
+      viewport.classList.add('red-alert');
+    } else {
+      if (state.inRed !== -1) { state.inRed = -1; banner.hidden = true; viewport.classList.remove('red-alert'); }
+    }
+
     if (chart) { chart.data.datasets[2].data = [{ x: dist, y: elev }]; chart.update('none'); }
   }
 
@@ -1281,24 +1357,30 @@ async function main() {
   function stopCelebration() {
     if (state.celebrate) { markerA.visible = state.start !== null; markerB.visible = state.end !== null; }
     state.celebrate = null;
+    viewport.classList.remove('celebrating');
+    sound.drums(null);
     resetCelebration(travelerModel);
     if (rig && traveler.visible) rig.snap(traveler.position.x, traveler.position.z, traveler.rotation.y);
   }
+  // Celebration on EVERY arrival (warnings are mentioned, not a reason to skip it). Vehicles raise a flag on their mast.
   function startCelebration(force = false) {
     const mode = $('celebrate').value;
     if (mode === 'off' && !force) return;
-    if (vehicle().model !== 'astronaut') { if (force) setStatus('Only the astronaut celebrates. Choose the astronaut as the traveler.', 'warn'); return; }
-    if (!force) {
-      const hz = state.haz, m = state.route;
-      if (!hz || !m || buildAlerts(m, hz, vehicle()).some(a => a[0] === 'bad')) {
-        setStatus('The astronaut arrived, but the trip had red warnings, so there is no celebration. Check the dashboard.', 'warn');
-        return;
-      }
+    const astro = vehicle().model === 'astronaut';
+    const use = astro ? (mode === 'off' ? 'omani' : mode) : 'rover';
+    let note = '';
+    if (!force && state.haz && state.route) {
+      const bad = buildAlerts(state.route, state.haz, vehicle()).filter(a => a[0] === 'bad').length;
+      if (bad) note = ` — note: ${bad} red warning(s) on this trip, see the dashboard.`;
     }
-    const use = mode === 'off' ? 'flag' : mode;
+    resetCelebration(travelerModel);
     state.celebrate = { t0: performance.now() / 1000, mode: use, autoCam: true };
-    markerA.visible = false; markerB.visible = false;            // keep the view on the astronaut and the flag
-    setStatus(`${force ? 'Preview: ' : 'Arrived safely! '}${CELEBRATION_TEXT[use] || ''}`, 'ok');
+    markerA.visible = false; markerB.visible = false;            // keep the view on the traveler and the flag
+    $('hazard-banner').hidden = true; viewport.classList.remove('red-alert');
+    viewport.classList.add('celebrating');
+    $('alert-bar').hidden = true;                                 // a clean view of the celebration (the dashboard keeps the alerts)
+    sound.chime();
+    setStatus(`${force ? 'Preview: ' : 'Arrived! '}${CELEBRATION_TEXT[use] || ''}${note}`, 'ok');
   }
 
   function setPlaying(on) {
@@ -1323,6 +1405,8 @@ async function main() {
     removeRibbons();
     uncRing.visible = false;
     state.route = null; state.sim = null; state.progress = 0; state.path = null; state.basePath = null; state.haz = null; state.bhaz = null;
+    state.redZones = []; state.inRed = -1; state.ask = false;
+    $('btn-why').disabled = true; $('why').hidden = true; $('hazard-banner').hidden = true;
     setPlaying(false);
     setPlayEnabled(false);
     clearDashboard();
@@ -1351,6 +1435,77 @@ async function main() {
     const { m, b } = buildMetrics();
     updateDashboard(m, b);
     setProgress(state.progress);
+  }
+
+  /* ----- "Why this route?": plain reasons, so anyone can see why the planner went this way ----- */
+  const travName = () => ({ astronaut: 'astronaut', rover: 'RAHHAL scout', crewed: 'QAFILA rover' }[vehicle().model] || 'vehicle');
+  const li = (cls, html) => `<li class="${cls}">${html}</li>`;
+  function explainRoute(m, b, v) {
+    const L = [];
+    // 1. what "just go straight" would meet
+    const line = lineCells(n, state.start, state.end);
+    const straight = Math.hypot((state.end % n) - (state.start % n), ((state.end / n) | 0) - ((state.start / n) | 0)) * T.cell;
+    const dl = straight / Math.max(1, line.length - 1);
+    let steep = 0, red = 0, maxS = 0;
+    for (const c of line) { maxS = Math.max(maxS, T.slope[c]); if (T.slope[c] > v.maxSlope) steep += dl; else if (riskClass(T.diff[c]) === 2) red += dl; }
+    if (steep > 0) L.push(li('bad', `<b>Straight from A to B is impossible:</b> it crosses ${fmtDist(steep)} of slopes up to ${maxS.toFixed(0)}°, steeper than the ${v.maxSlope}° the ${travName()} can handle.`));
+    else if (red > 0) L.push(li('warn', `<b>Straight from A to B</b> would cross ${fmtDist(red)} of difficult (red) ground, with slopes up to ${maxS.toFixed(0)}°.`));
+    else L.push(li('good', `The straight line has no red ground (steepest ${maxS.toFixed(0)}°).`));
+    // 2. compared with the shortest possible path
+    if (m.path.join() === b.path.join()) L.push(li('good', 'Here the easiest route is also the shortest: there was nothing worth going around.'));
+    else {
+      const dd = m.dist - b.dist, pct = (m.dist / b.dist - 1) * 100;
+      const pts = [];
+      if (b.zones > m.zones) pts.push(`crosses <b>${m.zones}</b> hazard zone(s) instead of <b>${b.zones}</b>`);
+      if (b.maxSlope - m.maxSlope > 0.5) pts.push(`its steepest slope is <b>${m.maxSlope.toFixed(0)}°</b> instead of <b>${b.maxSlope.toFixed(0)}°</b>`);
+      if (b.maxSlip - m.maxSlip > 0.02) pts.push(`slip stays under <b>${(m.maxSlip * 100).toFixed(0)}%</b> instead of <b>${(b.maxSlip * 100).toFixed(0)}%</b>`);
+      if (b.energy - m.energy > 0.02 * b.energy) pts.push(`it uses <b>${fmtEnergy(b.energy - m.energy)}</b> less energy`);
+      if (b.time - m.time > 30) pts.push(`it is even <b>${fmtTime(b.time - m.time)}</b> faster (less slipping and climbing)`);
+      L.push(li('info', `It is <b>${fmtDist(dd)}</b> (${pct.toFixed(0)}%) longer than the shortest possible path (white dashed line), but ${pts.length ? pts.join(', ') : 'the ground on it is easier overall'}.`));
+    }
+    // 3. what could not be avoided
+    if (state.redZones.length) {
+      const tot = state.redZones.reduce((a, z) => a + z.len, 0), worst = Math.max(...state.redZones.map(z => z.maxSlope));
+      L.push(li('bad', `<b>${state.redZones.length} red stretch(es) remain</b> (${fmtDist(tot)}, up to ${worst.toFixed(0)}°): going around them costs more effort overall, or is blocked by slopes over ${v.maxSlope}°. Warning signs ⚠ mark them and the ${travName()} slows down there.`));
+    } else L.push(li('good', 'No red ground on the route.'));
+    L.push(li('muted', 'How it is chosen: for every step the planner (A*) multiplies the distance by the difficulty of the ground — slope, roughness and soft sand — and finds the path with the lowest total. Move "Route priority" to compare.'));
+    $('why-list').innerHTML = L.join('');
+    $('why-ask-res').hidden = true;
+    $('btn-why').disabled = false;
+  }
+  function askVia(p) {
+    const v = vehicle(), out = $('why-ask-res');
+    removeAsk();
+    $('why').hidden = false; out.hidden = false;
+    const here = `${T.slope[p].toFixed(0)}° slope${T.soft[p] > 0.5 ? ', soft sand' : ''}${T.rough[p] > 0.5 ? ', rough rocks' : ''}`;
+    if (T.slope[p] > v.maxSlope) {
+      out.innerHTML = `<b>Why not through there?</b> The ground there is ${here}: steeper than the ${v.maxSlope}° the ${travName()} can handle, so the planner never goes there.`;
+      setStatus('That spot is too steep for this traveler.', 'warn');
+      return;
+    }
+    const a = findRoute(T, state.start, p, v, state.w), c = findRoute(T, p, state.end, v, state.w);
+    if (!a || !c) { out.innerHTML = '<b>Why not through there?</b> There is no passable way through that point: steep slopes close it in.'; return; }
+    const via = a.concat(c.slice(1));
+    const mv = routeMetrics(T, via, v, marksForMetrics(), ctlForEnv()), m = state.route;
+    const zv = findRedZones(mv), cv = pathCost(T, via, v, state.w), cm = pathCost(T, state.path, v, state.w);
+    const vp = smoothPoints(via);
+    askMesh = buildRibbon(vp, vp.map(() => new THREE.Color('#b388ff')), 0.75, 0.62, 0.9);
+    scene.add(askMesh);
+    const row = (k, a1, b1, worse) => `<tr><td>${k}</td><td>${a1}</td><td class="${worse ? 'w' : ''}">${b1}</td></tr>`;
+    const redLen = z => z.reduce((s1, x) => s1 + x.len, 0);
+    const table = `<table class="mini"><tr><th></th><th>Planned</th><th>Via there</th></tr>
+      ${row('Distance', fmtDist(m.dist), fmtDist(mv.dist), mv.dist > m.dist * 1.01)}
+      ${row('Time (est.)', fmtTime(m.time), fmtTime(mv.time), mv.time > m.time * 1.01)}
+      ${row('Steepest slope', m.maxSlope.toFixed(0) + '°', mv.maxSlope.toFixed(0) + '°', mv.maxSlope > m.maxSlope + 0.5)}
+      ${row('Red ground', fmtDist(redLen(state.redZones)), fmtDist(redLen(zv)), redLen(zv) > redLen(state.redZones) + 1)}
+      ${row('Max slip', (m.maxSlip * 100).toFixed(0) + '%', (mv.maxSlip * 100).toFixed(0) + '%', mv.maxSlip > m.maxSlip + 0.01)}
+      ${row('Energy (est.)', fmtEnergy(m.energy), fmtEnergy(mv.energy), mv.energy > m.energy * 1.01)}</table>`;
+    const effort = (cv / cm - 1) * 100;
+    const verdict = effort < 1
+      ? 'Going through there is about as easy as the planned route.'
+      : `Going through there takes <b>${effort.toFixed(0)}% more effort</b> overall (distance × difficulty), so the planner did not choose it.`;
+    out.innerHTML = `<b>Why not through there?</b> (purple line; the ground there: ${here})${table}<p>${verdict}</p>`;
+    setStatus('Comparison ready: the purple line goes through the point you tapped.', 'info');
   }
 
   function computeRoute() {
@@ -1389,6 +1544,34 @@ async function main() {
       baseMesh = buildRibbon(bp, bp.map(() => new THREE.Color('#ffffff')), 0.5, 0.55, 0.55);
       scene.add(baseMesh);
     }
+    // red stretches: a wide glowing band that pulses, and a warning sign over each one
+    state.redZones = findRedZones(m); state.inRed = -1;
+    if (state.redZones.length) {
+      const hp = [], hc = [], red = new THREE.Color('#ff2a2a');
+      const segs = state.redZones.map(z => [Math.max(0, z.i0 - 1), Math.min(pts.length - 1, z.i1 + 1)]);
+      // one ribbon with the non-red parts collapsed to zero width is simplest: build per zone and merge
+      const geos = segs.map(([a, b]) => buildRibbon(pts.slice(a, b + 1), pts.slice(a, b + 1).map(() => red), 2.1, 0.78, 0.6));
+      const merged = new THREE.BufferGeometry();
+      let off = 0; const P = [], C = [], I = [];
+      for (const g of geos) {
+        const pa = g.geometry.attributes.position.array, ca = g.geometry.attributes.color.array, ia = g.geometry.index.array;
+        for (const v of pa) P.push(v); for (const v of ca) C.push(v); for (const v of ia) I.push(v + off);
+        off += pa.length / 3; g.geometry.dispose(); g.material.dispose();
+      }
+      merged.setAttribute('position', new THREE.Float32BufferAttribute(P, 3));
+      merged.setAttribute('color', new THREE.Float32BufferAttribute(C, 3));
+      merged.setIndex(I);
+      hazardMesh = new THREE.Mesh(merged, new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.6, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
+      hazardMesh.renderOrder = 4; hazardMesh.frustumCulled = false;
+      scene.add(hazardMesh);
+      for (const z of state.redZones) {
+        const mid = pts[Math.round((z.i0 + z.i1) / 2)];
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: warnTexture(`${z.maxSlope.toFixed(0)}°`, `slip ${(z.maxSlip * 100).toFixed(0)}%`), depthTest: false, toneMapped: false }));
+        sp.scale.set(4.2, 2.75, 1); sp.position.set(mid.x, mid.y + 4.2, mid.z); sp.renderOrder = 11;
+        scene.add(sp); warnSigns.push(sp);
+      }
+    }
+    explainRoute(m, b, v);
 
     state.sim = { pts };
     traveler.visible = true;
@@ -1397,7 +1580,9 @@ async function main() {
     setProgress(0);
     setPlayEnabled(true);
     updateDashboard(m, b);
-    setStatus(`Route ready: ${fmtDist(m.dist)}, about ${fmtTime(m.time)}, ${m.zones} hazard zone(s). Click the terrain again to start a new route.`, 'ok');
+    setStatus(state.redZones.length
+      ? `Route ready: ${fmtDist(m.dist)}, about ${fmtTime(m.time)}. ⚠ ${state.redZones.length} red stretch(es) could not be avoided — marked with warning signs. Tap 💡 Why? for the reasons.`
+      : `Route ready: ${fmtDist(m.dist)}, about ${fmtTime(m.time)}, no red ground. Tap 💡 Why? to see why it goes this way.`, state.redZones.length ? 'warn' : 'ok');
   }
 
   let routeQueued = false;
@@ -1485,6 +1670,7 @@ async function main() {
     const hit = pickTerrain(e.clientX, e.clientY);
     if (!hit) return;
     const { idx } = hitToCell(hit);
+    if (state.ask && state.route) { state.ask = false; $('why').classList.remove('asking'); askVia(idx); return; }
     if (state.start === null || state.end !== null) {
       setStart(idx);
       setStatus('Start point (A) set. Now click the destination (B).', 'info');
@@ -1667,15 +1853,26 @@ async function main() {
     try {
       showView('3d');
       if (location.protocol === 'file:') throw new Error('Open the site through Vercel or a local server with the /api functions.');
-      setLoading(`Reading NASA/USGS elevation for ${site.name} (${km} × ${km} km)…`);
+      // the first visit to a new place is built live from NASA/USGS files (up to ~30 s); after that the CDN serves it at once
+      const t0 = performance.now();
+      let phase = `Reading NASA/USGS elevation for ${site.name} (${km} × ${km} km)…`;
+      const tickLoad = () => {
+        const sec = Math.round((performance.now() - t0) / 1000);
+        setLoading(phase + (sec >= 3 ? `\n${sec} s · the first visit to a new place is built live from the real data files (up to ~30 s); next time it opens at once` : ''));
+      };
+      tickLoad();
+      const ticker = setInterval(tickLoad, 1000);
       await nextFrame();
       const base = packBase(site, km);
-      const [meta, names] = await Promise.all([fetchJSON(base + 'terrain.json'), marsNames()]);
-      setLoading('Downloading the elevation model and the CTX orbital image…');
-      const [img, texImg] = await Promise.all([
-        loadImage(base + 'heightmap.png'),
-        loadImage(base + 'texture.jpg').catch(() => null)
-      ]);
+      let meta, names, img, texImg;
+      try {
+        [meta, names] = await Promise.all([fetchJSON(base + 'terrain.json'), marsNames()]);
+        phase = 'Downloading the elevation model and the CTX orbital image…'; tickLoad();
+        [img, texImg] = await Promise.all([
+          loadImage(base + 'heightmap.png'),
+          loadImage(base + 'texture.jpg').catch(() => null)
+        ]);
+      } finally { clearInterval(ticker); }
       meta.landmarks = namesInWindow(names, meta.lat, meta.lon, km);
       currentSite = site; currentKm = km; pathCanvas = null;
       const sel = $('area-size');
@@ -1800,10 +1997,10 @@ async function main() {
     closeSheetOnPhone();
   });
   const celSel = $('celebrate');
-  celSel.innerHTML = CELEBRATIONS.map(c => `<option value="${c.id}">${c.label}</option>`).join('') + '<option value="off">Nothing</option>';
-  celSel.value = 'flag';
+  celSel.innerHTML = CELEBRATIONS.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+  celSel.value = 'omani';
   celSel.addEventListener('change', () => {
-    if (state.celebrate && celSel.value !== 'off') { state.celebrate.mode = celSel.value; state.celebrate.t0 = performance.now() / 1000; resetCelebration(travelerModel); setStatus(CELEBRATION_TEXT[celSel.value] || '', 'ok'); }
+    if (state.celebrate && celSel.value !== 'off' && state.celebrate.mode !== 'rover') { state.celebrate.mode = celSel.value; state.celebrate.t0 = performance.now() / 1000; resetCelebration(travelerModel); setStatus(CELEBRATION_TEXT[celSel.value] || '', 'ok'); }
   });
 
   // One-tap demo: pick two points, plan the route and start walking
@@ -1955,6 +2152,22 @@ async function main() {
   });
   $('panel-close').addEventListener('click', () => { $('panel').classList.add('collapsed'); syncToolbar(); });
   $('btn-dash').addEventListener('click', () => setDashboard($('dashboard').hidden));
+  // "Why this route?" card and the "why not through there?" question
+  $('btn-why').addEventListener('click', () => { const w = $('why'); w.hidden = !w.hidden; if (w.hidden) { removeAsk(); state.ask = false; w.classList.remove('asking'); } });
+  $('why-close').addEventListener('click', () => { $('why').hidden = true; removeAsk(); state.ask = false; $('why').classList.remove('asking'); });
+  $('btn-ask').addEventListener('click', () => {
+    if (!state.route) return;
+    state.ask = true; $('why').classList.add('asking');
+    if (matchMedia('(max-width: 900px)').matches) $('why').hidden = true;   // phone: free the map for the tap
+    setStatus('Tap any point on the terrain: I will compare going through it with the planned route.', 'info');
+  });
+  // sound: one button, remembered on this device; audio starts after the first tap (browser rule)
+  const sb = $('btn-sound');
+  const syncSound = on => { sb.querySelector('.ic').textContent = on ? '🔊' : '🔇'; sb.setAttribute('aria-pressed', String(on)); sb.title = on ? 'Sound on (tap to mute)' : 'Sound off (tap to turn on)'; };
+  syncSound(sound.enabled); sound.onChange(syncSound);
+  sb.addEventListener('click', e => { e.stopPropagation(); sound.toggle(); });
+  document.addEventListener('pointerdown', () => sound.unlock(), { passive: true });
+  document.addEventListener('visibilitychange', () => { if (sound.ctx) (document.hidden ? sound.ctx.suspend() : sound.enabled && sound.ctx.resume()); });
   $('dash-close').addEventListener('click', () => setDashboard(false));
   $('tb-play').addEventListener('click', () => { btnPlay.click(); if (state.playing) closeSheetOnPhone(); });
   function setPanelTab(name) {
@@ -1998,7 +2211,7 @@ async function main() {
   renderer.setAnimationLoop(() => {
     if (currentView !== '3d') { clock.getDelta(); return; }
     const tNow = performance.now() / 1000;
-    const busy = state.playing || (state.celebrate && tNow - state.celebrate.t0 < 40) || (tNow - lastActive < 1.2);
+    const busy = state.playing || !!state.celebrate || (tNow - lastActive < 1.2);
     if (!busy && tNow - lastRender < 0.12) return;           // idle: about 8 frames per second
     lastRender = tNow;
     const rawDt = clock.getDelta(), dt = Math.min(rawDt, 0.1);
@@ -2013,6 +2226,9 @@ async function main() {
     if (state.celebrate) {
       const c = state.celebrate;
       celebrateModel(travelerModel, tNow - c.t0, c.mode, camera.position);
+      const tr = c.mode === 'rover' ? null : celebrationTrack(c.mode, tNow - c.t0);
+      const dn = tr && (tr.dance === 'baraa' || tr.dance === 'razha') ? tr.dance : null;
+      sound.drums(dn, c.t0 + ((tr && tr.start) || 0), dn ? BEAT[dn] : 0);
       if (c.autoCam && traveler.visible) {                    // the camera glides in so the flag and the astronaut are easy to see
         const k = 1 - Math.exp(-dt * 2.2);
         camTgt.copy(traveler.position); camTgt.y += 2.4;
@@ -2020,13 +2236,19 @@ async function main() {
         camDir.set(camera.position.x - controls.target.x, 0, camera.position.z - controls.target.z);
         if (camDir.lengthSq() < 1e-6) camDir.set(0, 0, 1);
         camDir.normalize();
-        camWant.copy(controls.target).addScaledVector(camDir, 15); camWant.y = controls.target.y + 2.0;
+        camWant.copy(controls.target).addScaledVector(camDir, 11); camWant.y = controls.target.y + 1.6;
         camera.position.lerp(camWant, k);
       }
     } else if (traveler.visible && state.tgt) {
       rig.update(dt, state.tgt, state.tgtYaw, { slip: state.tgtSlip || 0, moving: state.playing, dust: kickDust, metersPerUnit: CONFIG.regionWidthM / size });
     }
     kickDust.update(dt, 6.0, groundAt, scene.background);
+    if (state.celebrate && tNow - state.celebrate.t0 > 90) { stopCelebration(); setStatus('Celebration finished. Press ▶ Preview celebration to watch it again.', 'info'); }
+    // labels and warning signs step aside when the camera is close (they would cover the traveler) and during a celebration
+    for (const l of landmarks) l.sprite.visible = layers.labels && !state.celebrate && camera.position.distanceTo(l.sprite.position) > 22;
+    for (const w of warnSigns) w.visible = !state.celebrate && camera.position.distanceTo(w.position) > 9;
+    if (hazardMesh) hazardMesh.material.opacity = 0.3 + 0.4 * (0.5 + 0.5 * Math.sin(tNow * 5));
+    sound.motor(state.playing && !state.celebrate && vehicle().model !== 'astronaut', rig ? Math.min(1, rig.speed * 2) : 0.5);
     if (state.playing && state.route) {
       const p = state.progress + dt / DURATION;
       setProgress(p);
@@ -2067,7 +2289,8 @@ async function main() {
       const msg = () => setStatus(`Conditions set to today on Mars: season Ls ${env.ls}°, Earth ${env.au.toFixed(2)} AU away.`, 'ok');
       if (T) { showView('3d'); msg(); } else Promise.resolve(loadSite()).then(msg, () => {});
     },
-    focusMission(m) { showView('world'); if (worldmap.focusMission) worldmap.focusMission(m); }
+    focusMission(m) { showView('world'); if (worldmap.focusMission) worldmap.focusMission(m); },
+    __test: { state, jump: p => setProgress(p), play: on => setPlaying(on) }   // used by tools/e2e.mjs
   };
   const startHash = (location.hash || '').slice(1);
   showView(startHash === 'today' ? 'today' : 'world');

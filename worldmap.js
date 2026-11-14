@@ -12,8 +12,8 @@
    not an elevation model. Use make_texture.py to cut your site out of it.
    ===================================================================== */
 
-import { MISSIONS, missionSol } from './marsclock.js?v=6';
-import { libraryImages, esc } from './nasa.js?v=6';
+import { MISSIONS, missionSol } from './marsclock.js?v=7';
+import { libraryImages, esc } from './nasa.js?v=7';
 
 const S3 = 'https://s3-eu-west-1.amazonaws.com/whereonmars.cartodb.net/';
 export const LAYERS = [
@@ -93,7 +93,7 @@ export function initWorldMap({ onOpen }) {
     if (!r.ok) { el.remove(); return; }
     el.innerHTML = r.images.map((im, i) => `<button class="mini" data-i="${i}" aria-label="${esc(im.title)}"><img loading="lazy" src="${esc(im.img)}" alt="" referrerpolicy="no-referrer"></button>`).join('');
     el.querySelectorAll('.mini').forEach(b => b.addEventListener('click', () => {
-      import('./marstoday.js?v=6').then(m => m.openLightbox(r.images[+b.dataset.i]));
+      import('./marstoday.js?v=7').then(m => m.openLightbox(r.images[+b.dataset.i]));
     }));
   }
 

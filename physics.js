@@ -207,21 +207,17 @@ export class MotionRig {
     this.phase += moving ? dPhase : 0;
     const gait = moving ? Math.min(1, this.speed / (stride * 0.6)) : 0;
     const k = this.walkK = (this.walkK || 0) + ((moving ? 1 : 0) - (this.walkK || 0)) * (1 - Math.exp(-dt * 5));
-    const ph = this.phase, sw = Math.sin(ph);
+    const ph = this.phase;
     // low gravity: longer flight phase -> higher, floatier bob (h ∝ 1/g for the same push-off)
-    const hop = 0.06 * (G_EARTH / G_MARS) * k * (0.6 + 0.4 * gait);
-    u.body.position.y = this.bob.step(Math.abs(Math.sin(ph)) * hop, dt);
-    const hipAmp = 0.5 * k, kneeAmp = 0.85 * k;
-    u.legL.rotation.z = sw * hipAmp; u.legR.rotation.z = -sw * hipAmp;
-    if (u.legL.userData.lower) u.legL.userData.lower.rotation.z = Math.max(0, -Math.sin(ph - 0.6)) * kneeAmp;
-    if (u.legR.userData.lower) u.legR.userData.lower.rotation.z = Math.max(0, Math.sin(ph - 0.6)) * kneeAmp;
-    u.armL.rotation.z = -sw * 0.42 * k; u.armR.rotation.z = sw * 0.42 * k;
-    if (u.armL.userData.lower) u.armL.userData.lower.rotation.z = 0.25 * k;
-    if (u.armR.userData.lower) u.armR.userData.lower.rotation.z = 0.25 * k;
+    const hop = 0.05 * (G_EARTH / G_MARS) * k * (0.6 + 0.4 * gait);
+    const lift = this.bob.step(Math.abs(Math.sin(ph)) * hop, dt);
     // lean: into the slope (forward when climbing) and slightly into the speed
-    const lean = this.lean.step(-(f.pitch * 0.55) - 0.12 * k, dt);
-    u.body.rotation.z = lean;
-    u.body.rotation.y = Math.sin(ph) * 0.06 * k;                          // torso counter-rotation
+    const lean = this.lean.step(-(f.pitch * 0.55) - 0.1 * k, dt);
+    if (u.pose && this.gaitPose) u.pose(this.gaitPose(ph, k, { lean, lift }));
+    if (this.onStep && moving && k > 0.3) {
+      const st = Math.floor(ph / Math.PI);
+      if (st !== this.lastStep) { this.lastStep = st; this.onStep(slip); }
+    }
     // boot dust at each foot strike
     if (dust && moving) {
       const strike = Math.floor(ph / Math.PI);

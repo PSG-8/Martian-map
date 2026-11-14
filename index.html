@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://images-api.nasa.gov" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
 
   <!-- Three.js (3D) is loaded as an ES module through an import map -->
   <script type="importmap">
@@ -48,6 +48,7 @@
     <div class="badges">
       <span class="badge" id="region-badge">Region: —</span>
       <span class="badge" id="data-badge">Global map</span>
+      <button class="btn small icon" id="btn-sound" title="Sound" aria-label="Sound on or off" aria-pressed="true"><span class="ic">🔊</span></button>
       <button class="btn small icon" id="btn-fullscreen" title="Full screen" aria-label="Full screen"><span class="ic">⛶</span> <span class="lbl">Full screen</span></button>
     </div>
   </header>
@@ -81,6 +82,13 @@
         <div class="compass" aria-label="Compass"><span class="n">N</span><div class="needle" id="compass-needle"></div></div>
         <div class="tip" id="tip" hidden></div>
         <div class="alerts" id="alert-bar" hidden></div>
+        <div class="hazard-banner" id="hazard-banner" role="alert" hidden></div>
+        <div class="why" id="why" hidden>
+          <div class="why-head"><b>💡 Why this route?</b><button class="icon-btn" id="why-close" aria-label="Close">✕</button></div>
+          <ul class="why-list" id="why-list"></ul>
+          <div class="why-ask" id="why-ask-res" hidden></div>
+          <button class="btn small wide" id="btn-ask">❓ Why not another way? Tap a point on the map</button>
+        </div>
         <div class="live" id="live" hidden>
           <div class="live-title">Live tracking</div>
           <div class="live-grid">
@@ -98,6 +106,7 @@
         <div class="toolbar" id="toolbar">
           <button class="btn tbtn" id="btn-panel"><span class="ic">☰</span><span class="lb">Controls</span></button>
           <button class="btn tbtn primary" id="tb-play" disabled>▶ Play</button>
+          <button class="btn tbtn" id="btn-why" disabled><span class="ic">💡</span><span class="lb">Why?</span></button>
           <button class="btn tbtn" id="btn-dash"><span class="ic">📊</span><span class="lb">Dashboard</span></button>
           <button class="btn tbtn" id="btn-back-world"><span class="ic">🌍</span><span class="lb">Map</span></button>
         </div>
@@ -134,8 +143,8 @@
             <button id="qr-go" class="btn primary wide">Plan route between craters</button>
           </div>
           <p class="hint">Or click any two points on the terrain (A, then B).</p>
-          <input type="range" id="risk" min="0" max="100" value="60" aria-label="Route priority: fastest to safest">
-          <div class="range-labels"><span>Fastest</span><span>Lowest risk</span></div>
+          <input type="range" id="risk" min="0" max="100" value="85" aria-label="Route priority: shortest to easiest">
+          <div class="range-labels"><span>Shortest</span><span>Easiest</span></div>
           <p class="hint" id="risk-info"></p>
         </section>
 
@@ -146,7 +155,7 @@
             <button id="btn-clear" class="btn">Clear route</button>
           </div>
           <label class="check"><input type="checkbox" id="chk-follow" checked> Camera follows the traveler</label>
-          <label class="field">Celebration when the astronaut arrives safely
+          <label class="field">Celebration on arrival (the astronaut dances, vehicles raise the flag)
             <select id="celebrate"></select>
           </label>
           <div class="btn-row wrap">
@@ -449,7 +458,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script type="module" src="marstoday.js?v=6"></script>
-  <script type="module" src="script.js?v=6"></script>
+  <script type="module" src="marstoday.js?v=7"></script>
+  <script type="module" src="script.js?v=7"></script>
 </body>
 </html>

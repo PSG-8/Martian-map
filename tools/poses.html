@@ -1,0 +1,36 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>SINBAD poses</title>
+<style>body{margin:0;background:#2a1a14}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head><body>
+<script type="module">
+// Dev page: renders the SINBAD suit at a celebration and time. ?mode=razha&t=3.2&az=0.6&kind=astronaut
+import * as THREE from 'three';
+import { buildTravelerModel, celebrateModel, animateModel, makeMarsEnv, applyModelEnv } from '../models.js?v=7';
+const q = new URLSearchParams(location.search);
+const W = +(q.get('w') || 480), H = +(q.get('h') || 560);
+const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+r.setSize(W, H); r.toneMapping = THREE.ACESFilmicToneMapping; r.outputColorSpace = THREE.SRGBColorSpace; r.shadowMap.enabled = true;
+document.body.appendChild(r.domElement);
+const sc = new THREE.Scene(); sc.background = new THREE.Color('#c99a78');
+const env = makeMarsEnv(r);
+sc.add(new THREE.HemisphereLight('#ffe8d0', '#5a3424', 0.9));
+const sun = new THREE.DirectionalLight('#fff1d6', 2.4); sun.position.set(6, 10, 5); sun.castShadow = true; sc.add(sun);
+const ground = new THREE.Mesh(new THREE.CircleGeometry(12, 48), new THREE.MeshStandardMaterial({ color: '#a8694a', roughness: 1 }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; sc.add(ground);
+const holder = new THREE.Group(); sc.add(holder);
+const m = buildTravelerModel(q.get('kind') || 'astronaut'); applyModelEnv(m, env); holder.add(m);
+const az = +(q.get('az') || 0.5), dist = +(q.get('d') || 8), cy = +(q.get('cy') || 1.8);
+const cam = new THREE.PerspectiveCamera(40, W / H, 0.1, 100);
+const lx = +(q.get('lx') || 0), lz = +(q.get('lz') || 0);
+cam.position.set(lx + Math.cos(az) * dist, cy + 0.8, lz + Math.sin(az) * dist); cam.lookAt(lx, cy, lz);
+const mode = q.get('mode') || 'walk', t = +(q.get('t') || 0);
+if (mode === 'walk') animateModel(m, t, 0.016, true);
+else if (mode !== 'rest') {
+  // play up to t so time-dependent state is right
+  for (let s = 0; s <= t; s += 1 / 30) celebrateModel(m, s, mode, cam.position);
+  celebrateModel(m, t, mode, cam.position);
+}
+r.render(sc, cam);
+window.__done = true;
+</script></body></html>

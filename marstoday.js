@@ -6,8 +6,8 @@
    image library for each site.
    This file does not need Three.js, so the page works even if 3D fails.
    ===================================================================== */
-import { mars24, earthMars, missionSol, localTime, seasonOf, fmtHM, fmtHMS, MISSIONS } from './marsclock.js?v=6';
-import { roverImages, libraryImages, esc } from './nasa.js?v=6';
+import { mars24, earthMars, missionSol, localTime, seasonOf, fmtHM, fmtHMS, MISSIONS } from './marsclock.js?v=7';
+import { roverImages, libraryImages, esc } from './nasa.js?v=7';
 
 const $ = id => document.getElementById(id);
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);

@@ -35,8 +35,12 @@ An interactive Mars explorer and 3D mission planner where **everything comes fro
 
 Every `/api` answer for a given place stays the same, so Vercel's CDN keeps it. Only the first visit to a new place computes anything.
 
+- **Easiest route, explained**: the A* planner weighs every step by slope, roughness, soft sand and how close the climb is to the vehicle's limit. "💡 Why?" lists the reasons in plain words (what a straight line would cross, what the shortest path costs), and "Why not another way?" compares any point you tap. Red stretches pulse, carry ⚠ signs and raise an alert while the traveler crosses them.
+- **Arrival celebrations**: the flag of Oman rises (cloth simulation with folds), then SINBAD performs **al-Bar'ah** (khanjar above the shoulder, Dhofar, UNESCO 2010) and **al-Razha** (sword raised, shaken and thrown, flying 1.6 s in Mars gravity). Vehicles raise the flag on a mast. The suit has a joint-limited skeleton; `tools/selfcheck.html` checks every frame for parts passing through each other.
+- **Calm sound** (`sound.js`, Web Audio, no files): Mars wind, footsteps, rover hum, soft warning tone, arrival chime and Omani frame-drum rhythms. One button mutes it.
+
 ## Files
-`index.html`, `style.css` · `script.js` (3D app) · `models.js` (SINBAD, RAHHAL, QAFILA) · `physics.js` · `worldmap.js` · `marstoday.js` · `marsclock.js` · `nasa.js` · `hazards.js` · `flag.js` · `api/` (Vercel functions: `terrain`, `names`, `traverse`, `rover-images`, plus `_lib` readers for TIFF, PNG and JPEG) · `tools/devserver.js`
+`index.html`, `style.css` · `script.js` (3D app) · `models.js` (SINBAD, RAHHAL, QAFILA) · `physics.js` · `worldmap.js` · `marstoday.js` · `marsclock.js` · `nasa.js` · `hazards.js` · `flag.js` · `sound.js` · `api/` (Vercel functions: `terrain`, `names`, `traverse`, `rover-images`, plus `_lib` readers for TIFF, PNG and JPEG) · `tools/devserver.js` · `tools/selfcheck.html` (suit self-intersection test) · `tools/poses.html` (pose viewer)
 
 ## Run locally
 ```

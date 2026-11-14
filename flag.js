@@ -11,7 +11,7 @@
      whose curved tip points towards the pole.
    ===================================================================== */
 
-export const OMAN = { red: '#db161b', green: '#008000', white: '#ffffff' };
+export const OMAN = { red: '#c8102e', green: '#009530', white: '#ffffff' };   // PMS 186 C red, PMS 355 C green (FOTW)
 export const FLAG_RATIO = 7 / 4;             // length / height
 
 /* The emblem, drawn inside a 100 x 100 box whose top-left corner is (x, y) and whose size is s pixels. */
