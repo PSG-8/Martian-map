@@ -21,8 +21,6 @@
 const TIFF = require('./_lib/tiff.js');
 const PNG = require('./_lib/png.js');
 const encodeJPEG = require('./_lib/jpeg-encoder.js');
-let NAMES = null;
-try { NAMES = require('../data/mars-names.json'); } catch (e) { NAMES = null; }
 
 const R = 3396190;
 const D2R = Math.PI / 180;
@@ -175,41 +173,25 @@ async function readDEM(lat0, lon0, km, n) {
 }
 
 /* ---------- orbital image (CTX) ---------- */
-async function readImage(lat0, lon0, km, size) {
-  const F = frame(lat0, lon0, km, size);
-  const pxM = F.Wm / (size - 1);
-  // level: finest tiles that are not much sharper than one output pixel (CTX itself is ~5 m)
-  let L = 0;
-  for (let l = 0; l <= 12; l++) { const m = (0.3515625 / 2 ** l) * D2R * R; if (m >= pxM * 0.7) L = l; }
-  const res = 0.3515625 / 2 ** L, span = 512 * res;
-  // which tiles?
-  const need = new Map();
-  for (let gy = 0; gy < size; gy += 32) for (let gx = 0; gx < size; gx += 32) {
-    for (const [dx, dy] of [[0, 0], [31, 0], [0, 31], [31, 31]]) {
-      const [la, lo] = F.ll(Math.min(size - 1, gx + dx), Math.min(size - 1, gy + dy));
-      const r = Math.floor((90 - la) / span), c = Math.floor((wrapLon(lo) + 180) / span);
-      need.set(`${r}/${c}`, [r, c]);
-    }
+async function fetchTile(L, r, c) {
+  let best = null;
+  for (let attempt = 0; attempt < 2 && !(best && best.complete); attempt++) {
+    try {
+      const resp = await fetch(`${CTX_TILES}${L}/${r}/${c}`, { headers: { 'User-Agent': 'MartianMap/1.0 (MR_PSG, Team Starseekers; educational)' } });
+      if (!resp.ok) continue;
+      const buf = Buffer.from(await resp.arrayBuffer());
+      if (buf.length < 8 || buf.readUInt32BE(0) !== 0x89504e47) continue;
+      const d = PNG.decode(buf);
+      if (!best || d.complete) best = d;
+    } catch (e) { /* try again */ }
   }
-  if (need.size > 140 && L > 0) return readImage(lat0, lon0, km, Math.round(size * 0.75));
-  const tiles = new Map();
-  let got = 0;
-  await TIFF.pool([...need.values()], 16, async ([r, c]) => {
-    let best = null;
-    for (let attempt = 0; attempt < 2 && !(best && best.complete); attempt++) {
-      try {
-        const resp = await fetch(`${CTX_TILES}${L}/${r}/${c}`, { headers: { 'User-Agent': 'MartianMap/1.0 (MR_PSG, Team Starseekers; educational)' } });
-        if (!resp.ok) continue;
-        const buf = Buffer.from(await resp.arrayBuffer());
-        if (buf.length < 8 || buf.readUInt32BE(0) !== 0x89504e47) continue;
-        const d = PNG.decode(buf);
-        if (!best || d.complete) best = d;
-      } catch (e) { /* try again */ }
-    }
-    if (best) { tiles.set(`${r}/${c}`, best); got++; }
-  });
-  const gray = new Uint8Array(size * size), valid = new Uint8Array(size * size);
-  const px = (la, lo) => {
+  return best;
+}
+
+/* Samples one zoom level of the CTX tile pyramid. Returns -1 where that level has no data. */
+function levelSampler(L, tiles) {
+  const res = 0.3515625 / 2 ** L;
+  return (la, lo) => {
     const X = (wrapLon(lo) + 180) / res - 0.5, Y = (90 - la) / res - 0.5;
     const ix = Math.floor(X), iy = Math.floor(Y), tx = X - ix, ty = Y - iy;
     let s = 0, w = 0;
@@ -220,34 +202,62 @@ async function readImage(lat0, lon0, km, size) {
       if (t.alpha && t.alpha[i] < 128) continue;
       s += t.gray[i] * ww; w += ww;
     }
-    return w > 1e-6 ? s / w : -1;
+    return w > 0.5 ? s / w : -1;
   };
-  let sum = 0, cnt = 0;
-  for (let gy = 0; gy < size; gy++) for (let gx = 0; gx < size; gx++) {
-    const [la, lo] = F.ll(gx, gy);
-    const v = px(la, lo), i = gy * size + gx;
-    if (v >= 0) { gray[i] = v; valid[i] = 1; sum += v; cnt++; }
-  }
-  const mean = cnt ? sum / cnt : 128;
-  for (let i = 0; i < gray.length; i++) if (!valid[i]) gray[i] = mean;
-  return { gray, size, level: L, coverage: cnt / (size * size), tiles: got, mPerPx: (res * D2R * R) };
 }
 
-/* ---------- named features (IAU / USGS Gazetteer) inside the map ---------- */
-function namesIn(lat0, lon0, km) {
-  if (!NAMES || !Array.isArray(NAMES.f)) return [];
-  const half = km * 500, out = [];
-  for (const [name, la, lo, dkm, type] of NAMES.f) {
-    const y = (la - lat0) * D2R * R;
-    let dl = wrapLon(lo - lon0);
-    const x = dl * D2R * R * Math.cos(la * D2R);
-    const rad = (dkm || 0) * 500;
-    if (Math.abs(x) > half + rad * 0.3 || Math.abs(y) > half + rad * 0.3) continue;
-    if (dkm && dkm * 1000 > km * 1000 * 3) continue;                     // much bigger than the map: skip
-    out.push({ name, type, diamKm: dkm, u: x / (km * 1000) + 0.5, v: 0.5 - y / (km * 1000) });
+async function loadLevel(L, F, size, onlyWhere) {
+  const span = 512 * 0.3515625 / 2 ** L;
+  const need = new Map();
+  for (let gy = 0; gy < size; gy += 16) for (let gx = 0; gx < size; gx += 16) {
+    if (onlyWhere && !onlyWhere(gx, gy)) continue;
+    for (const [dx, dy] of [[0, 0], [15, 0], [0, 15], [15, 15]]) {
+      const [la, lo] = F.ll(Math.min(size - 1, gx + dx), Math.min(size - 1, gy + dy));
+      const r = Math.floor((90 - la) / span), c = Math.floor((wrapLon(lo) + 180) / span);
+      need.set(`${r}/${c}`, [r, c]);
+    }
   }
-  out.sort((a, b) => (b.diamKm || 0) - (a.diamKm || 0));
-  return out.slice(0, 14);
+  const tiles = new Map();
+  await TIFF.pool([...need.values()], 16, async ([r, c]) => { const t = await fetchTile(L, r, c); if (t) tiles.set(`${r}/${c}`, t); });
+  return { tiles, count: need.size };
+}
+
+async function readImage(lat0, lon0, km, size) {
+  const F = frame(lat0, lon0, km, size);
+  const pxM = F.Wm / (size - 1);
+  // level: finest tiles that are not much sharper than one output pixel (CTX itself is ~5 m)
+  let L = 0;
+  for (let l = 0; l <= 12; l++) { const m = (0.3515625 / 2 ** l) * D2R * R; if (m >= pxM * 0.7) L = l; }
+  const span = 512 * 0.3515625 / 2 ** L;
+  const tilesAcross = Math.ceil((km * 1000) / (span * D2R * R * Math.cos(lat0 * D2R))) + 1;
+  if (tilesAcross * tilesAcross > 160 && size > 1024) return readImage(lat0, lon0, km, Math.round(size * 0.75));
+
+  const gray = new Uint8Array(size * size), valid = new Uint8Array(size * size);
+  let filled = 0, used = [];
+  // finest level first, then coarser levels only where pixels are still missing (broken or absent tiles)
+  for (let lv = L; lv >= Math.max(0, L - 3) && filled < size * size; lv--) {
+    const gap = lv === L ? null : (gx, gy) => {
+      for (let y = gy; y < Math.min(size, gy + 16); y += 4) for (let x = gx; x < Math.min(size, gx + 16); x += 4) if (!valid[y * size + x]) return true;
+      return false;
+    };
+    const { tiles } = await loadLevel(lv, F, size, gap);
+    if (!tiles.size) continue;
+    const sample = levelSampler(lv, tiles);
+    let n = 0;
+    for (let gy = 0; gy < size; gy++) for (let gx = 0; gx < size; gx++) {
+      const i = gy * size + gx;
+      if (valid[i]) continue;
+      const [la, lo] = F.ll(gx, gy);
+      const v = sample(la, lo);
+      if (v >= 0) { gray[i] = v; valid[i] = 1; filled++; n++; }
+    }
+    if (n) used.push(lv);
+  }
+  let sum = 0;
+  for (let i = 0; i < gray.length; i++) if (valid[i]) sum += gray[i];
+  const mean = filled ? sum / filled : 128;
+  for (let i = 0; i < gray.length; i++) if (!valid[i]) gray[i] = mean;
+  return { gray, size, level: L, levels: used, coverage: filled / (size * size), mPerPx: (0.3515625 / 2 ** L) * D2R * R };
 }
 
 /* ---------- handler ---------- */
@@ -273,7 +283,7 @@ module.exports = async function handler(req, res) {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'image/jpeg');
       res.setHeader('Cache-Control', forever);
-      res.setHeader('X-Imagery', `CTX level ${im.level}, ${im.mPerPx.toFixed(1)} m/px, coverage ${(im.coverage * 100).toFixed(1)}%`);
+      res.setHeader('X-Imagery', `CTX level ${im.level} (used ${im.levels.join(',')}), ${im.mPerPx.toFixed(1)} m/px, coverage ${(im.coverage * 100).toFixed(1)}%`);
       return res.end(jpg);
     }
 
@@ -302,7 +312,6 @@ module.exports = async function handler(req, res) {
       heightmap: 'heightmap.png', texture: 'texture.jpg',
       source: dem.source, sourceResM: dem.resM, sourceKey: dem.key,
       textureSource: CTX_NAME,
-      names: namesIn(lat, lon0, km),
       real: true
     };
     res.statusCode = 200;
