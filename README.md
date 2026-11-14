@@ -47,4 +47,8 @@ Every `/api` answer for a given place stays the same, so Vercel's CDN keeps it. 
 node tools/devserver.js        # http://localhost:8080  (Node 18+, needs internet: the API reads NASA/USGS data)
 ```
 
+## Credits and AI use
+- Elevation: MOLA (NASA, CC0) and HRSC (ESA/DLR, CC BY-SA 3.0 IGO) blend by USGS Astrogeology (Fergason, Hare & Laura 2018); Mars 2020 Science Investigation CTX DEM (USGS). Image: Global CTX Mosaic, NASA/JPL/MSSS, The Murray Lab (Dickson et al. 2024).
+- AI assistance: the team used Claude (Anthropic) as a coding and writing assistant for parts of the code, the procedural 3D models, the tests and the documentation. The team directed the design and reviewed the results. No data in the app are AI-generated.
+
 © 2026 MR_PSG · Team Starseekers

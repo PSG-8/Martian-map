@@ -101,8 +101,14 @@ export function initWorldMap({ onOpen }) {
     const s = SITES.find(x => x.id === sel.value);
     if (!s) return;
     showCard(s);
-    if (map) map.flyTo([s.lat, lonToLng(s.lonE)], 6, { duration: 1.2 });
+    if (map) goTo([s.lat, lonToLng(s.lonE)], 6);
   });
+  // fly only when the map is on screen; a hidden (zero-size) map makes Leaflet compute NaN positions
+  function goTo(ll, z) {
+    map.invalidateSize();
+    const sz = map.getSize();
+    if (sz.x > 0 && sz.y > 0) map.flyTo(ll, z, { duration: 1.2 }); else map.setView(ll, z, { animate: false });
+  }
 
   if (typeof L === 'undefined') {
     setStatus('The map library could not load (offline or blocked). You can still pick a site and open it in 3D.', 'warn');
@@ -190,7 +196,7 @@ export function initWorldMap({ onOpen }) {
     show() { setTimeout(() => map.invalidateSize(), 50); },
     invalidate() { map.invalidateSize(); },
     focusMission(mi) {
-      setTimeout(() => { map.invalidateSize(); map.flyTo([mi.lat, lonToLng(mi.lonE)], 5, { duration: 1.2 }); }, 60);
+      setTimeout(() => goTo([mi.lat, lonToLng(mi.lonE)], 5), 60);
       if (!map.hasLayer(missionLayer)) { missionLayer.addTo(map); $('chk-missions').checked = true; }
       showCard(missionSite(mi), mi);
     },
