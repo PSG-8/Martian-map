@@ -1,8 +1,12 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { buildTravelerModel, animateModel, celebrateModel, resetCelebration, loadOptionalModels, makeMarsEnv, applyModelEnv, CELEBRATIONS, CELEBRATION_TEXT } from './models.js?v=5';
-import * as HZ from './hazards.js?v=5';
-import { initWorldMap, SITES } from './worldmap.js?v=5';
+import { buildTravelerModel, animateModel, celebrateModel, resetCelebration, loadOptionalModels, makeMarsEnv, applyModelEnv, CELEBRATIONS, CELEBRATION_TEXT, celebrationTrack, BEAT, gaitPose } from './models.js?v=7';
+import * as HZ from './hazards.js?v=7';
+import { initWorldMap, SITES } from './worldmap.js?v=7';
+import { mars24, earthMars } from './marsclock.js?v=7';
+import { MotionRig, Dust } from './physics.js?v=7';
+import { MarsSound } from './sound.js?v=7';
+const sound = new MarsSound();
 
 window.__mmStarted = true; // tells index.html that this file loaded (used by the start-up check)
 
@@ -15,12 +19,11 @@ window.__mmStarted = true; // tells index.html that this file loaded (used by th
 // @@LOGIC_START
 /* ---------------------------------------------------------------------
    SETTINGS
-   Real data: put heightmap.png and terrain.json next to index.html
-   (make_heightmap.py creates both). Without them the site shows a
-   simulated DEMO terrain and says so on the page.
+   Every site is built from REAL data served by /api/terrain (see api/terrain.js):
+   NASA/USGS elevation models and the CTX orbital image mosaic. Nothing is simulated.
    --------------------------------------------------------------------- */
 const CONFIG = {
-  regionName: 'Demo terrain (simulated)',
+  regionName: 'Mars',
   terrainFile: 'terrain.json',
   heightmapFile: 'heightmap.png',
 
@@ -51,12 +54,12 @@ const CONFIG = {
 
   // Assumed vehicle values (NOT measured). Edit them freely.
   vehicles: {
-    astronaut: { label: 'Astronaut on foot (EVA suit)', model: 'astronaut', maxSlope: 22, speed: 1.0, mass: 140, eff: 0.25, roll: 0.12,
-      power: { type: 'suit', enduranceH: 8, label: 'Suit life support, assumed 8 h' } },
-    rover: { label: 'Robotic rover (Perseverance style)', model: 'rover', maxSlope: 15, speed: 0.04, mass: 1025, eff: 0.50, roll: 0.10,
-      power: { type: 'rtg', watts: 110, capacityWh: 2500, startPct: 90, housekeepingW: 70, label: 'Nuclear battery (RTG) 110 W + battery' } },
-    crewed: { label: 'Crewed rover (concept)', model: 'crewed', maxSlope: 14, speed: 3.0, mass: 1200, eff: 0.50, roll: 0.08,
-      power: { type: 'solar', areaM2: 8, eff: 0.28, capacityWh: 30000, startPct: 90, housekeepingW: 400, label: 'Solar roof 8 m² + 30 kWh battery' } }
+    astronaut: { label: 'Astronaut · SINBAD EVA suit (Starseekers design)', model: 'astronaut', maxSlope: 22, speed: 1.0, mass: 145, eff: 0.25, roll: 0.12,
+      power: { type: 'suit', enduranceH: 8, label: 'SINBAD life support, 8 h (assumed)' } },
+    rover: { label: 'RAHHAL autonomous scout (Starseekers design)', model: 'rover', maxSlope: 25, speed: 0.15, mass: 420, eff: 0.55, roll: 0.09,
+      power: { type: 'solar', areaM2: 2.8, eff: 0.29, capacityWh: 4000, startPct: 95, housekeepingW: 45, label: 'Folding solar wing 2.8 m² + 4 kWh battery' } },
+    crewed: { label: 'QAFILA crew rover, 2 people (Starseekers design)', model: 'crewed', maxSlope: 20, speed: 2.8, mass: 3600, eff: 0.6, roll: 0.07,
+      power: { type: 'solar', areaM2: 6.5, eff: 0.29, capacityWh: 60000, startPct: 95, housekeepingW: 650, label: 'Solar roof 6.5 m² + 60 kWh battery' } }
   },
 
   landmarks: []             // filled from terrain.json, or detected automatically
@@ -134,83 +137,6 @@ function fbm(noise, x, y, octaves = 4) {
     norm += amp; amp *= 0.5; freq *= 2;
   }
   return sum / norm;
-}
-
-function craterZ(r, R, depth, rim, wall) {
-  let z = 0;
-  if (r < R) z -= depth * wall * (1 - Math.pow(r / R, 4));
-  const sigma = Math.max(60, R * 0.08);
-  z += rim * wall * Math.exp(-Math.pow((r - R) / sigma, 2));
-  if (r > R) z += 0.5 * rim * wall * Math.exp(-(r - R) / (R * 0.3));
-  return z;
-}
-
-const angDiff = (a, b) => {
-  let d = a - b;
-  while (d > Math.PI) d -= 2 * Math.PI;
-  while (d < -Math.PI) d += 2 * Math.PI;
-  return d;
-};
-
-// breaches = directions (radians, 0 = east) where the crater wall has a gap (a ramp in or out)
-const DEMO_CRATERS = [
-  { u: 0.25, v: 0.55, R: 3000, depth: 260, rim: 80, breaches: [0, Math.PI] },
-  { u: 0.76, v: 0.42, R: 2300, depth: 200, rim: 65, breaches: [Math.PI, -0.7] },
-  { u: 0.62, v: 0.80, R: 1100, depth: 120, rim: 40, breaches: [Math.PI, 0.4] }
-];
-const DEMO_LANDMARKS = [
-  { name: 'Crater A', u: 0.25, v: 0.55, rM: 4300 },
-  { name: 'Crater B', u: 0.76, v: 0.42, rM: 3400 },
-  { name: 'Crater C', u: 0.62, v: 0.80, rM: 2200 }
-];
-
-function generateDemoTerrain(n, W) {
-  const noise = makeNoise(11), noise2 = makeNoise(23), noise3 = makeNoise(37), rnd = mulberry32(5);
-
-  const small = [];
-  for (let guard = 0; small.length < 18 && guard < 500; guard++) {
-    const u = 0.04 + rnd() * 0.92, v = 0.04 + rnd() * 0.92, R = 140 + Math.pow(rnd(), 2) * 560;
-    if (DEMO_CRATERS.some(c => Math.hypot((u - c.u) * W, (v - c.v) * W) < c.R * 1.25 + R)) continue;
-    small.push({ u, v, R, depth: 0.16 * R, rim: 0.05 * R });
-  }
-
-  const h = new Float32Array(n * n);
-  const rippleAngle = 0.6;
-  for (let y = 0; y < n; y++) {
-    for (let x = 0; x < n; x++) {
-      const u = x / (n - 1), v = y / (n - 1);
-      let z = -2450 + 90 * (fbm(noise, u * 2.2, v * 2.2) - 0.5) + 28 * (fbm(noise, u * 8 + 20, v * 8 + 20) - 0.5);
-
-      for (const c of DEMO_CRATERS) {
-        const dx = u - c.u, dy = v - c.v, r = Math.hypot(dx, dy) * W;
-        if (r > c.R * 4) continue;
-        const theta = Math.atan2(dy, dx);
-        let breach = 0;
-        for (const b of c.breaches) breach = Math.max(breach, Math.exp(-Math.pow(angDiff(theta, b) / 0.3, 2)));
-        z += craterZ(r, c.R, c.depth, c.rim, 1 - 0.78 * breach);
-      }
-      for (const s of small) {
-        const r = Math.hypot(u - s.u, v - s.v) * W;
-        if (r < s.R * 3) z += craterZ(r, s.R, s.depth, s.rim, 1);
-      }
-
-      // A rocky ridge between the two big craters, with two passes
-      const ridgeU = 0.5 + 0.04 * Math.sin(v * 6);
-      const gap = Math.max(Math.exp(-Math.pow((v - 0.30) / 0.045, 2)), Math.exp(-Math.pow((v - 0.74) / 0.045, 2)));
-      z += 230 * Math.exp(-Math.pow(((u - ridgeU) * W) / 650, 2)) * (1 - 0.92 * gap);
-
-      // Sand fields: slightly lower, with dune ripples
-      const sand = smoothstep(0.55, 0.72, fbm(noise2, u * 3 + 7, v * 3 + 7, 3));
-      z += sand * (2.0 * Math.sin((u * Math.cos(rippleAngle) + v * Math.sin(rippleAngle)) * W / 800 * 2 * Math.PI) - 6);
-
-      // Boulder fields: small random bumps
-      const rock = smoothstep(0.58, 0.74, fbm(noise3, u * 4 + 40, v * 4 + 40, 3));
-      z += (rnd() - 0.5) * 2 * (0.2 + 2.8 * rock);
-
-      h[y * n + x] = z;
-    }
-  }
-  return h;
 }
 
 /* ---------------------------------------------------------------------
@@ -323,13 +249,16 @@ function detectBasins(T, max = 4) {
     if (out.every(o => Math.hypot(o.gx - c.gx, o.gy - c.gy) > R * 1.3)) out.push(c);
     if (out.length >= max) break;
   }
-  return out.map((c, k) => ({ name: `Basin ${k + 1}`, u: c.gx / (n - 1), v: c.gy / (n - 1), rM: 0.1 * (n - 1) * T.cell }));
+  return out.map((c, k) => ({ name: `Unnamed basin ${k + 1}`, u: c.gx / (n - 1), v: c.gy / (n - 1), rM: 0.1 * (n - 1) * T.cell }));
 }
 
 /* ---------------------------------------------------------------------
-   A* pathfinding
-   cost of a step = real 3D distance * (1 + w * riskGain * difficulty^2)
-   w = 0  -> shortest route      w = 1 -> strongly avoids difficult ground
+   A* pathfinding: the EASIEST route
+   cost of a step = real 3D distance * (1 + w * penalty)
+   penalty = riskGain * difficulty^2           (slope + roughness + soft ground of the cells)
+           + 6 * (step slope / vehicle limit)^4  (climbing or descending close to the limit is avoided hard)
+           + 3 * soft^2                        (sand traps: wheels and boots slip)
+   w = 0  -> shortest route      w = 1 -> strongly avoids difficult ground (default 0.85)
    Cells steeper than the vehicle limit are never entered.
    --------------------------------------------------------------------- */
 class MinHeap {
@@ -395,10 +324,7 @@ function findRoute(T, start, end, vehicle, w) {
       if (closed[ni] || (blocked(ni) && ni !== end)) continue;
       if (dx && dy && (blocked(cy * n + nx) || blocked(ny * n + cx))) continue; // do not cut corners through steep cells
 
-      const run = Math.hypot(dx, dy) * cell;
-      const d3 = Math.hypot(run, h[ni] - h[cur]);
-      const dAvg = (diff[cur] + diff[ni]) / 2;
-      const ng = g[cur] + d3 * (1 + w * CONFIG.riskGain * dAvg * dAvg);
+      const ng = g[cur] + stepCost(T, cur, ni, dx, dy, vehicle, w);
       if (ng < g[ni]) {
         g[ni] = ng; prev[ni] = cur;
         open.push(ng + heuristic(nx, ny), ni);
@@ -410,6 +336,29 @@ function findRoute(T, start, end, vehicle, w) {
   const path = [];
   for (let i = end; i !== -1; i = prev[i]) path.push(i);
   return path.reverse();
+}
+
+function stepCost(T, a, b, dx, dy, v, w) {
+  const run = Math.hypot(dx, dy) * T.cell, dz = T.h[b] - T.h[a];
+  const d3 = Math.hypot(run, dz);
+  const dAvg = (T.diff[a] + T.diff[b]) / 2, sAvg = (T.soft[a] + T.soft[b]) / 2;
+  const sN = Math.atan2(Math.abs(dz), run) * 180 / Math.PI / v.maxSlope;
+  return d3 * (1 + w * (CONFIG.riskGain * dAvg * dAvg + 6 * sN * sN * sN * sN + 3 * sAvg * sAvg));
+}
+// total "effort" of a path with the same weights the planner uses (lower = easier)
+function pathCost(T, path, v, w) {
+  let c = 0;
+  for (let i = 1; i < path.length; i++) {
+    const a = path[i - 1], b = path[i];
+    c += stepCost(T, a, b, (b % T.n) - (a % T.n), ((b / T.n) | 0) - ((a / T.n) | 0), v, w);
+  }
+  return c;
+}
+// cells on the straight line between two cells (what "just go straight" would cross)
+function lineCells(n, a, b) {
+  const ax = a % n, ay = (a / n) | 0, bx = b % n, by = (b / n) | 0, N = Math.max(Math.abs(bx - ax), Math.abs(by - ay), 1), out = [];
+  for (let k = 0; k <= N; k++) out.push(Math.round(ay + (by - ay) * k / N) * n + Math.round(ax + (bx - ax) * k / N));
+  return out;
 }
 
 /* ---------------------------------------------------------------------
@@ -682,10 +631,11 @@ async function main() {
   let n = CONFIG.gridSize, h = null, T = null, step = size / (n - 1), ky = 1, hMin = 0, hMax = 1;
   let geo = null, terrainMesh = null, skirtMesh = null, terrainTex = null, compCanvas = null, baseCanvas = null, contourCanvas = null, layerCanvas = null;
   let landmarks = [], contourInterval = 50;
-  const layers = { overlay: 'difficulty', contours: true, labels: true };
+  const layers = { overlay: 'none', contours: false, labels: true, paths: true };   // start with the real surface; overlays are optional
   const env = HZ.makeEnv();
   let svf = null, texImg = null, lastSource = null, currentView = 'world', lastRegionName = '', lastBadge = '';
-  const state = { celebrate: null, path: null, basePath: null, haz: null, bhaz: null, start: null, end: null, vehicle: 'astronaut', w: 0.6, route: null, base: null, playing: false, progress: 0, sim: null };
+  let pathCanvas = null;               // real rover traverse drawn over the terrain (set by drawTraverses)
+  const state = { celebrate: null, path: null, basePath: null, haz: null, bhaz: null, start: null, end: null, vehicle: 'astronaut', w: 0.85, ask: false, redZones: [], inRed: -1, route: null, base: null, playing: false, progress: 0, sim: null };
   const baseCache = new Map();
   const DURATION = 18; // seconds the journey animation takes
 
@@ -697,6 +647,8 @@ async function main() {
   }
   const toWorld = (gx, gy) => new THREE.Vector3(-half + gx * step, (sampleH(gx, gy) - hMin) * ky, -half + gy * step);
   const cellWorld = idx => toWorld(idx % n, (idx / n) | 0);
+  // real terrain height under any scene point (used by the physics rig and the dust)
+  const groundAt = (x, z) => (T ? (sampleH(clamp((x + half) / step, 0, n - 1), clamp((z + half) / step, 0, n - 1)) - hMin) * ky : 0);
   const vehicle = () => CONFIG.vehicles[state.vehicle];
   const marksForMetrics = () => landmarks.map(l => ({ gx: l.gx, gy: l.gy, rM: l.rM }));
 
@@ -713,10 +665,29 @@ async function main() {
 
   function buildBaseCanvas() {
     const TS = CONFIG.textureSize;
-    if (texImg) { // real image of the site (for example from the CTX mosaic) replaces the painted surface
-      const tc = makeCanvas(TS, TS), tctx = tc.getContext('2d');
+    if (texImg) { // the REAL orbital image (CTX, panchromatic) coloured with Mars' natural surface tones
+      const tc = makeCanvas(TS, TS), tctx = tc.getContext('2d', { willReadFrequently: true });
       tctx.imageSmoothingEnabled = true; tctx.imageSmoothingQuality = 'high';
       tctx.drawImage(texImg, 0, 0, TS, TS);
+      const im = tctx.getImageData(0, 0, TS, TS), d = im.data;
+      // contrast stretch (2nd..98th percentile) so every site uses the full tonal range
+      const hist = new Uint32Array(256);
+      for (let k = 0; k < d.length; k += 16) hist[d[k]]++;
+      let tot = 0; for (const v of hist) tot += v;
+      let acc = 0, lo = 0, hi = 255;
+      for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc < tot * 0.02) lo = v; if (acc < tot * 0.985) hi = v; }
+      const span = Math.max(20, hi - lo);
+      // tone curve built from typical HiRISE/Mastcam colour: dark basalt -> rusty dust -> bright butterscotch
+      const LUT = new Uint8ClampedArray(256 * 3);
+      const stops = [[0, [34, 22, 18]], [0.35, [104, 62, 40]], [0.65, [168, 108, 70]], [1, [228, 180, 136]]];
+      for (let v = 0; v < 256; v++) {
+        const t = clamp((v - lo) / span, 0, 1);
+        let c = stops[stops.length - 1][1];
+        for (let j = 0; j < stops.length - 1; j++) if (t <= stops[j + 1][0]) { const f = (t - stops[j][0]) / (stops[j + 1][0] - stops[j][0]); c = mix(stops[j][1], stops[j + 1][1], f); break; }
+        LUT[v * 3] = c[0]; LUT[v * 3 + 1] = c[1]; LUT[v * 3 + 2] = c[2];
+      }
+      for (let k = 0; k < d.length; k += 4) { const v = d[k] * 3; d[k] = LUT[v]; d[k + 1] = LUT[v + 1]; d[k + 2] = LUT[v + 2]; }
+      tctx.putImageData(im, 0, 0);
       return tc;
     }
     const cellC = makeCanvas(n, n), cctx = cellC.getContext('2d');
@@ -828,6 +799,7 @@ async function main() {
       ctx.globalAlpha = 1;
     }
     if (layers.contours) ctx.drawImage(contourCanvas, 0, 0, TS, TS);
+    if (pathCanvas && layers.paths !== false) ctx.drawImage(pathCanvas, 0, 0, TS, TS);
     terrainTex.needsUpdate = true;
   }
 
@@ -956,11 +928,17 @@ async function main() {
   traveler.add(travelerRing);
   traveler.visible = false;
   scene.add(traveler);
+  let rig = null;
+  const kickDust = new Dust(scene, PROFILE.weak ? 140 : 260);
   function setTravelerModel(vehicleKey) {
     if (travelerModel) traveler.remove(travelerModel);
     travelerModel = buildTravelerModel(CONFIG.vehicles[vehicleKey].model);
     applyModelEnv(travelerModel, marsEnv, 1);
     traveler.add(travelerModel);
+    if (rig) { rig.setModel(travelerModel); if (traveler.visible) rig.snap(traveler.position.x, traveler.position.z, traveler.rotation.y); }
+    else rig = new MotionRig(traveler, travelerModel, groundAt);
+    rig.gaitPose = gaitPose;                                   // SINBAD walking pose (models.js)
+    rig.onStep = slip => sound.step(slip);
   }
   setTravelerModel('astronaut');
 
@@ -1059,12 +1037,43 @@ async function main() {
     return pts.map(p => toWorld(p[0], p[1]));
   }
 
-  let routeMesh = null, baseMesh = null;
+  let routeMesh = null, baseMesh = null, hazardMesh = null, askMesh = null;
+  const warnSigns = [];
+  function dropMesh(m) { if (m) { scene.remove(m); m.geometry.dispose(); m.material.dispose(); } }
+  function removeAsk() { dropMesh(askMesh); askMesh = null; }
   function removeRibbons() {
-    for (const m of [routeMesh, baseMesh]) {
-      if (m) { scene.remove(m); m.geometry.dispose(); m.material.dispose(); }
+    for (const m of [routeMesh, baseMesh, hazardMesh]) dropMesh(m);
+    routeMesh = baseMesh = hazardMesh = null;
+    removeAsk();
+    for (const s of warnSigns) { scene.remove(s); s.material.map.dispose(); s.material.dispose(); }
+    warnSigns.length = 0;
+  }
+  // warning sign over each red stretch of the route: "⚠ 23° · slip 40%"
+  function warnTexture(line1, line2) {
+    const c = makeCanvas(256, 168), g = c.getContext('2d');
+    g.beginPath(); g.moveTo(128, 8); g.lineTo(212, 120); g.lineTo(44, 120); g.closePath();
+    g.fillStyle = '#ffd23f'; g.fill(); g.lineWidth = 9; g.strokeStyle = '#d7191c'; g.lineJoin = 'round'; g.stroke();
+    g.fillStyle = '#1a0d08'; g.font = 'bold 66px system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText('!', 128, 80);
+    g.fillStyle = 'rgba(20,8,6,0.82)'; g.fillRect(6, 126, 244, 40);
+    g.fillStyle = '#ffffff'; g.font = 'bold 25px system-ui, sans-serif';
+    g.fillText(line1 + (line2 ? ' · ' + line2 : ''), 128, 147);
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+  // red stretches of a path: [{i0, i1, maxSlope, maxSlip, len}] (path indices)
+  function findRedZones(m) {
+    const zones = []; let cur = null;
+    for (let i = 0; i < m.path.length; i++) {
+      const c = m.path[i], red = riskClass(T.diff[c]) === 2;
+      if (red) {
+        if (!cur) cur = { i0: i, i1: i, maxSlope: 0, maxSlip: 0 };
+        cur.i1 = i; cur.maxSlope = Math.max(cur.maxSlope, T.slope[c]); cur.maxSlip = Math.max(cur.maxSlip, m.slipArr[i]);
+      } else if (cur) { zones.push(cur); cur = null; }
     }
-    routeMesh = baseMesh = null;
+    if (cur) zones.push(cur);
+    for (const z of zones) z.len = m.cumDist[z.i1] - m.cumDist[z.i0];
+    return zones;
   }
 
   /* ----- Charts (Chart.js) ----- */
@@ -1178,8 +1187,8 @@ async function main() {
     const v = vehicle();
     $('vehicle-info').textContent = `Slope limit: ${v.maxSlope}°. Speed on flat ground: ${v.speed} m/s. Power: ${v.power.label}.`;
     const pct = Math.round(state.w * 100);
-    const name = pct === 0 ? 'Fastest route' : pct >= 90 ? 'Lowest-risk route' : pct < 40 ? 'Mostly fastest' : pct > 65 ? 'Mostly low-risk' : 'Balanced';
-    $('risk-info').textContent = `${name} (${pct}% weight on terrain risk)`;
+    const name = pct === 0 ? 'Shortest route' : pct >= 80 ? 'Easiest route (recommended)' : pct < 40 ? 'Mostly shortest' : pct > 65 ? 'Mostly easy' : 'Balanced';
+    $('risk-info').textContent = `${name} (${pct}% weight on difficult ground)`;
     $('assumption').textContent = `Estimates use assumed values (see "Model assumptions"). Travel time uses ${v.speed} m/s on flat ground, slower on steep or soft ground.`;
   }
 
@@ -1206,7 +1215,7 @@ async function main() {
       if (m.time > p.enduranceH * 3600) out.push(['bad', `The trip takes ${fmtTime(m.time)} but the assumed suit supply is ${p.enduranceH} h. Plan a shelter stop.`]);
       else if (hz.minSupply < 20) out.push(['bad', `Suit supplies drop to ${hz.minSupply.toFixed(0)}%.`]);
     } else if (hz.minSupply < 20) out.push(['bad', `Battery drops to ${hz.minSupply.toFixed(0)}%.`]);
-    if (hz.peakUV >= 11 && p.type === 'suit') out.push(['info', `Extreme UV (index ${hz.peakUV.toFixed(0)}): the gold visor and suit coating are essential. Mars has no ozone layer.`]);
+    if (hz.peakUV >= 11 && p.type === 'suit') out.push(['info', `Extreme UV (index ${hz.peakUV.toFixed(0)}): the SINBAD visor and suit coating are essential. Mars has no ozone layer.`]);
     if (env.spe) out.push(['bad', `Solar particle storm scenario: dose rate ×${HZ.SPE_FACTOR}. Real missions would seek shelter.`]);
     if (env.tau >= 3) out.push(['info', `Dust storm: camera landmark fixes are off, position drift ×${HZ.driftMultiplier(env.tau).toFixed(1)}, and sunlight is cut sharply.`]);
     if (hz.nightShare > 5) out.push(['info', `${hz.nightShare.toFixed(0)}% of the trip is at night: no camera fixes and it is colder.`]);
@@ -1260,7 +1269,7 @@ async function main() {
     $('alerts').innerHTML = alerts.map(a => `<li class="${a[0] === 'bad' ? '' : a[0]}">${a[1]}</li>`).join('');
     const bar = $('alert-bar'), top = alerts.filter(a => a[0] !== 'good').slice(0, 3);
     bar.innerHTML = top.map(a => `<div class="a ${a[0] === 'bad' ? '' : 'info'}">${a[1]}</div>`).join('');
-    bar.hidden = !top.length;
+    bar.hidden = !top.length || !!state.celebrate;
 
     if (chart) {
       chartRisk = m.path.map(c => riskClass(T.diff[c]));
@@ -1293,9 +1302,12 @@ async function main() {
     const i0 = i - 1, f = clamp((t - ct[i0]) / ((ct[i] - ct[i0]) || 1), 0, 1);
 
     const pt = sim.pts[i0].clone().lerp(sim.pts[i], f);
-    traveler.position.set(pt.x, pt.y + 0.5, pt.z);
     const ahead = sim.pts[Math.min(i + 2, sim.pts.length - 1)], behind = sim.pts[Math.max(i0 - 2, 0)];
-    traveler.rotation.y = Math.atan2(-(ahead.z - behind.z), ahead.x - behind.x); // face the direction of travel
+    // the physics rig (physics.js) moves the traveler there: suspension, wheel roll, gait, heading limits
+    state.tgt = { x: pt.x, z: pt.z };
+    state.tgtYaw = Math.atan2(-(ahead.z - behind.z), ahead.x - behind.x);
+    state.tgtSlip = lerp(m.slipArr[i0], m.slipArr[i], f);
+    if (!state.playing) rig.snap(pt.x, pt.z, state.tgtYaw);
 
     const dist = lerp(m.cumDist[i0], m.cumDist[i], f);
     const elev = lerp(m.profile[i0].y, m.profile[i].y, f);
@@ -1320,28 +1332,55 @@ async function main() {
     uncRing.position.set(pt.x, pt.y + 0.35, pt.z);
     uncRing.visible = true;
 
+    // red ground: banner + soft warning tone when the traveler gets close to or is on a red stretch
+    let zi = -1, soon = false;
+    for (let k = 0; k < state.redZones.length; k++) {
+      const z = state.redZones[k];
+      if (i0 >= z.i0 && i0 <= z.i1) { zi = k; break; }
+      if (i0 >= z.i0 - 6 && i0 < z.i0) { zi = k; soon = true; break; }
+    }
+    const banner = $('hazard-banner');
+    if (zi >= 0 && state.playing) {
+      const z = state.redZones[zi];
+      if (state.inRed !== zi) { state.inRed = zi; sound.alert(); }
+      banner.innerHTML = `⚠ <b>${soon ? 'Difficult ground ahead' : 'On difficult ground'}</b> · slope up to ${z.maxSlope.toFixed(0)}° · slip up to ${(z.maxSlip * 100).toFixed(0)}% · ${fmtDist(z.len)} · slowing down`;
+      banner.hidden = false;
+      viewport.classList.add('red-alert');
+    } else {
+      if (state.inRed !== -1) { state.inRed = -1; banner.hidden = true; viewport.classList.remove('red-alert'); }
+    }
+
     if (chart) { chart.data.datasets[2].data = [{ x: dist, y: elev }]; chart.update('none'); }
   }
 
   // Arrival celebration: only after a SAFE arrival (no red alerts) and only for the astronaut
   function stopCelebration() {
+    if (state.celebrate) { markerA.visible = state.start !== null; markerB.visible = state.end !== null; }
     state.celebrate = null;
+    viewport.classList.remove('celebrating');
+    sound.drums(null);
     resetCelebration(travelerModel);
+    if (rig && traveler.visible) rig.snap(traveler.position.x, traveler.position.z, traveler.rotation.y);
   }
+  // Celebration on EVERY arrival (warnings are mentioned, not a reason to skip it). Vehicles raise a flag on their mast.
   function startCelebration(force = false) {
     const mode = $('celebrate').value;
     if (mode === 'off' && !force) return;
-    if (vehicle().model !== 'astronaut') { if (force) setStatus('Only the astronaut celebrates. Choose the astronaut as the traveler.', 'warn'); return; }
-    if (!force) {
-      const hz = state.haz, m = state.route;
-      if (!hz || !m || buildAlerts(m, hz, vehicle()).some(a => a[0] === 'bad')) {
-        setStatus('The astronaut arrived, but the trip had red warnings, so there is no celebration. Check the dashboard.', 'warn');
-        return;
-      }
+    const astro = vehicle().model === 'astronaut';
+    const use = astro ? (mode === 'off' ? 'omani' : mode) : 'rover';
+    let note = '';
+    if (!force && state.haz && state.route) {
+      const bad = buildAlerts(state.route, state.haz, vehicle()).filter(a => a[0] === 'bad').length;
+      if (bad) note = ` — note: ${bad} red warning(s) on this trip, see the dashboard.`;
     }
-    const use = mode === 'off' ? 'flag' : mode;
+    resetCelebration(travelerModel);
     state.celebrate = { t0: performance.now() / 1000, mode: use, autoCam: true };
-    setStatus(`${force ? 'Preview: ' : 'Arrived safely! '}${CELEBRATION_TEXT[use] || ''}`, 'ok');
+    markerA.visible = false; markerB.visible = false;            // keep the view on the traveler and the flag
+    $('hazard-banner').hidden = true; viewport.classList.remove('red-alert');
+    viewport.classList.add('celebrating');
+    $('alert-bar').hidden = true;                                 // a clean view of the celebration (the dashboard keeps the alerts)
+    sound.chime();
+    setStatus(`${force ? 'Preview: ' : 'Arrived! '}${CELEBRATION_TEXT[use] || ''}${note}`, 'ok');
   }
 
   function setPlaying(on) {
@@ -1354,11 +1393,10 @@ async function main() {
   function placeTravelerAtStart() {
     if (state.start === null) { traveler.visible = false; return; }
     const p = cellWorld(state.start);
-    traveler.position.set(p.x, p.y + 0.5, p.z);
-    if (state.end !== null) {
-      const q = cellWorld(state.end);
-      traveler.rotation.y = Math.atan2(-(q.z - p.z), q.x - p.x);
-    }
+    let yaw = traveler.rotation.y;
+    if (state.end !== null) { const q = cellWorld(state.end); yaw = Math.atan2(-(q.z - p.z), q.x - p.x); }
+    state.tgt = { x: p.x, z: p.z }; state.tgtYaw = yaw; state.tgtSlip = 0;
+    rig.snap(p.x, p.z, yaw);
     traveler.visible = true;
   }
 
@@ -1367,6 +1405,8 @@ async function main() {
     removeRibbons();
     uncRing.visible = false;
     state.route = null; state.sim = null; state.progress = 0; state.path = null; state.basePath = null; state.haz = null; state.bhaz = null;
+    state.redZones = []; state.inRed = -1; state.ask = false;
+    $('btn-why').disabled = true; $('why').hidden = true; $('hazard-banner').hidden = true;
     setPlaying(false);
     setPlayEnabled(false);
     clearDashboard();
@@ -1395,6 +1435,77 @@ async function main() {
     const { m, b } = buildMetrics();
     updateDashboard(m, b);
     setProgress(state.progress);
+  }
+
+  /* ----- "Why this route?": plain reasons, so anyone can see why the planner went this way ----- */
+  const travName = () => ({ astronaut: 'astronaut', rover: 'RAHHAL scout', crewed: 'QAFILA rover' }[vehicle().model] || 'vehicle');
+  const li = (cls, html) => `<li class="${cls}">${html}</li>`;
+  function explainRoute(m, b, v) {
+    const L = [];
+    // 1. what "just go straight" would meet
+    const line = lineCells(n, state.start, state.end);
+    const straight = Math.hypot((state.end % n) - (state.start % n), ((state.end / n) | 0) - ((state.start / n) | 0)) * T.cell;
+    const dl = straight / Math.max(1, line.length - 1);
+    let steep = 0, red = 0, maxS = 0;
+    for (const c of line) { maxS = Math.max(maxS, T.slope[c]); if (T.slope[c] > v.maxSlope) steep += dl; else if (riskClass(T.diff[c]) === 2) red += dl; }
+    if (steep > 0) L.push(li('bad', `<b>Straight from A to B is impossible:</b> it crosses ${fmtDist(steep)} of slopes up to ${maxS.toFixed(0)}°, steeper than the ${v.maxSlope}° the ${travName()} can handle.`));
+    else if (red > 0) L.push(li('warn', `<b>Straight from A to B</b> would cross ${fmtDist(red)} of difficult (red) ground, with slopes up to ${maxS.toFixed(0)}°.`));
+    else L.push(li('good', `The straight line has no red ground (steepest ${maxS.toFixed(0)}°).`));
+    // 2. compared with the shortest possible path
+    if (m.path.join() === b.path.join()) L.push(li('good', 'Here the easiest route is also the shortest: there was nothing worth going around.'));
+    else {
+      const dd = m.dist - b.dist, pct = (m.dist / b.dist - 1) * 100;
+      const pts = [];
+      if (b.zones > m.zones) pts.push(`crosses <b>${m.zones}</b> hazard zone(s) instead of <b>${b.zones}</b>`);
+      if (b.maxSlope - m.maxSlope > 0.5) pts.push(`its steepest slope is <b>${m.maxSlope.toFixed(0)}°</b> instead of <b>${b.maxSlope.toFixed(0)}°</b>`);
+      if (b.maxSlip - m.maxSlip > 0.02) pts.push(`slip stays under <b>${(m.maxSlip * 100).toFixed(0)}%</b> instead of <b>${(b.maxSlip * 100).toFixed(0)}%</b>`);
+      if (b.energy - m.energy > 0.02 * b.energy) pts.push(`it uses <b>${fmtEnergy(b.energy - m.energy)}</b> less energy`);
+      if (b.time - m.time > 30) pts.push(`it is even <b>${fmtTime(b.time - m.time)}</b> faster (less slipping and climbing)`);
+      L.push(li('info', `It is <b>${fmtDist(dd)}</b> (${pct.toFixed(0)}%) longer than the shortest possible path (white dashed line), but ${pts.length ? pts.join(', ') : 'the ground on it is easier overall'}.`));
+    }
+    // 3. what could not be avoided
+    if (state.redZones.length) {
+      const tot = state.redZones.reduce((a, z) => a + z.len, 0), worst = Math.max(...state.redZones.map(z => z.maxSlope));
+      L.push(li('bad', `<b>${state.redZones.length} red stretch(es) remain</b> (${fmtDist(tot)}, up to ${worst.toFixed(0)}°): going around them costs more effort overall, or is blocked by slopes over ${v.maxSlope}°. Warning signs ⚠ mark them and the ${travName()} slows down there.`));
+    } else L.push(li('good', 'No red ground on the route.'));
+    L.push(li('muted', 'How it is chosen: for every step the planner (A*) multiplies the distance by the difficulty of the ground — slope, roughness and soft sand — and finds the path with the lowest total. Move "Route priority" to compare.'));
+    $('why-list').innerHTML = L.join('');
+    $('why-ask-res').hidden = true;
+    $('btn-why').disabled = false;
+  }
+  function askVia(p) {
+    const v = vehicle(), out = $('why-ask-res');
+    removeAsk();
+    $('why').hidden = false; out.hidden = false;
+    const here = `${T.slope[p].toFixed(0)}° slope${T.soft[p] > 0.5 ? ', soft sand' : ''}${T.rough[p] > 0.5 ? ', rough rocks' : ''}`;
+    if (T.slope[p] > v.maxSlope) {
+      out.innerHTML = `<b>Why not through there?</b> The ground there is ${here}: steeper than the ${v.maxSlope}° the ${travName()} can handle, so the planner never goes there.`;
+      setStatus('That spot is too steep for this traveler.', 'warn');
+      return;
+    }
+    const a = findRoute(T, state.start, p, v, state.w), c = findRoute(T, p, state.end, v, state.w);
+    if (!a || !c) { out.innerHTML = '<b>Why not through there?</b> There is no passable way through that point: steep slopes close it in.'; return; }
+    const via = a.concat(c.slice(1));
+    const mv = routeMetrics(T, via, v, marksForMetrics(), ctlForEnv()), m = state.route;
+    const zv = findRedZones(mv), cv = pathCost(T, via, v, state.w), cm = pathCost(T, state.path, v, state.w);
+    const vp = smoothPoints(via);
+    askMesh = buildRibbon(vp, vp.map(() => new THREE.Color('#b388ff')), 0.75, 0.62, 0.9);
+    scene.add(askMesh);
+    const row = (k, a1, b1, worse) => `<tr><td>${k}</td><td>${a1}</td><td class="${worse ? 'w' : ''}">${b1}</td></tr>`;
+    const redLen = z => z.reduce((s1, x) => s1 + x.len, 0);
+    const table = `<table class="mini"><tr><th></th><th>Planned</th><th>Via there</th></tr>
+      ${row('Distance', fmtDist(m.dist), fmtDist(mv.dist), mv.dist > m.dist * 1.01)}
+      ${row('Time (est.)', fmtTime(m.time), fmtTime(mv.time), mv.time > m.time * 1.01)}
+      ${row('Steepest slope', m.maxSlope.toFixed(0) + '°', mv.maxSlope.toFixed(0) + '°', mv.maxSlope > m.maxSlope + 0.5)}
+      ${row('Red ground', fmtDist(redLen(state.redZones)), fmtDist(redLen(zv)), redLen(zv) > redLen(state.redZones) + 1)}
+      ${row('Max slip', (m.maxSlip * 100).toFixed(0) + '%', (mv.maxSlip * 100).toFixed(0) + '%', mv.maxSlip > m.maxSlip + 0.01)}
+      ${row('Energy (est.)', fmtEnergy(m.energy), fmtEnergy(mv.energy), mv.energy > m.energy * 1.01)}</table>`;
+    const effort = (cv / cm - 1) * 100;
+    const verdict = effort < 1
+      ? 'Going through there is about as easy as the planned route.'
+      : `Going through there takes <b>${effort.toFixed(0)}% more effort</b> overall (distance × difficulty), so the planner did not choose it.`;
+    out.innerHTML = `<b>Why not through there?</b> (purple line; the ground there: ${here})${table}<p>${verdict}</p>`;
+    setStatus('Comparison ready: the purple line goes through the point you tapped.', 'info');
   }
 
   function computeRoute() {
@@ -1433,6 +1544,34 @@ async function main() {
       baseMesh = buildRibbon(bp, bp.map(() => new THREE.Color('#ffffff')), 0.5, 0.55, 0.55);
       scene.add(baseMesh);
     }
+    // red stretches: a wide glowing band that pulses, and a warning sign over each one
+    state.redZones = findRedZones(m); state.inRed = -1;
+    if (state.redZones.length) {
+      const hp = [], hc = [], red = new THREE.Color('#ff2a2a');
+      const segs = state.redZones.map(z => [Math.max(0, z.i0 - 1), Math.min(pts.length - 1, z.i1 + 1)]);
+      // one ribbon with the non-red parts collapsed to zero width is simplest: build per zone and merge
+      const geos = segs.map(([a, b]) => buildRibbon(pts.slice(a, b + 1), pts.slice(a, b + 1).map(() => red), 2.1, 0.78, 0.6));
+      const merged = new THREE.BufferGeometry();
+      let off = 0; const P = [], C = [], I = [];
+      for (const g of geos) {
+        const pa = g.geometry.attributes.position.array, ca = g.geometry.attributes.color.array, ia = g.geometry.index.array;
+        for (const v of pa) P.push(v); for (const v of ca) C.push(v); for (const v of ia) I.push(v + off);
+        off += pa.length / 3; g.geometry.dispose(); g.material.dispose();
+      }
+      merged.setAttribute('position', new THREE.Float32BufferAttribute(P, 3));
+      merged.setAttribute('color', new THREE.Float32BufferAttribute(C, 3));
+      merged.setIndex(I);
+      hazardMesh = new THREE.Mesh(merged, new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.6, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
+      hazardMesh.renderOrder = 4; hazardMesh.frustumCulled = false;
+      scene.add(hazardMesh);
+      for (const z of state.redZones) {
+        const mid = pts[Math.round((z.i0 + z.i1) / 2)];
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: warnTexture(`${z.maxSlope.toFixed(0)}°`, `slip ${(z.maxSlip * 100).toFixed(0)}%`), depthTest: false, toneMapped: false }));
+        sp.scale.set(4.2, 2.75, 1); sp.position.set(mid.x, mid.y + 4.2, mid.z); sp.renderOrder = 11;
+        scene.add(sp); warnSigns.push(sp);
+      }
+    }
+    explainRoute(m, b, v);
 
     state.sim = { pts };
     traveler.visible = true;
@@ -1441,7 +1580,9 @@ async function main() {
     setProgress(0);
     setPlayEnabled(true);
     updateDashboard(m, b);
-    setStatus(`Route ready: ${fmtDist(m.dist)}, about ${fmtTime(m.time)}, ${m.zones} hazard zone(s). Click the terrain again to start a new route.`, 'ok');
+    setStatus(state.redZones.length
+      ? `Route ready: ${fmtDist(m.dist)}, about ${fmtTime(m.time)}. ⚠ ${state.redZones.length} red stretch(es) could not be avoided — marked with warning signs. Tap 💡 Why? for the reasons.`
+      : `Route ready: ${fmtDist(m.dist)}, about ${fmtTime(m.time)}, no red ground. Tap 💡 Why? to see why it goes this way.`, state.redZones.length ? 'warn' : 'ok');
   }
 
   let routeQueued = false;
@@ -1529,6 +1670,7 @@ async function main() {
     const hit = pickTerrain(e.clientX, e.clientY);
     if (!hit) return;
     const { idx } = hitToCell(hit);
+    if (state.ask && state.route) { state.ask = false; $('why').classList.remove('asking'); askVia(idx); return; }
     if (state.start === null || state.end !== null) {
       setStart(idx);
       setStatus('Start point (A) set. Now click the destination (B).', 'info');
@@ -1599,7 +1741,7 @@ async function main() {
     scene.add(terrainMesh);
     applyHeights();
 
-    const list = (meta.landmarks && meta.landmarks.length) ? meta.landmarks : (meta.demo ? DEMO_LANDMARKS : detectBasins(T));
+    const list = (meta.landmarks && meta.landmarks.length >= 2) ? meta.landmarks : (meta.landmarks || []).concat(detectBasins(T, 4 - (meta.landmarks || []).length));
     setupLandmarks(list);
 
     lastRegionName = meta.name; lastBadge = meta.badge;
@@ -1617,29 +1759,68 @@ async function main() {
     $('loading').classList.add('hidden');
   }
 
-  /* ----- Choosing and loading a site ----- */
+  /* ----- Choosing and loading a site: REAL data from NASA / USGS (api/terrain.js) ----- */
+  const API_V = 3;
+  const lon180 = l => ((l + 180) % 360 + 360) % 360 - 180;
+  let currentSite = null, currentKm = 40, namesPromise = null;
+  const traverseCache = {};
+
+  async function fetchJSON(url, ms = 55000) {
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms);
+    try {
+      const r = await fetch(url, { signal: ctl.signal });
+      const j = await r.json().catch(() => null);
+      if (!r.ok) throw new Error((j && j.error) || `HTTP ${r.status}`);
+      return j;
+    } finally { clearTimeout(t); }
+  }
+  // IAU-approved names (USGS Gazetteer), loaded once
+  function marsNames() {
+    if (!namesPromise) namesPromise = fetchJSON('/api/names', 30000).then(j => (j && j.f) || []).catch(() => { namesPromise = null; return []; });
+    return namesPromise;
+  }
+  function namesInWindow(all, lat0, lon0, km) {
+    const R = 3396190, D = Math.PI / 180, W = km * 1000, out = [];
+    for (const [name, la, lo, dkm, type] of all) {
+      const y = (la - lat0) * D * R, x = lon180(lo - lon0) * D * R * Math.cos(la * D);
+      const u = x / W + 0.5, v = 0.5 - y / W;
+      if (u < 0.04 || u > 0.96 || v < 0.04 || v > 0.96) continue;
+      if (dkm && dkm * 1000 > W * 2.5) continue;                     // much larger than the map
+      if (dkm && dkm * 1000 < W * 0.012) continue;                   // too small to see at this scale
+      out.push({ name: type === 'Crater' ? `${name} crater` : name, u, v, rM: Math.max(300, (dkm || 2) * 500), diam: dkm || 0 });
+    }
+    out.sort((a, b) => b.diam - a.diam);
+    return out.slice(0, 10);
+  }
+  function traverseFor(rover) {
+    if (!traverseCache[rover]) traverseCache[rover] = fetchJSON(`/api/traverse?rover=${rover}`, 20000).catch(() => { delete traverseCache[rover]; return null; });
+    return traverseCache[rover];
+  }
+  const packBase = (site, km) => `/api/terrain?lat=${site.lat.toFixed(4)}&lon=${lon180(site.lonE).toFixed(4)}&km=${km}&n=512&tex=${PROFILE.weak ? 1536 : 2048}&v=${API_V}&f=`;
+
   async function loadSource(src) {
     lastSource = src;
     const qv = $('quality').value;
-    const q = qv === 'auto' ? (PROFILE.weak ? 192 : 256) : (parseInt(qv, 10) || 256);
+    const q = qv === 'auto' ? (PROFILE.weak ? 256 : 384) : (parseInt(qv, 10) || 256);
     CONFIG.gridSize = q;
-    CONFIG.textureSize = { 192: 1024, 256: 1536, 384: 2048, 512: 3072 }[q] || 1536;
+    CONFIG.textureSize = { 192: 1024, 256: 1536, 384: 2048, 512: 2048 }[q] || 1536;
     CONFIG.contourSize = { 192: 768, 256: 1024, 384: 1280, 512: 1792 }[q] || 1024;
     const site = src.site || null;
 
     if (src.kind === 'image') {
       const m = src.meta || {};
-      const hasScale = typeof m.elevMin === 'number' && typeof m.elevMax === 'number' && typeof m.regionWidthM === 'number';
-      if (hasScale) { CONFIG.elevMin = m.elevMin; CONFIG.elevMax = m.elevMax; CONFIG.regionWidthM = m.regionWidthM; }
-      const grid = imageToGrid(src.img, q, CONFIG.elevMin, CONFIG.elevMax, m.encoding || 'gray8');
-      env.lat = typeof m.lat === 'number' ? m.lat : (site ? site.lat : 18.4);
+      CONFIG.elevMin = m.elevMin; CONFIG.elevMax = m.elevMax; CONFIG.regionWidthM = m.regionWidthM;
+      // relief exaggeration that keeps very tall places (Olympus Mons) and flat plains both readable
+      const relief = (m.elevMax - m.elevMin) / m.regionWidthM;
+      CONFIG.exaggeration = clamp(Math.round((0.06 / Math.max(relief, 0.004)) * 2) / 2, 1, 4);
+      $('exag').value = CONFIG.exaggeration; $('exag-val').textContent = `${CONFIG.exaggeration}×`;
+      const grid = imageToGrid(src.img, q, m.elevMin, m.elevMax, 'rg16');
+      env.lat = m.lat;
       await buildWorld(grid, {
-        name: m.name || (site ? site.name : 'Heightmap region'),
+        name: site ? site.name : 'Mars',
         landmarks: m.landmarks, texImg: src.texImg,
-        badge: hasScale ? `Data: ${m.source || 'elevation heightmap'}` : 'Data: heightmap loaded, but terrain.json is missing (scale is a guess)',
-        warn: !hasScale,
-        note: (hasScale ? `Elevation source: ${m.source || 'heightmap.png'}.` : 'terrain.json was not found, so the elevation range and map width are default guesses. Add terrain.json (make_heightmap.py creates it).') +
-          (src.texImg ? ` Surface image: ${m.textureSource || 'texture.jpg'}.` : '')
+        badge: `Real data · ${m.sourceResM} m elevation + CTX image`,
+        note: `Elevation: ${m.source}. Surface image: ${m.textureSource}. Place names: IAU / USGS Gazetteer of Planetary Nomenclature.`
       });
     } else if (src.kind === 'upload') {
       CONFIG.elevMin = src.lo; CONFIG.elevMax = src.hi; CONFIG.regionWidthM = src.wkm * 1000;
@@ -1648,51 +1829,102 @@ async function main() {
         name: src.name, badge: `Data: your heightmap (${src.name})`,
         note: `Your file ${src.name}: elevation ${src.lo} to ${src.hi} m, map width ${src.wkm} km. These numbers come from what you typed.`
       });
-    } else {
-      CONFIG.regionWidthM = 24000;
-      const grid = generateDemoTerrain(q, CONFIG.regionWidthM);
-      const off = site && site.elevM != null ? site.elevM + 2450 : 0;
-      if (off) for (let i = 0; i < grid.length; i++) grid[i] += off;
-      env.lat = site ? site.lat : 18.4;
-      await buildWorld(grid, {
-        demo: true,
-        name: site ? `${site.name} (simulated)` : 'Demo terrain (simulated)',
-        badge: 'Data: SIMULATED terrain for this place. Add a data pack for real elevation',
-        note: 'This is a simulated terrain used for testing. It is not NASA data. Only the latitude' + (off ? ' and rough ground level' : '') + ' come from the chosen place. Real elevation data replaces it when a data pack for the site exists (see regions/README.txt).'
-      });
     }
   }
 
+  function showLoadError(site, km, msg) {
+    const el = $('loading');
+    el.classList.remove('hidden');
+    el.innerHTML = `<div class="load-err"><b>Could not load the real data for ${site.name}.</b><span>${msg}</span>
+      <div class="row"><button class="btn primary" id="le-retry">Try again</button>
+      ${km > 20 ? `<button class="btn" id="le-small">Smaller area (${Math.round(km / 2)} km)</button>` : ''}
+      <button class="btn" id="le-back">Back to the map</button></div></div>`;
+    $('le-retry').onclick = () => loadSite(site, { km });
+    if ($('le-small')) $('le-small').onclick = () => loadSite(site, { km: Math.round(km / 2) });
+    $('le-back').onclick = () => { el.classList.add('hidden'); showView('world'); };
+  }
+
   let siteLoading = false;
-  async function loadSite(site) {
+  async function loadSite(site, opts = {}) {
     if (siteLoading) return;
     siteLoading = true;
+    site = site || currentSite || SITES[0];
+    const km = Math.round(opts.km || site.km || 40);
     try {
-      site = site || SITES[0];
       showView('3d');
-      setLoading(`Looking for terrain data for ${site.name}…`);
+      if (location.protocol === 'file:') throw new Error('Open the site through Vercel or a local server with the /api functions.');
+      // the first visit to a new place is built live from NASA/USGS files (up to ~30 s); after that the CDN serves it at once
+      const t0 = performance.now();
+      let phase = `Reading NASA/USGS elevation for ${site.name} (${km} × ${km} km)…`;
+      const tickLoad = () => {
+        const sec = Math.round((performance.now() - t0) / 1000);
+        setLoading(phase + (sec >= 3 ? `\n${sec} s · the first visit to a new place is built live from the real data files (up to ~30 s); next time it opens at once` : ''));
+      };
+      tickLoad();
+      const ticker = setInterval(tickLoad, 1000);
       await nextFrame();
-      const candidates = site.pack ? [site.pack] : [];
-      if (site.id === 'jezero') candidates.push('');            // older layout: files next to index.html
-      let found = null;
-      for (const base of candidates) {
-        const meta = await fetchMeta(base);
-        let img = null;
-        try { img = await loadImage(base + ((meta && meta.heightmap) || CONFIG.heightmapFile)); } catch (e) { img = null; }
-        if (img) { found = { base, meta: meta || {}, img }; break; }
-      }
-      if (found) {
-        let texImg = null;
-        try { texImg = await loadImage(found.base + (found.meta.texture || 'texture.jpg')); } catch (e) { texImg = null; }
-        await loadSource({ kind: 'image', site, ...found, texImg });
-      } else {
-        await loadSource({ kind: 'demo', site });
-      }
+      const base = packBase(site, km);
+      let meta, names, img, texImg;
+      try {
+        [meta, names] = await Promise.all([fetchJSON(base + 'terrain.json'), marsNames()]);
+        phase = 'Downloading the elevation model and the CTX orbital image…'; tickLoad();
+        [img, texImg] = await Promise.all([
+          loadImage(base + 'heightmap.png'),
+          loadImage(base + 'texture.jpg').catch(() => null)
+        ]);
+      } finally { clearInterval(ticker); }
+      meta.landmarks = namesInWindow(names, meta.lat, meta.lon, km);
+      currentSite = site; currentKm = km; pathCanvas = null;
+      const sel = $('area-size');
+      if (sel) { if (![...sel.options].some(o => +o.value === km)) sel.insertAdjacentHTML('beforeend', `<option value="${km}">${km} km</option>`); sel.value = String(km); }
+      await loadSource({ kind: 'image', site, meta, img, texImg });
+      drawTraverses(site, meta, km);
     } catch (err) {
       console.error(err);
-      $('loading').classList.remove('hidden');
-      $('loading').textContent = 'Could not build this site. Open the browser console (F12) for details.';
+      showLoadError(site, km, err && err.name === 'AbortError' ? 'NASA/USGS servers took too long to answer.' : (err && err.message) || 'Unknown error');
     } finally { siteLoading = false; }
+  }
+
+  /* ----- Real rover paths (NASA MMGIS) painted on the terrain ----- */
+  async function drawTraverses(site, meta, km) {
+    pathCanvas = null;
+    const R = 3396190, D = Math.PI / 180, W = km * 1000;
+    const toUV = (lo, la) => [lon180(lo - meta.lon) * D * R * Math.cos(la * D) / W + 0.5, 0.5 - (la - meta.lat) * D * R / W];
+    const found = [];
+    for (const rover of ['perseverance', 'curiosity']) {
+      const j = await traverseFor(rover);
+      if (!j || !j.points) continue;
+      const uv = j.points.map(([lo, la]) => toUV(lo, la));
+      if (!uv.some(([u, v]) => u > 0 && u < 1 && v > 0 && v < 1)) continue;
+      found.push({ rover, uv, latest: j.latest });
+    }
+    if (!found.length || currentSite !== site) return;
+    const TS = CONFIG.textureSize;
+    pathCanvas = makeCanvas(TS, TS);
+    const g = pathCanvas.getContext('2d');
+    g.lineJoin = 'round'; g.lineCap = 'round';
+    for (const f of found) {
+      const col = f.rover === 'perseverance' ? '#3ddc84' : '#6fd0ff';
+      g.strokeStyle = 'rgba(0,0,0,0.55)'; g.lineWidth = Math.max(3, TS / 500);
+      g.beginPath(); f.uv.forEach(([u, v], i) => (i ? g.lineTo(u * TS, v * TS) : g.moveTo(u * TS, v * TS))); g.stroke();
+      g.strokeStyle = col; g.lineWidth = Math.max(1.6, TS / 1100);
+      g.beginPath(); f.uv.forEach(([u, v], i) => (i ? g.lineTo(u * TS, v * TS) : g.moveTo(u * TS, v * TS))); g.stroke();
+      if (f.latest) {
+        const [u, v] = toUV(f.latest.lon, f.latest.lat);
+        if (u > 0 && u < 1 && v > 0 && v < 1) {
+          const name = f.rover === 'perseverance' ? 'Perseverance' : 'Curiosity';
+          const lm = { name: `${name} now${f.latest.sol ? ` · sol ${f.latest.sol}` : ''}`, u, v, rM: 200 };
+          const gx = clamp(Math.round(u * (n - 1)), 0, n - 1), gy = clamp(Math.round(v * (n - 1)), 0, n - 1);
+          const sprite = labelSprite(lm.name); scene.add(sprite);
+          landmarks.push({ name: lm.name, gx, gy, rM: lm.rM, sprite });
+          placeLandmarks();
+          const opts = landmarks.map((l, i) => `<option value="${i}">${l.name}</option>`).join('');
+          $('qr-from').innerHTML = opts; $('qr-to').innerHTML = opts; $('quick-route').hidden = landmarks.length < 2;
+        }
+      }
+    }
+    $('data-note').textContent += ` Green/blue line: the real path driven by ${found.map(f => (f.rover === 'perseverance' ? 'Perseverance' : 'Curiosity')).join(' and ')} (NASA/JPL-Caltech MMGIS).`;
+    composeTexture();
   }
 
   // "Load your own heightmap" (a grayscale PNG: dark = low, bright = high)
@@ -1745,6 +1977,8 @@ async function main() {
   $('overlay-mode').addEventListener('change', e => { layers.overlay = e.target.value; refreshLayer(); });
   $('quality').addEventListener('change', () => { if (lastSource) loadSource(lastSource); });
   $('chk-contours').addEventListener('change', e => { layers.contours = e.target.checked; composeTexture(); });
+  $('area-size').addEventListener('change', e => { if (currentSite) loadSite(currentSite, { km: parseInt(e.target.value, 10) }); });
+  $('chk-paths').addEventListener('change', e => { layers.paths = e.target.checked; if (T) composeTexture(); });
   $('chk-labels').addEventListener('change', e => { layers.labels = e.target.checked; placeLandmarks(); });
   $('exag').addEventListener('input', e => {
     CONFIG.exaggeration = parseFloat(e.target.value);
@@ -1763,10 +1997,10 @@ async function main() {
     closeSheetOnPhone();
   });
   const celSel = $('celebrate');
-  celSel.innerHTML = CELEBRATIONS.map(c => `<option value="${c.id}">${c.label}</option>`).join('') + '<option value="off">Nothing</option>';
-  celSel.value = 'flag';
+  celSel.innerHTML = CELEBRATIONS.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+  celSel.value = 'omani';
   celSel.addEventListener('change', () => {
-    if (state.celebrate && celSel.value !== 'off') { state.celebrate.mode = celSel.value; state.celebrate.t0 = performance.now() / 1000; resetCelebration(travelerModel); setStatus(CELEBRATION_TEXT[celSel.value] || '', 'ok'); }
+    if (state.celebrate && celSel.value !== 'off' && state.celebrate.mode !== 'rover') { state.celebrate.mode = celSel.value; state.celebrate.t0 = performance.now() / 1000; resetCelebration(travelerModel); setStatus(CELEBRATION_TEXT[celSel.value] || '', 'ok'); }
   });
 
   // One-tap demo: pick two points, plan the route and start walking
@@ -1858,19 +2092,34 @@ async function main() {
   $('preset-clear').addEventListener('click', () => setEnv({ hour: 11, tau: 0.5, spe: false }));
   $('preset-storm').addEventListener('click', () => setEnv({ hour: 12, tau: 4.5 }));
   $('preset-night').addEventListener('click', () => setEnv({ hour: 23 }));
+  // today's real season and Earth distance (computed in marsclock.js, no internet needed)
+  const todayEnv = (ls, au) => ({ ls: Math.round(ls) % 360, au: clamp(Math.round(au * 100) / 100, 0.4, 2.6) });
+  $('preset-today').addEventListener('click', () => {
+    const now = new Date();
+    setEnv(todayEnv(mars24(now).ls, earthMars(now).au));
+    setStatus(`Conditions set to today on Mars: season Ls ${env.ls}°, Earth ${env.au.toFixed(2)} AU away.`, 'ok');
+  });
 
   /* ----- Views: global map <-> 3D mission, panels, full screen ----- */
   const worldmap = initWorldMap({ onOpen: site => loadSite(site) });
   function showView(v) {
     currentView = v;
+    document.body.dataset.view = v;
     $('view-world').hidden = v !== 'world';
     $('view-3d').hidden = v !== '3d';
+    $('view-today').hidden = v !== 'today';
     $('tab-world').classList.toggle('active', v === 'world');
     $('tab-3d').classList.toggle('active', v === '3d');
+    $('tab-today').classList.toggle('active', v === 'today');
+    try { history.replaceState(null, '', v === 'world' ? location.pathname : '#' + v); } catch (e) { /* ignore */ }
     if (v === 'world') {
       worldmap.show();
       $('data-badge').textContent = 'Global map';
       $('region-badge').textContent = 'Region: whole planet';
+    } else if (v === 'today') {
+      $('data-badge').textContent = 'Live: NASA data';
+      $('region-badge').textContent = 'Mars today';
+      if (window.MarsToday) window.MarsToday.show();
     } else {
       resize();
       if (T) {
@@ -1903,6 +2152,22 @@ async function main() {
   });
   $('panel-close').addEventListener('click', () => { $('panel').classList.add('collapsed'); syncToolbar(); });
   $('btn-dash').addEventListener('click', () => setDashboard($('dashboard').hidden));
+  // "Why this route?" card and the "why not through there?" question
+  $('btn-why').addEventListener('click', () => { const w = $('why'); w.hidden = !w.hidden; if (w.hidden) { removeAsk(); state.ask = false; w.classList.remove('asking'); } });
+  $('why-close').addEventListener('click', () => { $('why').hidden = true; removeAsk(); state.ask = false; $('why').classList.remove('asking'); });
+  $('btn-ask').addEventListener('click', () => {
+    if (!state.route) return;
+    state.ask = true; $('why').classList.add('asking');
+    if (matchMedia('(max-width: 900px)').matches) $('why').hidden = true;   // phone: free the map for the tap
+    setStatus('Tap any point on the terrain: I will compare going through it with the planned route.', 'info');
+  });
+  // sound: one button, remembered on this device; audio starts after the first tap (browser rule)
+  const sb = $('btn-sound');
+  const syncSound = on => { sb.querySelector('.ic').textContent = on ? '🔊' : '🔇'; sb.setAttribute('aria-pressed', String(on)); sb.title = on ? 'Sound on (tap to mute)' : 'Sound off (tap to turn on)'; };
+  syncSound(sound.enabled); sound.onChange(syncSound);
+  sb.addEventListener('click', e => { e.stopPropagation(); sound.toggle(); });
+  document.addEventListener('pointerdown', () => sound.unlock(), { passive: true });
+  document.addEventListener('visibilitychange', () => { if (sound.ctx) (document.hidden ? sound.ctx.suspend() : sound.enabled && sound.ctx.resume()); });
   $('dash-close').addEventListener('click', () => setDashboard(false));
   $('tb-play').addEventListener('click', () => { btnPlay.click(); if (state.playing) closeSheetOnPhone(); });
   function setPanelTab(name) {
@@ -1946,7 +2211,7 @@ async function main() {
   renderer.setAnimationLoop(() => {
     if (currentView !== '3d') { clock.getDelta(); return; }
     const tNow = performance.now() / 1000;
-    const busy = state.playing || (state.celebrate && tNow - state.celebrate.t0 < 40) || (tNow - lastActive < 1.2);
+    const busy = state.playing || !!state.celebrate || (tNow - lastActive < 1.2);
     if (!busy && tNow - lastRender < 0.12) return;           // idle: about 8 frames per second
     lastRender = tNow;
     const rawDt = clock.getDelta(), dt = Math.min(rawDt, 0.1);
@@ -1961,6 +2226,9 @@ async function main() {
     if (state.celebrate) {
       const c = state.celebrate;
       celebrateModel(travelerModel, tNow - c.t0, c.mode, camera.position);
+      const tr = c.mode === 'rover' ? null : celebrationTrack(c.mode, tNow - c.t0);
+      const dn = tr && (tr.dance === 'baraa' || tr.dance === 'razha') ? tr.dance : null;
+      sound.drums(dn, c.t0 + ((tr && tr.start) || 0), dn ? BEAT[dn] : 0);
       if (c.autoCam && traveler.visible) {                    // the camera glides in so the flag and the astronaut are easy to see
         const k = 1 - Math.exp(-dt * 2.2);
         camTgt.copy(traveler.position); camTgt.y += 2.4;
@@ -1968,10 +2236,19 @@ async function main() {
         camDir.set(camera.position.x - controls.target.x, 0, camera.position.z - controls.target.z);
         if (camDir.lengthSq() < 1e-6) camDir.set(0, 0, 1);
         camDir.normalize();
-        camWant.copy(controls.target).addScaledVector(camDir, 15); camWant.y = controls.target.y + 2.0;
+        camWant.copy(controls.target).addScaledVector(camDir, 11); camWant.y = controls.target.y + 1.6;
         camera.position.lerp(camWant, k);
       }
-    } else animateModel(travelerModel, tNow, dt, state.playing);
+    } else if (traveler.visible && state.tgt) {
+      rig.update(dt, state.tgt, state.tgtYaw, { slip: state.tgtSlip || 0, moving: state.playing, dust: kickDust, metersPerUnit: CONFIG.regionWidthM / size });
+    }
+    kickDust.update(dt, 6.0, groundAt, scene.background);
+    if (state.celebrate && tNow - state.celebrate.t0 > 90) { stopCelebration(); setStatus('Celebration finished. Press ▶ Preview celebration to watch it again.', 'info'); }
+    // labels and warning signs step aside when the camera is close (they would cover the traveler) and during a celebration
+    for (const l of landmarks) l.sprite.visible = layers.labels && !state.celebrate && camera.position.distanceTo(l.sprite.position) > 22;
+    for (const w of warnSigns) w.visible = !state.celebrate && camera.position.distanceTo(w.position) > 9;
+    if (hazardMesh) hazardMesh.material.opacity = 0.3 + 0.4 * (0.5 + 0.5 * Math.sin(tNow * 5));
+    sound.motor(state.playing && !state.celebrate && vehicle().model !== 'astronaut', rig ? Math.min(1, rig.speed * 2) : 0.5);
     if (state.playing && state.route) {
       const p = state.progress + dt / DURATION;
       setProgress(p);
@@ -2004,7 +2281,19 @@ async function main() {
   updateInfoTexts();
   $('exag').value = CONFIG.exaggeration;
   $('exag-val').textContent = `${CONFIG.exaggeration}×`;
-  showView('world');
+  // small API used by the "Mars today" page (marstoday.js)
+  window.MM = {
+    showView,
+    useToday(ls, au) {
+      setEnv(todayEnv(ls, au));
+      const msg = () => setStatus(`Conditions set to today on Mars: season Ls ${env.ls}°, Earth ${env.au.toFixed(2)} AU away.`, 'ok');
+      if (T) { showView('3d'); msg(); } else Promise.resolve(loadSite()).then(msg, () => {});
+    },
+    focusMission(m) { showView('world'); if (worldmap.focusMission) worldmap.focusMission(m); },
+    __test: { state, jump: p => setProgress(p), play: on => setPlaying(on) }   // used by tools/e2e.mjs
+  };
+  const startHash = (location.hash || '').slice(1);
+  showView(startHash === 'today' ? 'today' : 'world');
   applyEnvironment(true);
   window.__mmReady = true;
 }

@@ -5,10 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#160c0a">
   <title>Martian Map · Starseekers</title>
-  <meta name="description" content="Global Mars map and 3D mission planner with terrain, radiation, UV, dust and power hazards.">
+  <meta name="description" content="Global Mars map and 3D mission planner with terrain, radiation, UV, dust and power hazards, a live Mars clock and the newest NASA rover images.">
+  <meta property="og:title" content="Martian Map · Team Starseekers">
+  <meta property="og:description" content="Explore Mars: global map, 3D risk-aware route planning, live Mars time and the newest NASA rover images.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Martian Map">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="logo-icon.svg">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://images-api.nasa.gov" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=7">
 
   <!-- Three.js (3D) is loaded as an ES module through an import map -->
   <script type="importmap">
@@ -26,15 +38,17 @@
     <div class="brand">
       <img class="logo-img" src="logo-icon.svg" alt="" onerror="this.style.display='none'">
       <h1>Martian Map</h1>
-      <span class="by">by Team Starseekers</span>
+      <span class="by">by MR_PSG · Starseekers</span>
     </div>
     <nav class="tabs" aria-label="Views">
-      <button class="tab active" id="tab-world">🌍 Global map</button>
-      <button class="tab" id="tab-3d">🛰 3D mission</button>
+      <button class="tab active" id="tab-world">🌍 <span class="tl-long">Global map</span><span class="tl-short">Map</span></button>
+      <button class="tab" id="tab-3d">🛰 <span class="tl-long">3D mission</span><span class="tl-short">3D</span></button>
+      <button class="tab" id="tab-today">📡 <span class="tl-long">Mars today</span><span class="tl-short">Today</span></button>
     </nav>
     <div class="badges">
       <span class="badge" id="region-badge">Region: —</span>
       <span class="badge" id="data-badge">Global map</span>
+      <button class="btn small icon" id="btn-sound" title="Sound" aria-label="Sound on or off" aria-pressed="true"><span class="ic">🔊</span></button>
       <button class="btn small icon" id="btn-fullscreen" title="Full screen" aria-label="Full screen"><span class="ic">⛶</span> <span class="lbl">Full screen</span></button>
     </div>
   </header>
@@ -68,6 +82,13 @@
         <div class="compass" aria-label="Compass"><span class="n">N</span><div class="needle" id="compass-needle"></div></div>
         <div class="tip" id="tip" hidden></div>
         <div class="alerts" id="alert-bar" hidden></div>
+        <div class="hazard-banner" id="hazard-banner" role="alert" hidden></div>
+        <div class="why" id="why" hidden>
+          <div class="why-head"><b>💡 Why this route?</b><button class="icon-btn" id="why-close" aria-label="Close">✕</button></div>
+          <ul class="why-list" id="why-list"></ul>
+          <div class="why-ask" id="why-ask-res" hidden></div>
+          <button class="btn small wide" id="btn-ask">❓ Why not another way? Tap a point on the map</button>
+        </div>
         <div class="live" id="live" hidden>
           <div class="live-title">Live tracking</div>
           <div class="live-grid">
@@ -85,6 +106,7 @@
         <div class="toolbar" id="toolbar">
           <button class="btn tbtn" id="btn-panel"><span class="ic">☰</span><span class="lb">Controls</span></button>
           <button class="btn tbtn primary" id="tb-play" disabled>▶ Play</button>
+          <button class="btn tbtn" id="btn-why" disabled><span class="ic">💡</span><span class="lb">Why?</span></button>
           <button class="btn tbtn" id="btn-dash"><span class="ic">📊</span><span class="lb">Dashboard</span></button>
           <button class="btn tbtn" id="btn-back-world"><span class="ic">🌍</span><span class="lb">Map</span></button>
         </div>
@@ -110,7 +132,7 @@
           <select id="vehicle"></select>
           <div class="vehicle-preview" id="vehicle-preview" aria-label="3D preview of the selected vehicle"></div>
           <p class="hint" id="vehicle-info"></p>
-          <p class="hint">Models are drawn larger than real scale so they stay visible on the map.</p>
+          <p class="hint">Original Starseekers designs by MR_PSG. Drawn larger than real scale so they stay visible on a map tens of km wide; they ride the real terrain with suspension and Mars gravity.</p>
         </section>
 
         <section class="block" data-tab="trip">
@@ -121,8 +143,8 @@
             <button id="qr-go" class="btn primary wide">Plan route between craters</button>
           </div>
           <p class="hint">Or click any two points on the terrain (A, then B).</p>
-          <input type="range" id="risk" min="0" max="100" value="60" aria-label="Route priority: fastest to safest">
-          <div class="range-labels"><span>Fastest</span><span>Lowest risk</span></div>
+          <input type="range" id="risk" min="0" max="100" value="85" aria-label="Route priority: shortest to easiest">
+          <div class="range-labels"><span>Shortest</span><span>Easiest</span></div>
           <p class="hint" id="risk-info"></p>
         </section>
 
@@ -133,7 +155,7 @@
             <button id="btn-clear" class="btn">Clear route</button>
           </div>
           <label class="check"><input type="checkbox" id="chk-follow" checked> Camera follows the traveler</label>
-          <label class="field">Celebration when the astronaut arrives safely
+          <label class="field">Celebration on arrival (the astronaut dances, vehicles raise the flag)
             <select id="celebrate"></select>
           </label>
           <div class="btn-row wrap">
@@ -160,6 +182,7 @@
           <p class="hint" id="env-delay"></p>
           <label class="check"><input type="checkbox" id="env-spe"> Solar particle storm scenario (assumed)</label>
           <div class="btn-row wrap">
+            <button class="btn small" id="preset-today" title="Season and Earth distance for today's date">📅 Today on Mars</button>
             <button class="btn small" id="preset-clear">☀ Clear day</button>
             <button class="btn small" id="preset-storm">🌪 Dust storm</button>
             <button class="btn small" id="preset-night">🌙 Night</button>
@@ -167,17 +190,35 @@
         </section>
 
         <section class="block" data-tab="map">
+          <h2>Area</h2>
+          <label class="field">Width of the real 3D area
+            <select id="area-size">
+              <option value="10">10 km (close-up)</option>
+              <option value="25">25 km</option>
+              <option value="44">44 km</option>
+              <option value="80">80 km</option>
+              <option value="170">170 km</option>
+              <option value="300">300 km</option>
+              <option value="500">500 km</option>
+              <option value="700">700 km (whole volcano)</option>
+            </select>
+          </label>
+          <p class="hint">Elevation: Mars 2020 CTX DEM (20 m) at Jezero, HRSC + MOLA global DEM (200 m) everywhere else. Image: CTX mosaic (≈5 m).</p>
+          <label class="check"><input type="checkbox" id="chk-paths" checked> Real rover paths (NASA)</label>
+        </section>
+
+        <section class="block" data-tab="map">
           <h2>Map layers</h2>
           <label class="field">Overlay
             <select id="overlay-mode">
+              <option value="none" selected>Real surface only</option>
               <option value="difficulty">Terrain difficulty</option>
               <option value="sun">Sun, shadow and UV</option>
               <option value="shield">Radiation shielding</option>
               <option value="temp">Temperature</option>
-              <option value="none">None (surface only)</option>
             </select>
           </label>
-          <label class="check"><input type="checkbox" id="chk-contours" checked> Contour lines</label>
+          <label class="check"><input type="checkbox" id="chk-contours"> Contour lines</label>
           <label class="check"><input type="checkbox" id="chk-labels" checked> Crater labels</label>
           <label class="field">Relief height: <b id="exag-val">3×</b>
             <input type="range" id="exag" min="1" max="6" step="0.5" value="3" aria-label="Relief exaggeration">
@@ -229,7 +270,7 @@
           <h2>How to use</h2>
           <ol class="howto">
             <li>Pick a site on the global map and press "Open 3D mission".</li>
-            <li>Pick two craters and press "Plan route", or click two points on the terrain.</li>
+            <li>Pick two named places and press "Plan route", or tap two points on the terrain.</li>
             <li>Change the time, dust and season: the hazards update.</li>
             <li>Press Play to follow the live tracking panel.</li>
           </ol>
@@ -296,7 +337,99 @@
       </section>
     </section>
 
+    <!-- ================= Mars today (live clock + NASA data) ================= -->
+    <section class="view today" id="view-today" hidden aria-label="Mars today">
+      <div class="today-wrap">
+        <header class="hero-card">
+          <div class="hero-text">
+            <p class="eyebrow">Today on Mars</p>
+            <h2 id="t-date">Mars Year — · Ls —</h2>
+            <p id="t-season" class="season"></p>
+            <p id="t-sun" class="muted small"></p>
+          </div>
+          <div class="mars-clock">
+            <span class="lbl">Coordinated Mars Time</span>
+            <strong id="t-mtc">--:--:--</strong>
+            <span id="t-msd" class="muted small"></span>
+          </div>
+        </header>
+
+        <div class="tgrid">
+          <article class="tcard">
+            <h3>Earth ↔ Mars right now</h3>
+            <div class="earth-row">
+              <div class="orbit" id="t-orbit"></div>
+              <dl class="stats">
+                <div><dt>Distance</dt><dd id="t-dist">—</dd><dd class="muted small" id="t-au"></dd></div>
+                <div><dt>Signal one way</dt><dd id="t-light">—</dd></div>
+                <div><dt>Question + answer</dt><dd id="t-rtt">—</dd></div>
+              </dl>
+            </div>
+            <p class="small" id="t-elong"></p>
+            <div class="use-box">
+              <p class="small"><b>Plan with today's conditions.</b> <span id="t-use-text"></span></p>
+              <button class="btn primary" id="t-use">🛰 Use today's Mars in the 3D mission</button>
+            </div>
+          </article>
+
+          <article class="tcard">
+            <h3>Missions on the surface</h3>
+            <ul class="missions" id="t-active"></ul>
+            <details class="details">
+              <summary>Earlier landers and rovers</summary>
+              <ul class="past" id="t-past"></ul>
+            </details>
+          </article>
+
+          <article class="tcard wide">
+            <div class="card-head">
+              <h3>Newest raw images from Mars</h3>
+              <div class="seg" role="group" aria-label="Rover">
+                <button data-rover="perseverance" aria-pressed="true">Perseverance</button>
+                <button data-rover="curiosity" aria-pressed="false">Curiosity</button>
+              </div>
+            </div>
+            <div class="gallery" id="t-gallery"></div>
+            <p class="small muted" id="t-gallery-msg"></p>
+          </article>
+
+          <article class="tcard wide">
+            <div class="card-head">
+              <h3>NASA image library</h3>
+              <label class="sr-only" for="t-lib-q">Topic</label>
+              <select id="t-lib-q" class="compact">
+                <option>Jezero Crater</option>
+                <option>Gale Crater Mount Sharp</option>
+                <option>Olympus Mons</option>
+                <option>Valles Marineris</option>
+                <option>Hellas Planitia</option>
+                <option>Mars dust storm</option>
+                <option>Mars polar ice cap</option>
+                <option>Ingenuity helicopter</option>
+                <option>Mars sunset</option>
+                <option>Phobos Deimos</option>
+              </select>
+            </div>
+            <div class="gallery" id="t-lib"></div>
+            <p class="small muted" id="t-lib-msg"></p>
+          </article>
+        </div>
+
+        <p class="credits">Mars time uses NASA GISS Mars24 (Allison &amp; McEwen 2000). Planet positions use JPL approximate orbital elements.
+          Images: NASA/JPL-Caltech, NASA Image and Video Library. Built by <strong>MR_PSG</strong> · Team Starseekers 🇴🇲</p>
+      </div>
+    </section>
+
   </main>
+
+  <footer class="sig">© 2026 <b>MR_PSG</b> · Team Starseekers · Data: NASA / JPL-Caltech / USGS / ESA</footer>
+
+  <!-- Full-screen image viewer -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
+    <button class="icon-btn lb-close" id="lb-close" aria-label="Close">✕</button>
+    <img id="lb-img" alt="" referrerpolicy="no-referrer">
+    <div class="lb-cap"><div id="lb-cap"></div><a id="lb-link" class="btn small" target="_blank" rel="noopener">Open at NASA ↗</a></div>
+  </div>
 
   <script>
     // Friendly warnings if the page was opened directly from the disk, or did not start
@@ -315,7 +448,7 @@
         msg = 'Still starting. If nothing changes, press F12 and check the Console tab.';
       }
       if (errs.length) msg += ' Error: ' + errs.slice(0, 2).join(' | ');
-      if (!window.__mmStarted) msg += ' Tip: make sure all project files were uploaded together (script.js, models.js, hazards.js, worldmap.js, index.html, style.css), then reload the page. If you opened it inside another app, open it in Safari or Chrome.';
+      if (!window.__mmStarted) msg += ' Tip: make sure all project files were uploaded together (script.js, models.js, hazards.js, worldmap.js, marsclock.js, marstoday.js, nasa.js, flag.js, index.html, style.css), then reload the page. If you opened it inside another app, open it in Safari or Chrome.';
       el.textContent = msg;
       el.hidden = false;
     }, 9000);
@@ -325,6 +458,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script type="module" src="script.js?v=5"></script>
+  <script type="module" src="marstoday.js?v=7"></script>
+  <script type="module" src="script.js?v=7"></script>
 </body>
 </html>

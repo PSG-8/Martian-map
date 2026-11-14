@@ -1,0 +1,23 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["pdx1"],
+  "functions": {
+    "api/terrain.js": { "maxDuration": 60, "memory": 1024 },
+    "api/names.js": { "maxDuration": 30 },
+    "api/traverse.js": { "maxDuration": 20 },
+    "api/rover-images.js": { "maxDuration": 20 }
+  },
+  "headers": [
+    {
+      "source": "/(.*)\\.(js|css|svg|png)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=86400" }]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}
