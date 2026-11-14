@@ -25,17 +25,16 @@ export const LAYERS = [
 const ATTRIBUTION = 'Mars data: NASA / JPL / USGS (Viking MDIM 2.1, MGS MOLA) · tiles by OpenPlanetary';
 const MARS_R = 3396190;
 
-// Approximate centers (planetocentric, east longitude). elevM = rough ground level, used only to scale the
-// simulated terrain when no real data pack exists for that site.
+// Planning sites (planetocentric, east longitude). km = width of the real 3D area that opens for the site.
 export const SITES = [
-  { id: 'jezero',   name: 'Jezero Crater',      lat: 18.44,  lonE: 77.45,  elevM: -2600, pack: 'regions/jezero/',   note: 'Perseverance landing site. Ancient river delta.', q: 'Jezero Crater', rover: 'perseverance' },
-  { id: 'gale',     name: 'Gale Crater',        lat: -4.59,  lonE: 137.44, elevM: -4400, pack: 'regions/gale/',     note: 'Curiosity landing site, with the tall Mount Sharp.', q: 'Gale Crater Mount Sharp', rover: 'curiosity' },
-  { id: 'meridiani',name: 'Meridiani Planum',   lat: -1.95,  lonE: 354.47, elevM: -1400, pack: 'regions/meridiani/',note: 'Opportunity landing site. Flat plains.', q: 'Meridiani Planum Opportunity' },
-  { id: 'gusev',    name: 'Gusev Crater',       lat: -14.57, lonE: 175.48, elevM: -1900, pack: 'regions/gusev/',    note: 'Spirit landing site.', q: 'Gusev Crater Spirit' },
-  { id: 'olympus',  name: 'Olympus Mons',       lat: 18.65,  lonE: 226.2,  elevM: 21000, pack: 'regions/olympus/',  note: 'Tallest volcano known in the solar system.', q: 'Olympus Mons' },
-  { id: 'valles',   name: 'Valles Marineris',   lat: -13.9,  lonE: 301.0,  elevM: -4000, pack: 'regions/valles/',   note: 'A canyon system thousands of kilometers long.', q: 'Valles Marineris' },
-  { id: 'hellas',   name: 'Hellas Basin',       lat: -42.4,  lonE: 70.5,   elevM: -7000, pack: 'regions/hellas/',   note: 'Deepest region: thickest air, least cosmic radiation.', q: 'Hellas Planitia' },
-  { id: 'utopia',   name: 'Utopia Planitia',    lat: 47.0,   lonE: 134.0,  elevM: -4100, pack: 'regions/utopia/',   note: 'Northern plains (Viking 2 area).', q: 'Utopia Planitia' }
+  { id: 'jezero',   name: 'Jezero Crater',        lat: 18.44,  lonE: 77.50,  km: 44,  q: 'Jezero Crater',            rover: 'perseverance', note: 'Perseverance\'s home: an ancient lake with a river delta. Elevation from the 20 m Mars 2020 CTX DEM.' },
+  { id: 'gale',     name: 'Gale Crater · Mount Sharp', lat: -5.10, lonE: 137.60, km: 170, q: 'Gale Crater Mount Sharp', rover: 'curiosity', note: 'Curiosity is climbing Aeolis Mons (Mount Sharp), a 5 km tall mountain of layered rock in the middle of the crater.' },
+  { id: 'meridiani',name: 'Endeavour Crater',     lat: -2.28,  lonE: 354.81, km: 40,  q: 'Endeavour crater Opportunity', note: 'Opportunity explored the rim of this 22 km crater for seven years.' },
+  { id: 'gusev',    name: 'Gusev Crater',         lat: -14.53, lonE: 175.52, km: 180, q: 'Gusev Crater Spirit',      note: 'Spirit landed here in 2004 and found signs of ancient hot springs.' },
+  { id: 'olympus',  name: 'Olympus Mons',         lat: 18.65,  lonE: 226.20, km: 700, q: 'Olympus Mons',             note: 'The tallest volcano known in the solar system: about 21 km above the Martian datum.' },
+  { id: 'valles',   name: 'Valles Marineris',     lat: -9.80,  lonE: 288.50, km: 420, q: 'Valles Marineris',         note: 'Candor, Ophir and Melas chasmata: canyons up to 7 km deep.' },
+  { id: 'hellas',   name: 'Hellas Basin floor',   lat: -42.40, lonE: 70.50,  km: 500, q: 'Hellas Planitia',          note: 'The deepest place on Mars, more than 7 km below the datum: thickest air, least cosmic radiation.' },
+  { id: 'utopia',   name: 'Utopia Planitia · Zhurong', lat: 25.07, lonE: 109.93, km: 40, q: 'Utopia Planitia',      note: 'China\'s Zhurong rover landed on these northern plains in 2021.' }
 ];
 
 const lonToLng = e => (e > 180 ? e - 360 : e);
@@ -43,15 +42,6 @@ const lngToLon = l => ((l % 360) + 360) % 360;
 const fmtLat = v => `${Math.abs(v).toFixed(2)}°${v >= 0 ? 'N' : 'S'}`;
 const fmtLon = v => `${lngToLon(v).toFixed(2)}°E`;
 
-async function hasPack(site) {
-  if (!site.pack) return false;
-  try {
-    const r = await fetch(site.pack + 'terrain.json', { method: 'GET', cache: 'no-cache' });
-    if (!r.ok) return false;
-    const j = await r.json();
-    return !!j && typeof j === 'object';
-  } catch (e) { return false; }
-}
 
 export function initWorldMap({ onOpen }) {
   const $ = id => document.getElementById(id);
@@ -62,12 +52,11 @@ export function initWorldMap({ onOpen }) {
 
   // site picker works even if the map library did not load
   sel.innerHTML = '<option value="">Choose a site…</option>' + SITES.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-  for (const s of SITES) hasPack(s).then(ok => { s.hasData = ok; if (selected === s) showCard(s); });
 
   function showCard(site, mission = null) {
     selected = site;
-    const data = site.hasData ? '<span class="ok">Real elevation data available</span>' : '<span class="warn">No elevation data pack yet: 3D opens with simulated terrain</span>';
-    const elev = site.elevM != null ? ` · ground about ${site.elevM} m (approx.)` : '';
+    const data = `<span class="ok">Real 3D: NASA/USGS elevation + CTX orbital image · ${site.km || 40} × ${site.km || 40} km</span>`;
+    const elev = '';
     let mis = '';
     if (mission) {
       const status = mission.active ? `<span class="ok">Active · Sol ${missionSol(mission).toLocaleString('en-US')}</span>` : '<span class="muted">Mission ended</span>';
@@ -162,7 +151,7 @@ export function initWorldMap({ onOpen }) {
   const missionSite = mi => {
     const near = SITES.find(s => Math.abs(s.lat - mi.lat) < 1.5 && Math.abs(((s.lonE - mi.lonE + 540) % 360) - 180) < 1.5);
     return near ? Object.assign({}, near, { name: `${mi.name} · ${near.name}` })
-      : { id: 'custom', name: `${mi.name} · ${mi.site}`, lat: mi.lat, lonE: mi.lonE, elevM: null, pack: null, hasData: false, note: mi.note };
+      : { id: 'custom', name: `${mi.name} · ${mi.site}`, lat: mi.lat, lonE: mi.lonE, km: 30, note: mi.note, rover: mi.id };
   };
   for (const mi of MISSIONS) {
     const icon = L.divIcon({ className: 'mis-icon' + (mi.active ? ' active' : ''), html: `<span>${mi.rover ? '🚙' : '📡'}</span>`, iconSize: [26, 26], iconAnchor: [13, 13] });
@@ -171,13 +160,22 @@ export function initWorldMap({ onOpen }) {
     mk.on('click', ev => { L.DomEvent.stopPropagation(ev); showCard(missionSite(mi), mi); });
   }
   missionLayer.addTo(map);
+  // the real paths driven by Perseverance and Curiosity (NASA mission maps)
+  for (const [rover, color] of [['perseverance', '#3ddc84'], ['curiosity', '#6fd0ff']]) {
+    fetch(`/api/traverse?rover=${rover}`).then(r => (r.ok ? r.json() : null)).then(j => {
+      if (!j || !Array.isArray(j.points) || j.points.length < 2) return;
+      const line = L.polyline(j.points.map(([lo, la]) => [la, lonToLng(lo)]), { color, weight: 3, opacity: 0.95 });
+      line.bindTooltip(`${rover === 'perseverance' ? 'Perseverance' : 'Curiosity'}: real path driven${j.latest && j.latest.sol ? ` (to sol ${j.latest.sol})` : ''}`, { sticky: true });
+      line.addTo(missionLayer);
+    }).catch(() => {});
+  }
   $('layers-body').insertAdjacentHTML('beforeend', '<hr><label class="check"><input type="checkbox" id="chk-missions" checked> 🚙 Landers &amp; rovers</label>');
   $('chk-missions').addEventListener('change', e => { if (e.target.checked) missionLayer.addTo(map); else map.removeLayer(missionLayer); });
 
   // click anywhere: custom site
   map.on('click', e => {
     const lat = Math.max(-85, Math.min(85, e.latlng.lat));
-    const site = { id: 'custom', name: `Custom site ${fmtLat(lat)}, ${fmtLon(e.latlng.lng)}`, lat, lonE: lngToLon(e.latlng.lng), elevM: null, pack: null, hasData: false, note: 'A point you picked on the map.' };
+    const site = { id: 'custom', name: `Site ${fmtLat(lat)}, ${fmtLon(e.latlng.lng)}`, lat, lonE: lngToLon(e.latlng.lng), km: 60, note: 'Any point on Mars opens in real 3D: global HRSC + MOLA elevation (200 m) and the CTX image mosaic.' };
     showCard(site);
   });
 

@@ -181,17 +181,35 @@
         </section>
 
         <section class="block" data-tab="map">
+          <h2>Area</h2>
+          <label class="field">Width of the real 3D area
+            <select id="area-size">
+              <option value="10">10 km (close-up)</option>
+              <option value="25">25 km</option>
+              <option value="44">44 km</option>
+              <option value="80">80 km</option>
+              <option value="170">170 km</option>
+              <option value="300">300 km</option>
+              <option value="500">500 km</option>
+              <option value="700">700 km (whole volcano)</option>
+            </select>
+          </label>
+          <p class="hint">Elevation: Mars 2020 CTX DEM (20 m) at Jezero, HRSC + MOLA global DEM (200 m) everywhere else. Image: CTX mosaic (≈5 m).</p>
+          <label class="check"><input type="checkbox" id="chk-paths" checked> Real rover paths (NASA)</label>
+        </section>
+
+        <section class="block" data-tab="map">
           <h2>Map layers</h2>
           <label class="field">Overlay
             <select id="overlay-mode">
+              <option value="none" selected>Real surface only</option>
               <option value="difficulty">Terrain difficulty</option>
               <option value="sun">Sun, shadow and UV</option>
               <option value="shield">Radiation shielding</option>
               <option value="temp">Temperature</option>
-              <option value="none">None (surface only)</option>
             </select>
           </label>
-          <label class="check"><input type="checkbox" id="chk-contours" checked> Contour lines</label>
+          <label class="check"><input type="checkbox" id="chk-contours"> Contour lines</label>
           <label class="check"><input type="checkbox" id="chk-labels" checked> Crater labels</label>
           <label class="field">Relief height: <b id="exag-val">3×</b>
             <input type="range" id="exag" min="1" max="6" step="0.5" value="3" aria-label="Relief exaggeration">
@@ -243,7 +261,7 @@
           <h2>How to use</h2>
           <ol class="howto">
             <li>Pick a site on the global map and press "Open 3D mission".</li>
-            <li>Pick two craters and press "Plan route", or click two points on the terrain.</li>
+            <li>Pick two named places and press "Plan route", or tap two points on the terrain.</li>
             <li>Change the time, dust and season: the hazards update.</li>
             <li>Press Play to follow the live tracking panel.</li>
           </ol>

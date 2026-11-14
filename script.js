@@ -16,12 +16,11 @@ window.__mmStarted = true; // tells index.html that this file loaded (used by th
 // @@LOGIC_START
 /* ---------------------------------------------------------------------
    SETTINGS
-   Real data: put heightmap.png and terrain.json next to index.html
-   (make_heightmap.py creates both). Without them the site shows a
-   simulated DEMO terrain and says so on the page.
+   Every site is built from REAL data served by /api/terrain (see api/terrain.js):
+   NASA/USGS elevation models and the CTX orbital image mosaic. Nothing is simulated.
    --------------------------------------------------------------------- */
 const CONFIG = {
-  regionName: 'Demo terrain (simulated)',
+  regionName: 'Mars',
   terrainFile: 'terrain.json',
   heightmapFile: 'heightmap.png',
 
@@ -137,83 +136,6 @@ function fbm(noise, x, y, octaves = 4) {
   return sum / norm;
 }
 
-function craterZ(r, R, depth, rim, wall) {
-  let z = 0;
-  if (r < R) z -= depth * wall * (1 - Math.pow(r / R, 4));
-  const sigma = Math.max(60, R * 0.08);
-  z += rim * wall * Math.exp(-Math.pow((r - R) / sigma, 2));
-  if (r > R) z += 0.5 * rim * wall * Math.exp(-(r - R) / (R * 0.3));
-  return z;
-}
-
-const angDiff = (a, b) => {
-  let d = a - b;
-  while (d > Math.PI) d -= 2 * Math.PI;
-  while (d < -Math.PI) d += 2 * Math.PI;
-  return d;
-};
-
-// breaches = directions (radians, 0 = east) where the crater wall has a gap (a ramp in or out)
-const DEMO_CRATERS = [
-  { u: 0.25, v: 0.55, R: 3000, depth: 260, rim: 80, breaches: [0, Math.PI] },
-  { u: 0.76, v: 0.42, R: 2300, depth: 200, rim: 65, breaches: [Math.PI, -0.7] },
-  { u: 0.62, v: 0.80, R: 1100, depth: 120, rim: 40, breaches: [Math.PI, 0.4] }
-];
-const DEMO_LANDMARKS = [
-  { name: 'Crater A', u: 0.25, v: 0.55, rM: 4300 },
-  { name: 'Crater B', u: 0.76, v: 0.42, rM: 3400 },
-  { name: 'Crater C', u: 0.62, v: 0.80, rM: 2200 }
-];
-
-function generateDemoTerrain(n, W) {
-  const noise = makeNoise(11), noise2 = makeNoise(23), noise3 = makeNoise(37), rnd = mulberry32(5);
-
-  const small = [];
-  for (let guard = 0; small.length < 18 && guard < 500; guard++) {
-    const u = 0.04 + rnd() * 0.92, v = 0.04 + rnd() * 0.92, R = 140 + Math.pow(rnd(), 2) * 560;
-    if (DEMO_CRATERS.some(c => Math.hypot((u - c.u) * W, (v - c.v) * W) < c.R * 1.25 + R)) continue;
-    small.push({ u, v, R, depth: 0.16 * R, rim: 0.05 * R });
-  }
-
-  const h = new Float32Array(n * n);
-  const rippleAngle = 0.6;
-  for (let y = 0; y < n; y++) {
-    for (let x = 0; x < n; x++) {
-      const u = x / (n - 1), v = y / (n - 1);
-      let z = -2450 + 90 * (fbm(noise, u * 2.2, v * 2.2) - 0.5) + 28 * (fbm(noise, u * 8 + 20, v * 8 + 20) - 0.5);
-
-      for (const c of DEMO_CRATERS) {
-        const dx = u - c.u, dy = v - c.v, r = Math.hypot(dx, dy) * W;
-        if (r > c.R * 4) continue;
-        const theta = Math.atan2(dy, dx);
-        let breach = 0;
-        for (const b of c.breaches) breach = Math.max(breach, Math.exp(-Math.pow(angDiff(theta, b) / 0.3, 2)));
-        z += craterZ(r, c.R, c.depth, c.rim, 1 - 0.78 * breach);
-      }
-      for (const s of small) {
-        const r = Math.hypot(u - s.u, v - s.v) * W;
-        if (r < s.R * 3) z += craterZ(r, s.R, s.depth, s.rim, 1);
-      }
-
-      // A rocky ridge between the two big craters, with two passes
-      const ridgeU = 0.5 + 0.04 * Math.sin(v * 6);
-      const gap = Math.max(Math.exp(-Math.pow((v - 0.30) / 0.045, 2)), Math.exp(-Math.pow((v - 0.74) / 0.045, 2)));
-      z += 230 * Math.exp(-Math.pow(((u - ridgeU) * W) / 650, 2)) * (1 - 0.92 * gap);
-
-      // Sand fields: slightly lower, with dune ripples
-      const sand = smoothstep(0.55, 0.72, fbm(noise2, u * 3 + 7, v * 3 + 7, 3));
-      z += sand * (2.0 * Math.sin((u * Math.cos(rippleAngle) + v * Math.sin(rippleAngle)) * W / 800 * 2 * Math.PI) - 6);
-
-      // Boulder fields: small random bumps
-      const rock = smoothstep(0.58, 0.74, fbm(noise3, u * 4 + 40, v * 4 + 40, 3));
-      z += (rnd() - 0.5) * 2 * (0.2 + 2.8 * rock);
-
-      h[y * n + x] = z;
-    }
-  }
-  return h;
-}
-
 /* ---------------------------------------------------------------------
    Terrain analysis
    slope      = steepness from height differences between neighboring cells
@@ -324,7 +246,7 @@ function detectBasins(T, max = 4) {
     if (out.every(o => Math.hypot(o.gx - c.gx, o.gy - c.gy) > R * 1.3)) out.push(c);
     if (out.length >= max) break;
   }
-  return out.map((c, k) => ({ name: `Basin ${k + 1}`, u: c.gx / (n - 1), v: c.gy / (n - 1), rM: 0.1 * (n - 1) * T.cell }));
+  return out.map((c, k) => ({ name: `Unnamed basin ${k + 1}`, u: c.gx / (n - 1), v: c.gy / (n - 1), rM: 0.1 * (n - 1) * T.cell }));
 }
 
 /* ---------------------------------------------------------------------
@@ -683,9 +605,10 @@ async function main() {
   let n = CONFIG.gridSize, h = null, T = null, step = size / (n - 1), ky = 1, hMin = 0, hMax = 1;
   let geo = null, terrainMesh = null, skirtMesh = null, terrainTex = null, compCanvas = null, baseCanvas = null, contourCanvas = null, layerCanvas = null;
   let landmarks = [], contourInterval = 50;
-  const layers = { overlay: 'difficulty', contours: true, labels: true };
+  const layers = { overlay: 'none', contours: false, labels: true, paths: true };   // start with the real surface; overlays are optional
   const env = HZ.makeEnv();
   let svf = null, texImg = null, lastSource = null, currentView = 'world', lastRegionName = '', lastBadge = '';
+  let pathCanvas = null;               // real rover traverse drawn over the terrain (set by drawTraverses)
   const state = { celebrate: null, path: null, basePath: null, haz: null, bhaz: null, start: null, end: null, vehicle: 'astronaut', w: 0.6, route: null, base: null, playing: false, progress: 0, sim: null };
   const baseCache = new Map();
   const DURATION = 18; // seconds the journey animation takes
@@ -714,10 +637,29 @@ async function main() {
 
   function buildBaseCanvas() {
     const TS = CONFIG.textureSize;
-    if (texImg) { // real image of the site (for example from the CTX mosaic) replaces the painted surface
-      const tc = makeCanvas(TS, TS), tctx = tc.getContext('2d');
+    if (texImg) { // the REAL orbital image (CTX, panchromatic) coloured with Mars' natural surface tones
+      const tc = makeCanvas(TS, TS), tctx = tc.getContext('2d', { willReadFrequently: true });
       tctx.imageSmoothingEnabled = true; tctx.imageSmoothingQuality = 'high';
       tctx.drawImage(texImg, 0, 0, TS, TS);
+      const im = tctx.getImageData(0, 0, TS, TS), d = im.data;
+      // contrast stretch (2nd..98th percentile) so every site uses the full tonal range
+      const hist = new Uint32Array(256);
+      for (let k = 0; k < d.length; k += 16) hist[d[k]]++;
+      let tot = 0; for (const v of hist) tot += v;
+      let acc = 0, lo = 0, hi = 255;
+      for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc < tot * 0.02) lo = v; if (acc < tot * 0.985) hi = v; }
+      const span = Math.max(20, hi - lo);
+      // tone curve built from typical HiRISE/Mastcam colour: dark basalt -> rusty dust -> bright butterscotch
+      const LUT = new Uint8ClampedArray(256 * 3);
+      const stops = [[0, [34, 22, 18]], [0.35, [104, 62, 40]], [0.65, [168, 108, 70]], [1, [228, 180, 136]]];
+      for (let v = 0; v < 256; v++) {
+        const t = clamp((v - lo) / span, 0, 1);
+        let c = stops[stops.length - 1][1];
+        for (let j = 0; j < stops.length - 1; j++) if (t <= stops[j + 1][0]) { const f = (t - stops[j][0]) / (stops[j + 1][0] - stops[j][0]); c = mix(stops[j][1], stops[j + 1][1], f); break; }
+        LUT[v * 3] = c[0]; LUT[v * 3 + 1] = c[1]; LUT[v * 3 + 2] = c[2];
+      }
+      for (let k = 0; k < d.length; k += 4) { const v = d[k] * 3; d[k] = LUT[v]; d[k + 1] = LUT[v + 1]; d[k + 2] = LUT[v + 2]; }
+      tctx.putImageData(im, 0, 0);
       return tc;
     }
     const cellC = makeCanvas(n, n), cctx = cellC.getContext('2d');
@@ -829,6 +771,7 @@ async function main() {
       ctx.globalAlpha = 1;
     }
     if (layers.contours) ctx.drawImage(contourCanvas, 0, 0, TS, TS);
+    if (pathCanvas && layers.paths !== false) ctx.drawImage(pathCanvas, 0, 0, TS, TS);
     terrainTex.needsUpdate = true;
   }
 
@@ -1600,7 +1543,7 @@ async function main() {
     scene.add(terrainMesh);
     applyHeights();
 
-    const list = (meta.landmarks && meta.landmarks.length) ? meta.landmarks : (meta.demo ? DEMO_LANDMARKS : detectBasins(T));
+    const list = (meta.landmarks && meta.landmarks.length >= 2) ? meta.landmarks : (meta.landmarks || []).concat(detectBasins(T, 4 - (meta.landmarks || []).length));
     setupLandmarks(list);
 
     lastRegionName = meta.name; lastBadge = meta.badge;
@@ -1618,29 +1561,68 @@ async function main() {
     $('loading').classList.add('hidden');
   }
 
-  /* ----- Choosing and loading a site ----- */
+  /* ----- Choosing and loading a site: REAL data from NASA / USGS (api/terrain.js) ----- */
+  const API_V = 3;
+  const lon180 = l => ((l + 180) % 360 + 360) % 360 - 180;
+  let currentSite = null, currentKm = 40, namesPromise = null;
+  const traverseCache = {};
+
+  async function fetchJSON(url, ms = 55000) {
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms);
+    try {
+      const r = await fetch(url, { signal: ctl.signal });
+      const j = await r.json().catch(() => null);
+      if (!r.ok) throw new Error((j && j.error) || `HTTP ${r.status}`);
+      return j;
+    } finally { clearTimeout(t); }
+  }
+  // IAU-approved names (USGS Gazetteer), loaded once
+  function marsNames() {
+    if (!namesPromise) namesPromise = fetchJSON('/api/names', 30000).then(j => (j && j.f) || []).catch(() => { namesPromise = null; return []; });
+    return namesPromise;
+  }
+  function namesInWindow(all, lat0, lon0, km) {
+    const R = 3396190, D = Math.PI / 180, W = km * 1000, out = [];
+    for (const [name, la, lo, dkm, type] of all) {
+      const y = (la - lat0) * D * R, x = lon180(lo - lon0) * D * R * Math.cos(la * D);
+      const u = x / W + 0.5, v = 0.5 - y / W;
+      if (u < 0.04 || u > 0.96 || v < 0.04 || v > 0.96) continue;
+      if (dkm && dkm * 1000 > W * 2.5) continue;                     // much larger than the map
+      if (dkm && dkm * 1000 < W * 0.012) continue;                   // too small to see at this scale
+      out.push({ name: type === 'Crater' ? `${name} crater` : name, u, v, rM: Math.max(300, (dkm || 2) * 500), diam: dkm || 0 });
+    }
+    out.sort((a, b) => b.diam - a.diam);
+    return out.slice(0, 10);
+  }
+  function traverseFor(rover) {
+    if (!traverseCache[rover]) traverseCache[rover] = fetchJSON(`/api/traverse?rover=${rover}`, 20000).catch(() => { delete traverseCache[rover]; return null; });
+    return traverseCache[rover];
+  }
+  const packBase = (site, km) => `/api/terrain?lat=${site.lat.toFixed(4)}&lon=${lon180(site.lonE).toFixed(4)}&km=${km}&n=512&tex=${PROFILE.weak ? 1536 : 2048}&v=${API_V}&f=`;
+
   async function loadSource(src) {
     lastSource = src;
     const qv = $('quality').value;
-    const q = qv === 'auto' ? (PROFILE.weak ? 192 : 256) : (parseInt(qv, 10) || 256);
+    const q = qv === 'auto' ? (PROFILE.weak ? 256 : 384) : (parseInt(qv, 10) || 256);
     CONFIG.gridSize = q;
-    CONFIG.textureSize = { 192: 1024, 256: 1536, 384: 2048, 512: 3072 }[q] || 1536;
+    CONFIG.textureSize = { 192: 1024, 256: 1536, 384: 2048, 512: 2048 }[q] || 1536;
     CONFIG.contourSize = { 192: 768, 256: 1024, 384: 1280, 512: 1792 }[q] || 1024;
     const site = src.site || null;
 
     if (src.kind === 'image') {
       const m = src.meta || {};
-      const hasScale = typeof m.elevMin === 'number' && typeof m.elevMax === 'number' && typeof m.regionWidthM === 'number';
-      if (hasScale) { CONFIG.elevMin = m.elevMin; CONFIG.elevMax = m.elevMax; CONFIG.regionWidthM = m.regionWidthM; }
-      const grid = imageToGrid(src.img, q, CONFIG.elevMin, CONFIG.elevMax, m.encoding || 'gray8');
-      env.lat = typeof m.lat === 'number' ? m.lat : (site ? site.lat : 18.4);
+      CONFIG.elevMin = m.elevMin; CONFIG.elevMax = m.elevMax; CONFIG.regionWidthM = m.regionWidthM;
+      // relief exaggeration that keeps very tall places (Olympus Mons) and flat plains both readable
+      const relief = (m.elevMax - m.elevMin) / m.regionWidthM;
+      CONFIG.exaggeration = clamp(Math.round((0.06 / Math.max(relief, 0.004)) * 2) / 2, 1, 4);
+      $('exag').value = CONFIG.exaggeration; $('exag-val').textContent = `${CONFIG.exaggeration}×`;
+      const grid = imageToGrid(src.img, q, m.elevMin, m.elevMax, 'rg16');
+      env.lat = m.lat;
       await buildWorld(grid, {
-        name: m.name || (site ? site.name : 'Heightmap region'),
+        name: site ? site.name : 'Mars',
         landmarks: m.landmarks, texImg: src.texImg,
-        badge: hasScale ? `Data: ${m.source || 'elevation heightmap'}` : 'Data: heightmap loaded, but terrain.json is missing (scale is a guess)',
-        warn: !hasScale,
-        note: (hasScale ? `Elevation source: ${m.source || 'heightmap.png'}.` : 'terrain.json was not found, so the elevation range and map width are default guesses. Add terrain.json (make_heightmap.py creates it).') +
-          (src.texImg ? ` Surface image: ${m.textureSource || 'texture.jpg'}.` : '')
+        badge: `Real data · ${m.sourceResM} m elevation + CTX image`,
+        note: `Elevation: ${m.source}. Surface image: ${m.textureSource}. Place names: IAU / USGS Gazetteer of Planetary Nomenclature.`
       });
     } else if (src.kind === 'upload') {
       CONFIG.elevMin = src.lo; CONFIG.elevMax = src.hi; CONFIG.regionWidthM = src.wkm * 1000;
@@ -1649,51 +1631,91 @@ async function main() {
         name: src.name, badge: `Data: your heightmap (${src.name})`,
         note: `Your file ${src.name}: elevation ${src.lo} to ${src.hi} m, map width ${src.wkm} km. These numbers come from what you typed.`
       });
-    } else {
-      CONFIG.regionWidthM = 24000;
-      const grid = generateDemoTerrain(q, CONFIG.regionWidthM);
-      const off = site && site.elevM != null ? site.elevM + 2450 : 0;
-      if (off) for (let i = 0; i < grid.length; i++) grid[i] += off;
-      env.lat = site ? site.lat : 18.4;
-      await buildWorld(grid, {
-        demo: true,
-        name: site ? `${site.name} (simulated)` : 'Demo terrain (simulated)',
-        badge: 'Data: SIMULATED terrain for this place. Add a data pack for real elevation',
-        note: 'This is a simulated terrain used for testing. It is not NASA data. Only the latitude' + (off ? ' and rough ground level' : '') + ' come from the chosen place. Real elevation data replaces it when a data pack for the site exists (see regions/README.txt).'
-      });
     }
   }
 
+  function showLoadError(site, km, msg) {
+    const el = $('loading');
+    el.classList.remove('hidden');
+    el.innerHTML = `<div class="load-err"><b>Could not load the real data for ${site.name}.</b><span>${msg}</span>
+      <div class="row"><button class="btn primary" id="le-retry">Try again</button>
+      ${km > 20 ? `<button class="btn" id="le-small">Smaller area (${Math.round(km / 2)} km)</button>` : ''}
+      <button class="btn" id="le-back">Back to the map</button></div></div>`;
+    $('le-retry').onclick = () => loadSite(site, { km });
+    if ($('le-small')) $('le-small').onclick = () => loadSite(site, { km: Math.round(km / 2) });
+    $('le-back').onclick = () => { el.classList.add('hidden'); showView('world'); };
+  }
+
   let siteLoading = false;
-  async function loadSite(site) {
+  async function loadSite(site, opts = {}) {
     if (siteLoading) return;
     siteLoading = true;
+    site = site || currentSite || SITES[0];
+    const km = Math.round(opts.km || site.km || 40);
     try {
-      site = site || SITES[0];
       showView('3d');
-      setLoading(`Looking for terrain data for ${site.name}…`);
+      if (location.protocol === 'file:') throw new Error('Open the site through Vercel or a local server with the /api functions.');
+      setLoading(`Reading NASA/USGS elevation for ${site.name} (${km} × ${km} km)…`);
       await nextFrame();
-      const candidates = site.pack ? [site.pack] : [];
-      if (site.id === 'jezero') candidates.push('');            // older layout: files next to index.html
-      let found = null;
-      for (const base of candidates) {
-        const meta = await fetchMeta(base);
-        let img = null;
-        try { img = await loadImage(base + ((meta && meta.heightmap) || CONFIG.heightmapFile)); } catch (e) { img = null; }
-        if (img) { found = { base, meta: meta || {}, img }; break; }
-      }
-      if (found) {
-        let texImg = null;
-        try { texImg = await loadImage(found.base + (found.meta.texture || 'texture.jpg')); } catch (e) { texImg = null; }
-        await loadSource({ kind: 'image', site, ...found, texImg });
-      } else {
-        await loadSource({ kind: 'demo', site });
-      }
+      const base = packBase(site, km);
+      const [meta, names] = await Promise.all([fetchJSON(base + 'terrain.json'), marsNames()]);
+      setLoading('Downloading the elevation model and the CTX orbital image…');
+      const [img, texImg] = await Promise.all([
+        loadImage(base + 'heightmap.png'),
+        loadImage(base + 'texture.jpg').catch(() => null)
+      ]);
+      meta.landmarks = namesInWindow(names, meta.lat, meta.lon, km);
+      currentSite = site; currentKm = km; pathCanvas = null;
+      const sel = $('area-size');
+      if (sel) { if (![...sel.options].some(o => +o.value === km)) sel.insertAdjacentHTML('beforeend', `<option value="${km}">${km} km</option>`); sel.value = String(km); }
+      await loadSource({ kind: 'image', site, meta, img, texImg });
+      drawTraverses(site, meta, km);
     } catch (err) {
       console.error(err);
-      $('loading').classList.remove('hidden');
-      $('loading').textContent = 'Could not build this site. Open the browser console (F12) for details.';
+      showLoadError(site, km, err && err.name === 'AbortError' ? 'NASA/USGS servers took too long to answer.' : (err && err.message) || 'Unknown error');
     } finally { siteLoading = false; }
+  }
+
+  /* ----- Real rover paths (NASA MMGIS) painted on the terrain ----- */
+  async function drawTraverses(site, meta, km) {
+    pathCanvas = null;
+    const R = 3396190, D = Math.PI / 180, W = km * 1000;
+    const toUV = (lo, la) => [lon180(lo - meta.lon) * D * R * Math.cos(la * D) / W + 0.5, 0.5 - (la - meta.lat) * D * R / W];
+    const found = [];
+    for (const rover of ['perseverance', 'curiosity']) {
+      const j = await traverseFor(rover);
+      if (!j || !j.points) continue;
+      const uv = j.points.map(([lo, la]) => toUV(lo, la));
+      if (!uv.some(([u, v]) => u > 0 && u < 1 && v > 0 && v < 1)) continue;
+      found.push({ rover, uv, latest: j.latest });
+    }
+    if (!found.length || currentSite !== site) return;
+    const TS = CONFIG.textureSize;
+    pathCanvas = makeCanvas(TS, TS);
+    const g = pathCanvas.getContext('2d');
+    g.lineJoin = 'round'; g.lineCap = 'round';
+    for (const f of found) {
+      const col = f.rover === 'perseverance' ? '#3ddc84' : '#6fd0ff';
+      g.strokeStyle = 'rgba(0,0,0,0.55)'; g.lineWidth = Math.max(3, TS / 500);
+      g.beginPath(); f.uv.forEach(([u, v], i) => (i ? g.lineTo(u * TS, v * TS) : g.moveTo(u * TS, v * TS))); g.stroke();
+      g.strokeStyle = col; g.lineWidth = Math.max(1.6, TS / 1100);
+      g.beginPath(); f.uv.forEach(([u, v], i) => (i ? g.lineTo(u * TS, v * TS) : g.moveTo(u * TS, v * TS))); g.stroke();
+      if (f.latest) {
+        const [u, v] = toUV(f.latest.lon, f.latest.lat);
+        if (u > 0 && u < 1 && v > 0 && v < 1) {
+          const name = f.rover === 'perseverance' ? 'Perseverance' : 'Curiosity';
+          const lm = { name: `${name} now${f.latest.sol ? ` · sol ${f.latest.sol}` : ''}`, u, v, rM: 200 };
+          const gx = clamp(Math.round(u * (n - 1)), 0, n - 1), gy = clamp(Math.round(v * (n - 1)), 0, n - 1);
+          const sprite = labelSprite(lm.name); scene.add(sprite);
+          landmarks.push({ name: lm.name, gx, gy, rM: lm.rM, sprite });
+          placeLandmarks();
+          const opts = landmarks.map((l, i) => `<option value="${i}">${l.name}</option>`).join('');
+          $('qr-from').innerHTML = opts; $('qr-to').innerHTML = opts; $('quick-route').hidden = landmarks.length < 2;
+        }
+      }
+    }
+    $('data-note').textContent += ` Green/blue line: the real path driven by ${found.map(f => (f.rover === 'perseverance' ? 'Perseverance' : 'Curiosity')).join(' and ')} (NASA/JPL-Caltech MMGIS).`;
+    composeTexture();
   }
 
   // "Load your own heightmap" (a grayscale PNG: dark = low, bright = high)
@@ -1746,6 +1768,8 @@ async function main() {
   $('overlay-mode').addEventListener('change', e => { layers.overlay = e.target.value; refreshLayer(); });
   $('quality').addEventListener('change', () => { if (lastSource) loadSource(lastSource); });
   $('chk-contours').addEventListener('change', e => { layers.contours = e.target.checked; composeTexture(); });
+  $('area-size').addEventListener('change', e => { if (currentSite) loadSite(currentSite, { km: parseInt(e.target.value, 10) }); });
+  $('chk-paths').addEventListener('change', e => { layers.paths = e.target.checked; if (T) composeTexture(); });
   $('chk-labels').addEventListener('change', e => { layers.labels = e.target.checked; placeLandmarks(); });
   $('exag').addEventListener('input', e => {
     CONFIG.exaggeration = parseFloat(e.target.value);
