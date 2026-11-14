@@ -115,6 +115,7 @@ async function open(url) {
       width: v(256), height: v(257), bits: v(258, 8), compression: v(259, 1), spp: v(277, 1),
       rowsPerStrip: v(278, v(257)), sampleFormat: v(339, 1), planar: v(284, 1),
       tiled: !!tags[322], stripOffsets: tags[273], subfile: v(254, 0),
+      tileWidth: v(322), tileLength: v(323), tileOffsets: tags[324],
       scale: tags[33550] && tags[33550].values, tie: tags[33922] && tags[33922].values,
       nodata: tags[42113] && tags[42113].values ? parseFloat(String.fromCharCode(...tags[42113].values).replace(/\0/g, '')) : null
     };
@@ -137,10 +138,54 @@ async function stripOffsets(info, ifd, s0, s1) {
   return readValues(new Reader(b, info.le, info.big), 0, e.type, s1 - s0 + 1);
 }
 
+function decodeSample(info, ifd, b, p, bps) {
+  let val;
+  if (ifd.sampleFormat === 3) val = bps === 4 ? (info.le ? b.readFloatLE(p) : b.readFloatBE(p)) : (info.le ? b.readDoubleLE(p) : b.readDoubleBE(p));
+  else if (ifd.sampleFormat === 2) val = bps === 2 ? (info.le ? b.readInt16LE(p) : b.readInt16BE(p)) : (info.le ? b.readInt32LE(p) : b.readInt32BE(p));
+  else val = bps === 2 ? (info.le ? b.readUInt16LE(p) : b.readUInt16BE(p)) : b[p];
+  const nod = info.nodata;
+  if ((nod !== null && (val === nod || Math.abs(val - nod) < 1e-3 * Math.abs(nod || 1))) || !Number.isFinite(val) || val < -1e5 || val > 1e5) return NaN;
+  return val;
+}
+
+/* Tiled layout without compression: fetch each whole tile that touches the window. */
+async function readWindowTiled(info, ifd, col0, row0, col1, row1) {
+  const W = col1 - col0 + 1, H = row1 - row0 + 1;
+  const bps = ifd.bits / 8, px = bps * ifd.spp, tw = ifd.tileWidth, th = ifd.tileLength;
+  const across = Math.ceil(ifd.width / tw);
+  const tx0 = Math.floor(col0 / tw), tx1 = Math.floor(col1 / tw), ty0 = Math.floor(row0 / th), ty1 = Math.floor(row1 / th);
+  const out = new Float32Array(W * H).fill(NaN);
+  const jobs = [];
+  for (let ty = ty0; ty <= ty1; ty++) {
+    const e = ifd.tileOffsets, sz = TYPE_SIZE[e.type];
+    const first = ty * across + tx0, count = tx1 - tx0 + 1;
+    const offs = e.values ? e.values.slice(first, first + count)
+      : readValues(new Reader(await fetchRange(info.url, e.at + first * sz, count * sz), info.le, info.big), 0, e.type, count);
+    for (let tx = tx0; tx <= tx1; tx++) jobs.push({ tx, ty, off: offs[tx - tx0] });
+  }
+  await pool(jobs, 24, async ({ tx, ty, off }) => {
+    const b = await fetchRange(info.url, off, tw * th * px);
+    for (let r = 0; r < th; r++) {
+      const row = ty * th + r;
+      if (row < row0 || row > row1) continue;
+      for (let c = 0; c < tw; c++) {
+        const col = tx * tw + c;
+        if (col < col0 || col > col1) continue;
+        out[(row - row0) * W + (col - col0)] = decodeSample(info, ifd, b, (r * tw + c) * px, bps);
+      }
+    }
+  });
+  return { data: out, W, H, col0, row0 };
+}
+
 /* Reads a window (col0..col1, row0..row1 inclusive) of one IFD into a Float32Array (NaN = no data). */
 async function readWindow(info, ifd, col0, row0, col1, row1) {
-  if (ifd.tiled) throw new Error('tiled TIFF not supported by this reader');
   if (ifd.compression !== 1) throw new Error(`compression ${ifd.compression} not supported by this reader`);
+  if (ifd.tiled) {
+    col0 = Math.max(0, col0); row0 = Math.max(0, row0);
+    col1 = Math.min(ifd.width - 1, col1); row1 = Math.min(ifd.height - 1, row1);
+    return readWindowTiled(info, ifd, col0, row0, col1, row1);
+  }
   col0 = Math.max(0, col0); row0 = Math.max(0, row0);
   col1 = Math.min(ifd.width - 1, col1); row1 = Math.min(ifd.height - 1, row1);
   const W = col1 - col0 + 1, H = row1 - row0 + 1;
@@ -149,22 +194,13 @@ async function readWindow(info, ifd, col0, row0, col1, row1) {
   const s0 = Math.floor(row0 / rps), s1 = Math.floor(row1 / rps);
   const offs = await stripOffsets(info, ifd, s0, s1);
   const out = new Float32Array(W * H);
-  const nod = info.nodata;
   const rows = Array.from({ length: H }, (_, i) => row0 + i);
   await pool(rows, 48, async (row) => {
     const s = Math.floor(row / rps);
     const start = offs[s - s0] + (row % rps) * rowBytes + col0 * px;
     const b = await fetchRange(info.url, start, W * px);
     const base = (row - row0) * W;
-    for (let i = 0; i < W; i++) {
-      const p = i * px;
-      let val;
-      if (ifd.sampleFormat === 3) val = bps === 4 ? (info.le ? b.readFloatLE(p) : b.readFloatBE(p)) : (info.le ? b.readDoubleLE(p) : b.readDoubleBE(p));
-      else if (ifd.sampleFormat === 2) val = bps === 2 ? (info.le ? b.readInt16LE(p) : b.readInt16BE(p)) : (info.le ? b.readInt32LE(p) : b.readInt32BE(p));
-      else val = bps === 2 ? (info.le ? b.readUInt16LE(p) : b.readUInt16BE(p)) : b[p];
-      if ((nod !== null && (val === nod || Math.abs(val - nod) < 1e-3 * Math.abs(nod || 1))) || !Number.isFinite(val) || val < -1e5 || val > 1e5) val = NaN;
-      out[base + i] = val;
-    }
+    for (let i = 0; i < W; i++) out[base + i] = decodeSample(info, ifd, b, i * px, bps);
   });
   return { data: out, W, H, col0, row0 };
 }

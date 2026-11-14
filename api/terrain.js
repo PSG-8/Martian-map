@@ -151,7 +151,7 @@ async function readDEM(lat0, lon0, km, n) {
     const ovr = await TIFF.open(H.url + '.ovr');
     for (const o of ovr.ifds) levels.push({ info: Object.assign({}, ovr, { nodata: main.nodata }), ifd: o, factor: main.main.width / o.width });
   } catch (e) { /* no overviews: full resolution only */ }
-  levels = levels.filter(l => !l.ifd.tiled && l.ifd.compression === 1 && l.ifd.width > 1000);
+  levels = levels.filter(l => l.ifd.compression === 1 && l.ifd.width > 1000 && (!l.ifd.tiled || l.ifd.tileOffsets));
   let pick = levels[0];
   for (const l of levels) if (H.res * l.factor <= cellM * 1.4 && l.factor > pick.factor) pick = l;
   const info = pick.info, ifd = pick.ifd;
