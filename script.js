@@ -4,6 +4,7 @@ import { buildTravelerModel, animateModel, celebrateModel, resetCelebration, loa
 import * as HZ from './hazards.js?v=6';
 import { initWorldMap, SITES } from './worldmap.js?v=6';
 import { mars24, earthMars } from './marsclock.js?v=6';
+import { MotionRig, Dust } from './physics.js?v=6';
 
 window.__mmStarted = true; // tells index.html that this file loaded (used by the start-up check)
 
@@ -51,12 +52,12 @@ const CONFIG = {
 
   // Assumed vehicle values (NOT measured). Edit them freely.
   vehicles: {
-    astronaut: { label: 'Astronaut on foot (EVA suit)', model: 'astronaut', maxSlope: 22, speed: 1.0, mass: 140, eff: 0.25, roll: 0.12,
-      power: { type: 'suit', enduranceH: 8, label: 'Suit life support, assumed 8 h' } },
-    rover: { label: 'Robotic rover (Perseverance style)', model: 'rover', maxSlope: 15, speed: 0.04, mass: 1025, eff: 0.50, roll: 0.10,
-      power: { type: 'rtg', watts: 110, capacityWh: 2500, startPct: 90, housekeepingW: 70, label: 'Nuclear battery (RTG) 110 W + battery' } },
-    crewed: { label: 'Crewed rover (concept)', model: 'crewed', maxSlope: 14, speed: 3.0, mass: 1200, eff: 0.50, roll: 0.08,
-      power: { type: 'solar', areaM2: 8, eff: 0.28, capacityWh: 30000, startPct: 90, housekeepingW: 400, label: 'Solar roof 8 m² + 30 kWh battery' } }
+    astronaut: { label: 'Astronaut · SINBAD EVA suit (Starseekers design)', model: 'astronaut', maxSlope: 22, speed: 1.0, mass: 145, eff: 0.25, roll: 0.12,
+      power: { type: 'suit', enduranceH: 8, label: 'SINBAD life support, 8 h (assumed)' } },
+    rover: { label: 'RAHHAL autonomous scout (Starseekers design)', model: 'rover', maxSlope: 25, speed: 0.15, mass: 420, eff: 0.55, roll: 0.09,
+      power: { type: 'solar', areaM2: 2.8, eff: 0.29, capacityWh: 4000, startPct: 95, housekeepingW: 45, label: 'Folding solar wing 2.8 m² + 4 kWh battery' } },
+    crewed: { label: 'QAFILA crew rover, 2 people (Starseekers design)', model: 'crewed', maxSlope: 20, speed: 2.8, mass: 3600, eff: 0.6, roll: 0.07,
+      power: { type: 'solar', areaM2: 6.5, eff: 0.29, capacityWh: 60000, startPct: 95, housekeepingW: 650, label: 'Solar roof 6.5 m² + 60 kWh battery' } }
   },
 
   landmarks: []             // filled from terrain.json, or detected automatically
@@ -621,6 +622,8 @@ async function main() {
   }
   const toWorld = (gx, gy) => new THREE.Vector3(-half + gx * step, (sampleH(gx, gy) - hMin) * ky, -half + gy * step);
   const cellWorld = idx => toWorld(idx % n, (idx / n) | 0);
+  // real terrain height under any scene point (used by the physics rig and the dust)
+  const groundAt = (x, z) => (T ? (sampleH(clamp((x + half) / step, 0, n - 1), clamp((z + half) / step, 0, n - 1)) - hMin) * ky : 0);
   const vehicle = () => CONFIG.vehicles[state.vehicle];
   const marksForMetrics = () => landmarks.map(l => ({ gx: l.gx, gy: l.gy, rM: l.rM }));
 
@@ -900,11 +903,15 @@ async function main() {
   traveler.add(travelerRing);
   traveler.visible = false;
   scene.add(traveler);
+  let rig = null;
+  const kickDust = new Dust(scene, PROFILE.weak ? 140 : 260);
   function setTravelerModel(vehicleKey) {
     if (travelerModel) traveler.remove(travelerModel);
     travelerModel = buildTravelerModel(CONFIG.vehicles[vehicleKey].model);
     applyModelEnv(travelerModel, marsEnv, 1);
     traveler.add(travelerModel);
+    if (rig) { rig.setModel(travelerModel); if (traveler.visible) rig.snap(traveler.position.x, traveler.position.z, traveler.rotation.y); }
+    else rig = new MotionRig(traveler, travelerModel, groundAt);
   }
   setTravelerModel('astronaut');
 
@@ -1150,7 +1157,7 @@ async function main() {
       if (m.time > p.enduranceH * 3600) out.push(['bad', `The trip takes ${fmtTime(m.time)} but the assumed suit supply is ${p.enduranceH} h. Plan a shelter stop.`]);
       else if (hz.minSupply < 20) out.push(['bad', `Suit supplies drop to ${hz.minSupply.toFixed(0)}%.`]);
     } else if (hz.minSupply < 20) out.push(['bad', `Battery drops to ${hz.minSupply.toFixed(0)}%.`]);
-    if (hz.peakUV >= 11 && p.type === 'suit') out.push(['info', `Extreme UV (index ${hz.peakUV.toFixed(0)}): the gold visor and suit coating are essential. Mars has no ozone layer.`]);
+    if (hz.peakUV >= 11 && p.type === 'suit') out.push(['info', `Extreme UV (index ${hz.peakUV.toFixed(0)}): the SINBAD visor and suit coating are essential. Mars has no ozone layer.`]);
     if (env.spe) out.push(['bad', `Solar particle storm scenario: dose rate ×${HZ.SPE_FACTOR}. Real missions would seek shelter.`]);
     if (env.tau >= 3) out.push(['info', `Dust storm: camera landmark fixes are off, position drift ×${HZ.driftMultiplier(env.tau).toFixed(1)}, and sunlight is cut sharply.`]);
     if (hz.nightShare > 5) out.push(['info', `${hz.nightShare.toFixed(0)}% of the trip is at night: no camera fixes and it is colder.`]);
@@ -1237,9 +1244,12 @@ async function main() {
     const i0 = i - 1, f = clamp((t - ct[i0]) / ((ct[i] - ct[i0]) || 1), 0, 1);
 
     const pt = sim.pts[i0].clone().lerp(sim.pts[i], f);
-    traveler.position.set(pt.x, pt.y + 0.5, pt.z);
     const ahead = sim.pts[Math.min(i + 2, sim.pts.length - 1)], behind = sim.pts[Math.max(i0 - 2, 0)];
-    traveler.rotation.y = Math.atan2(-(ahead.z - behind.z), ahead.x - behind.x); // face the direction of travel
+    // the physics rig (physics.js) moves the traveler there: suspension, wheel roll, gait, heading limits
+    state.tgt = { x: pt.x, z: pt.z };
+    state.tgtYaw = Math.atan2(-(ahead.z - behind.z), ahead.x - behind.x);
+    state.tgtSlip = lerp(m.slipArr[i0], m.slipArr[i], f);
+    if (!state.playing) rig.snap(pt.x, pt.z, state.tgtYaw);
 
     const dist = lerp(m.cumDist[i0], m.cumDist[i], f);
     const elev = lerp(m.profile[i0].y, m.profile[i].y, f);
@@ -1269,8 +1279,10 @@ async function main() {
 
   // Arrival celebration: only after a SAFE arrival (no red alerts) and only for the astronaut
   function stopCelebration() {
+    if (state.celebrate) { markerA.visible = state.start !== null; markerB.visible = state.end !== null; }
     state.celebrate = null;
     resetCelebration(travelerModel);
+    if (rig && traveler.visible) rig.snap(traveler.position.x, traveler.position.z, traveler.rotation.y);
   }
   function startCelebration(force = false) {
     const mode = $('celebrate').value;
@@ -1285,6 +1297,7 @@ async function main() {
     }
     const use = mode === 'off' ? 'flag' : mode;
     state.celebrate = { t0: performance.now() / 1000, mode: use, autoCam: true };
+    markerA.visible = false; markerB.visible = false;            // keep the view on the astronaut and the flag
     setStatus(`${force ? 'Preview: ' : 'Arrived safely! '}${CELEBRATION_TEXT[use] || ''}`, 'ok');
   }
 
@@ -1298,11 +1311,10 @@ async function main() {
   function placeTravelerAtStart() {
     if (state.start === null) { traveler.visible = false; return; }
     const p = cellWorld(state.start);
-    traveler.position.set(p.x, p.y + 0.5, p.z);
-    if (state.end !== null) {
-      const q = cellWorld(state.end);
-      traveler.rotation.y = Math.atan2(-(q.z - p.z), q.x - p.x);
-    }
+    let yaw = traveler.rotation.y;
+    if (state.end !== null) { const q = cellWorld(state.end); yaw = Math.atan2(-(q.z - p.z), q.x - p.x); }
+    state.tgt = { x: p.x, z: p.z }; state.tgtYaw = yaw; state.tgtSlip = 0;
+    rig.snap(p.x, p.z, yaw);
     traveler.visible = true;
   }
 
@@ -2011,7 +2023,10 @@ async function main() {
         camWant.copy(controls.target).addScaledVector(camDir, 15); camWant.y = controls.target.y + 2.0;
         camera.position.lerp(camWant, k);
       }
-    } else animateModel(travelerModel, tNow, dt, state.playing);
+    } else if (traveler.visible && state.tgt) {
+      rig.update(dt, state.tgt, state.tgtYaw, { slip: state.tgtSlip || 0, moving: state.playing, dust: kickDust, metersPerUnit: CONFIG.regionWidthM / size });
+    }
+    kickDust.update(dt, 6.0, groundAt, scene.background);
     if (state.playing && state.route) {
       const p = state.progress + dt / DURATION;
       setProgress(p);

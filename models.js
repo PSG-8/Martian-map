@@ -1,19 +1,14 @@
 /* =====================================================================
-   models.js  ·  Martian Map · Team Starseekers
-   3D models of the traveler. Built from shapes in code and styled after
-   real hardware:
-     - "astronaut": an Apollo-style EVA suit (A7L look: white fabric suit, life-support
-                    backpack, chest control box with hoses, gold mirror visor)
-     - "rover"    : a Perseverance / Curiosity style robotic rover
-                    (6 aluminum wheels with cleats, rocker-bogie legs, RTG, mast, antenna, arm)
-     - "crewed"   : a NASA-concept pressurized crew rover (faceted cabin windows,
-                    big black tires with gold rims, roof tanks and antenna)
-   They are drawn larger than real scale so they stay visible on a 24 km map.
-   Real NASA models (see models/README.txt) replace these automatically.
-   Materials use physically based settings and an environment map, so metal and the
-   gold visor reflect the Martian sky.
+   models.js  ·  Martian Map · MR_PSG / Team Starseekers
+   3D models of the travelers. All three are ORIGINAL Starseekers designs
+   (not copies of NASA hardware), built from shapes in code:
+     - SINBAD : hard-shell EVA suit, rear-entry suitport hatch, bronze visor, halo HUD
+     - RAHHAL : autonomous scout on four articulated wheel-legs, folding solar wing, lidar dome
+     - QAFILA : articulated two-module pressurized crew rover, 8 airless wheels, suitports
+   Physically based materials + a Martian sky environment map. Physics in physics.js.
+   Models are drawn larger than real scale so they stay visible on a map tens of km wide.
    All models face +x. y is up.
-   ===================================================================== */
+   ===== */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { drawOmanFlag, FLAG_RATIO } from './flag.js?v=6';
@@ -89,177 +84,205 @@ function hose(points, r, mat) {
   return m;
 }
 
-/* ---------- Wheel with cleats (Perseverance style, spins around the z axis) ---------- */
-function makeWheel(radius, width, cleats) {
+/* =====================================================================
+   ORIGINAL STARSEEKERS DESIGNS (by MR_PSG / Team Starseekers)
+   These are new concepts, not copies of NASA hardware:
+     RAHHAL  (رحّال, "wanderer")  - autonomous scout on four wheel-legs, solar wing, lidar dome
+     QAFILA  (قافلة, "caravan")   - articulated two-module pressurized crew rover, 8 wheels, suitports
+     SINBAD                         - hard-shell EVA suit with rear-entry suitport hatch and halo HUD
+   Every model faces +x, y is up. userData.wheelMounts lets the physics rig (physics.js) move each
+   wheel up and down with its own suspension, so the vehicles really ride over the real terrain.
+   ===================================================================== */
+const PAL = {
+  shell: M('#f1f0ec', 0.38, 0.06),
+  shellWarm: M('#e2ddd2', 0.45, 0.06),
+  graphite: M('#2b2e33', 0.55, 0.45),
+  carbon: M('#16181b', 0.6, 0.3),
+  steel: M('#9aa1aa', 0.3, 0.92),
+  teal: M('#14b8a6', 0.35, 0.2, { emissive: '#0d9488', emissiveIntensity: 0.55 }),
+  tealGlow: M('#5eead4', 0.2, 0.0, { emissive: '#2dd4bf', emissiveIntensity: 2.0 }),
+  omanRed: M('#db161b', 0.45, 0.1),
+  omanGreen: M('#0b7a34', 0.5, 0.1),
+  solar: M('#163a7a', 0.16, 0.5, { emissive: '#0b1f4a', emissiveIntensity: 0.35 }),
+  fabric: M('#4a4f57', 0.92, 0.0),
+  bronzeVisor: new THREE.MeshPhysicalMaterial({ color: '#7a4e1f', roughness: 0.06, metalness: 1.0, clearcoat: 1, clearcoatRoughness: 0.05 }),
+  window: new THREE.MeshPhysicalMaterial({ color: '#0d1b2a', roughness: 0.05, metalness: 0.6, clearcoat: 1, clearcoatRoughness: 0.03 }),
+  tyre: M('#24262a', 0.92, 0.05),
+  amber: M('#ffb547', 0.3, 0.0, { emissive: '#ff9a1f', emissiveIntensity: 1.6 })
+};
+
+function shapeFrom(pts) {
+  const sh = new THREE.Shape();
+  sh.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) sh.lineTo(pts[i][0], pts[i][1]);
+  sh.closePath();
+  return sh;
+}
+function extrude(pts, depth, mat, bevel = 0.06) {
+  const g = new THREE.ExtrudeGeometry(shapeFrom(pts), { depth, steps: 1, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 3, curveSegments: 12 });
+  g.translate(0, 0, -depth / 2);
+  return mesh(g, mat);
+}
+
+/* Airless honeycomb tyre (spins around z) */
+function makeAirlessWheel(radius, width) {
   const spin = new THREE.Group();
-  spin.add(cyl(radius, radius, width, MAT.alu, 0, 0, 0, HP, 0, 0, 36));
-  spin.add(cyl(radius * 0.55, radius * 0.55, width * 1.04, MAT.darkAlu, 0, 0, 0, HP, 0, 0, 20));
-  spin.add(cyl(radius * 0.2, radius * 0.2, width * 1.2, MAT.black, 0, 0, 0, HP, 0, 0, 12));
-  for (let i = 0; i < cleats; i++) {
-    const a = (i / cleats) * Math.PI * 2;
-    spin.add(box(radius * 0.16, radius * 0.22, width * 0.96, MAT.alu, Math.cos(a) * radius, Math.sin(a) * radius, 0, 0, 0, a));
+  const band = (r, w, mat) => mesh(new THREE.CylinderGeometry(r, r, w, 44, 1, true), mat, 0, 0, 0, HP, 0, 0);
+  const tyreMat = PAL.tyre.clone(); tyreMat.side = THREE.DoubleSide;
+  spin.add(band(radius, width, tyreMat));                                                   // tread band (open: the spokes show)
+  spin.add(band(radius * 0.9, width * 0.96, PAL.carbon));                                  // inner shear band
+  for (let i = 0; i < 26; i++) {                                                            // chevron tread lugs
+    const a = (i / 26) * Math.PI * 2;
+    spin.add(box(radius * 0.1, radius * 0.08, width * 0.9, PAL.graphite, Math.cos(a) * radius * 1.01, Math.sin(a) * radius * 1.01, 0, 0, 0, a + 0.3));
   }
+  for (let i = 0; i < 12; i++) {                                                            // flexible spokes (the honeycomb look)
+    const a = (i / 12) * Math.PI * 2;
+    for (const s of [-1, 1]) spin.add(box(radius * 0.62, radius * 0.05, 0.03, PAL.steel, Math.cos(a) * radius * 0.52, Math.sin(a) * radius * 0.52, s * width * 0.42, 0, 0, a + 0.35 * s));
+  }
+  spin.add(cyl(radius * 0.26, radius * 0.26, width * 1.08, PAL.steel, 0, 0, 0, HP, 0, 0, 24));    // hub motor
+  spin.add(cyl(radius * 0.12, radius * 0.12, width * 1.14, PAL.teal, 0, 0, 0, HP, 0, 0, 16));
   const outer = new THREE.Group();
   outer.add(spin);
   outer.userData.spin = spin;
   return outer;
 }
 
-/* ---------- Big black tire with a gold rim (crew rover) ---------- */
-function makeTire(radius, width, blocks) {
-  const spin = new THREE.Group();
-  spin.add(cyl(radius, radius, width, MAT.rubber, 0, 0, 0, HP, 0, 0, 40));
-  spin.add(cyl(radius * 0.64, radius * 0.64, width * 1.03, MAT.rim, 0, 0, 0, HP, 0, 0, 28));
-  spin.add(cyl(radius * 0.5, radius * 0.5, width * 1.06, MAT.darkAlu, 0, 0, 0, HP, 0, 0, 20));
-  spin.add(cyl(radius * 0.16, radius * 0.16, width * 1.12, MAT.alu, 0, 0, 0, HP, 0, 0, 10));
-  for (let i = 0; i < blocks; i++) {                           // tread blocks
-    const a = (i / blocks) * Math.PI * 2;
-    spin.add(box(radius * 0.12, radius * 0.12, width * 0.98, MAT.black, Math.cos(a) * radius, Math.sin(a) * radius, 0, 0, 0, a));
-  }
-  for (let i = 0; i < 6; i++) {                                // spokes (visible through the rim face)
-    const a = (i / 6) * Math.PI * 2;
-    for (const s of [-1, 1]) spin.add(box(radius * 0.42, radius * 0.07, 0.02, MAT.alu, Math.cos(a) * radius * 0.36, Math.sin(a) * radius * 0.36, s * width * 0.53, 0, 0, a));
-  }
-  const outer = new THREE.Group();
-  outer.add(spin);
-  outer.userData.spin = spin;
-  return outer;
-}
-
-/* ---------- Perseverance / Curiosity style rover ---------- */
-function buildRover() {
+/* ---------- RAHHAL: autonomous scout on four articulated wheel-legs ---------- */
+function buildRahhal() {
   const g = new THREE.Group();
-  const wheels = [];
-
-  // warm electronics box and deck
-  g.add(box(2.5, 0.72, 1.55, MAT.cream, 0, 1.2, 0));
-  g.add(box(2.62, 0.07, 1.72, MAT.blanket, 0, 1.6, 0));
-  for (const s of [-1, 1]) g.add(box(2.3, 0.5, 0.06, MAT.blanket, 0, 1.18, s * 0.79));
-  g.add(box(1.3, 0.2, 0.9, MAT.white, -0.2, 1.75, 0));                       // electronics cover
-  g.add(box(0.5, 0.05, 0.5, MAT.panel, 0.55, 1.67, -0.5));                   // calibration target plate
-  g.add(box(0.3, 0.3, 0.4, MAT.black, 0, 0.78, 0));                          // sample caching bay (underbelly)
-
-  // RTG power source at the back (cylinder with cooling fins)
-  const rtg = new THREE.Group();
-  rtg.add(cyl(0.2, 0.2, 0.95, MAT.darkAlu, 0, 0, 0, 0, 0, HP, 20));
-  for (let i = 0; i < 8; i++) {
-    const a = (i / 8) * Math.PI * 2;
-    rtg.add(box(0.85, 0.025, 0.2, MAT.black, 0, Math.sin(a) * 0.27, Math.cos(a) * 0.27, a, 0, 0));
-  }
-  rtg.position.set(-1.65, 1.55, 0);
-  rtg.rotation.z = 0.3;
-  g.add(rtg);
-
-  // remote sensing mast with camera head
-  g.add(cyl(0.05, 0.06, 1.05, MAT.alu, 0.75, 2.25, 0.5, 0, 0, 0, 12));
-  g.add(box(0.28, 0.2, 0.62, MAT.white, 0.75, 2.84, 0.5));
-  for (const dz of [0.14, -0.14]) {
-    g.add(cyl(0.065, 0.065, 0.12, MAT.black, 0.93, 2.86, 0.5 + dz, 0, 0, HP, 14));
-    g.add(cyl(0.035, 0.035, 0.13, MAT.glass, 0.95, 2.86, 0.5 + dz, 0, 0, HP, 12));
-  }
-  g.add(cyl(0.09, 0.09, 0.26, MAT.alu, 0.85, 2.84, 0.28, 0, 0, HP, 14));    // SuperCam style telescope
-  g.add(box(0.2, 0.16, 0.16, MAT.darkAlu, 0.62, 2.84, 0.72));
-
-  // high-gain antenna (hexagonal dish) and UHF antenna
-  g.add(cyl(0.025, 0.025, 0.55, MAT.alu, -0.55, 1.95, -0.55, 0, 0, 0, 8));
-  g.add(cyl(0.3, 0.3, 0.035, MAT.white, -0.55, 2.28, -0.55, 0.6, 0, 0.2, 6));
-  g.add(cyl(0.02, 0.02, 0.7, MAT.alu, -1.0, 2.0, 0.55, 0, 0, -0.15, 6));
-
-  // robotic arm folded at the front, with turret and drill
-  g.add(box(0.35, 0.3, 0.45, MAT.darkAlu, 1.3, 1.1, 0.0));
-  g.add(cyl(0.07, 0.07, 0.9, MAT.alu, 1.65, 1.02, 0.18, 0, 0, HP, 12));
-  g.add(cyl(0.07, 0.07, 0.8, MAT.alu, 1.6, 0.86, -0.18, 0, 0, HP, 12));
-  g.add(cyl(0.2, 0.2, 0.25, MAT.black, 2.12, 0.95, 0, 0, 0, HP, 20));
-  g.add(cyl(0.04, 0.02, 0.35, MAT.alu, 2.32, 0.95, 0, 0, 0, HP, 8));
-
-  // hazard cameras and lights
+  const chassis = new THREE.Group();
+  g.add(chassis);
+  // low, wide hull with chamfered nose (side profile extruded across the width)
+  chassis.add(extrude([[-1.25, 0.72], [1.05, 0.72], [1.45, 0.95], [1.3, 1.22], [-1.05, 1.28], [-1.35, 1.05]], 1.25, PAL.shell, 0.08));
+  chassis.add(box(2.1, 0.06, 1.3, PAL.graphite, -0.05, 0.7, 0));                     // belly armour
+  chassis.add(box(1.6, 0.03, 0.08, PAL.omanRed, -0.1, 1.05, 0.7));                   // side stripes (Omani red & green)
+  chassis.add(box(1.6, 0.03, 0.08, PAL.omanGreen, -0.1, 0.99, 0.7));
+  chassis.add(box(1.6, 0.03, 0.08, PAL.omanRed, -0.1, 1.05, -0.7));
+  chassis.add(box(1.6, 0.03, 0.08, PAL.omanGreen, -0.1, 0.99, -0.7));
+  // lidar / vision dome on the nose (no mast: everything sits low and protected)
+  chassis.add(cyl(0.26, 0.3, 0.12, PAL.graphite, 0.95, 1.33, 0, 0, 0, 0, 28));
+  const dome = mesh(new THREE.SphereGeometry(0.25, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), PAL.window, 0.95, 1.38, 0);
+  chassis.add(dome);
+  chassis.add(ring(0.25, 0.02, PAL.tealGlow, 0.95, 1.4, 0, HP, 0, 0));
   for (const s of [-1, 1]) {
-    g.add(box(0.1, 0.1, 0.16, MAT.black, 1.28, 1.52, s * 0.55));
-    g.add(box(0.1, 0.1, 0.16, MAT.black, -1.28, 1.52, s * 0.55));
+    chassis.add(box(0.06, 0.12, 0.22, PAL.carbon, 1.43, 1.0, s * 0.36));             // stereo hazard cams
+    chassis.add(sph(0.04, PAL.amber, 1.47, 1.0, s * 0.36));
   }
+  // folding solar wing on a short pylon (tilts toward the Sun while parked)
+  const wing = new THREE.Group();
+  wing.position.set(-0.35, 1.42, 0);
+  wing.add(box(0.12, 0.2, 0.12, PAL.graphite, 0, -0.1, 0));
+  const panel = new THREE.Group();
+  panel.add(box(1.5, 0.04, 1.9, PAL.solar, 0, 0, 0));
+  panel.add(box(1.54, 0.05, 0.04, PAL.steel, 0, 0, 0.96));
+  panel.add(box(1.54, 0.05, 0.04, PAL.steel, 0, 0, -0.96));
+  for (let i = -2; i <= 2; i++) panel.add(box(0.01, 0.045, 1.88, PAL.steel, i * 0.3, 0, 0));
+  panel.rotation.z = -0.12;
+  wing.add(panel);
+  chassis.add(wing);
+  // sample arm folded along the right side, with a coring head
+  chassis.add(box(0.9, 0.08, 0.08, PAL.steel, 0.35, 0.88, -0.74));
+  chassis.add(box(0.6, 0.07, 0.07, PAL.steel, 0.9, 0.82, -0.8, 0, 0, -0.4));
+  chassis.add(cyl(0.1, 0.1, 0.16, PAL.graphite, 1.18, 0.7, -0.8, 0, 0, 0, 16));
+  chassis.add(cyl(0.025, 0.01, 0.22, PAL.steel, 1.18, 0.54, -0.8, 0, 0, 0, 8));
+  // comms: flat phased-array tile + whip antenna
+  chassis.add(box(0.36, 0.03, 0.36, PAL.shellWarm, -0.95, 1.31, 0.35, 0, 0, 0.15));
+  chassis.add(cyl(0.012, 0.012, 0.7, PAL.steel, -1.1, 1.6, -0.45, 0, 0, 0, 6));
+  chassis.add(sph(0.03, PAL.tealGlow, -1.1, 1.96, -0.45));
 
-  // rocker-bogie suspension and 6 wheels
-  const wr = 0.34, ww = 0.4;
-  for (const s of [-1, 1]) {
-    const z = s * 1.0;
-    g.add(box(1.55, 0.07, 0.08, MAT.alu, 0.35, 0.78, s * 0.86, 0, 0, -0.2));      // rocker
-    g.add(box(1.1, 0.07, 0.08, MAT.alu, -0.85, 0.72, s * 0.86, 0, 0, 0.22));      // bogie
-    g.add(box(0.07, 0.5, 0.07, MAT.darkAlu, 0.0, 1.15, s * 0.8));
-    for (const x of [1.15, -0.2, -1.4]) {
-      g.add(cyl(0.035, 0.035, 0.5, MAT.darkAlu, x, wr + 0.28, s * 0.86, 0, 0, 0, 8));
-      const w = makeWheel(wr, ww, 18);
-      w.position.set(x, wr, z);
-      g.add(w);
-      wheels.push(w.userData.spin);
-    }
+  // four wheel-legs: hip joint on the hull, thigh, knee, and an airless wheel
+  const wheels = [], mounts = [];
+  const wr = 0.42, ww = 0.32;
+  for (const [x, s] of [[0.82, 1], [0.82, -1], [-0.86, 1], [-0.86, -1]]) {
+    const hip = new THREE.Group();
+    hip.position.set(x, 0.98, s * 0.66);
+    hip.add(sph(0.11, PAL.graphite, 0, 0, 0));
+    hip.add(ring(0.1, 0.025, PAL.teal, 0, 0, 0, 0, 0, 0));
+    hip.add(box(0.12, 0.62, 0.1, PAL.steel, 0, -0.18, s * 0.12, s * 0.5, 0, 0));      // thigh angled outwards
+    chassis.add(hip);
+    const mount = new THREE.Group();                                                    // moves up/down (suspension travel)
+    const rest = wr;
+    mount.position.set(x, rest, s * 1.02);
+    mount.add(box(0.09, 0.36, 0.09, PAL.steel, 0, 0.24, -s * 0.14));                  // shin
+    mount.add(sph(0.07, PAL.teal, 0, 0.42, -s * 0.14));                                // knee
+    const w = makeAirlessWheel(wr, ww);
+    mount.add(w);
+    g.add(mount);
+    wheels.push(w.userData.spin);
+    mounts.push({ obj: mount, x, z: s * 1.02, restY: rest, travel: 0.32 });
   }
-  g.userData = { kind: 'rover', wheels, wheelRadius: wr };
+  g.userData = { kind: 'rover', design: 'RAHHAL', wheels, wheelRadius: wr, wheelMounts: mounts, chassis, clearance: 0 };
   return g;
 }
 
-/* ---------- NASA-concept pressurized crew rover ---------- */
-function buildCrewedRover() {
+/* ---------- QAFILA: articulated pressurized crew rover ---------- */
+function buildQafila() {
   const g = new THREE.Group();
-  const wheels = [];
+  const front = new THREE.Group(), rear = new THREE.Group();
+  g.add(front);
+  // rear module hangs on an articulation joint just behind the cab, so the train bends in turns
+  const joint = new THREE.Group();
+  joint.position.set(-0.55, 0, 0);
+  joint.add(rear);
+  g.add(joint);
 
-  // faceted white cabin: a side profile extruded across the width
-  const prof = new THREE.Shape();
-  const pts = [[-1.85, 1.1], [1.75, 1.1], [2.05, 1.5], [1.55, 2.15], [0.75, 2.72], [-1.0, 2.72], [-1.85, 2.5]];
-  prof.moveTo(pts[0][0], pts[0][1]);
-  for (let i = 1; i < pts.length; i++) prof.lineTo(pts[i][0], pts[i][1]);
-  prof.closePath();
-  const bodyGeo = new THREE.ExtrudeGeometry(prof, { depth: 1.8, steps: 1, bevelEnabled: true, bevelThickness: 0.07, bevelSize: 0.07, bevelSegments: 2 });
-  bodyGeo.translate(0, 0, -0.9);
-  g.add(mesh(bodyGeo, MAT.white));
+  // --- front cab: rounded capsule with a panoramic window band ---
+  // (shell half-width = 0.975 + 0.14 bevel = 1.115, so trim sits at |z| >= 1.125)
+  const cabProfile = [[-0.5, 0.95], [1.5, 0.95], [2.15, 1.35], [2.25, 1.9], [1.75, 2.55], [-0.5, 2.6]];
+  front.add(extrude(cabProfile, 1.95, PAL.shell, 0.14));
+  front.add(box(0.86, 0.04, 2.05, PAL.window, 2.13, 2.33, 0, 0, 0, 2.227));                   // windshield on the sloped nose
+  front.add(box(0.5, 0.04, 2.0, PAL.window, 2.36, 1.66, 0, 0, 0, 1.39));                      // lower view port
+  for (const s of [-1, 1]) {
+    front.add(box(1.55, 0.36, 0.03, PAL.window, 0.62, 2.12, s * 1.128));                     // side window band
+    front.add(box(2.6, 0.07, 0.03, PAL.omanRed, 0.75, 1.66, s * 1.13));                      // livery
+    front.add(box(2.6, 0.05, 0.03, PAL.omanGreen, 0.75, 1.57, s * 1.13));
+    front.add(box(2.85, 0.3, 0.03, PAL.graphite, 0.8, 1.08, s * 1.13));                      // lower skirt
+    front.add(box(0.06, 0.62, 0.035, PAL.teal, -0.25, 1.7, s * 1.13));                       // door seam light
+  }
+  front.add(box(1.9, 0.06, 1.7, PAL.solar, 0.45, 2.78, 0));                                   // solar roof
+  front.add(box(0.25, 0.16, 1.6, PAL.graphite, 2.38, 1.1, 0));                                // bumper with light bar
+  front.add(box(0.05, 0.05, 1.4, PAL.tealGlow, 2.52, 1.12, 0));
+  for (const s of [-1, 1]) front.add(sph(0.08, PAL.amber, 2.36, 1.42, s * 0.72));
+  front.add(cyl(0.03, 0.03, 0.6, PAL.steel, -0.2, 3.05, -0.6, 0, 0, 0, 8));                   // comm mast + dish
+  front.add(cyl(0.32, 0.05, 0.08, PAL.shellWarm, -0.2, 3.37, -0.6, 0.55, 0, 0.2, 28));
+  // --- flexible pressurized bellows in the gap between the modules ---
+  for (let i = 0; i < 4; i++) front.add(ring(0.72, 0.09, PAL.graphite, -0.7 - i * 0.1, 1.75, 0, 0, HP, 0));
+  // --- rear module (lab + habitat), with suitports for two SINBAD suits on the back wall ---
+  rear.position.x = -0.42;
+  rear.add(extrude([[-2.6, 0.95], [-0.15, 0.95], [-0.15, 2.55], [-2.4, 2.55], [-2.75, 2.2], [-2.75, 1.25]], 1.95, PAL.shellWarm, 0.14));
+  rear.add(box(1.9, 0.06, 1.7, PAL.solar, -1.4, 2.73, 0));
+  for (let i = 0; i < 6; i++) rear.add(box(0.03, 0.42, 1.6, PAL.steel, -0.55 - i * 0.28, 2.95, 0));   // radiator fins
+  for (const s of [-1, 1]) {
+    rear.add(cyl(0.34, 0.34, 0.06, PAL.graphite, -2.92, 1.75, s * 0.5, 0, 0, HP, 32));      // suitport hatches
+    rear.add(ring(0.34, 0.035, PAL.teal, -2.96, 1.75, s * 0.5, 0, HP, 0));
+    rear.add(box(2.4, 0.07, 0.03, PAL.omanRed, -1.4, 1.66, s * 1.13));
+    rear.add(box(2.4, 0.05, 0.03, PAL.omanGreen, -1.4, 1.57, s * 1.13));
+    rear.add(box(2.7, 0.3, 0.03, PAL.graphite, -1.45, 1.08, s * 1.13));
+    rear.add(box(0.8, 0.32, 0.03, PAL.window, -1.0, 2.12, s * 1.128));
+  }
+  rear.add(box(0.05, 0.05, 1.2, PAL.amber, -2.92, 2.4, 0));                                   // rear marker light
 
-  // windshield on the sloped front and angular side windows
-  g.add(box(0.98, 0.05, 1.5, MAT.glass, 1.21, 2.52, 0, 0, 0, -0.6));
-  const sideWin = (poly, z) => {
-    const sh = new THREE.Shape();
-    sh.moveTo(poly[0][0], poly[0][1]);
-    for (let i = 1; i < poly.length; i++) sh.lineTo(poly[i][0], poly[i][1]);
-    sh.closePath();
-    const geo = new THREE.ExtrudeGeometry(sh, { depth: 0.04, bevelEnabled: false });
-    geo.translate(0, 0, z - 0.02);
-    return mesh(geo, MAT.glass);
+  // 8 wheels: 4 under each module, each on its own active suspension arm
+  const wheels = [], mounts = [];
+  const wr = 0.55, ww = 0.42;
+  const place = (parent, x, s, jointX) => {
+    const arm = box(0.55, 0.1, 0.12, PAL.graphite, x + 0.25, 0.9, s * 0.95, 0, 0, -0.3);
+    parent.add(arm);
+    const mount = new THREE.Group();
+    mount.position.set(x, wr, s * 1.22);
+    const w = makeAirlessWheel(wr, ww);
+    mount.add(w);
+    mount.add(box(0.12, 0.42, 0.12, PAL.steel, 0, 0.32, -s * 0.18));                     // damper
+    parent.add(mount);
+    wheels.push(w.userData.spin);
+    mounts.push({ obj: mount, x: x + jointX + (parent === rear ? -0.42 : 0), z: s * 1.22, restY: wr, travel: 0.3, rear: parent === rear });
   };
   for (const s of [-1, 1]) {
-    const z = s * 0.99;
-    g.add(sideWin([[-0.1, 1.78], [1.0, 1.78], [1.42, 2.12], [0.85, 2.55], [-0.1, 2.55]], z));
-    g.add(sideWin([[-1.35, 1.85], [-0.35, 1.85], [-0.35, 2.45], [-1.35, 2.45]], z));
-    g.add(box(1.2, 0.05, 0.05, MAT.alu, 0.45, 1.74, z + s * 0.01));                // sill
-    g.add(box(0.5, 0.35, 0.05, MAT.cream, -0.3, 1.38, z));                          // hatch panel
-    g.add(box(0.35, 0.05, 0.3, MAT.darkAlu, 0.5, 1.12, s * 1.1));                   // step
+    place(front, 1.55, s, 0); place(front, 0.3, s, 0);
+    place(rear, -0.65, s, -0.55); place(rear, -1.95, s, -0.55);
   }
-  // roof: tanks, rack, antenna dish, camera mast
-  for (const s of [-1, 1]) g.add(cyl(0.2, 0.2, 1.1, MAT.alu, -0.9, 3.0, s * 0.42, 0, 0, HP, 28));
-  g.add(box(1.5, 0.05, 1.3, MAT.darkAlu, -0.9, 2.78, 0));
-  g.add(cyl(0.025, 0.025, 0.8, MAT.alu, -1.35, 3.1, -0.75, 0, 0, 0, 8));
-  g.add(cyl(0.3, 0.06, 0.1, MAT.white, -1.35, 3.55, -0.75, 0.5, 0, 0.15, 24));
-  g.add(cyl(0.04, 0.04, 0.6, MAT.alu, 0.2, 3.05, 0.55, 0, 0, 0, 10));
-  g.add(box(0.2, 0.15, 0.3, MAT.black, 0.2, 3.38, 0.55));
-  // lights, bumper, front tool arm, rear equipment block
-  for (const s of [-1, 1]) g.add(sph(0.1, MAT.lamp, 1.95, 1.55, s * 0.55));
-  g.add(box(0.25, 0.14, 1.7, MAT.darkAlu, 2.08, 1.15, 0));
-  g.add(cyl(0.07, 0.07, 1.0, MAT.alu, 2.2, 1.0, 0.7, 0, 0, 0.35, 12));
-  g.add(box(0.3, 0.22, 0.3, MAT.black, 2.62, 0.84, 0.7));
-  g.add(box(0.5, 1.0, 1.5, MAT.darkAlu, -2.1, 1.65, 0));
-  g.add(cyl(0.18, 0.18, 0.6, MAT.cream, -2.45, 1.5, 0.4, 0, 0, HP, 20));
-  g.add(cyl(0.18, 0.18, 0.6, MAT.cream, -2.45, 1.5, -0.4, 0, 0, HP, 20));
-  // suspension struts and 6 big tires
-  const wr = 0.58, ww = 0.55;
-  for (const s of [-1, 1]) {
-    for (const x of [1.3, 0, -1.3]) {
-      g.add(box(0.14, 0.62, 0.14, MAT.darkAlu, x, 0.82, s * 1.12));
-      g.add(box(0.1, 0.1, 0.42, MAT.darkAlu, x, 0.62, s * 1.0));
-      const w = makeTire(wr, ww, 22);
-      w.position.set(x, wr, s * 1.38);
-      g.add(w);
-      wheels.push(w.userData.spin);
-    }
-  }
-  g.scale.set(0.9, 0.9, 0.9);
-  g.userData = { kind: 'rover', wheels, wheelRadius: wr * 0.9 };
+  g.scale.set(0.85, 0.85, 0.85);
+  g.userData = { kind: 'rover', design: 'QAFILA', wheels, wheelRadius: wr * 0.85, wheelMounts: mounts, joint, scaleK: 0.85 };
   return g;
 }
 
@@ -301,15 +324,17 @@ function buildFlag() {
   return grp;
 }
 
-/* ---------- EVA astronaut (Apollo A7L look) ---------- */
+/* ---------- SINBAD EVA suit (original Starseekers design) ---------- */
 function makeLimb(r, upperLen, lowerLen, matUpper, matLower, endBuilder) {
   // pivot at the top (shoulder or hip). Swings about the z axis.
   const pivot = new THREE.Group();
   pivot.add(cap(r, upperLen, matUpper, 0, -(upperLen / 2 + r * 0.4), 0));
-  pivot.add(ring(r * 0.95, r * 0.3, MAT.suitGrey, 0, -(upperLen + r * 1.2), 0, HP, 0, 0));      // elbow / knee convolute
+  pivot.add(ring(r * 1.02, r * 0.22, PAL.teal, 0, -r * 0.2, 0, HP, 0, 0));                      // bearing ring at the joint
+  pivot.add(ring(r * 0.98, r * 0.26, PAL.graphite, 0, -(upperLen + r * 1.2), 0, HP, 0, 0));    // elbow / knee bearing
   const lower = new THREE.Group();
   lower.position.set(0, -(upperLen + r * 1.2), 0);
-  lower.add(cap(r * 0.92, lowerLen, matLower, 0, -(lowerLen / 2 + r * 0.3), 0));
+  lower.add(cap(r * 0.9, lowerLen, matLower, 0, -(lowerLen / 2 + r * 0.3), 0));
+  lower.add(box(r * 0.9, lowerLen * 0.55, r * 1.1, PAL.shellWarm, r * 0.62, -(lowerLen * 0.45), 0));   // armour plate (shin / forearm)
   const endY = -(lowerLen + r * 1.0);
   endBuilder(lower, endY);
   pivot.add(lower);
@@ -321,79 +346,75 @@ function buildAstronaut() {
   const g = new THREE.Group();
   const body = new THREE.Group();            // bobs while walking
   g.add(body);
+  const soft = M('#4d535c', 0.9, 0.0, { bumpMap: fabricBump() || null, bumpScale: 0.6 });   // charcoal soft-goods
 
-  // torso: a smooth lathe profile (wider across the shoulders), waist ring, neck ring
-  const prof = [[0.0, -0.66], [0.34, -0.66], [0.42, -0.5], [0.45, -0.2], [0.49, 0.15], [0.48, 0.38], [0.38, 0.55], [0.24, 0.62], [0.0, 0.64]]
+  // hard upper torso: faceted shell (lathe), graphite waist bearing
+  const prof = [[0.0, -0.6], [0.36, -0.6], [0.44, -0.42], [0.5, -0.1], [0.53, 0.2], [0.5, 0.42], [0.36, 0.58], [0.0, 0.6]]
     .map(p => new THREE.Vector2(p[0], p[1]));
-  const torso = mesh(new THREE.LatheGeometry(prof, 36), MAT.suitWhite, 0, 2.05, 0);
-  torso.scale.set(0.95, 1, 1.22);
+  const torso = mesh(new THREE.LatheGeometry(prof, 8), PAL.shell, 0, 2.08, 0);            // 8 sides = faceted, armour-like
+  torso.scale.set(0.92, 1, 1.2);
+  torso.rotation.y = Math.PI / 8;
   body.add(torso);
-  body.add(ring(0.42, 0.08, MAT.suitGrey, 0, 1.43, 0, HP, 0, 0));
-  body.add(ring(0.3, 0.07, MAT.darkAlu, 0, 2.66, 0, HP, 0, 0));
+  body.add(ring(0.42, 0.09, PAL.graphite, 0, 1.46, 0, HP, 0, 0));
+  body.add(ring(0.43, 0.025, PAL.teal, 0, 1.52, 0, HP, 0, 0));
+  // chest: OLED status panel, Omani red/green chevron and two light strips
+  body.add(box(0.06, 0.34, 0.46, PAL.graphite, 0.5, 2.18, 0));
+  body.add(box(0.02, 0.22, 0.34, PAL.tealGlow, 0.535, 2.2, 0));
+  body.add(box(0.05, 0.07, 0.5, PAL.omanRed, 0.46, 2.46, 0, 0, 0, -0.25));
+  body.add(box(0.05, 0.05, 0.5, PAL.omanGreen, 0.46, 2.39, 0, 0, 0, -0.25));
+  for (const s of [-1, 1]) body.add(box(0.02, 0.5, 0.03, PAL.tealGlow, 0.45, 1.98, s * 0.4, 0, 0, 0.08));
 
-  // chest control box (RCU) with connectors, patches and hoses
-  body.add(box(0.2, 0.34, 0.5, M('#d7d6d0', 0.55, 0.1), 0.5, 2.2, 0));
-  body.add(box(0.21, 0.1, 0.4, MAT.darkAlu, 0.5, 2.32, 0));
-  body.add(box(0.03, 0.12, 0.28, M('#2b7bd0', 0.3, 0.2, { emissive: '#14407a', emissiveIntensity: 0.9 }), 0.605, 2.14, 0));
-  for (const [dz, mat] of [[0.17, MAT.blue], [0.0, MAT.red], [-0.17, MAT.orange]]) body.add(cyl(0.035, 0.035, 0.07, mat, 0.5, 2.4, dz, 0, 0, 0, 12));
-  for (const s of [-1, 1]) {
-    body.add(hose([[0.5, 2.3, s * 0.2], [0.42, 2.0, s * 0.5], [0.15, 1.72, s * 0.62], [-0.3, 1.7, s * 0.55]], 0.032, MAT.hose));
-    body.add(hose([[0.5, 2.15, s * 0.12], [0.46, 1.9, s * 0.42], [0.2, 1.62, s * 0.5]], 0.028, MAT.hose));
-    body.add(cyl(0.05, 0.05, 0.1, MAT.alu, 0.2, 1.62, s * 0.5, 0, 0, HP, 12));
-  }
+  // rear-entry suitport hatch = flat life-support pack (docks onto the QAFILA rover)
+  body.add(extrude([[-0.95, 1.55], [-0.55, 1.55], [-0.5, 2.8], [-0.62, 2.95], [-0.95, 2.85]], 0.86, PAL.shellWarm, 0.05));
+  body.add(ring(0.36, 0.035, PAL.teal, -0.97, 2.22, 0, 0, HP, 0));                          // hatch seal ring
+  body.add(box(0.03, 0.5, 0.06, PAL.amber, -0.99, 2.22, 0.3));                              // status light
+  for (const s of [-1, 1]) body.add(cyl(0.05, 0.05, 0.45, PAL.steel, -0.78, 1.7, s * 0.36, 0, 0, 0, 12));   // O2 bottles
 
-  // life-support backpack (PLSS) with antenna
-  body.add(box(0.6, 1.05, 0.9, MAT.suitWhite, -0.63, 2.12, 0));
-  body.add(box(0.5, 0.3, 0.8, MAT.white, -0.62, 2.78, 0));
-  body.add(box(0.66, 0.08, 0.95, MAT.suitGrey, -0.63, 1.58, 0));
-  body.add(box(0.12, 0.7, 0.55, MAT.cream, -0.96, 2.1, 0));
-  for (const s of [-1, 1]) body.add(cyl(0.06, 0.06, 0.4, MAT.alu, -0.9, 1.62, s * 0.3, 0, 0, 0, 12));
-  body.add(cyl(0.015, 0.015, 0.8, MAT.alu, -0.8, 3.25, 0.32, 0, 0, 0, 8));
-  body.add(sph(0.045, M('#ff5030', 0.3, 0, { emissive: '#ff3010', emissiveIntensity: 1.4 }), -0.8, 3.66, 0.32));
-
-  // helmet: white shell, polycarbonate dome, gold mirror visor, side bezels
-  body.add(sph(0.51, MAT.white, 0.0, 3.1, 0, 1.0, 1.03, 1.0));
-  const visorGeo = new THREE.SphereGeometry(0.545, 40, 24, Math.PI - 1.05, 2.1, 1.0, 1.25);
-  const visor = mesh(visorGeo, MAT.gold, 0.0, 3.1, 0);
+  // helmet: rounded hard shell + wraparound bronze visor + halo HUD ring with lights
+  body.add(sph(0.5, PAL.shell, 0.0, 3.08, 0, 1.0, 1.02, 0.98));
+  const visor = mesh(new THREE.SphereGeometry(0.525, 48, 24, Math.PI - 1.35, 2.7, 0.95, 1.15), PAL.bronzeVisor, 0.0, 3.08, 0);
   visor.castShadow = false;
   body.add(visor);
-  body.add(ring(0.5, 0.045, MAT.darkAlu, 0, 3.1 - 0.12, 0, HP, 0, 0));            // neck dam / seal
+  body.add(ring(0.505, 0.028, PAL.graphite, 0, 3.17, 0, HP, 0, 0));                        // halo HUD band around the helmet
+  body.add(ring(0.51, 0.011, PAL.tealGlow, 0, 3.2, 0, HP, 0, 0));
   for (const s of [-1, 1]) {
-    body.add(box(0.14, 0.26, 0.1, MAT.suitGrey, 0.05, 3.1, s * 0.52));              // side bezel
-    body.add(box(0.2, 0.06, 0.12, MAT.darkAlu, 0.38, 3.45, s * 0.2));               // brow clip
+    body.add(cyl(0.07, 0.07, 0.07, PAL.graphite, 0.12, 3.18, s * 0.5, HP, 0, 0, 16));       // side camera / lamp pods
+    body.add(cyl(0.04, 0.04, 0.08, PAL.amber, 0.12, 3.18, s * 0.54, HP, 0, 0, 12));
   }
+  body.add(ring(0.42, 0.06, PAL.graphite, 0, 2.66, 0, HP, 0, 0));                            // neck bearing
 
-  // arms: soft sleeves with convolutes, gloves (white palm, grey fingertips) and cuff rings
+  // arms and gloves
   const gloves = (limb, y) => {
-    limb.add(ring(0.17, 0.055, M('#5aa0e0', 0.35, 0.6), 0, y + 0.25, 0, HP, 0, 0));    // wrist disconnect ring
-    limb.add(sph(0.2, MAT.suitWhite, 0, y, 0, 1, 1.15, 1));
-    limb.add(cap(0.065, 0.14, MAT.suitGrey, 0.1, y - 0.2, 0.04, 0, 0, 0.1));
-    limb.add(cap(0.065, 0.14, MAT.suitGrey, 0.04, y - 0.22, -0.06, 0, 0, 0.0));
-    limb.add(cap(0.06, 0.12, MAT.suitGrey, -0.05, y - 0.2, 0.0, 0, 0, -0.1));
-    limb.add(cap(0.06, 0.12, MAT.suitWhite, 0.17, y + 0.02, 0.04, 0, 0, -0.9));          // thumb
+    limb.add(ring(0.16, 0.05, PAL.teal, 0, y + 0.25, 0, HP, 0, 0));
+    limb.add(sph(0.19, PAL.graphite, 0, y, 0, 1, 1.15, 1));
+    limb.add(cap(0.06, 0.14, PAL.carbon, 0.1, y - 0.2, 0.04, 0, 0, 0.1));
+    limb.add(cap(0.06, 0.14, PAL.carbon, 0.03, y - 0.22, -0.06, 0, 0, 0.0));
+    limb.add(cap(0.055, 0.12, PAL.carbon, -0.05, y - 0.2, 0.0, 0, 0, -0.1));
+    limb.add(cap(0.055, 0.12, PAL.graphite, 0.17, y + 0.02, 0.04, 0, 0, -0.9));
   };
-  const armL = makeLimb(0.17, 0.42, 0.42, MAT.suitWhite, MAT.suitWhite, gloves);
-  const armR = makeLimb(0.17, 0.42, 0.42, MAT.suitWhite, MAT.suitWhite, gloves);
+  const armL = makeLimb(0.165, 0.42, 0.42, soft, soft, gloves);
+  const armR = makeLimb(0.165, 0.42, 0.42, soft, soft, gloves);
   armL.position.set(0, 2.55, 0.64); armR.position.set(0, 2.55, -0.64);
+  armL.add(sph(0.23, PAL.shell, 0, 0.04, 0, 1.05, 0.5, 1.1)); armR.add(sph(0.23, PAL.shell, 0, 0.04, 0, 1.05, 0.5, 1.1));   // shoulder armour
   body.add(armL, armR);
-  // Oman flag patch on the shoulder (the astronaut's left)
+  // flag of Oman patch on the left shoulder
   const patchTex = omanFlagTexture();
   if (patchTex) {
     const patch = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.3 / FLAG_RATIO), new THREE.MeshStandardMaterial({ map: patchTex, roughness: 0.9 }));
-    patch.position.set(0.02, -0.2, -0.19);
+    patch.position.set(0.02, -0.25, -0.2);
     patch.rotation.y = Math.PI;
     armR.add(patch);
   }
 
-  // legs (pivot at hips; they stay outside the bobbing body group)
+  // legs with knee armour and treaded boots
   const boots = (limb, y) => {
-    limb.add(ring(0.2, 0.05, MAT.suitGrey, 0, y + 0.26, 0, HP, 0, 0));
-    limb.add(cap(0.19, 0.38, MAT.suitGrey, 0.14, y - 0.06, 0, 0, 0, HP));              // lunar-boot overshoe
-    limb.add(box(0.78, 0.09, 0.4, MAT.rubber, 0.14, y - 0.24, 0));                      // ribbed sole
-    for (let i = 0; i < 5; i++) limb.add(box(0.03, 0.03, 0.42, MAT.black, -0.16 + i * 0.15, y - 0.3, 0));
+    limb.add(ring(0.19, 0.05, PAL.teal, 0, y + 0.26, 0, HP, 0, 0));
+    limb.add(cap(0.19, 0.36, PAL.graphite, 0.14, y - 0.06, 0, 0, 0, HP));
+    limb.add(box(0.8, 0.1, 0.42, PAL.carbon, 0.14, y - 0.24, 0));
+    for (let i = 0; i < 6; i++) limb.add(box(0.03, 0.04, 0.44, PAL.tyre, -0.2 + i * 0.13, y - 0.31, 0));
   };
-  const legL = makeLimb(0.22, 0.42, 0.42, MAT.suitWhite, MAT.suitWhite, boots);
-  const legR = makeLimb(0.22, 0.42, 0.42, MAT.suitWhite, MAT.suitWhite, boots);
+  const legL = makeLimb(0.21, 0.42, 0.42, soft, soft, boots);
+  const legR = makeLimb(0.21, 0.42, 0.42, soft, soft, boots);
   legL.position.set(0, 1.4, 0.27); legR.position.set(0, 1.4, -0.27);
   g.add(legL, legR);
 
@@ -401,11 +422,11 @@ function buildAstronaut() {
   flag.position.set(0.3, 0, -1.9);
   g.add(flag);
   g.scale.set(0.82, 0.82, 0.82);
-  g.userData = { kind: 'astronaut', body, armL, armR, legL, legR, flag };
+  g.userData = { kind: 'astronaut', design: 'SINBAD', body, armL, armR, legL, legR, flag };
   return g;
 }
 
-/* ---------- Environment map (Martian sky) so metal and the gold visor reflect it ---------- */
+/* ---------- Environment map (Martian sky) so metal and the visor reflect it ---------- */
 export function makeMarsEnv(renderer) {
   try {
     const pm = new THREE.PMREMGenerator(renderer);
@@ -485,8 +506,8 @@ export async function loadOptionalModels(base = 'models/') {
 
 export function buildTravelerModel(kind) {
   if (overrides[kind]) return overrides[kind].clone(true);
-  if (kind === 'rover') return buildRover();
-  if (kind === 'crewed') return buildCrewedRover();
+  if (kind === 'rover') return buildRahhal();
+  if (kind === 'crewed') return buildQafila();
   return buildAstronaut();
 }
 
