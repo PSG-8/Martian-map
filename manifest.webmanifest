@@ -1,0 +1,19 @@
+{
+  "name": "Lab@Home – Healthcare testing at your doorstep",
+  "short_name": "Lab@Home",
+  "description": "Book lab tests at home in Oman. Licensed nurses, partner laboratories, results on your phone.",
+  "start_url": "./#/app",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f7fc",
+  "theme_color": "#1257d6",
+  "lang": "en",
+  "dir": "auto",
+  "categories": ["medical", "health"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
