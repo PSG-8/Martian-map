@@ -30,16 +30,23 @@ try {
   const phone = '9' + String(Date.now()).slice(-7);
   await p.goto(BASE + '/#/register/patient');
   await p.fill('input[name=full_name]', 'Test Patient E2E'); await p.fill('input[name=phone]', phone);
-  await p.fill('input[name=newpass]', 'Test1234x'); await p.selectOption('select[name=wilayat]', 'Ibra');
-  await p.fill('input[name=address]', 'E2E house'); await p.check('input[name=consent]');
-  await p.click('#rf button.btn'); await p.waitForURL(/#\/app/); await p.waitForTimeout(800);
+  await p.fill('input[name=newpass]', 'Test1234x'); await p.check('input[name=consent]');
+  await p.click('#rf button.btn'); await p.waitForTimeout(500);
+  ok((await p.textContent('#re')).length > 3, 'registration asks for gender first');
+  await p.click('[data-g=male]'); await p.click('#rf button.btn'); await p.waitForURL(/#\/app/); await p.waitForTimeout(800);
   ok(await p.isVisible('.welcome'), 'new patient registered and sees dashboard');
   await p.goto(BASE + '/#/app/tests'); await p.waitForSelector('[data-add="package:vitamins"]');
   await p.click('[data-add="package:vitamins"]'); await p.click('[data-add="test:hba1c"]');
+  await p.goto(BASE + '/#/app/cart'); await p.waitForSelector('[data-go="app/book"]');
+  ok((await p.$$('[data-rm]')).length === 2, 'cart holds 2 items');
   await p.click('[data-go="app/book"]'); await p.waitForSelector('#nx');
-  await p.click('#nx'); await p.click('#nx');
+  await p.click('#nx'); await p.waitForSelector('#ba');
+  await p.selectOption('#bw', 'Ibra'); await p.fill('#ba', 'House 7, E2E street'); await p.click('#nx');
+  await p.waitForSelector('.ncard:has-text("Yousuf")', { timeout: 15000 });
+  const listTxt = await p.textContent('#nlist');
+  ok(!/Fatima|Jokha|Ansam/.test(listTxt), 'male patient sees only male nurses');
+  await p.click('.ncard:has-text("Yousuf")'); await p.click('#nx');
   await p.click('.slots button:not([disabled])'); await p.click('#nx');
-  await p.fill('#ba', 'House 7, E2E street'); await p.click('#nx');
   await p.fill('#cn', '4242 4242 4242 4242'); await p.fill('#ce', '12/29'); await p.fill('#cv', '123');
   await p.click('#pay'); await p.waitForSelector('text=Booking confirmed', { timeout: 15000 });
   const code = (await p.textContent('.card.pad-lg p.muted')).match(/LAH-\d+/)[0];
@@ -47,9 +54,13 @@ try {
   await p.click('a.btn.block'); await p.waitForSelector('.tl');
   const orderUrl = p.url(); ok(/order\//.test(orderUrl), 'tracking page opened');
 
-  // 3. nurse
-  const n = await page(1366, 900); await login(n, 'nurse@demo.labathome.om');
-  ok(await n.isVisible(`text=${code}`), 'nurse sees the new request near her');
+  // 3. nurse: female nurse must not see it, chosen male nurse does
+  const f = await page(1366, 900); await login(f, 'jokha@demo.labathome.om');
+  ok(!(await f.textContent('body')).includes(code), 'female nurse does not see a male patient request');
+  await f.context().close();
+  const n = await page(1366, 900); await login(n, 'yousuf@demo.labathome.om');
+  ok(await n.isVisible(`text=${code}`), 'chosen nurse Yousuf sees the request');
+  ok((await n.textContent('body')).includes('Chose you'), 'request is marked as choosing him');
   await n.click(`text=${code}`); await n.waitForSelector('[data-act=accept]');
   ok(!(await n.textContent('body')).includes('E2E street'), 'address hidden before accepting');
   await n.click('[data-act=accept]'); await n.waitForSelector('[data-act=start]');
@@ -87,7 +98,7 @@ try {
   // 7. partner registration -> pending
   const q = await page(); await q.goto(BASE + '/#/register/nurse');
   await q.fill('input[name=full_name]', 'Nurse E2E'); await q.fill('input[name=phone]', '9' + String(Date.now() + 7).slice(-7));
-  await q.fill('input[name=newpass]', 'Test1234x'); await q.fill('input[name=license]', 'OMSB-RN-00000'); await q.check('input[name=consent]');
+  await q.fill('input[name=newpass]', 'Test1234x'); await q.fill('input[name=license]', 'OMSB-RN-00000'); await q.click('[data-g=female]'); await q.check('input[name=consent]');
   await q.click('#rf button.btn'); await q.waitForURL(/#\/app/); await q.waitForTimeout(800);
   ok((await q.textContent('body')).includes('Verification in progress'), 'new nurse sees verification banner');
 
@@ -97,6 +108,18 @@ try {
   const ad = await page(1366, 900); await login(ad, 'admin@demo.labathome.om');
   ok((await ad.textContent('body')).includes('Awaiting verification'), 'admin overview loads');
   ok(!(await ad.textContent('body')).includes(phone), 'demo admin sees masked phone numbers');
+
+  // 9b. customer service: guest ticket reaches admin
+  const g = await page(); await g.goto(BASE + '/#/support'); await g.waitForSelector('#sf');
+  await g.fill('input[name=contact]', '+96899999999'); await g.fill('textarea[name=msg]', 'E2E support question ' + code); await g.click('#sf button.btn');
+  await g.waitForTimeout(2500); ok((await g.textContent('#toast')).length > 3, 'guest support request sent');
+  await ad.goto(BASE + '/#/app/admin/tickets'); await ad.waitForTimeout(2500);
+  ok((await ad.textContent('body')).includes('E2E support question'), 'admin sees the support ticket');
+  // 9c. start screen on first phone visit + menu
+  const s1 = await page(); await s1.goto(BASE + '/'); await s1.waitForTimeout(1500);
+  ok(/#\/start/.test(s1.url()), 'first phone visit opens the start screen');
+  await s1.click('[data-skip]'); await s1.waitForTimeout(800); await s1.click('[data-menu]'); await s1.waitForTimeout(500);
+  ok(await s1.isVisible('.drawer a[href="#/about"]'), 'hamburger menu opens with About us');
 
   // 10. wrong password
   const w = await page(); await w.goto(BASE + '/#/login'); await w.fill('input[name=login]', 'nurse@demo.labathome.om'); await w.fill('input[name=password]', 'nope'); await w.click('#lf button.btn');
