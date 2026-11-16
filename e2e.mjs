@@ -72,13 +72,13 @@ try {
     await l.click(`text=${code}`); await l.click('[data-act=receive]'); await l.waitForSelector('#results-form');
     const vals = { VITD: '18.5', B12: '450', FERR: '95', A1C: '5.2' };
     for (const [k, v] of Object.entries(vals)) await l.fill(`[data-an=${k}]`, v);
-    await l.fill('#vf', 'Dr. Test, Lab Director'); await l.click('[data-act=publish]'); await l.waitForSelector('text=Results ready', { timeout: 15000 });
+    await l.fill('#vf', 'Dr. Test, Lab Director'); await l.click('[data-act=publish]'); await l.waitForSelector('a[href*="/report/"]', { timeout: 15000 });
     ok(true, 'lab: received, entered results, published');
   } else { log('! order went to another active lab; skipping lab step'); }
 
   // 6. patient report
   if (labHas) {
-    await p.goto(orderUrl.replace('/order/', '/report/')); await p.waitForSelector('.rtable');
+    await p.goto(orderUrl.replace('/order/', '/report/')); await p.reload(); await p.waitForSelector('.rtable', { timeout: 20000 });
     const txt = await p.textContent('.report');
     ok(/18.5/.test(txt) && /Low/.test(txt), 'patient report shows results with low flag');
     ok(/What this means/.test(txt), 'report shows plain-language insight');
