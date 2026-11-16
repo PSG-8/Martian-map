@@ -18,7 +18,7 @@ const S = {
 function t(k, v){ let s = (I18N[S.lang]||{})[k]; if (s == null) s = I18N.en[k]; if (s == null) return k; if (v) for (const x in v) s = s.split('{'+x+'}').join(v[x]); return s; }
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 const omr = n => Number(n||0).toFixed(3);
-const L = (o, base) => o ? (S.lang === 'ar' ? (o[base+'_ar'] || o[base+'_en']) : o[base+'_en']) : '';
+const LN = (o, base) => o ? (S.lang === 'ar' ? (o[base+'_ar'] || o[base+'_en']) : o[base+'_en']) : '';
 const wN = w => S.lang === 'ar' ? (WILAYAT_AR[w] || w) : w;
 const loc = () => S.lang === 'ar' ? 'ar-OM-u-nu-latn' : 'en-GB';
 function fmtDate(d, o){ if (!d) return ''; const x = typeof d === 'string' && d.length === 10 ? new Date(d+'T00:00:00') : new Date(d); return x.toLocaleDateString(loc(), o || { weekday:'short', day:'numeric', month:'short' }); }
@@ -56,8 +56,8 @@ function pkgFull(p){ return p.test_ids.reduce((s, id) => s + Number((S.catalog.T
 function cartCalc(){
   const C = S.catalog; if (!C) return { items:[], sub:0, tests:[] };
   const items = []; let sub = 0; const covered = new Set();
-  S.cart.packages.forEach(id => { const p = C.P[id]; if (!p) return; items.push({ type:'package', id, name:L(p,'name'), price:Number(p.price) }); sub += Number(p.price); p.test_ids.forEach(x => covered.add(x)); });
-  S.cart.tests.forEach(id => { const x = C.T[id]; if (!x || covered.has(id)) return; items.push({ type:'test', id, name:L(x,'name'), price:Number(x.price) }); sub += Number(x.price); covered.add(id); });
+  S.cart.packages.forEach(id => { const p = C.P[id]; if (!p) return; items.push({ type:'package', id, name:LN(p,'name'), price:Number(p.price) }); sub += Number(p.price); p.test_ids.forEach(x => covered.add(x)); });
+  S.cart.tests.forEach(id => { const x = C.T[id]; if (!x || covered.has(id)) return; items.push({ type:'test', id, name:LN(x,'name'), price:Number(x.price) }); sub += Number(x.price); covered.add(id); });
   return { items, sub, tests:[...covered], fasting: Math.max(0, ...[...covered].map(id => (C.T[id]||{}).fasting_hours || 0)) };
 }
 function cartCount(){ return S.cart.packages.length + S.cart.tests.length; }
@@ -75,7 +75,7 @@ function topbar(){
 }
 function testCard(x, inCart){
   return `<div class="tcard">${A.catIcon(x.cat)}
-    <div class="grow"><h4>${esc(L(x,'name'))}</h4><div class="muted small">${esc(L(x,'desc'))}</div>
+    <div class="grow"><h4>${esc(LN(x,'name'))}</h4><div class="muted small">${esc(LN(x,'desc'))}</div>
     <div class="meta"><span class="chip ${x.fasting_hours ? 'amber' : 'teal'}">${x.fasting_hours ? t('fasting',{h:x.fasting_hours}) : t('no_fasting')}</span><span class="chip gray">${t('results_in',{h:x.tat_hours})}</span></div></div>
     <div style="text-align:end"><div class="price">${omr(x.price)} <small>${t('omr')}</small></div>
     <button class="add ${inCart ? 'on' : ''}" data-add="test:${x.id}" aria-label="${t('add')}" style="margin-top:8px">${inCart ? ic('check',20,2.6) : ic('plus',20,2.6)}</button></div></div>`;
@@ -84,8 +84,8 @@ function pkgCard(p, inCart){
   const full = pkgFull(p);
   return `<div class="pkg ${inCart ? 'on' : ''}">
     ${p.badge ? `<span class="chip ${p.badge === 'best' ? 'purple' : 'amber'} tag">${t(p.badge === 'best' ? 'best' : 'popular')}</span>` : ''}
-    ${A.catIcon('packages')}<h3>${esc(L(p,'name'))}</h3><p class="muted small" style="margin:0">${esc(L(p,'desc'))}</p>
-    <ul>${p.test_ids.map(id => `<li>${esc(L(S.catalog.T[id],'name'))}</li>`).join('')}</ul>
+    ${A.catIcon('packages')}<h3>${esc(LN(p,'name'))}</h3><p class="muted small" style="margin:0">${esc(LN(p,'desc'))}</p>
+    <ul>${p.test_ids.map(id => `<li>${esc(LN(S.catalog.T[id],'name'))}</li>`).join('')}</ul>
     <div class="foot"><div><div class="price" style="font-size:1.3rem">${omr(p.price)} <small>${t('omr')}</small><span class="strike">${omr(full)}</span></div><span class="chip teal" style="margin-top:4px">${t('save',{x:omr(full - p.price)})}</span></div>
     <button class="btn ${inCart ? 'teal' : ''} sm" data-add="package:${p.id}">${inCart ? ic('check',18,2.4) + ' ' + t('added') : ic('plus',18,2.4) + ' ' + t('add')}</button></div></div>`;
 }
@@ -370,7 +370,7 @@ async function viewBook(){
   if (!b.program && !c.items.length) { app.innerHTML = shell(t('q_book'), emptyBox(t('cart_empty'), `<a class="btn" href="#/app/tests">${t('explore_tests')}</a>`)); return; }
   const stepNames = ['b_step1','b_step2','b_step3','b_step4','b_step5'];
   const head = `<div class="stepper">${stepNames.map((s, i) => `<i class="${i < b.step ? 'on' : ''}"></i>`).join('')}</div><div class="small muted b" style="margin:-12px 0 14px">${b.step} / 5 · ${t(stepNames[b.step-1])}</div>`;
-  const items = b.program ? [{ name: L(C.P[b.program.package_id],'name'), price: Number(C.P[b.program.package_id].price) }] : c.items;
+  const items = b.program ? [{ name: LN(C.P[b.program.package_id],'name'), price: Number(C.P[b.program.package_id].price) }] : c.items;
   const sub = b.program ? Number(C.P[b.program.package_id].price) : c.sub;
   const total = b.program ? 0 : sub + fee();
   const summary = `<div class="card summary"><h3>${t('summary')}</h3>${items.map(i => `<div class="line"><span>${esc(i.name)}</span><span class="num">${omr(i.price)}</span></div>`).join('')}
@@ -485,7 +485,7 @@ function drawOrder(o){
     ${o.status === 'cancelled' ? `<li class="now"><span class="dotc" style="background:var(--red)">${ic('x',16,2.6)}</span><div><b>${t('st_cancelled')}</b><div class="xs muted">${fmtDT(ev.cancelled)}</div></div></li>` : ''}</ul>`;
   const nurse = o.nurse ? `<div class="card"><div class="small muted b">${S.user.role==='patient'?t('your_nurse'):t('r_nurse')}</div><div class="row" style="margin-top:10px">${A.roleIcon('nurse', 52)}<div class="grow"><b>${esc(o.nurse.name)}</b><div class="xs muted">${t('licence')}: ${esc(o.nurse.license || '—')} · ${o.nurse.rating ? '★ ' + o.nurse.rating + ' · ' : ''}${t('visits',{n:o.nurse.visits})}</div></div></div>
     ${r === 'patient' && o.nurse.phone && ['assigned','on_the_way','arrived'].includes(o.status) ? `<div class="row" style="margin-top:12px"><a class="btn soft sm grow" href="tel:${esc(o.nurse.phone)}">${ic('phone',16)} ${t('call')}</a><a class="btn soft sm grow" target="_blank" rel="noopener" href="https://wa.me/${esc(o.nurse.phone.replace(/\D/g, ''))}">${ic('wa',16)} ${t('whatsapp')}</a></div>` : ''}</div>` : '';
-  const tests = `<div class="card"><h3>${t('tests')}</h3>${(o.tests || []).map(x => `<div class="vline"><div><b>${esc(L(x,'name'))}</b><div class="xs muted">${t('tube')}: ${esc(x.tube)} · ${x.fasting_hours ? t('fasting',{h:x.fasting_hours}) : t('no_fasting')}</div></div></div>`).join('')}</div>`;
+  const tests = `<div class="card"><h3>${t('tests')}</h3>${(o.tests || []).map(x => `<div class="vline"><div><b>${esc(LN(x,'name'))}</b><div class="xs muted">${t('tube')}: ${esc(x.tube)} · ${x.fasting_hours ? t('fasting',{h:x.fasting_hours}) : t('no_fasting')}</div></div></div>`).join('')}</div>`;
   const pat = o.patient || {};
   const details = `<div class="card"><h3>${t('details')}</h3>
     <div class="vline"><span class="muted">${t('patient')}</span><b>${esc(pat.name)}${pat.relation && pat.relation !== 'self' ? ` <span class="chip gray">${t('rel_'+pat.relation)}</span>` : ''}</b></div>
@@ -540,7 +540,7 @@ function actionPanel(o){
 function resultsForm(o){
   const res = o.results || {};
   return `<div class="card" id="results-form"><h3>${t('enter_results')}</h3><div class="scroll-x"><table class="rtable"><thead><tr><th>${t('analyte')}</th><th>${t('result')}</th><th>${t('ref_range')}</th><th></th></tr></thead><tbody>
-    ${(o.tests || []).map(x => `<tr class="grp"><td colspan="4">${esc(L(x,'name'))}</td></tr>` + x.analytes.map(a => `<tr><td>${esc(S.lang === 'ar' ? a.na : a.n)}</td>
+    ${(o.tests || []).map(x => `<tr class="grp"><td colspan="4">${esc(LN(x,'name'))}</td></tr>` + x.analytes.map(a => `<tr><td>${esc(S.lang === 'ar' ? a.na : a.n)}</td>
       <td><div class="row" style="gap:6px"><input class="input num" style="width:110px;min-height:40px;padding:8px 10px" inputmode="decimal" data-an="${a.c}" data-lo="${a.lo ?? ''}" data-hi="${a.hi ?? ''}" value="${res[a.c] ? res[a.c].v : ''}"><span class="xs muted">${esc(a.u)}</span></div></td>
       <td class="small muted num">${rangeTxt(a)}</td><td><span class="flag" data-fl="${a.c}"></span></td></tr>`).join('')).join('')}</tbody></table></div>
     <label class="field" style="margin-top:12px"><span>${t('verifier')}</span><input class="input" id="vf" value="${esc(S.user.meta && S.user.meta.director || '')}" placeholder="Dr. … , Lab Director"></label>
@@ -593,7 +593,7 @@ async function viewReport(id){
   if (o.status !== 'completed') return go('app/order/' + id);
   const res = o.results || {}; const p = o.patient || {};
   let flags = 0; const notes = [];
-  const rows = (o.tests || []).map(x => `<tr class="grp"><td colspan="5">${esc(L(x,'name'))}</td></tr>` + x.analytes.map(a => { const r = res[a.c] || {}; if (r.f && r.f !== 'N') { flags++; const n = INSIGHT[a.c] && INSIGHT[a.c][r.f]; if (n) notes.push(`<li><b>${esc(S.lang === 'ar' ? a.na : a.n)}:</b> ${esc(n[S.lang === 'ar' ? 1 : 0])}</li>`); }
+  const rows = (o.tests || []).map(x => `<tr class="grp"><td colspan="5">${esc(LN(x,'name'))}</td></tr>` + x.analytes.map(a => { const r = res[a.c] || {}; if (r.f && r.f !== 'N') { flags++; const n = INSIGHT[a.c] && INSIGHT[a.c][r.f]; if (n) notes.push(`<li><b>${esc(S.lang === 'ar' ? a.na : a.n)}:</b> ${esc(n[S.lang === 'ar' ? 1 : 0])}</li>`); }
       const lo = a.lo != null ? a.lo : (a.hi != null ? 0 : null), hi = a.hi != null ? a.hi : (a.lo != null ? a.lo * 2.5 : null); let pos = 50;
       if (lo != null && hi != null && r.v != null) { const span = hi - lo; pos = Math.max(3, Math.min(97, 20 + (r.v - lo) / span * 60)); }
       return `<tr><td>${esc(S.lang === 'ar' ? a.na : a.n)}</td><td class="num b" style="color:${r.f === 'N' ? 'inherit' : r.f === 'H' ? 'var(--red)' : '#9a6400'}">${r.v ?? '—'} <span class="xs muted" style="font-weight:500">${esc(a.u)}</span></td><td class="small muted num">${rangeTxt(a)}</td><td class="rb-col" style="width:120px"><div class="rangebar"><i style="left:${pos}%"></i></div></td><td>${r.f ? `<span class="flag ${r.f}">${t('f_'+r.f)}</span>` : ''}</td></tr>`; }).join('')).join('');
@@ -652,14 +652,14 @@ async function viewCompanyHome(){
   const u = S.user;
   app.innerHTML = shell(esc(u.meta && u.meta.company_name || u.full_name), `<div class="stack-lg">
     <div class="welcome"><div class="art">${A.roleIcon('company', 160)}</div><h2>${t('programs_t')}</h2><p style="opacity:.85;max-width:460px">${t('r_company_d')} ${t('privacy_note')}</p><button class="btn" style="background:#fff;color:var(--blue)" id="np" ${u.status !== 'active' ? 'disabled' : ''}>${ic('plus',18)} ${t('new_program')}</button></div>
-    ${list.length ? list.map(p => { const pct = Math.round(p.used / p.seats * 100); return `<div class="card"><div class="row between wrap"><div><h3 style="margin:0">${esc(p.name)}</h3><div class="small muted">${esc(p.package ? L(p.package,'name') : '')} · ${p.package ? omr(p.package.price) + ' ' + t('omr') : ''}</div></div><span class="code-box">${esc(p.code)}</span></div>
+    ${list.length ? list.map(p => { const pct = Math.round(p.used / p.seats * 100); return `<div class="card"><div class="row between wrap"><div><h3 style="margin:0">${esc(p.name)}</h3><div class="small muted">${esc(p.package ? LN(p.package,'name') : '')} · ${p.package ? omr(p.package.price) + ' ' + t('omr') : ''}</div></div><span class="code-box">${esc(p.code)}</span></div>
       <div class="small muted" style="margin:12px 0 6px">${t('used_seats',{u:p.used,s:p.seats})}</div><div class="progress"><i style="width:${pct}%"></i></div>
       <div class="grid g3" style="margin-top:14px"><div class="kpi"><span>${t('booked_n')}</span><b>${p.booked}</b></div><div class="kpi"><span>${t('done_n')}</span><b>${p.completed}</b></div><div class="kpi"><span>${t('value')}</span><b>${omr(p.value)}</b></div></div>
       ${Object.keys(p.wilayats || {}).length ? `<div class="row wrap" style="gap:6px;margin-top:12px">${Object.entries(p.wilayats).map(([w, c]) => `<span class="chip gray">${esc(wN(w))} · ${c}</span>`).join('')}</div>` : ''}
       <div class="row wrap" style="margin-top:14px"><button class="btn soft sm" data-copy="${esc(p.code)}">${ic('share',16)} ${t('share_code')}</button></div></div>`; }).join('') : emptyBox(t('none_yet'))}</div>`);
   $$('[data-copy]').forEach(b => b.onclick = () => { const txt = `${S.lang === 'ar' ? 'رمز برنامجنا الصحي في لاب@هوم' : 'Our Lab@Home wellness code'}: ${b.dataset.copy} · ${location.origin}`; if (navigator.share) navigator.share({ text: txt }).catch(() => {}); else navigator.clipboard.writeText(txt).then(() => toast('✓')); });
   if ($('#np')) $('#np').onclick = () => modal(`<h3>${t('new_program')}</h3><form id="pf" class="stack" style="margin-top:12px"><label class="field"><span>${t('program_name')}</span><input class="input" name="name" required placeholder="Wellness 2027"></label>
-    <label class="field"><span>${t('program_pkg')}</span><select class="input" name="pkg">${S.catalog.packages.map(p => `<option value="${p.id}">${esc(L(p,'name'))} · ${omr(p.price)}</option>`).join('')}</select></label>
+    <label class="field"><span>${t('program_pkg')}</span><select class="input" name="pkg">${S.catalog.packages.map(p => `<option value="${p.id}">${esc(LN(p,'name'))} · ${omr(p.price)}</option>`).join('')}</select></label>
     <label class="field"><span>${t('seats')}</span><input class="input" type="number" name="seats" min="1" max="5000" value="25"></label><div class="err" id="pe"></div><button class="btn block">${t('create')}</button></form>`, (el, close) => {
       $('#pf', el).onsubmit = async e => { e.preventDefault(); const f = e.target; try { await busy($('button', f), () => API.programCreate({ name: f.name.value, package_id: f.pkg.value, seats: +f.seats.value })); close(); viewCompanyHome(); } catch(err) { $('#pe', el).textContent = errMsg(err); } }; });
 }
@@ -677,7 +677,7 @@ async function viewAdminHome(){
     <div class="kpi"><span>${t('avg_tat')}</span><b>${ov.avg_tat_h != null ? ov.avg_tat_h + ' h' : '—'}</b></div><div class="kpi"><span>${t('rating')}</span><b>${ov.rating ? '★ ' + ov.rating : '—'}</b></div><div class="kpi"><span>${t('pending_verif')}</span><b>${ov.pending}</b></div><div class="kpi"><span>${t('waitlist_n')}</span><b>${ov.waitlist}</b></div></div>
     <div class="grid g2 collapse"><div class="card"><h3>${t('last14')}</h3><div class="bars" style="margin:18px 0 22px">${days.map(([d, n]) => `<div style="height:${n / mx * 100}%" title="${d}: ${n}"><span>${d.slice(8)}</span></div>`).join('')}</div></div>
       <div class="card"><h3>${t('by_status')}</h3>${Object.entries(bs).map(([s, n]) => `<div class="hbar"><span style="width:130px" class="small">${t('st_'+s)}</span><i style="width:${n / bsMax * 60}%"></i><b>${n}</b></div>`).join('') || `<p class="muted">${t('none_yet')}</p>`}</div></div>
-    <div class="grid g2 collapse"><div class="card"><h3>${t('top_tests')}</h3>${(ov.top_tests || []).map(x => `<div class="vline"><span>${esc(L(S.catalog.T[x.id],'name'))}</span><b>${x.n}</b></div>`).join('') || `<p class="muted">${t('none_yet')}</p>`}</div>
+    <div class="grid g2 collapse"><div class="card"><h3>${t('top_tests')}</h3>${(ov.top_tests || []).map(x => `<div class="vline"><span>${esc(LN(S.catalog.T[x.id],'name'))}</span><b>${x.n}</b></div>`).join('') || `<p class="muted">${t('none_yet')}</p>`}</div>
       <div class="card"><h3>${t('by_wilayat')}</h3>${Object.entries(ov.by_wilayat || {}).map(([w, n]) => `<div class="vline"><span>${esc(wN(w))}</span><b>${n}</b></div>`).join('') || `<p class="muted">${t('none_yet')}</p>`}</div></div>
     <div class="card"><h3>${t('pending_verif')} <span class="chip amber">${pend.length}</span></h3>${pend.length ? userTable(pend) : `<p class="muted">${t('none_yet')}</p>`}</div></div>`);
   bindUserActions();
@@ -706,7 +706,7 @@ async function viewAdminOrders(){
 async function viewAdminCatalog(){
   S.catalog = null; await loadCatalog();
   app.innerHTML = shell(t('m_catalog'), `<div class="card"><div class="scroll-x"><table class="table"><thead><tr><th>${t('analyte')}</th><th>${t('tube')}</th><th>${t('price')} (${t('omr')})</th><th></th></tr></thead><tbody>
-    ${S.catalog.tests.map(x => `<tr><td><b>${esc(L(x,'name'))}</b><div class="xs muted">${x.analytes.length} · ${x.fasting_hours ? t('fasting',{h:x.fasting_hours}) : t('no_fasting')}</div></td><td class="small">${esc(x.tube)}</td><td><input class="input num" style="width:110px;min-height:38px;padding:6px 10px" value="${omr(x.price)}" data-price="${x.id}"></td><td><button class="btn sm soft" data-sv="${x.id}">${t('save_changes')}</button></td></tr>`).join('')}</tbody></table></div></div>`);
+    ${S.catalog.tests.map(x => `<tr><td><b>${esc(LN(x,'name'))}</b><div class="xs muted">${x.analytes.length} · ${x.fasting_hours ? t('fasting',{h:x.fasting_hours}) : t('no_fasting')}</div></td><td class="small">${esc(x.tube)}</td><td><input class="input num" style="width:110px;min-height:38px;padding:6px 10px" value="${omr(x.price)}" data-price="${x.id}"></td><td><button class="btn sm soft" data-sv="${x.id}">${t('save_changes')}</button></td></tr>`).join('')}</tbody></table></div></div>`);
   $$('[data-sv]').forEach(b => b.onclick = async () => { const v = parseFloat($(`[data-price="${b.dataset.sv}"]`).value); try { await busy(b, () => API.adminTest(b.dataset.sv, v, true)); toast(t('saved')); S.catalog = null; } catch(e) {} });
 }
 
