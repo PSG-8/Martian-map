@@ -471,7 +471,7 @@ async function viewOrder(id){
   let o;
   try { o = await API.order(id); } catch(e) { app.innerHTML = shell('', emptyBox(errMsg(e))); return; }
   drawOrder(o);
-  if (ACTIVE(o.status)) S.timers.push(setInterval(async () => { if (!location.hash.includes(id) || document.hidden) return; try { const n = await API.order(id); if (n.updated_at !== o.updated_at && !$('.modal-bg') && !$('#results-form')) { o = n; drawOrder(o); } } catch(e) {} }, 8000));
+  if (ACTIVE(o.status)) S.timers.push(setInterval(async () => { if (!location.hash.includes('/order/' + id) || document.hidden) return; try { const n = await API.order(id); if (n.updated_at !== o.updated_at && !$('.modal-bg') && !$('#results-form')) { o = n; drawOrder(o); } } catch(e) {} }, 8000));
 }
 function drawOrder(o){
   const u = S.user, r = u.role;
