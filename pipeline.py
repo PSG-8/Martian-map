@@ -83,7 +83,38 @@ def transcribe(wav, key, script=''):
     json.dump(words, open(f'{WORK}/{key}_whisper.json', 'w'), indent=0)
     return words
 
-def align(script, words):
+def envelope(wav, hop=0.02):
+    import numpy as np
+    pcm = subprocess.run(['ffmpeg', '-v', 'error', '-i', wav, '-ac', '1', '-ar', '16000', '-f', 's16le', '-'], capture_output=True).stdout
+    x = np.frombuffer(pcm, np.int16).astype(np.float32) / 32768.0
+    n = int(16000*hop); m = len(x)//n
+    rms = np.sqrt((x[:m*n].reshape(m, n)**2).mean(axis=1) + 1e-10)
+    db = 20*np.log10(rms)
+    speech = np.percentile(db, 90)
+    thr = max(speech - 28, -55)
+    return {'db': db, 'hop': hop, 'thr': float(thr), 'speech': float(speech)}
+
+def voiced_fraction(env, a, b):
+    import numpy as np
+    i0, i1 = int(a/env['hop']), max(int(a/env['hop'])+1, int(b/env['hop']))
+    seg = env['db'][i0:i1]
+    return float((seg > env['thr']).mean()) if len(seg) else 0.0
+
+def silent_runs(env, a, b, min_len):
+    """silent intervals inside [a,b] at least min_len long"""
+    hop = env['hop']; db = env['db']; thr = env['thr']
+    i0, i1 = max(0, int(a/hop)), min(len(db), int(b/hop))
+    runs = []; st = None
+    for i in range(i0, i1):
+        q = db[i] <= thr
+        if q and st is None: st = i
+        if (not q or i == i1-1) and st is not None:
+            en = i if not q else i+1
+            if (en-st)*hop >= min_len: runs.append((st*hop, en*hop))
+            st = None
+    return runs
+
+def align(script, words, env=None):
     """Map script tokens to whisper word timings. Returns (aligned tokens, cut spans, notes)."""
     st = script_tokens(script); sn = [norm(t) for t in st]
     wn = [norm(w['w']) for w in words]
@@ -108,8 +139,6 @@ def align(script, words):
                     w = words[j1+d]; out.append({'t': w['w'], 'a': w['a'], 'b': w['b'], 'spoken': True})
                 for i in range(i1, i2): out[i] = {'t': st[i], 'skip': True}
         elif tag == 'delete':
-            if i2-i1 >= 3:
-                notes.append(f'not heard: "{" ".join(st[i1:i2])}"')
             for i in range(i1, i2): out[i] = {'t': st[i], 'interp': True}
         elif tag == 'insert':
             block = words[j1:j2]; bn = [norm(w['w']) for w in block]
@@ -130,14 +159,32 @@ def align(script, words):
                 for w in block: out.append({'t': w['w'], 'a': w['a'], 'b': w['b'], 'spoken': True})
     # interpolate unheard tokens between neighbours
     toks = [o for o in out[:len(st)]]
-    for i, o in enumerate(toks):
-        if o and o.get('interp'):
-            prev = next((toks[j] for j in range(i-1, -1, -1) if toks[j] and 'a' in toks[j]), None)
-            nxt = next((toks[j] for j in range(i+1, len(toks)) if toks[j] and 'a' in toks[j]), None)
-            if prev and nxt:
-                o['a'] = prev['b']; o['b'] = max(prev['b'] + 0.05, nxt['a'])
+    i = 0
+    while i < len(toks):
+        if toks[i] and toks[i].get('interp'):
+            j = i
+            while j < len(toks) and toks[j] and toks[j].get('interp'): j += 1
+            prev = next((toks[k] for k in range(i-1, -1, -1) if toks[k] and 'a' in toks[k]), None)
+            nxt = next((toks[k] for k in range(j, len(toks)) if toks[k] and 'a' in toks[k]), None)
+            if prev and nxt and nxt['a'] > prev['b']:
+                a0, b0 = prev['b'] + 0.05, nxt['a'] - 0.05
+                # voiced timeline inside the gap
+                if env is not None:
+                    hop = env['hop']; idx = [k for k in range(int(a0/hop), int(b0/hop)) if env['db'][k] > env['thr']]
+                    vt = [k*hop for k in idx] or [a0, b0]
+                else:
+                    vt = [a0, b0]
+                lens = [max(1, len(norm(toks[k]['t']))) for k in range(i, j)]; tot = sum(lens); acc = 0
+                for k, L in zip(range(i, j), lens):
+                    p0 = acc/tot; p1 = (acc+L)/tot; acc += L
+                    ta = vt[min(len(vt)-1, int(p0*(len(vt)-1)))]; tb = vt[min(len(vt)-1, int(p1*(len(vt)-1)))]
+                    toks[k]['a'] = round(ta, 3); toks[k]['b'] = round(max(ta+0.08, tb), 3)
+                if j - i >= 3: notes.append(f'recognizer missed {j-i} words ("{" ".join(toks[k]["t"] for k in range(i, min(j, i+6)))}...") - timed from the audio instead')
             else:
-                o['skip'] = True
+                for k in range(i, j): toks[k]['skip'] = True
+            i = j
+        else:
+            i += 1
     extra = out[len(st):]
     allw = [o for o in toks if o and not o.get('skip') and 'a' in o] + extra
     allw.sort(key=lambda o: o['a'])
@@ -145,29 +192,28 @@ def align(script, words):
     allw = [o for o in allw if not any(c0 <= (o['a']+o['b'])/2 <= c1 for c0, c1 in cuts)]
     return allw, cuts, notes
 
-def keep_segments(words, cuts, total):
-    """Speech segments with tightened pauses and removed false starts/fillers."""
+def keep_segments(words, cuts, total, env):
+    """Keep everything audible; shorten long silences; drop restarts/fillers."""
     if not words: return [(0, total)]
-    lead, tail = 0.22, 0.40
-    segs = []
-    a = max(0, words[0]['a'] - lead); prev_end = words[0]['b']
-    for w0, w1 in zip(words, words[1:]):
-        gap = w1['a'] - w0['b']
-        sentence = w0['t'].rstrip().endswith(('.', '?', '!'))
-        maxgap = 0.42 if sentence else 0.30
-        cut_between = any(w0['b'] - 0.01 <= c0 and c1 <= w1['a'] + 0.01 for c0, c1 in cuts)
-        if gap > maxgap + 0.15 or cut_between:
-            keep = maxgap / 2
-            segs.append((a, min(w0['b'] + keep, w1['a'] - 0.02)))
-            a = max(w0['b'] + 0.02, w1['a'] - keep)
-    segs.append((a, min(total, words[-1]['b'] + tail)))
-    # merge tiny segments
-    m = []
-    for s in segs:
-        if s[1] - s[0] < 0.08: continue
-        if m and s[0] - m[-1][1] < 0.04: m[-1] = (m[-1][0], s[1])
-        else: m.append(s)
-    return m
+    lead, tail = 0.25, 0.45
+    start = max(0, words[0]['a'] - lead); end = min(total, words[-1]['b'] + tail)
+    remove = [(max(start, c0), min(end, c1)) for c0, c1 in cuts if c1 > c0]
+    sent_end = [w['b'] for w in words if w['t'].rstrip().endswith(('.', '?', '!', ':'))]
+    for r0, r1 in silent_runs(env, start, end, 0.55):
+        near_sentence = any(abs(r0 - t) < 0.35 for t in sent_end)
+        keep = 0.46 if near_sentence else 0.32
+        if r1 - r0 > keep + 0.12:
+            remove.append((r0 + keep/2, r1 - keep/2))
+    remove.sort(); merged = []
+    for r in remove:
+        if merged and r[0] <= merged[-1][1]: merged[-1] = (merged[-1][0], max(merged[-1][1], r[1]))
+        else: merged.append(r)
+    segs = []; t = start
+    for r0, r1 in merged:
+        if r0 > t: segs.append((t, r0))
+        t = max(t, r1)
+    if end > t: segs.append((t, end))
+    return [sg for sg in segs if sg[1] - sg[0] >= 0.08]
 
 def remap(words, segs):
     out = []; off = 0
@@ -214,9 +260,11 @@ def prep(key):
     W0, H0 = v['width'], v['height']
     print(f'[{key}] source {W0}x{H0} {total:.1f}s', flush=True)
     clean, ainfo = clean_audio(src, key)
-    words = transcribe(clean, key, s['script'])
-    aligned, cuts, notes = align(s['script'], words)
-    segs = keep_segments(aligned, cuts, total)
+    cache = f'{WORK}/{key}_whisper.json'
+    words = json.load(open(cache)) if (os.environ.get('REUSE') and os.path.exists(cache)) else transcribe(clean, key, s['script'])
+    env = envelope(clean)
+    aligned, cuts, notes = align(s['script'], words, env)
+    segs = keep_segments(aligned, cuts, total, env)
     new_words, newdur = remap(aligned, segs)
     fb = face_box(src, total, key) or {'cx': 0.5, 'cy': 0.42, 'fh': 0.22, 'luma': 0.5, 'n': 0}
     # rotation-aware display size
@@ -228,8 +276,9 @@ def prep(key):
     if cw > W0: cw = W0; ch = cw*1.5
     cx = fb['cx']*W0; cy = fb['cy']*H0
     x0 = min(max(0, cx - cw/2), W0 - cw); y0 = min(max(0, cy - 0.36*ch), H0 - ch)
-    target = 0.50
-    gamma = max(0.78, min(1.40, math.log(target)/math.log(max(0.08, min(0.92, fb['luma'])))))
+    L = max(0.08, min(0.92, fb['luma']))
+    target = 0.56 if L < 0.56 else (0.62 if L > 0.68 else L)
+    gamma = max(0.88, min(1.45, math.log(L)/math.log(target)))
     grade = f'eq=gamma={gamma:.3f}:contrast=1.06:saturation=1.10,unsharp=5:5:0.55:5:5:0.0'
     crop = f'crop={int(cw)//2*2}:{int(ch)//2*2}:{int(x0)}:{int(y0)},scale=352:528:flags=lanczos,hqdn3d=1.0:1.0:3:3,{grade},fps={FPS},format=yuv420p'
     # build cut graph
