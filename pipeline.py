@@ -602,9 +602,9 @@ def mix_final():
         g = (f'[1:a]aloop=loop=-1:size=2e9,atrim=duration={D:.3f},aformat=sample_rates=48000:channel_layouts=stereo,volume={CFG.get("music_gain", 0.35)},afade=t=in:d=2,afade=t=out:st={D-3.5:.3f}:d=3.5[m];'
              '[0:a]aformat=sample_rates=48000:channel_layouts=stereo,asplit=2[v1][v2];[m][v2]sidechaincompress=threshold=0.015:ratio=12:attack=30:release=700[md];'
              '[v1][md]amix=inputs=2:normalize=0,volume=2dB,alimiter=limit=0.89:level=disabled[a]')
-        sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-i', music, '-filter_complex', g, '-map', '0:v', '-map', '[a]', '-c:v', 'libx264', '-preset', PRESET, '-crf', '19', '-pix_fmt', 'yuv420p', '-bsf:v', 'h264_metadata=sample_aspect_ratio=1/1'] + AENC + ['-movflags', '+faststart', final])
+        sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-i', music, '-filter_complex', g, '-map', '0:v', '-map', '[a]', '-c:v', 'libx264', '-preset', PRESET, '-crf', '19', '-pix_fmt', 'yuv420p', '-bsf:v', 'h264_metadata=sample_aspect_ratio=1/1', '-aspect', '16:9'] + AENC + ['-movflags', '+faststart', final])
     else:
-        sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-af', 'volume=2dB,alimiter=limit=0.89:level=disabled', '-c:v', 'libx264', '-preset', PRESET, '-crf', '19', '-pix_fmt', 'yuv420p', '-bsf:v', 'h264_metadata=sample_aspect_ratio=1/1'] + AENC + ['-movflags', '+faststart', final])
+        sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-af', 'volume=2dB,alimiter=limit=0.89:level=disabled', '-c:v', 'libx264', '-preset', PRESET, '-crf', '19', '-pix_fmt', 'yuv420p', '-bsf:v', 'h264_metadata=sample_aspect_ratio=1/1', '-aspect', '16:9'] + AENC + ['-movflags', '+faststart', final])
     return final
 
 def qa(path=None, n=12, cols=4, w=480):
