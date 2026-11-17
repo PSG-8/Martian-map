@@ -468,7 +468,7 @@ def sim_track(shots, D, out, size=(1472, 828), anchors_words=None, zoom=0.0, xf=
             z = f'1+{Z-1:.4f}*{e}+0.035*on/{tot:.1f}'
             cx = f'(1920+({2*fx}-1920)*{e})'; cy = f'(1080+({2*fy}-1080)*{e})'
             x = f'max(0,min(iw-iw/zoom,{cx}-iw/zoom/2))'; y = f'max(0,min(ih-ih/zoom,{cy}-ih/zoom/2))'
-            parts.append(f"[{i}:v]zoompan=z='{z}':x='{x}':y='{y}':d=1:s={size[0]}x{size[1]}:fps={FPS},trim=duration={slot:.3f},setpts=PTS-STARTPTS,format=yuv420p,settb=AVTB[s{i}]")
+            parts.append(f"[{i}:v]zoompan=z='{z}':x='{x}':y='{y}':d=1:s={size[0]}x{size[1]}:fps={FPS},trim=duration={slot:.3f},setpts=PTS-STARTPTS,format=yuv420p,settb=AVTB,fps={FPS}[s{i}]")
             continue
         L = s['b'] - s['a']; speed = L / slot
         speed = max(0.5, min(1.6, speed)); take = slot * speed
@@ -476,7 +476,7 @@ def sim_track(shots, D, out, size=(1472, 828), anchors_words=None, zoom=0.0, xf=
         if a + take > cd: a = max(0, cd - take)
         inputs += ['-ss', f'{a:.3f}', '-t', f'{take+0.2:.3f}', '-i', sim_clip(s['clip'])]
         z = f",scale={int(size[0]*(1+zoom))}:{int(size[1]*(1+zoom))},crop={size[0]}:{size[1]}" if zoom else ''
-        parts.append(f'[{i}:v]setpts=(PTS-STARTPTS)/{speed:.4f},fps={FPS},scale={size[0]}:{size[1]}:flags=lanczos{z},trim=duration={slot:.3f},setpts=PTS-STARTPTS,format=yuv420p,settb=AVTB[s{i}]')
+        parts.append(f'[{i}:v]setpts=(PTS-STARTPTS)/{speed:.4f},fps={FPS},scale={size[0]}:{size[1]}:flags=lanczos{z},trim=duration={slot:.3f},setpts=PTS-STARTPTS,format=yuv420p,settb=AVTB,fps={FPS}[s{i}]')
     g = ';'.join(parts); last = 's0'; acc = ends[0] - starts[0]
     for i in range(1, len(shots)):
         g += f';[{last}][s{i}]xfade=transition=fade:duration={xf}:offset={acc:.3f}[x{i}]'; last = f'x{i}'
