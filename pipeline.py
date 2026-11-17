@@ -117,19 +117,39 @@ def silent_runs(env, a, b, min_len):
 def align(script, words, env=None):
     """Map script tokens to whisper word timings. Returns (aligned tokens, cut spans, notes)."""
     st = script_tokens(script); sn = [norm(t) for t in st]
+    cuts = []; notes = []
+    # immediate repeats in speech ("and improving and improving") -> cut the first take
+    i = 0; keepw = []
+    W = [norm(w['w']) for w in words]
+    while i < len(words):
+        rep = 0
+        for n in (3, 2, 1):
+            if (i + 2*n <= len(words) and W[i:i+n] == W[i+n:i+2*n] and all(W[i:i+n]) and words[i+n]['a'] - words[i]['a'] < 2.5
+                    and min(w.get('p', 1) for w in words[i:i+2*n]) >= 0.5):
+                rep = n; break
+        if rep:
+            cuts.append((words[i]['a'] - 0.04, words[i+rep]['a'] - 0.06))
+            notes.append(f'repeat cut: "{" ".join(w["w"] for w in words[i:i+rep])}"')
+            i += rep; continue
+        keepw.append(words[i]); i += 1
+    words = keepw
     wn = [norm(w['w']) for w in words]
     sm = difflib.SequenceMatcher(None, sn, wn, autojunk=False)
-    out = [None]*len(st); cuts = []; notes = []
+    out = [None]*len(st)
     ops = sm.get_opcodes()
     for k, (tag, i1, i2, j1, j2) in enumerate(ops):
-        if tag == 'equal':
+        if tag == 'equal' and (i2 - i1) == 1 and sn[i1] in WEAK:
+            out[i1] = {'t': st[i1], 'interp': True}   # isolated function-word match: unreliable anchor
+        elif tag == 'equal':
             for d in range(i2-i1):
                 w = words[j1+d]; out[i1+d] = {'t': st[i1+d], 'a': w['a'], 'b': w['b']}
         elif tag == 'replace':
             sj = ' '.join(sn[i1:i2]); wj = ' '.join(wn[j1:j2])
             ratio = difflib.SequenceMatcher(None, sj, wj).ratio()
             a, b = words[j1]['a'], words[j2-1]['b']
-            if (i2 - i1) < 4 or ratio >= 0.4:
+            if (j2 - j1) < 0.6*(i2 - i1) and (i2 - i1) >= 3:
+                for i in range(i1, i2): out[i] = {'t': st[i], 'interp': True}
+            elif (i2 - i1) < 4 or ratio >= 0.4:
                 lens = [max(1, len(sn[i])) for i in range(i1, i2)]; tot = sum(lens); t = a
                 for d, L in enumerate(lens):
                     nt = t + (b-a)*L/tot; out[i1+d] = {'t': st[i1+d], 'a': round(t, 3), 'b': round(nt, 3)}; t = nt
@@ -168,6 +188,8 @@ def align(script, words, env=None):
             nxt = next((toks[k] for k in range(j, len(toks)) if toks[k] and 'a' in toks[k]), None)
             if prev and nxt and nxt['a'] > prev['b']:
                 a0, b0 = prev['b'] + 0.05, nxt['a'] - 0.05
+                for c0, c1 in cuts:
+                    if a0 < c0 < b0: b0 = c0 - 0.03
                 # voiced timeline inside the gap
                 if env is not None:
                     hop = env['hop']; idx = [k for k in range(int(a0/hop), int(b0/hop)) if env['db'][k] > env['thr']]
@@ -189,7 +211,7 @@ def align(script, words, env=None):
     allw = [o for o in toks if o and not o.get('skip') and 'a' in o] + extra
     allw.sort(key=lambda o: o['a'])
     # drop words that fall inside cut spans
-    allw = [o for o in allw if not any(c0 <= (o['a']+o['b'])/2 <= c1 for c0, c1 in cuts)]
+    allw = [o for o in allw if o.get('interp') or not any(c0 <= (o['a']+o['b'])/2 <= c1 for c0, c1 in cuts)]
     return allw, cuts, notes
 
 def keep_segments(words, cuts, total, env):
