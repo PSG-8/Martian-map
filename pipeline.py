@@ -587,19 +587,25 @@ def build():
     sec_end(T_END, f'{WORK}/s90_end.mp4'); secs.append('s90_end.mp4')
     lst = f'{WORK}/concat.txt'; open(lst, 'w').write(''.join(f"file '{WORK}/{s}'\n" for s in secs))
     sh(['ffmpeg', '-y', '-f', 'concat', '-safe', '0', '-i', lst, '-c', 'copy', f'{WORK}/joined.mp4'])
-    # optional music bed, ducked under speech
+    final = mix_final()
+    report['total'] = dur(final); report['sections'] = secs
+    json.dump(report, open(f'{OUT}/report.json', 'w'), indent=1); print(json.dumps(report, indent=1))
+
+def mix_final():
+    """joined.mp4 + very quiet music bed (ducked under speech) -> final mp4. Speech sections are
+    already at -16 LUFS each, so use a fixed gain + true-peak limiter (no dynamic loudnorm,
+    which would pump the music up in the non-speech parts)."""
     final = f'{OUT}/IMAAR_TeamAUREX.mp4'
     music = os.path.join(KIT, CFG.get('music', 'music/none.mp3'))
     if os.path.exists(music):
         D = dur(f'{WORK}/joined.mp4')
-        g = (f'[1:a]aloop=loop=-1:size=2e9,atrim=duration={D:.3f},volume={CFG.get("music_gain", 0.16)},afade=t=in:d=1.5,afade=t=out:st={D-3:.3f}:d=3[m];'
-             '[0:a]asplit=2[v1][v2];[m][v2]sidechaincompress=threshold=0.02:ratio=10:attack=40:release=600[md];'
-             '[v1][md]amix=inputs=2:normalize=0,loudnorm=I=-14:TP=-1.2:LRA=11[a]')
+        g = (f'[1:a]aloop=loop=-1:size=2e9,atrim=duration={D:.3f},aformat=sample_rates=48000:channel_layouts=stereo,volume={CFG.get("music_gain", 0.35)},afade=t=in:d=2,afade=t=out:st={D-3.5:.3f}:d=3.5[m];'
+             '[0:a]aformat=sample_rates=48000:channel_layouts=stereo,asplit=2[v1][v2];[m][v2]sidechaincompress=threshold=0.015:ratio=12:attack=30:release=700[md];'
+             '[v1][md]amix=inputs=2:normalize=0,volume=2dB,alimiter=limit=0.89:level=disabled[a]')
         sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-i', music, '-filter_complex', g, '-map', '0:v', '-map', '[a]', '-c:v', 'libx264', '-preset', PRESET, '-crf', '19', '-pix_fmt', 'yuv420p'] + AENC + ['-movflags', '+faststart', final])
     else:
-        sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-af', 'loudnorm=I=-14:TP=-1.2:LRA=11', '-c:v', 'libx264', '-preset', PRESET, '-crf', '19', '-pix_fmt', 'yuv420p'] + AENC + ['-movflags', '+faststart', final])
-    report['total'] = dur(final); report['sections'] = secs
-    json.dump(report, open(f'{OUT}/report.json', 'w'), indent=1); print(json.dumps(report, indent=1))
+        sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-af', 'volume=2dB,alimiter=limit=0.89:level=disabled', '-c:v', 'libx264', '-preset', PRESET, '-crf', '19', '-pix_fmt', 'yuv420p'] + AENC + ['-movflags', '+faststart', final])
+    return final
 
 def qa(path=None, n=12, cols=4, w=480):
     path = path or f'{OUT}/IMAAR_TeamAUREX.mp4'; D = dur(path)
@@ -609,5 +615,6 @@ if __name__ == '__main__':
     cmd = sys.argv[1]
     if cmd == 'prep': prep(sys.argv[2])
     elif cmd == 'build': build()
+    elif cmd == 'final': print(mix_final())
     elif cmd == 'qa': qa(*(sys.argv[2:3] or []))
     elif cmd == 'sec_main': print(sec_main(sys.argv[2], f'{WORK}/test_{sys.argv[2]}.mp4'))

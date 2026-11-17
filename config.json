@@ -3,7 +3,7 @@
  "vocab_prompt": "Team AUREX, IMAAR, University of Technology and Applied Sciences, Ibra, Oman, hook-screw, docking station, scout drone, rover, weeds, crops, snakes and scorpions.",
  "target_seconds": 190,
  "music": "music/bed.m4a",
- "music_gain": 0.5,
+ "music_gain": 0.35,
  "sim": {
   "vision": "sim/vision.mp4",
   "weeding": "sim/weeding.mp4",
