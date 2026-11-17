@@ -213,7 +213,8 @@ def end_layers():
     paste_logo_on_white(b, utas, (W//2-450, 860, 280, 104), r=16, padx=14, pady=10)
     paste_logo_on_white(b, iet, (W//2-140, 860, 360, 104), r=16, padx=18, pady=14)
     g = gcc.resize((200, 104), Image.LANCZOS).convert('RGBA'); g.putalpha(rr_mask(200, 104, 16)); b.alpha_composite(g, (W//2+250, 860))
-    text_c(d, W//2, 1000, 'Thank you', F('ps', 28), WHITE)
+    text_c(d, W//2, 996, 'Thank you', F('ps', 28), WHITE)
+    text_c(d, W//2, 1044, 'Music: “Wholesome” by Kevin MacLeod (incompetech.com) · Licensed under CC BY 4.0', F('ir', 17), MUTED)
     b.save(f'{OUT}/end_team.png')
 
 def chapter_full(n, title, who):
@@ -248,8 +249,10 @@ if __name__ == '__main__':
     chapter_full(1, 'The challenge', 'Lujain Khalid Alrawahi')
     chapter_full(2, 'How IMAAR works', 'Bilarab Suwailam Almusallami')
     chapter_full(3, 'Tools & impact', 'Bayan Said Ali Alrawahi')
+    chapter_full(4, 'IMAAR in action', 'Our 3D field simulation')
     feats = [('Scout drone', 'Scans the whole field first'), ('AI vision', 'Crop, weed or danger?'),
              ('Safety first', 'Four checks before every action'), ('Hook-screw', 'Lifts the root, keeps the soil'),
-             ('Auto docking', 'Recharge · clean · empty · change tools')]
+             ('Auto docking', 'Recharge · clean · empty · change tools'),
+             ('Day and night', 'Warm white light, no UV'), ('Man-down alert', 'A fall stops the rover, the drone flies out')]
     for i, (k, l) in enumerate(feats, 1): feature(i, k, l)
     print('ok', sorted(os.listdir(OUT)))

@@ -2,12 +2,17 @@
  "whisper_model": "small.en",
  "vocab_prompt": "Team AUREX, IMAAR, University of Technology and Applied Sciences, Ibra, Oman, hook-screw, docking station, scout drone, rover, weeds, crops, snakes and scorpions.",
  "target_seconds": 190,
- "music": "music/bed.m4a",
- "music_gain": 0.35,
+ "music": "music/wholesome.mp3",
+ "music_gain": 1.0,
  "sim": {
   "vision": "sim/vision.mp4",
   "weeding": "sim/weeding.mp4",
-  "dock": "sim/dock.mp4"
+  "dock": "sim/dock.mp4",
+  "d1": "sim/d1.mp4",
+  "d2": "sim/d2.mp4",
+  "d3": "sim/d3.mp4",
+  "d4": "sim/d4.mp4",
+  "d5": "sim/d5.mp4"
  },
  "speakers": [
   {
@@ -38,9 +43,9 @@
  "plans": {
   "lujain": [
    {
-    "clip": "vision",
+    "clip": "d2",
     "a": 0,
-    "b": 23
+    "b": 20
    },
    {
     "clip": "vision",
@@ -84,9 +89,9 @@
     "anchor": "four safety checks"
    },
    {
-    "clip": "vision",
-    "a": 36,
-    "b": 44,
+    "clip": "d2",
+    "a": 24,
+    "b": 33,
     "anchor": "If anything is unclear"
    },
    {
@@ -114,15 +119,15 @@
     "b": 41.5
    },
    {
-    "clip": "dock",
+    "clip": "d5",
     "a": 0,
-    "b": 29.7,
+    "b": 21.6,
     "anchor": "It can also return"
    },
    {
-    "clip": "vision",
-    "a": 4,
-    "b": 20,
+    "clip": "d4",
+    "a": 40,
+    "b": 60,
     "anchor": "The main benefits"
    }
   ]
@@ -139,6 +144,10 @@
   {
    "clip": "weeding",
    "a": 30
+  },
+  {
+   "clip": "d4",
+   "a": 58
   }
  ],
  "teaser": [
@@ -175,5 +184,52 @@
  "end_bg": {
   "clip": "dock",
   "a": 20
- }
+ },
+ "music_lufs": -20,
+ "voice_lufs": -14.0,
+ "face_luma": 0.6,
+ "music_credit": "Music: \"Wholesome\" by Kevin MacLeod (incompetech.com) \u00b7 CC BY 4.0",
+ "montage": [
+  {
+   "clip": "d1",
+   "a": 6.0,
+   "png": "feat4.png"
+  },
+  {
+   "clip": "d1",
+   "a": 16.5,
+   "png": "feat2.png"
+  },
+  {
+   "clip": "vision",
+   "a": 31,
+   "png": "feat3.png"
+  },
+  {
+   "clip": "d4",
+   "a": 64,
+   "png": "feat6.png"
+  },
+  {
+   "clip": "d4",
+   "a": 23.0,
+   "png": "feat7.png"
+  },
+  {
+   "clip": "weeding",
+   "a": 19.5,
+   "png": "feat1.png"
+  },
+  {
+   "clip": "d3",
+   "a": 0.5,
+   "png": "feat5.png"
+  },
+  {
+   "clip": "d1",
+   "a": 0.0,
+   "png": null
+  }
+ ],
+ "montage_shot": 4.5
 }

@@ -562,50 +562,103 @@ def sec_end(D, out):
     sh(['ffmpeg', '-y'] + ins + ['-filter_complex', g, '-map', '[v]', '-map', '4:a', '-t', f'{D:.3f}'] + ENC + AENC + [out])
 
 def build():
+    """v2 order: title -> (chapter, speaker) x3 -> chapter 4 + 'IMAAR in action' montage -> end card.
+    Music only where nobody speaks."""
     order = [s['key'] for s in CFG['speakers']]
-    main_d = sum(dur(f'{WORK}/{k}_voice.wav') for k in order)
     T_TITLE, T_CH, T_END = 8.5, 3.2, 8.0
-    fixed = T_TITLE + 3*T_CH + T_END
-    target = CFG.get('target_seconds', 190)
-    teaser = max(0.0, min(16.0, target - fixed - main_d))
-    print(f'speech {main_d:.1f}s, fixed {fixed:.1f}s, teaser {teaser:.1f}s -> total ~{main_d+fixed+teaser:.1f}s', flush=True)
-    secs = []
+    secs = []; music_win = []; t = 0.0
     sec_title(T_TITLE, f'{WORK}/s00_title.mp4'); secs.append('s00_title.mp4')
-    if teaser >= 6:
-        feats = CFG['teaser']
-        nf = 5 if teaser >= 12 else (4 if teaser >= 9 else 3)
-        feats = feats[:nf]; per = teaser / nf
-        shots = [{'clip': f['clip'], 'a': f['a'], 'b': f['a'] + per} for f in feats]
-        ov = [(f['png'], i*per + (0.15 if i else 0.3), (i+1)*per - 0.1) for i, f in enumerate(feats)]
-        sec_fullshot(shots, ov, teaser, f'{WORK}/s01_teaser.mp4'); secs.append('s01_teaser.mp4')
     report = {}
+    music_win.append([0.0, None]); t = T_TITLE
     for n, k in enumerate(order, 1):
         c = CFG['chapters'][n-1]
         sec_fullshot([{'clip': c['clip'], 'a': c['a'], 'b': c['a'] + T_CH}], [(f'chapfull{n}.png', 0.15, T_CH - 0.1)], T_CH, f'{WORK}/s{n}0_ch.mp4', zoom=0.05)
         secs.append(f's{n}0_ch.mp4')
-        D, slots = sec_main(k, f'{WORK}/s{n}1_{k}.mp4'); secs.append(f's{n}1_{k}.mp4'); report[k] = {'dur': D, 'sim_slots': slots}
-    sec_end(T_END, f'{WORK}/s90_end.mp4'); secs.append('s90_end.mp4')
+        if music_win[-1][1] is not None: music_win.append([t, None])
+        t += T_CH; music_win[-1][1] = t
+        D, slots = sec_main(k, f'{WORK}/s{n}1_{k}.mp4'); secs.append(f's{n}1_{k}.mp4'); report[k] = {'dur': D, 'sim_slots': slots, 'start': t}
+        t += D
+    # chapter 4 + montage
+    c = CFG['chapters'][3]
+    sec_fullshot([{'clip': c['clip'], 'a': c['a'], 'b': c['a'] + T_CH}], [('chapfull4.png', 0.15, T_CH - 0.1)], T_CH, f'{WORK}/s40_ch.mp4', zoom=0.05)
+    secs.append('s40_ch.mp4'); music_win.append([t, None]); t += T_CH
+    mon = CFG['montage']; per = CFG.get('montage_shot', 4.5); MD = per * len(mon)
+    shots = [{'clip': m['clip'], 'a': m['a'], 'b': m['a'] + per} for m in mon]
+    ov = [(m['png'], i*per + (0.25 if i else 0.4), (i+1)*per - 0.15) for i, m in enumerate(mon) if m.get('png')]
+    sec_fullshot(shots, ov, MD, f'{WORK}/s41_montage.mp4', zoom=0.04); secs.append('s41_montage.mp4'); t += MD
+    sec_end(T_END, f'{WORK}/s90_end.mp4'); secs.append('s90_end.mp4'); t += T_END
+    music_win[-1][1] = t
     lst = f'{WORK}/concat.txt'; open(lst, 'w').write(''.join(f"file '{WORK}/{s}'\n" for s in secs))
     sh(['ffmpeg', '-y', '-f', 'concat', '-safe', '0', '-i', lst, '-c', 'copy', f'{WORK}/joined.mp4'])
-    final = mix_final()
-    report['total'] = dur(final); report['sections'] = secs
+    json.dump(music_win, open(f'{WORK}/music_windows.json', 'w'))
+    final = mix_final(music_win)
+    report['total'] = dur(final); report['sections'] = secs; report['music_windows'] = music_win
     json.dump(report, open(f'{OUT}/report.json', 'w'), indent=1); print(json.dumps(report, indent=1))
 
-def mix_final():
-    """joined.mp4 + very quiet music bed (ducked under speech) -> final mp4. Speech sections are
-    already at -16 LUFS each, so use a fixed gain + true-peak limiter (no dynamic loudnorm,
-    which would pump the music up in the non-speech parts)."""
+def pcm_read(path, sr=48000, ch=2):
+    import numpy as np
+    raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', path, '-vn', '-ac', str(ch), '-ar', str(sr), '-f', 'f32le', '-'], capture_output=True).stdout
+    return np.frombuffer(raw, np.float32).reshape(-1, ch).copy()
+
+def mix_final(music_win=None):
+    """joined.mp4 speech + music only inside the no-speech windows (fades at the edges) -> final mp4."""
+    import numpy as np
     final = f'{OUT}/IMAAR_TeamAUREX.mp4'
+    if music_win is None: music_win = json.load(open(f'{WORK}/music_windows.json'))
+    sr = 48000
+    sp = pcm_read(f'{WORK}/joined.mp4'); N = len(sp)
     music = os.path.join(KIT, CFG.get('music', 'music/none.mp3'))
+    out = sp.copy()
     if os.path.exists(music):
-        D = dur(f'{WORK}/joined.mp4')
-        g = (f'[1:a]aloop=loop=-1:size=2e9,atrim=duration={D:.3f},aformat=sample_rates=48000:channel_layouts=stereo,volume={CFG.get("music_gain", 0.35)},afade=t=in:d=2,afade=t=out:st={D-3.5:.3f}:d=3.5[m];'
-             '[0:a]aformat=sample_rates=48000:channel_layouts=stereo,asplit=2[v1][v2];[m][v2]sidechaincompress=threshold=0.015:ratio=12:attack=30:release=700[md];'
-             '[v1][md]amix=inputs=2:normalize=0,volume=2dB,alimiter=limit=0.89:level=disabled[a]')
-        sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-i', music, '-filter_complex', g, '-map', '0:v', '-map', '[a]', '-c:v', 'libx264', '-preset', PRESET, '-crf', '19', '-pix_fmt', 'yuv420p', '-bsf:v', 'h264_metadata=sample_aspect_ratio=1/1', '-aspect', '16:9'] + AENC + ['-movflags', '+faststart', final])
-    else:
-        sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-af', 'volume=2dB,alimiter=limit=0.89:level=disabled', '-c:v', 'libx264', '-preset', PRESET, '-crf', '19', '-pix_fmt', 'yuv420p', '-bsf:v', 'h264_metadata=sample_aspect_ratio=1/1', '-aspect', '16:9'] + AENC + ['-movflags', '+faststart', final])
+        mnorm = f'{WORK}/music_norm.wav'
+        if not os.path.exists(mnorm):
+            sh(['ffmpeg', '-y', '-i', music, '-af', f'loudnorm=I={CFG.get("music_lufs", -20)}:TP=-3:LRA=11,aresample=48000', '-ac', '2', mnorm])
+        m = pcm_read(mnorm) * CFG.get('music_gain', 1.0)
+        for i, (t0, t1) in enumerate(music_win):
+            a, b = int(t0 * sr), min(N, int(t1 * sr)); L = b - a
+            if L <= 0: continue
+            src = m[a % len(m): a % len(m) + L]
+            if len(src) < L: src = np.concatenate([src, m[:L - len(src)]])
+            env = np.ones(L, np.float32)
+            fi = int((0.25 if t0 == 0 else 0.6) * sr); fo = int((3.0 if i == len(music_win) - 1 else 0.9) * sr)
+            fi, fo = min(fi, L // 2), min(fo, L // 2)
+            env[:fi] = np.linspace(0, 1, fi) ** 2
+            env[L - fo:] = np.linspace(1, 0, fo) ** 2
+            out[a:b] += src * env[:, None]
+    wav = f'{WORK}/final_mix.wav'
+    import wave
+    pcm16 = (np.clip(out, -1, 1) * 32767).astype('<i2').tobytes()
+    with wave.open(wav, 'wb') as w:
+        w.setnchannels(2); w.setsampwidth(2); w.setframerate(sr); w.writeframes(pcm16)
+    sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-i', wav, '-map', '0:v', '-map', '1:a', '-af', 'alimiter=limit=0.89:level=disabled',
+        '-c:v', 'libx264', '-preset', PRESET, '-crf', '17', '-pix_fmt', 'yuv420p', '-bsf:v', 'h264_metadata=sample_aspect_ratio=1/1', '-aspect', '16:9']
+       + AENC + ['-movflags', '+faststart', final])
     return final
+
+def polish(key):
+    """Second pass on a prepared speaker: clearer, louder, smoother voice; even face exposure."""
+    import numpy as np
+    fv1 = f'{WORK}/{key}_face_v1.mov'; vv1 = f'{WORK}/{key}_voice_v1.wav'
+    if not os.path.exists(fv1): shutil.copy(f'{WORK}/{key}_face.mov', fv1)
+    if not os.path.exists(vv1): shutil.copy(f'{WORK}/{key}_voice.wav', vv1)
+    chain = ('highpass=f=85,afftdn=nr=10:nf=-50:tn=1,'
+             'equalizer=f=230:t=q:w=1.1:g=-2.5,equalizer=f=3200:t=q:w=1.3:g=2.2,equalizer=f=9500:t=q:w=1.5:g=1.2,'
+             'deesser=i=0.35,acompressor=threshold=-21dB:ratio=2.6:attack=6:release=140:makeup=1.5')
+    tgt = CFG.get('voice_lufs', -14.0)
+    meas = subprocess.run(['ffmpeg', '-hide_banner', '-i', vv1, '-af', chain + f',loudnorm=I={tgt}:TP=-1.5:LRA=7:print_format=json', '-f', 'null', '-'], capture_output=True, text=True).stderr
+    j = json.loads(meas[meas.rindex('{'):meas.rindex('}') + 1])
+    ln = (f'loudnorm=I={tgt}:TP=-1.5:LRA=7:measured_I={j["input_i"]}:measured_TP={j["input_tp"]}:measured_LRA={j["input_lra"]}'
+          f':measured_thresh={j["input_thresh"]}:offset={j["target_offset"]}:linear=true')
+    sh(['ffmpeg', '-y', '-i', vv1, '-af', chain + ',' + ln + ',aresample=48000', '-ac', '1', '-c:a', 'pcm_s16le', f'{WORK}/{key}_voice.wav'])
+    # exposure: mean luma of the face area (centre of the crop) -> 0.60
+    raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', fv1, '-vf', 'fps=2,scale=88:132,format=gray', '-f', 'rawvideo', '-'], capture_output=True).stdout
+    fr = np.frombuffer(raw, np.uint8).reshape(-1, 132, 88)
+    L = float(fr[:, 25:75, 22:66].mean()) / 255
+    g = max(0.86, min(1.25, math.log(L) / math.log(CFG.get('face_luma', 0.60))))
+    sh(['ffmpeg', '-y', '-i', fv1, '-i', f'{WORK}/{key}_voice.wav', '-map', '0:v', '-map', '1:a',
+        '-vf', f'eq=gamma={g:.3f}:saturation=1.04,unsharp=3:3:0.25', '-c:v', 'libx264', '-preset', 'medium', '-crf', '12', '-pix_fmt', 'yuv420p',
+        '-c:a', 'pcm_s16le', '-ar', '48000', '-ac', '1', '-shortest', f'{WORK}/{key}_face.mov'])
+    print(json.dumps({'key': key, 'face_luma': round(L, 3), 'gamma': round(g, 3), 'voice_in_lufs': j['input_i']}), flush=True)
 
 def qa(path=None, n=12, cols=4, w=480):
     path = path or f'{OUT}/IMAAR_TeamAUREX.mp4'; D = dur(path)
@@ -616,5 +669,6 @@ if __name__ == '__main__':
     if cmd == 'prep': prep(sys.argv[2])
     elif cmd == 'build': build()
     elif cmd == 'final': print(mix_final())
+    elif cmd == 'polish': [polish(k) for k in sys.argv[2:]]
     elif cmd == 'qa': qa(*(sys.argv[2:3] or []))
     elif cmd == 'sec_main': print(sec_main(sys.argv[2], f'{WORK}/test_{sys.argv[2]}.mp4'))
