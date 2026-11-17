@@ -1,31 +1,179 @@
 {
-  "whisper_model": "small.en",
-  "vocab_prompt": "Team AUREX, IMAAR, University of Technology and Applied Sciences, Ibra, Oman, hook-screw, docking station, scout drone, rover, weeds, crops, snakes and scorpions.",
-  "target_seconds": 190,
-  "music": "music/bed.mp3",
-  "music_gain": 0.14,
-  "sim": {"vision": "sim/vision.mp4", "weeding": "sim/weeding.mp4", "dock": "sim/dock.mp4"},
-  "speakers": [
-    {"key": "lujain", "name": "LUJAIN KHALID ALRAWAHI", "chapter": 1, "src": "src_lujain.mov", "drive": null,
-     "script": "Hello everyone. We are Team AUREX from the University of Technology and Applied Sciences in Ibra, Oman. Today, we are presenting our project, IMAAR, an autonomous agricultural robot designed for soil-safe weed management and field safety. Farmers face many challenges when removing weeds. Manual weeding takes time and exposes workers to dangerous animals such as snakes and scorpions. Other methods, like chemical spraying and digging, can harm nearby crops and disturb the soil. Our idea is to develop a smart robot that removes weeds without disturbing the soil, while protecting crops, workers, and animals."},
-    {"key": "bilarab", "name": "BILARAB SUWAILAM ALMUSALLAMI", "chapter": 2, "src": "src_bilarab.mov", "drive": "11J_0dWr7cbmT_8XtmrN9h9SwIYjVk2pw",
-     "script": "IMAAR consists of two main parts: an autonomous rover and a scout drone. The drone scans the field and identifies areas that need attention, while the rover uses cameras and artificial intelligence to distinguish between crops, weeds, and dangerous objects. Before removing any weed, the robot performs four safety checks: crop distance, nearby people and animals, soil condition, and machine safety. If anything is unclear or unsafe, the robot stops, skips the target, and sends an alert to the farmer. This means IMAAR thinks before it acts, and safety always comes first."},
-    {"key": "bayan", "name": "BAYAN SAID ALI ALRAWAHI", "chapter": 3, "src": "src_bayan.mov", "drive": "15IZkp_Rc4P0X5wUFp_1eJBYlgkTunOKr",
-     "script": "IMAAR uses special tools to remove different types of weeds. Its main tool is the hook-screw, which lifts the weed's root while keeping the surrounding soil in place. It can also return to its docking station automatically to recharge, clean itself, empty the weed container, and change tools. The main benefits of IMAAR are reducing manual work, protecting the soil, saving crops, and improving field safety. What makes our project special is combining artificial intelligence, robotics, and drone technology in one autonomous agricultural system. Our vision is smarter and safer farming. Thank you for your attention."}
-  ],
-  "plans": {
-    "lujain": [{"clip": "vision", "a": 0, "b": 26}, {"clip": "weeding", "a": 0, "b": 22, "anchor": "Other methods"}],
-    "bilarab": [{"clip": "weeding", "a": 2, "b": 21}, {"clip": "vision", "a": 26, "b": 55.5, "anchor": "Before removing any weed"}],
-    "bayan": [{"clip": "weeding", "a": 22, "b": 41.5}, {"clip": "dock", "a": 0, "b": 29.7, "anchor": "It can also return"}, {"clip": "vision", "a": 4, "b": 20, "anchor": "The main benefits"}]
+ "whisper_model": "small.en",
+ "vocab_prompt": "Team AUREX, IMAAR, University of Technology and Applied Sciences, Ibra, Oman, hook-screw, docking station, scout drone, rover, weeds, crops, snakes and scorpions.",
+ "target_seconds": 190,
+ "music": "music/bed.m4a",
+ "music_gain": 0.5,
+ "sim": {
+  "vision": "sim/vision.mp4",
+  "weeding": "sim/weeding.mp4",
+  "dock": "sim/dock.mp4"
+ },
+ "speakers": [
+  {
+   "key": "lujain",
+   "name": "LUJAIN KHALID ALRAWAHI",
+   "chapter": 1,
+   "src": "src_lujain.mov",
+   "drive": null,
+   "script": "Hello everyone. We are Team AUREX from the University of Technology and Applied Sciences in Ibra, Oman. Today, we are presenting our project, IMAAR, an autonomous agricultural robot designed for soil-safe weed management and field safety. Farmers face many challenges when removing weeds. Manual weeding takes time and exposes workers to dangerous animals such as snakes and scorpions. Other methods, like chemical spraying and digging, can harm nearby crops and disturb the soil. Our idea is to develop a smart robot that removes weeds without disturbing the soil, while protecting crops, workers, and animals."
   },
-  "chapters": [{"clip": "dock", "a": 1}, {"clip": "vision", "a": 29}, {"clip": "weeding", "a": 30}],
-  "teaser": [
-    {"png": "feat1.png", "clip": "weeding", "a": 4},
-    {"png": "feat2.png", "clip": "vision", "a": 10},
-    {"png": "feat3.png", "clip": "vision", "a": 31},
-    {"png": "feat4.png", "clip": "weeding", "a": 32},
-    {"png": "feat5.png", "clip": "dock", "a": 14}
+  {
+   "key": "bilarab",
+   "name": "BILARAB SUWAILAM ALMUSALLAMI",
+   "chapter": 2,
+   "src": "src_bilarab.mov",
+   "drive": "11J_0dWr7cbmT_8XtmrN9h9SwIYjVk2pw",
+   "script": "IMAAR consists of two main parts: an autonomous rover and a scout drone. The drone scans the field and identifies areas that need attention, while the rover uses cameras and artificial intelligence to distinguish between crops, weeds, and dangerous objects. Before removing any weed, the robot performs four safety checks: crop distance, nearby people and animals, soil condition, and machine safety. If anything is unclear or unsafe, the robot stops, skips the target, and sends an alert to the farmer. This means IMAAR thinks before it acts, and safety always comes first."
+  },
+  {
+   "key": "bayan",
+   "name": "BAYAN SAID ALI ALRAWAHI",
+   "chapter": 3,
+   "src": "src_bayan.mov",
+   "drive": "15IZkp_Rc4P0X5wUFp_1eJBYlgkTunOKr",
+   "script": "IMAAR uses special tools to remove different types of weeds. Its main tool is the hook-screw, which lifts the weed's root while keeping the surrounding soil in place. It can also return to its docking station automatically to recharge, clean itself, empty the weed container, and change tools. The main benefits of IMAAR are reducing manual work, protecting the soil, saving crops, and improving field safety. What makes our project special is combining artificial intelligence, robotics, and drone technology in one autonomous agricultural system. Our vision is smarter and safer farming. Thank you for your attention."
+  }
+ ],
+ "plans": {
+  "lujain": [
+   {
+    "clip": "vision",
+    "a": 0,
+    "b": 23
+   },
+   {
+    "clip": "vision",
+    "still": 23.5,
+    "focus": [
+     1480,
+     430,
+     760
+    ],
+    "dur": 5,
+    "anchor": "exposes workers"
+   },
+   {
+    "clip": "weeding",
+    "a": 0,
+    "b": 22,
+    "anchor": "Other methods"
+   }
   ],
-  "title_bg": {"clip": "vision", "a": 0},
-  "end_bg": {"clip": "dock", "a": 20}
+  "bilarab": [
+   {
+    "clip": "weeding",
+    "a": 8,
+    "b": 26
+   },
+   {
+    "clip": "vision",
+    "a": 26,
+    "b": 36,
+    "anchor": "while the rover uses"
+   },
+   {
+    "clip": "vision",
+    "still": 23.5,
+    "focus": [
+     1440,
+     640,
+     960
+    ],
+    "dur": 6,
+    "anchor": "four safety checks"
+   },
+   {
+    "clip": "vision",
+    "a": 36,
+    "b": 44,
+    "anchor": "If anything is unclear"
+   },
+   {
+    "clip": "vision",
+    "still": 23.6,
+    "focus": [
+     380,
+     560,
+     760
+    ],
+    "dur": 3,
+    "anchor": "sends an alert"
+   },
+   {
+    "clip": "vision",
+    "a": 44,
+    "b": 55.5,
+    "anchor": "This means IMAAR"
+   }
+  ],
+  "bayan": [
+   {
+    "clip": "weeding",
+    "a": 22,
+    "b": 41.5
+   },
+   {
+    "clip": "dock",
+    "a": 0,
+    "b": 29.7,
+    "anchor": "It can also return"
+   },
+   {
+    "clip": "vision",
+    "a": 4,
+    "b": 20,
+    "anchor": "The main benefits"
+   }
+  ]
+ },
+ "chapters": [
+  {
+   "clip": "dock",
+   "a": 1
+  },
+  {
+   "clip": "vision",
+   "a": 29
+  },
+  {
+   "clip": "weeding",
+   "a": 30
+  }
+ ],
+ "teaser": [
+  {
+   "png": "feat1.png",
+   "clip": "weeding",
+   "a": 4
+  },
+  {
+   "png": "feat2.png",
+   "clip": "vision",
+   "a": 10
+  },
+  {
+   "png": "feat3.png",
+   "clip": "vision",
+   "a": 31
+  },
+  {
+   "png": "feat4.png",
+   "clip": "weeding",
+   "a": 32
+  },
+  {
+   "png": "feat5.png",
+   "clip": "dock",
+   "a": 14
+  }
+ ],
+ "title_bg": {
+  "clip": "vision",
+  "a": 0
+ },
+ "end_bg": {
+  "clip": "dock",
+  "a": 20
+ }
 }

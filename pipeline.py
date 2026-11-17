@@ -444,7 +444,7 @@ def sim_track(shots, D, out, size=(1472, 828), anchors_words=None, zoom=0.0, xf=
             t = find_phrase(anchors_words, sh_['anchor'])
         starts.append(t)
     # fill missing starts proportionally to footage length
-    lens = [s['b'] - s['a'] for s in shots]
+    lens = [s.get('dur', 4.0) if 'still' in s else s['b'] - s['a'] for s in shots]
     for i in range(1, len(shots)):
         if starts[i] is None:
             j = next((k for k in range(i+1, len(shots)) if starts[k] is not None), None)
@@ -457,6 +457,19 @@ def sim_track(shots, D, out, size=(1472, 828), anchors_words=None, zoom=0.0, xf=
     parts = []; inputs = []
     for i, (s, (t0, t1)) in enumerate(zip(shots, zip(starts, ends))):
         slot = (t1 - t0) + (xf if i < len(shots)-1 else 0)
+        if 'still' in s:
+            # screenshot from the sim with a smooth push-in onto a focus region (cx, cy, width in 1920x1080 coords)
+            png = f"{WORK}/still_{s['clip']}_{s['still']}.png"
+            if not os.path.exists(png):
+                sh(['ffmpeg', '-y', '-ss', f"{s['still']}", '-i', sim_clip(s['clip']), '-frames:v', '1', '-vf', 'scale=3840:2160:flags=lanczos', png])
+            inputs += ['-loop', '1', '-framerate', str(FPS), '-t', f'{slot+0.2:.3f}', '-i', png]
+            fx, fy, fw = s['focus']; Z = 1920.0 / fw; N = FPS * s.get('ease', 1.8); tot = FPS * slot
+            p = f'min(1,on/{N:.1f})'; e = f'(({p})*({p})*(3-2*({p})))'
+            z = f'1+{Z-1:.4f}*{e}+0.035*on/{tot:.1f}'
+            cx = f'(1920+({2*fx}-1920)*{e})'; cy = f'(1080+({2*fy}-1080)*{e})'
+            x = f'max(0,min(iw-iw/zoom,{cx}-iw/zoom/2))'; y = f'max(0,min(ih-ih/zoom,{cy}-ih/zoom/2))'
+            parts.append(f"[{i}:v]zoompan=z='{z}':x='{x}':y='{y}':d=1:s={size[0]}x{size[1]}:fps={FPS},trim=duration={slot:.3f},setpts=PTS-STARTPTS,format=yuv420p,settb=AVTB[s{i}]")
+            continue
         L = s['b'] - s['a']; speed = L / slot
         speed = max(0.5, min(1.6, speed)); take = slot * speed
         a = s['a']; cd = dur(sim_clip(s['clip']))
