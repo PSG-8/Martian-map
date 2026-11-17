@@ -70,7 +70,10 @@ def transcribe(wav, key):
     from faster_whisper import WhisperModel
     model = WhisperModel(CFG.get('whisper_model', 'small.en'), device='cpu', compute_type='int8')
     prompt = CFG.get('vocab_prompt', '')
-    segs, info = model.transcribe(wav, language='en', word_timestamps=True, beam_size=5, initial_prompt=prompt,
+    import numpy as np
+    pcm = subprocess.run(['ffmpeg', '-v', 'error', '-i', wav, '-ac', '1', '-ar', '16000', '-f', 's16le', '-'], capture_output=True).stdout
+    audio = np.frombuffer(pcm, np.int16).astype(np.float32) / 32768.0
+    segs, info = model.transcribe(audio, language='en', word_timestamps=True, beam_size=5, initial_prompt=prompt,
                                   vad_filter=False, condition_on_previous_text=False)
     words = []
     for s in segs:
