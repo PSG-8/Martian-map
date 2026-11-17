@@ -55,7 +55,8 @@ def clean_audio(src, key):
         m = re.search(r'mean_volume: (-?[\d.]+) dB', r.stderr); lv.append(float(m.group(1)) if m else -99)
     pan = 'pan=mono|c0=c0' if lv[0] - lv[1] > 6 else ('pan=mono|c0=c1' if lv[1] - lv[0] > 6 else 'pan=mono|c0=0.5*c0+0.5*c1')
     model = os.path.join(KIT, 'models', 'bd.rnnn')
-    chain = [pan, 'highpass=f=75', 'lowpass=f=15000']
+    gain = max(0.0, min(30.0, -27.0 - max(lv)))
+    chain = [pan, f'volume={gain:.1f}dB', 'highpass=f=75', 'lowpass=f=15000']
     if os.path.exists(model):
         chain.append(f"arnndn=m='{model}':mix=0.9")
     chain += ['afftdn=nr=10:nf=-42:tn=1', 'deesser=i=0.35:m=0.5:f=0.5',
@@ -64,12 +65,12 @@ def clean_audio(src, key):
               'loudnorm=I=-16:TP=-1.5:LRA=9']
     out = f'{WORK}/{key}_clean.wav'
     sh(['ffmpeg', '-y', '-i', raw, '-af', ','.join(chain), '-ar', '48000', '-c:a', 'pcm_s16le', out])
-    return out, {'channel_levels': lv, 'pan': pan}
+    return out, {'channel_levels': lv, 'pan': pan, 'pregain_db': gain}
 
-def transcribe(wav, key):
+def transcribe(wav, key, script=''):
     from faster_whisper import WhisperModel
     model = WhisperModel(CFG.get('whisper_model', 'small.en'), device='cpu', compute_type='int8')
-    prompt = CFG.get('vocab_prompt', '')
+    prompt = (CFG.get('vocab_prompt', '') + ' ' + script)[-800:]
     import numpy as np
     pcm = subprocess.run(['ffmpeg', '-v', 'error', '-i', wav, '-ac', '1', '-ar', '16000', '-f', 's16le', '-'], capture_output=True).stdout
     audio = np.frombuffer(pcm, np.int16).astype(np.float32) / 32768.0
@@ -97,7 +98,7 @@ def align(script, words):
             sj = ' '.join(sn[i1:i2]); wj = ' '.join(wn[j1:j2])
             ratio = difflib.SequenceMatcher(None, sj, wj).ratio()
             a, b = words[j1]['a'], words[j2-1]['b']
-            if ratio >= 0.5:
+            if (i2 - i1) < 4 or ratio >= 0.4:
                 lens = [max(1, len(sn[i])) for i in range(i1, i2)]; tot = sum(lens); t = a
                 for d, L in enumerate(lens):
                     nt = t + (b-a)*L/tot; out[i1+d] = {'t': st[i1+d], 'a': round(t, 3), 'b': round(nt, 3)}; t = nt
@@ -114,13 +115,16 @@ def align(script, words):
             block = words[j1:j2]; bn = [norm(w['w']) for w in block]
             # false start: inserted words re-appear in the next few script tokens
             nxt = set(sn[i1:i1+len(bn)+4])
-            is_restart = len(bn) > 0 and sum(1 for x in bn if x in nxt) >= max(1, math.ceil(0.6*len(bn)))
+            nxt_spoken = norm(words[j2]['w']) if j2 < len(words) else ''
+            is_restart = (len(bn) >= 2 and sum(1 for x in bn if x in nxt) >= math.ceil(0.6*len(bn))) or (len(bn) == 1 and bn[0] == nxt_spoken and bn[0] != '')
             only_fill = all(x in FILLERS or x == '' for x in bn)
             if is_restart or only_fill:
                 # cut from the first inserted word to just before the next real word
                 nb = words[j2]['a'] if j2 < len(words) else block[-1]['b']
                 cuts.append((block[0]['a'] - 0.04, nb - 0.06))
                 notes.append(('restart' if is_restart else 'filler') + f' cut: "{" ".join(w["w"] for w in block)}"')
+            elif len(bn) <= 3:
+                notes.append(f'extra words left in audio, not in subtitles: "{" ".join(w["w"] for w in block)}"')
             else:
                 notes.append(f'extra spoken words kept: "{" ".join(w["w"] for w in block)}"')
                 for w in block: out.append({'t': w['w'], 'a': w['a'], 'b': w['b'], 'spoken': True})
@@ -210,7 +214,7 @@ def prep(key):
     W0, H0 = v['width'], v['height']
     print(f'[{key}] source {W0}x{H0} {total:.1f}s', flush=True)
     clean, ainfo = clean_audio(src, key)
-    words = transcribe(clean, key)
+    words = transcribe(clean, key, s['script'])
     aligned, cuts, notes = align(s['script'], words)
     segs = keep_segments(aligned, cuts, total)
     new_words, newdur = remap(aligned, segs)
