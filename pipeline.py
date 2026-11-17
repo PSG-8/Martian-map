@@ -246,31 +246,78 @@ def prep(key):
 
 # ------------------------------------------------------------------ SUBTITLES
 KEYWORDS = {'imaar', 'aurex', 'imaar,', 'aurex,'}
-def cues_from_words(words, max_chars=78, max_dur=4.2):
-    cues = []; cur = []
-    def flush():
-        if cur: cues.append(list(cur)); cur.clear()
+WEAK = {'a', 'an', 'the', 'that', 'and', 'or', 'to', 'of', 'in', 'on', 'with', 'which', 'while', 'its', 'our', 'we', 'is', 'are', 'for', 'like', 'such', 'as', 'without', 'any', 'two', 'four', 'it', 'can', 'from', 'between', 'into', 'at', 'by', 'this', 'their', 'his', 'her', 'your'}
+PROTECT = ['university of technology and applied sciences', 'team aurex', 'artificial intelligence', 'docking station', 'scout drone',
+           'autonomous rover', 'autonomous agricultural robot', 'autonomous agricultural system', 'safety checks', 'agricultural robot', 'weed management', 'field safety', 'snakes and scorpions',
+           'chemical spraying', 'surrounding soil', 'weed container', 'drone technology', 'smarter and safer farming', 'thank you']
+
+def _no_break(tokens):
+    """nb[i] True if a break between token i and i+1 would split a protected phrase."""
+    n = [norm(t) for t in tokens]; nb = [False]*len(tokens)
+    for ph in PROTECT:
+        p = ph.split(); L = len(p)
+        for i in range(len(n)-L+1):
+            if n[i:i+L] == p:
+                for k in range(i, i+L-1): nb[k] = True
+    return nb
+
+def _best_split(tokens, lo_frac=0.3, hi_frac=0.7):
+    nb = _no_break(tokens); best = None; tot = len(' '.join(tokens))
+    for i in range(1, len(tokens)):
+        l1 = ' '.join(tokens[:i]); l2 = ' '.join(tokens[i:])
+        sc = abs(len(l1) - len(l2))
+        if nb[i-1]: sc += 60
+        if norm(tokens[i-1]) in WEAK: sc += 30
+        if tokens[i-1].endswith((',', ':', ';')): sc -= 12
+        if norm(tokens[i]) in ('and', 'while', 'which', 'or', 'but', 'when', 'that', 'to', 'without', 'such', 'in'): sc -= 8
+        if best is None or sc < best[0]: best = (sc, i)
+    return best[1]
+
+def cues_from_words(words, max_chars=78, max_dur=4.6):
+    # 1) sentences
+    sents = []; cur = []
     for i, w in enumerate(words):
         cur.append(w)
-        txt = ' '.join(x['t'] for x in cur)
-        end_sent = w['t'].endswith(('.', '?', '!'))
-        soft = w['t'].endswith((',', ':', ';'))
         nxt = words[i+1] if i+1 < len(words) else None
-        gap = (nxt['a'] - w['b']) if nxt else 9
-        span = w['b'] - cur[0]['a']
-        if end_sent or gap > 0.5 or (soft and len(txt) > 40) or len(txt) > max_chars - 10 or span > max_dur:
-            flush()
-    flush()
-    return cues
+        if w['t'].endswith(('.', '?', '!')) or (nxt and nxt['a'] - w['b'] > 0.9):
+            sents.append(cur); cur = []
+    if cur: sents.append(cur)
+    cues = []
+    def fits(c):
+        return len(' '.join(x['t'] for x in c)) <= max_chars and (c[-1]['b'] - c[0]['a']) <= max_dur
+    def split_rec(c):
+        if fits(c) or len(c) < 4:
+            cues.append(c); return
+        i = _best_split([x['t'] for x in c]); split_rec(c[:i]); split_rec(c[i:])
+    for st in sents:
+        if fits(st): cues.append(st); continue
+        # 2) clauses at commas / colons, packed greedily
+        clauses = []; cl = []
+        for w in st:
+            cl.append(w)
+            if w['t'].endswith((',', ':', ';')): clauses.append(cl); cl = []
+        if cl: clauses.append(cl)
+        pack = []
+        for cl in clauses:
+            if pack and fits(pack + cl): pack = pack + cl
+            else:
+                if pack: split_rec(pack)
+                pack = cl
+        if pack: split_rec(pack)
+    # merge tiny tails into the previous cue of the same sentence when it fits
+    out = []
+    for c in cues:
+        t = ' '.join(x['t'] for x in c)
+        if out and len(t) < 14 and not ' '.join(x['t'] for x in out[-1]).endswith(('.', '?', '!')) and fits(out[-1] + c):
+            out[-1] = out[-1] + c
+        else:
+            out.append(c)
+    return out
 
-def split_lines(text, maxline=40):
+def split_lines(text, maxline=46):
     if len(text) <= maxline: return [text]
-    words = text.split(' '); best = None
-    for i in range(1, len(words)):
-        l1, l2 = ' '.join(words[:i]), ' '.join(words[i:])
-        sc = max(len(l1), len(l2)) + (0 if l1.endswith(',') else 2)
-        if best is None or sc < best[0]: best = (sc, l1, l2)
-    return [best[1], best[2]]
+    toks = text.split(' '); i = _best_split(toks)
+    return [' '.join(toks[:i]), ' '.join(toks[i:])]
 
 def ass_time(t):
     t = max(0, t); h = int(t//3600); m = int(t % 3600//60); s = t % 60
@@ -457,9 +504,9 @@ def build():
         g = (f'[1:a]aloop=loop=-1:size=2e9,atrim=duration={D:.3f},volume={CFG.get("music_gain", 0.16)},afade=t=in:d=1.5,afade=t=out:st={D-3:.3f}:d=3[m];'
              '[0:a]asplit=2[v1][v2];[m][v2]sidechaincompress=threshold=0.02:ratio=10:attack=40:release=600[md];'
              '[v1][md]amix=inputs=2:normalize=0,loudnorm=I=-14:TP=-1.2:LRA=11[a]')
-        sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-i', music, '-filter_complex', g, '-map', '0:v', '-map', '[a]', '-c:v', 'copy'] + AENC + ['-movflags', '+faststart', final])
+        sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-i', music, '-filter_complex', g, '-map', '0:v', '-map', '[a]', '-c:v', 'libx264', '-preset', PRESET, '-crf', '19', '-pix_fmt', 'yuv420p'] + AENC + ['-movflags', '+faststart', final])
     else:
-        sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-af', 'loudnorm=I=-14:TP=-1.2:LRA=11', '-c:v', 'copy'] + AENC + ['-movflags', '+faststart', final])
+        sh(['ffmpeg', '-y', '-i', f'{WORK}/joined.mp4', '-af', 'loudnorm=I=-14:TP=-1.2:LRA=11', '-c:v', 'libx264', '-preset', PRESET, '-crf', '19', '-pix_fmt', 'yuv420p'] + AENC + ['-movflags', '+faststart', final])
     report['total'] = dur(final); report['sections'] = secs
     json.dump(report, open(f'{OUT}/report.json', 'w'), indent=1); print(json.dumps(report, indent=1))
 
