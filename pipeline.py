@@ -651,9 +651,16 @@ def polish(key):
           f':measured_thresh={j["input_thresh"]}:offset={j["target_offset"]}:linear=true')
     sh(['ffmpeg', '-y', '-i', vv1, '-af', chain + ',' + ln + ',aresample=48000', '-ac', '1', '-c:a', 'pcm_s16le', f'{WORK}/{key}_voice.wav'])
     # exposure: mean luma of the face area (centre of the crop) -> 0.60
-    raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', fv1, '-vf', 'fps=2,scale=88:132,format=gray', '-f', 'rawvideo', '-'], capture_output=True).stdout
-    fr = np.frombuffer(raw, np.uint8).reshape(-1, 132, 88)
-    L = float(fr[:, 25:75, 22:66].mean()) / 255
+    import cv2
+    cc = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    cap = cv2.VideoCapture(fv1); n = int(cap.get(7)); vals = []
+    for i in np.linspace(5, n - 5, 16).astype(int):
+        cap.set(1, int(i)); ok, f = cap.read()
+        if not ok: continue
+        gimg = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY); fs = cc.detectMultiScale(gimg, 1.1, 5, minSize=(40, 40))
+        if len(fs):
+            x, y, w, h = max(fs, key=lambda r: r[2] * r[3]); vals.append(gimg[y:y+h, x:x+w].mean() / 255)
+    L = float(np.median(vals)) if vals else 0.6
     g = max(0.86, min(1.25, math.log(L) / math.log(CFG.get('face_luma', 0.60))))
     sh(['ffmpeg', '-y', '-i', fv1, '-i', f'{WORK}/{key}_voice.wav', '-map', '0:v', '-map', '1:a',
         '-vf', f'eq=gamma={g:.3f}:saturation=1.04,unsharp=3:3:0.25', '-c:v', 'libx264', '-preset', 'medium', '-crf', '12', '-pix_fmt', 'yuv420p',
