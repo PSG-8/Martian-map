@@ -540,3 +540,67 @@ html[dir=rtl] .switch input:checked+i:before{transform:translateX(-24px)}
 @media (max-width:700px){.bot-panel{right:12px}#bot.side-l .bot-panel{left:12px}}
 .bot-fab{transition:transform .2s,box-shadow .2s,opacity .2s}
 .bot-fab.snap{transition:left .25s cubic-bezier(.2,.8,.2,1),top .25s cubic-bezier(.2,.8,.2,1),transform .2s}
+.rep-actions{margin-bottom:14px;flex-wrap:wrap;gap:10px}.rep-actions .btn{min-width:150px}
+
+/* ---------- v12: native-app feel on phones ---------- */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation;overflow-x:hidden}
+body{overflow-x:hidden;overscroll-behavior-y:none;min-height:100vh;min-height:100dvh}
+*{-webkit-tap-highlight-color:transparent}
+a,button,.btn,.tabbar,.side-nav,.chip,.icon-btn,label.check,.oitem,.pkg,.tc,img,svg{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:text}
+img{-webkit-user-drag:none}
+button,a,.btn,[data-go],[data-add],label{touch-action:manipulation}
+/* iPhone zooms into any field under 16px: keep every field at 16px or more */
+input,select,textarea,.input{font-size:max(16px,1em)}
+@media(max-width:900px){input,select,textarea,.input{font-size:16px!important}}
+/* pressed feedback like a native app */
+.oitem,.pkg,.tc,.qa a,.qa button,.card[data-go],.nc,.icon-btn,.tabbar a,.drawer a{transition:transform .12s,background .15s}
+.oitem:active,.pkg:active,.tc:active,.qa a:active,.qa button:active,.card[data-go]:active,.nc:active,.drawer a:active{transform:scale(.98)}
+.icon-btn:active{transform:scale(.92)}
+.tabbar a:active{transform:scale(.92)}
+.tabbar a.on svg{stroke-width:2.3}
+/* smooth screen change */
+#app.pg{animation:pagein .2s ease-out}
+@keyframes pagein{from{opacity:.35}}
+@media(prefers-reduced-motion:reduce){#app.pg{animation:none}}
+/* keyboard open on a phone: hide bottom bars so the field stays visible */
+@media(max-width:900px){body.kb .tabbar,body.kb .cart-bar,body.kb .bot-fab,body.kb #bot{display:none!important}body.kb .content{padding-bottom:24px}}
+/* phones: lighter rendering (no live blur behind bars = no scroll jank), safe areas, no sideways drift */
+@media(max-width:900px){
+  .topbar,.app-top,.tabbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .topbar{background:#fff}
+  .app-top{background:var(--bg);box-shadow:0 1px 0 rgba(16,40,90,.06)}
+  .tabbar{background:#fff;box-shadow:0 -4px 18px rgba(16,40,90,.06);padding-left:max(6px,env(safe-area-inset-left));padding-right:max(6px,env(safe-area-inset-right))}
+  .tabbar a{min-height:52px;justify-content:center}
+  .content{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  .main-area,.content,.shell{max-width:100vw}
+  .scroll-x{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+  .modal{max-height:calc(100dvh - 40px);overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  .drawer{overscroll-behavior:contain}
+  .leaflet-container{touch-action:pan-y}
+  .map-touch{touch-action:none}
+}
+body.lock{overflow:hidden}
+@media(display-mode:standalone){.demo-banner{padding-top:calc(7px + env(safe-area-inset-top,0px))}.topbar{padding-top:env(safe-area-inset-top,0px)}}
+/* top bar never squeezes its buttons */
+.topbar .icon-btn,.topbar .btn,.topbar .lang{flex:none}
+.topbar .brand{min-width:0;overflow:hidden}
+button.link{min-height:44px;display:inline-flex;align-items:center;gap:6px}
+/* data tables turn into tidy cards on phones */
+@media(max-width:640px){
+  table.table.mcards,table.table.mcards tbody{display:block;width:100%}
+  table.table.mcards thead{display:none}
+  table.table.mcards tr{display:block;background:#fff;border:1px solid var(--line);border-radius:16px;padding:6px 14px;margin-bottom:10px}
+  table.table.mcards td{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:9px 0;border-bottom:1px solid #f0f3f9;text-align:end;min-width:0;word-break:break-word}
+  table.table.mcards td:last-child{border-bottom:0}
+  table.table.mcards td::before{content:attr(data-l);color:var(--muted);font-size:.78rem;font-weight:600;text-align:start;flex:none;max-width:42%}
+  table.table.mcards td[data-l=""]::before{display:none}
+  table.table.mcards td[data-l=""]{justify-content:flex-end}
+  table.table.mcards td:first-child{font-weight:700}
+  .card>.scroll-x>table.table.mcards,.scroll-x>table.table.mcards{margin:0}
+}
+@media(max-width:640px){table.table.mcards td a{display:inline-block;padding:10px 0}}
+.btn svg,.icon-btn svg,.chip svg{flex:none}
+#uq{flex:1;min-width:0}
+/* the help button steps aside while you scroll, like a native app */
+.bot-fab.scrolling{opacity:.28;transform:scale(.86)}

@@ -40,7 +40,8 @@ async function busy(btn, fn){ if (btn) { btn.disabled = true; btn._h = btn.inner
 function modal(html, mount){
   const root = $('#modal-root'); const bg = document.createElement('div'); bg.className = 'modal-bg';
   bg.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`; root.appendChild(bg);
-  const close = () => { bg.remove(); document.removeEventListener('keydown', onKey); };
+  document.body.classList.add('lock');
+  const close = () => { bg.remove(); document.removeEventListener('keydown', onKey); if (!$('#modal-root .modal-bg') && !$('.drawer-bg.open')) document.body.classList.remove('lock'); };
   const onKey = e => { if (e.key === 'Escape') close(); };
   document.addEventListener('keydown', onKey);
   bg.addEventListener('click', e => { if (e.target === bg) close(); });
@@ -72,7 +73,7 @@ function topbar(){
     <nav class="nav"><a href="#/#how">${t('nav_how')}</a><a href="#/tests">${t('nav_tests')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></nav>
     <div class="grow"></div>
     <button class="lang hide-sm" data-lang>${t('lang')}</button>
-    <a class="icon-btn" href="#/${S.user ? 'app/cart' : 'tests'}" aria-label="${t('m_cart')}">${ic('box')}${n ? `<span class="dot">${n}</span>` : ''}</a>
+    <a class="icon-btn ${S.user ? '' : 'hide-sm'}" href="#/${S.user ? 'app/cart' : 'tests'}" aria-label="${t('m_cart')}">${ic('box')}${n ? `<span class="dot">${n}</span>` : ''}</a>
     ${S.user ? `<a class="btn sm" href="#/app">${ic('home',18)} <span class="hide-sm">${esc(t('m_home'))}</span></a>` : `<a class="btn sm" href="#/login">${t('login')}</a>`}
   </div></header>`;
 }
@@ -185,7 +186,7 @@ function footer(){
 function covMap(){
   const el = $('#cov-map'); if (!el) return;
   const draw = () => { if (!window.L || !S.catalog) return setTimeout(draw, 200);
-    const m = L.map(el, { scrollWheelZoom:false, attributionControl:true }).setView([22.72, 58.55], 9);
+    const touch = matchMedia('(pointer:coarse)').matches; const m = L.map(el, { scrollWheelZoom:false, attributionControl:true, dragging:!touch, touchZoom:!touch, doubleClickZoom:!touch, tap:false }).setView([22.72, 58.55], 9);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:18, attribution:'© OpenStreetMap' }).addTo(m);
     S.catalog.wilayats.forEach(w => { const ll = WILAYAT_LL[w]; if (!ll) return;
       L.circle(ll, { radius: w === 'Ibra' ? 9000 : 6000, color:'#1257d6', weight:2, fillColor:'#2f7bff', fillOpacity:.18 }).addTo(m).bindTooltip(wN(w), { permanent: w === 'Ibra', direction:'top' }); });
@@ -223,7 +224,7 @@ function viewLogin(){
   const D = x => x + '@demo.labathome.om';
   const demos = [['patient',D('patient'),''],['nurse',D('nurse'),t('female')],['nurse',D('mohammed.kindi'),t('male')],['courier',D('courier'),'Cold Chain'],['fleet',D('fleet.coldchain'),'Cold Chain'],['lab',D('lab'),'Ibra'],['lab',D('lab.sinaw'),'Sinaw'],['company',D('company'),''],['admin',D('admin'),'']];
   app.innerHTML = authShell(`<h1>${t('welcome_back')}</h1><p class="muted">${t('login_sub')}</p>
-    <form id="lf" class="stack" style="margin-top:18px"><label class="field"><span>${t('email_or_phone')}</span><input class="input" name="login" autocomplete="username" required placeholder="name@email.com · 9XXXXXXX"></label>
+    <form id="lf" class="stack" style="margin-top:18px"><label class="field"><span>${t('email_or_phone')}</span><input class="input ltr" name="login" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" required placeholder="name@email.com · 9XXXXXXX"></label>
     ${pwField('password', t('password'))}<div class="err" id="le"></div><button class="btn block">${t('login')}</button></form>
     <p class="center muted" style="margin:16px 0">${t('no_account')} <a href="#/register" class="b">${t('signup')}</a></p>
     <div class="card flat" style="margin-top:8px"><div class="small b" style="margin-bottom:10px">${t('try_demo')}</div>
@@ -437,7 +438,7 @@ async function viewBook(){
       <div class="row"><input class="input grow" id="code" placeholder="${t('sponsor_code')}" value="${esc(b.code)}" style="text-transform:uppercase"><button class="btn soft" id="apply">${t('apply')}</button></div>
       ${b.program ? `<div class="banner teal">${ic('check',20)}<b>${t('sponsored_by',{c:esc(b.program.company)})} · ${esc(b.program.name)}</b></div>` : `
       <div class="paym">${[['card','card','pay_card'],['applepay','phone','pay_apple']].map(([v, i, k]) => `<label class="${b.pay === v ? 'on' : ''}"><input type="radio" name="pay" value="${v}" ${b.pay === v ? 'checked' : ''}> ${ic(i)} <span class="grow b">${t(k)}</span></label>`).join('')}</div>
-      ${b.pay === 'card' ? `<div class="grid g3"><label class="field" style="grid-column:1/-1"><span>${t('card_no')}</span><input class="input ltr" id="cn" inputmode="numeric" placeholder="4242 4242 4242 4242" autocomplete="cc-number" style="width:100%"></label><label class="field"><span>${t('exp')}</span><input class="input" id="ce" placeholder="12/28" autocomplete="cc-exp"></label><label class="field"><span>${t('cvv')}</span><input class="input" id="cv" inputmode="numeric" placeholder="123" autocomplete="cc-csc"></label></div>` : ''}
+      ${b.pay === 'card' ? `<div class="grid g3"><label class="field" style="grid-column:1/-1"><span>${t('card_no')}</span><input class="input ltr" id="cn" inputmode="numeric" maxlength="23" placeholder="4242 4242 4242 4242" autocomplete="cc-number" style="width:100%"></label><label class="field"><span>${t('exp')}</span><input class="input ltr" id="ce" inputmode="numeric" maxlength="5" placeholder="12/28" autocomplete="cc-exp"></label><label class="field"><span>${t('cvv')}</span><input class="input ltr" id="cv" inputmode="numeric" maxlength="4" placeholder="123" autocomplete="cc-csc"></label></div>` : ''}
       <div class="banner blue small">${ic('shield',20)}<span>${t('epay_only')} ${t('test_mode')}</span></div>`}</div>`;
   }
   const next = b.step < 5 ? `<button class="btn" id="nx">${t('next')} ${'<span class="flip">'+ic('arrow',18)+'</span>'}</button>` : `<button class="btn teal" id="pay">${b.program ? t('confirm_book') : t('confirm_pay',{x:omr(total)})}</button>`;
@@ -469,6 +470,9 @@ async function viewBook(){
     b.step++; viewBook(); window.scrollTo(0, 0); };
   if ($('#apply')) $('#apply').onclick = async () => { const code = $('#code').value.trim(); if (!code) return; b.code = code;
     try { const pr = await busy($('#apply'), () => API.programLookup(code)); b.program = pr; viewBook(); } catch(e) { b.program = null; err(errMsg(e)); } };
+  if ($('#cn')) { $('#cn').oninput = e => { const d = e.target.value.replace(/\D/g, '').slice(0, 19); e.target.value = d.replace(/(\d{4})(?=\d)/g, '$1 '); }; }
+  if ($('#ce')) { $('#ce').oninput = e => { let d = e.target.value.replace(/\D/g, '').slice(0, 4); if (d.length >= 3) d = d.slice(0, 2) + '/' + d.slice(2); e.target.value = d; }; }
+  if ($('#cv')) { $('#cv').oninput = e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4); }; }
   if ($('#pay')) $('#pay').onclick = async () => {
     if (!b.program && b.pay === 'card') { const n = ($('#cn').value || '').replace(/\D/g, ''); const ex = ($('#ce').value || '').trim(); const cv = ($('#cv').value || '').trim();
       if (!luhn(n) || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(ex) || !/^\d{3,4}$/.test(cv)) return err(t('e_CARD')); }
@@ -490,7 +494,7 @@ function bookMap(b){
     $('b', bn).textContent = b.gps === 'ok' ? t('gps_ok') : t('gps_ask_t'); $('.small', bn).textContent = b.gps === 'denied' ? t('gps_denied') : b.gps === 'far' ? t('gps_far',{w:wN(b.wilayat)}) : t('gps_ask_p'); };
   const draw = () => { if (!document.body.contains(el)) return; if (!window.L) { if (!b.gps) { b.gps = 'asked'; askGps(null); } $('#gps').onclick = () => askGps(null); return setTimeout(draw, 300); }
     const ll = b.lat && b.lng ? [b.lat, b.lng] : (WILAYAT_LL[b.wilayat] || WILAYAT_LL.Ibra);
-    const m = L.map(el, { zoomControl:true }).setView(ll, b.lat ? 16 : 13);
+    const m = L.map(el, { zoomControl:true, tap:false }).setView(ll, b.lat ? 16 : 13); el.classList.add('map-touch');
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(m);
     const mk = L.marker(ll, { draggable:true }).addTo(m);
     const set = p => { b.lat = +p.lat.toFixed(6); b.lng = +p.lng.toFixed(6); };
@@ -607,7 +611,7 @@ function drawOrder(o){
     <div class="vline"><span class="muted">${t('booked_at')}</span><b>${fmtDT(created)}</b></div>
     <div class="vline"><span class="muted">${t('location')}</span><b style="text-align:end">${esc(wN(o.wilayat))}${o.address ? `<div class="small muted" style="font-weight:500">${esc(o.address)}</div>` : r === 'nurse' ? `<div class="xs muted" style="font-weight:500">${t('addr_hidden')}</div>` : ''}</b></div>
     ${o.notes && o.address ? `<div class="vline"><span class="muted">${t('notes_l')}</span><span>${esc(o.notes)}</span></div>` : ''}
-    ${pat.phone && r !== 'patient' ? `<div class="vline"><span class="muted">${t('phone')}</span><a class="b ltr" href="tel:${esc(pat.phone)}">${esc(pat.phone)}</a></div>` : ''}
+    ${pat.phone && r !== 'patient' ? `<div class="vline"><span class="muted">${t('phone')}</span><a class="btn soft sm ltr" href="tel:${esc(pat.phone)}">${ic('phone',16)} ${esc(pat.phone)}</a></div>` : ''}
     ${r !== 'nurse' && r !== 'courier' && r !== 'lab' ? `<div class="vline"><span class="muted">${t('payment')}</span><b>${omr(o.total)} ${t('omr')} · <span class="chip ${o.paid_at ? 'teal' : 'amber'}">${o.payment_method === 'sponsored' ? t('sponsored') : o.paid_at ? t('paid') : t('pay_at_visit')}</span></b></div>` : ''}
     ${o.sample_temp != null ? `<div class="vline"><span class="muted">${ic('thermo',16)} ${t('temp')}</span><b class="num">${esc(o.sample_temp)} °C <span class="chip ${o.sample_temp >= 2 && o.sample_temp <= 8 ? 'teal' : 'red'}">${o.sample_temp >= 2 && o.sample_temp <= 8 ? t('in_range') : t('out_range')}</span></b></div>` : ''}
     ${o.reject_reason ? `<div class="banner red small" style="margin-top:10px">${ic('x',18)}<span>${esc(o.reject_reason)}</span></div>` : ''}</div>`;
@@ -632,7 +636,7 @@ function drawOrder(o){
   if ($('[data-ics]')) $('[data-ics]').onclick = () => { icsDownload(o); toast(t('cal_ok')); };
   if ($('[data-copy]')) $('[data-copy]').onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(o.code) : Promise.reject()).then(() => toast(t('copied'))).catch(() => toast(o.code)); };
   if ($('[data-again]')) $('[data-again]').onclick = async () => { await loadCatalog(); const ids = (o.tests || []).map(x => x.id).filter(id => S.catalog.T[id]); S.cart = { packages: [], tests: ids }; saveCart(); toast(t('again_ok')); go('app/cart'); };
-  if ($('#omap')) { const draw = () => { if (!window.L) return setTimeout(draw, 200); const m = L.map('omap', { scrollWheelZoom:false }).setView([o.lat, o.lng], o.address ? 15 : 12); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(m); if (o.address) L.marker([o.lat, o.lng]).addTo(m); else L.circle([o.lat, o.lng], { radius:1500, color:'#2563eb' }).addTo(m); }; draw(); }
+  if ($('#omap')) { const draw = () => { if (!window.L) return setTimeout(draw, 200); const touch = matchMedia('(pointer:coarse)').matches; const m = L.map('omap', { scrollWheelZoom:false, dragging:!touch, tap:false }).setView([o.lat, o.lng], o.address ? 15 : 12); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(m); if (o.address) L.marker([o.lat, o.lng]).addTo(m); else L.circle([o.lat, o.lng], { radius:1500, color:'#2563eb' }).addTo(m); }; draw(); }
 }
 
 function rateBox(o){
@@ -724,7 +728,7 @@ async function viewReport(id){
       if (lo != null && hi != null && r.v != null) { const span = hi - lo; pos = Math.max(3, Math.min(97, 20 + (r.v - lo) / span * 60)); }
       return `<tr><td>${esc(S.lang === 'ar' ? a.na : a.n)}</td><td class="num b" style="color:${r.f === 'N' ? 'inherit' : r.f === 'H' ? 'var(--red)' : '#9a6400'}">${r.v ?? '—'} <span class="xs muted" style="font-weight:500">${esc(a.u)}</span></td><td class="small muted num">${rangeTxt(a)}</td><td class="rb-col" style="width:120px"><div class="rangebar"><i style="left:${pos}%"></i></div></td><td>${r.f ? `<span class="flag ${r.f}">${t('f_'+r.f)}</span>` : ''}</td></tr>`; }).join('')).join('');
   const ce = (o.events || []).find(e => e.status === 'collected');
-  app.innerHTML = shell(t('report_t'), `<div class="row no-print" style="margin-bottom:14px;flex-wrap:wrap"><button class="btn" id="pr">${ic('download',18)} ${t('download_pdf')}</button>${navigator.share ? `<button class="btn ghost" id="sh">${ic('share',18)} ${t('share')}</button>` : ''}</div>
+  app.innerHTML = shell(t('report_t'), `<div class="row no-print rep-actions"><button class="btn grow" id="pr">${ic('download',18)} ${t('download_pdf')}</button>${navigator.share ? `<button class="btn ghost grow" id="sh">${ic('share',18)} ${t('share_pdf')}</button>` : ''}<button class="btn ghost hide-sm" id="pp" aria-label="${t('print')}">${ic('file',18)} ${t('print')}</button></div>
   <div class="report"><div class="rh"><div class="row">${A.logo.replace('<svg','<svg width="46" height="46"')}<div><div class="wm-inline">${A.wordmark}</div><div class="small" style="opacity:.8">${t('report_t')}</div></div></div>
     <div class="small" style="text-align:end"><b>${esc(o.lab ? o.lab.name : '')}</b><br>${o.lab && o.lab.license ? t('licence') + ': ' + esc(o.lab.license) : ''}</div></div>
   <div class="rb"><div class="grid g4" style="gap:12px;margin-bottom:18px">
@@ -735,8 +739,23 @@ async function viewReport(id){
   <div class="scroll-x"><table class="rtable"><thead><tr><th>${t('analyte')}</th><th>${t('result')}</th><th>${t('ref_range')}</th><th class="rb-col"></th><th>${t('flag')}</th></tr></thead><tbody>${rows}</tbody></table></div>
   ${notes.length ? `<div class="card flat" style="margin-top:18px"><h4>${t('insight_t')}</h4><ul class="small" style="margin:0;padding-inline-start:18px">${notes.join('')}</ul></div>` : ''}
   <p class="xs muted" style="margin-top:18px">${t('report_disclaimer')}</p></div></div>`, { back: true });
-  $('#pr').onclick = () => window.print();
-  if ($('#sh')) $('#sh').onclick = () => navigator.share({ title: 'Lab@Home ' + o.code, text: t('report_t') + ' ' + o.code, url: location.href }).catch(() => {});
+  /* real PDF file, made on the phone; prepared in advance so the tap opens the save/share sheet at once */
+  const ar = S.lang === 'ar';
+  const pdfData = { lang: S.lang, logo: A.logo, code: o.code, lab: o.lab ? o.lab.name : '', licence: o.lab && o.lab.license ? t('licence') + ': ' + o.lab.license : '', flags,
+    title: `Lab@Home ${o.code}`,
+    t: { title: t('report_t'), analyte: t('analyte'), result: t('result'), range: t('ref_range'), flag: t('flag'), insight: t('insight_t'), disclaimer: t('report_disclaimer'), summary: flags ? t('some_flags',{n:flags}) : t('all_normal') },
+    info: [[t('patient'), p.name || '—'], [t('age') + ' / ' + t('sex'), `${p.dob ? age(p.dob) : '—'} / ${p.gender ? t(p.gender) : '—'}`], [t('request'), o.code], [t('collected_at'), ce ? fmtDT(ce.at) : '—'], [t('reported_at'), fmtDT(o.published_at)], [t('verified_by'), o.verified_by || '—']],
+    groups: (o.tests || []).map(x => ({ name: LN(x,'name'), rows: x.analytes.map(a => { const r = res[a.c] || {}; return { name: ar ? a.na : a.n, v: r.v ?? '—', u: a.u || '', range: rangeTxt(a), f: r.f || '', fl: r.f ? t('f_' + r.f) : '' }; }) })),
+    notes: (o.tests || []).flatMap(x => x.analytes.map(a => { const r = res[a.c] || {}; const n = r.f && r.f !== 'N' && INSIGHT[a.c] && INSIGHT[a.c][r.f]; return n ? `${ar ? a.na : a.n}: ${n[ar ? 1 : 0]}` : null; })).filter(Boolean) };
+  const fname = `LabAtHome-${o.code}.pdf`; let pdfP = null;
+  const make = () => pdfP || (pdfP = window.LAHPDF.build(pdfData).catch(e => { pdfP = null; throw e; }));
+  setTimeout(() => make().catch(() => {}), 300);
+  const deliver = async (btn, share) => { const lbl = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="spin" style="width:18px;height:18px;border-color:rgba(255,255,255,.35);border-top-color:currentColor"></span> ${t('pdf_making')}`;
+    try { const blob = await make(); const r = await window.LAHPDF.save(blob, fname, share); if (r === 'downloaded') toast(t('pdf_ready')); }
+    catch(e) { console.error(e); toast(t('pdf_fail'), true); } finally { btn.disabled = false; btn.innerHTML = lbl; } };
+  $('#pr').onclick = () => deliver($('#pr'), false);
+  if ($('#sh')) $('#sh').onclick = () => deliver($('#sh'), true);
+  $('#pp').onclick = () => window.print();
 }
 
 /* ---------- nurse / courier / lab homes ---------- */
@@ -953,7 +972,7 @@ async function viewAdminSettings(){
       <div class="grid g2"><label class="field"><span>${t('auto_step')}</span><input class="input num" id="as" type="number" min="1" max="120" value="${v('auto_step_minutes')}" ${own ? '' : 'disabled'}></label><label class="field"><span>${t('auto_accept')}</span><input class="input num" id="aa" type="number" min="0" max="240" value="${v('auto_accept_minutes')}" ${own ? '' : 'disabled'}></label></div>
       <div class="banner blue small">${ic('users',18)}<span>${t('auto_manual_note')}</span></div></div>
     <div class="card stack"><h3>${ic('card',20)} ${t('fees_t')}</h3>
-      <div class="grid g2"><label class="field"><span>${t('home_fee')} (${t('omr')})</span><input class="input num" id="hf" value="${v('home_fee')}" ${own ? '' : 'disabled'}></label><label class="field"><span>${t('nurse_fee')} (${t('omr')})</span><input class="input num" id="nf" value="${v('nurse_fee')}" ${own ? '' : 'disabled'}></label></div>
+      <div class="grid g2"><label class="field"><span>${t('home_fee')} (${t('omr')})</span><input class="input num" id="hf" inputmode="decimal" value="${v('home_fee')}" ${own ? '' : 'disabled'}></label><label class="field"><span>${t('nurse_fee')} (${t('omr')})</span><input class="input num" id="nf" inputmode="decimal" value="${v('nurse_fee')}" ${own ? '' : 'disabled'}></label></div>
       <label class="field"><span>${t('fast_last')}</span><select class="input" id="fl" ${own ? '' : 'disabled'}>${['08:00','09:00','10:00','11:00'].map(x => `<option ${v('fasting_last_slot') === x ? 'selected' : ''}>${x}</option>`).join('')}</select></label></div>
     ${own ? `<div><button class="btn" id="sts">${t('save_changes')}</button></div>` : `<div class="banner blue small">${ic('eye',18)}<span>${t('readonly_note')}</span></div>`}</div>`);
   if ($('#sts')) $('#sts').onclick = async () => { const b = $('#sts'); const sets = [['auto_mode', $('#am').checked], ['auto_step_minutes', +$('#as').value || 2], ['auto_accept_minutes', +$('#aa').value || 0], ['home_fee', +$('#hf').value], ['nurse_fee', +$('#nf').value], ['fasting_last_slot', $('#fl').value]];
@@ -963,7 +982,7 @@ async function viewAdminSettings(){
 async function viewAdminCatalog(){
   S.catalog = null; await loadCatalog();
   app.innerHTML = shell(t('m_catalog'), `<div class="card"><div class="scroll-x"><table class="table"><thead><tr><th>${t('analyte')}</th><th>${t('tube')}</th><th>${t('price')} (${t('omr')})</th><th></th></tr></thead><tbody>
-    ${S.catalog.tests.map(x => `<tr><td><b>${esc(LN(x,'name'))}</b><div class="xs muted">${x.analytes.length} · ${x.fasting_hours ? t('fasting',{h:x.fasting_hours}) : t('no_fasting')}</div></td><td class="small">${esc(x.tube)}</td><td><input class="input num" style="width:110px;min-height:38px;padding:6px 10px" value="${omr(x.price)}" data-price="${x.id}"></td><td><button class="btn sm soft" data-sv="${x.id}">${t('save_changes')}</button></td></tr>`).join('')}</tbody></table></div></div>`);
+    ${S.catalog.tests.map(x => `<tr><td><b>${esc(LN(x,'name'))}</b><div class="xs muted">${x.analytes.length} · ${x.fasting_hours ? t('fasting',{h:x.fasting_hours}) : t('no_fasting')}</div></td><td class="small">${esc(x.tube)}</td><td><input class="input num" style="width:110px;min-height:38px;padding:6px 10px" inputmode="decimal" value="${omr(x.price)}" data-price="${x.id}"></td><td><button class="btn sm soft" data-sv="${x.id}">${t('save_changes')}</button></td></tr>`).join('')}</tbody></table></div></div>`);
   $$('[data-sv]').forEach(b => b.onclick = async () => { const v = parseFloat($(`[data-price="${b.dataset.sv}"]`).value); try { await busy(b, () => API.adminTest(b.dataset.sv, v, true)); toast(t('saved')); S.catalog = null; } catch(e) {} });
 }
 
@@ -1044,11 +1063,11 @@ function openMenu(){
     ${u ? `<div class="me-card"><span class="avatar">${esc(initials(u.full_name))}</span><div class="grow"><b>${esc(u.full_name)}</b><div class="xs muted">${t('r_'+u.role)}</div></div></div>` : `<div class="me-card" style="display:block"><b>${t('hero_t1')}</b><div class="small muted">${t('hero_t2')}</div><div class="row" style="margin-top:10px"><a class="btn sm grow" href="#/register">${t('signup')}</a><a class="btn sm ghost grow" href="#/login">${t('login')}</a></div></div>`}
     <nav class="menu">${menuItems()}</nav></aside>`;
   root.appendChild(bg);
-  requestAnimationFrame(() => bg.classList.add('open'));
-  const close = () => { bg.classList.remove('open'); setTimeout(() => bg.remove(), 220); };
+  requestAnimationFrame(() => bg.classList.add('open')); document.body.classList.add('lock');
+  const close = () => { bg.classList.remove('open'); setTimeout(() => { bg.remove(); if (!$('#modal-root .modal-bg') && !$('.drawer-bg.open')) document.body.classList.remove('lock'); }, 220); };
   bg.addEventListener('click', e => { if (e.target === bg || e.target.closest('[data-x]') || e.target.closest('a')) close(); });
   $$('[data-lang]', bg).forEach(b => b.onclick = () => { close(); setLang(S.lang === 'ar' ? 'en' : 'ar'); render(); });
-  $$('[data-logout]', bg).forEach(b => b.onclick = async () => { close(); await API.logout(); API.setToken(null); S.user = null; S.bk = null; go(''); });
+  $$('[data-logout]', bg).forEach(b => b.onclick = () => { close(); doLogout(); });
 }
 
 function viewStart(){
@@ -1433,16 +1452,26 @@ async function viewVerify(code){
 }
 
 /* ---------- router ---------- */
+async function doLogout(){ try { if ('serviceWorker' in navigator) { const reg = await navigator.serviceWorker.getRegistration(); const sub = reg && reg.pushManager && await reg.pushManager.getSubscription(); if (sub) await API.pushUnsubscribe(sub.endpoint).catch(() => {}); } } catch(e) {} await API.logout(); API.setToken(null); S.user = null; S.bk = null; go(''); }
 function bindGo(){ $$('[data-go]').forEach(b => b.onclick = () => { const g = b.dataset.go; if (g === 'register' && !S.user) sessionStorage.setItem('lah_after', 'app/book'); go(g); }); }
 function bindGlobal(){
   $$('[data-lang]').forEach(b => b.onclick = () => { setLang(S.lang === 'ar' ? 'en' : 'ar'); render(); if (S.user && localStorage.getItem('lah_push') === '1') pushEnable(true).catch(() => {}); });
-  $$('[data-logout]').forEach(b => b.onclick = async () => { try { if ('serviceWorker' in navigator) { const reg = await navigator.serviceWorker.getRegistration(); const sub = reg && await reg.pushManager.getSubscription(); if (sub) await API.pushUnsubscribe(sub.endpoint).catch(() => {}); } } catch(e) {} await API.logout(); API.setToken(null); S.user = null; S.bk = null; go(''); });
+  $$('[data-logout]').forEach(b => b.onclick = doLogout);
   $$('[data-goback]').forEach(b => b.onclick = () => history.length > 1 ? history.back() : go('app'));
   $$('[data-menu]').forEach(b => b.onclick = e => { e.preventDefault(); openMenu(); });
   bindGo();
 }
+let rendering = false, rerender = false, lastRoute = null;
 async function render(){
+  if (rendering) { rerender = true; return; }
+  rendering = true; rerender = false;
+  try { await renderNow(); } finally { rendering = false; }
+  if (rerender) render();
+}
+async function renderNow(){
   clearTimers();
+  const route = location.hash.split('?')[0];
+  if (route !== lastRoute) { lastRoute = route; app.classList.remove('pg'); void app.offsetWidth; app.classList.add('pg'); $$('#modal-root .modal-bg, #modal-root .drawer-bg').forEach(m => m.remove()); document.body.classList.remove('lock', 'kb'); }
   const h = (location.hash.slice(2) || '').split('#')[0];
   const [path] = h.split('?'); const seg = path.split('/');
   const standalone = window.matchMedia && matchMedia('(display-mode: standalone)').matches;
@@ -1484,11 +1513,25 @@ async function render(){
 }
 async function poll(){ if (!S.user || document.hidden) return; try { const r = await API.me(); const before = S.unread; S.user = r.user; S.unread = r.unread; if (r.unread !== before) { $$('[data-go="app/notifs"] .dot').forEach(d => d.textContent = r.unread); if (r.unread > before) { const b = $('[data-go="app/notifs"]'); if (b && !$('.dot', b)) b.insertAdjacentHTML('beforeend', `<span class="dot">${r.unread}</span>`); } } } catch(e) { if (e.code === 'AUTH_REQUIRED') { S.user = null; go('login'); } } }
 
+/* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
+function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
+function appFeel(){
+  new MutationObserver(() => labelTables(app)).observe(app, { childList:true, subtree:true });
+  const inMap = e => e.target && e.target.closest && e.target.closest('.leaflet-container');
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach(n => document.addEventListener(n, e => { if (!inMap(e)) e.preventDefault(); }, { passive:false }));
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1 && !inMap(e)) e.preventDefault(); }, { passive:false });
+  const field = el => el && el.matches && el.matches('input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea,select');
+  document.addEventListener('focusin', e => { if (field(e.target) && matchMedia('(max-width:900px)').matches) document.body.classList.add('kb'); });
+  document.addEventListener('focusout', () => setTimeout(() => { if (!field(document.activeElement)) document.body.classList.remove('kb'); }, 80));
+  window.addEventListener('pageshow', e => { if (e.persisted) render(); });
+  let st; window.addEventListener('scroll', () => { const f = $('.bot-fab'); if (!f || f.classList.contains('dragging')) return; f.classList.add('scrolling'); clearTimeout(st); st = setTimeout(() => f.classList.remove('scrolling'), 650); }, { passive:true });
+}
 async function boot(){
   setLang(S.lang);
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installEvt = e; });
   if (API.hasToken()) { try { const r = await API.me(); S.user = r.user; S.unread = r.unread; } catch(e) { API.setToken(null); } }
   window.addEventListener('hashchange', render);
+  appFeel();
   render();
   setInterval(poll, 20000);
   if (S.user && 'Notification' in window && Notification.permission === 'granted' && localStorage.getItem('lah_push') === '1') setTimeout(() => pushEnable(true).catch(() => {}), 3000);
