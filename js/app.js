@@ -1298,7 +1298,7 @@ async function botLocal(text, intent){
     case 'human':
       if (S.user) return botTicket('', S.user.full_name);
       BOT.stage = 'contact'; return botSay(t('bot_ask_phone'));
-    default: return botSay(t('bot_unknown'), BOT_CHIPS);
+    default: return botSay(t('bot_unknown'), ['human','track','price']);
   }
 }
 

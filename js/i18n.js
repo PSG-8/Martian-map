@@ -287,7 +287,7 @@ Object.assign(window.I18N.en, {
   bot_partner:'Nurses, laboratories, logistics companies and employers can join as partners.', bot_privacy:'Your data is protected. Nurses see your address only after accepting, couriers never see it, and your civil ID is shown only as the last 4 digits.',
   bot_book:'Pick tests, choose who the test is for, your location, a nurse and a time. It takes about 2 minutes.',
   bot_ask_phone:'Sure, I’ll pass you to our team. What phone number can we call you on?', bot_need_phone:'Please send a valid phone number (8 digits or more).',
-  bot_ticket:'Done ✅ I opened support request #{n} with this conversation. Our team will reply soon, usually within one working hour.', bot_unknown:'I’m not sure I understood. Try one of these topics, or ask to talk to a person.', bot_err:'Something went wrong on my side. Want me to connect you with the team?',
+  bot_ticket:'Done ✅ I opened support request #{n} with this conversation. Our team will reply soon, usually within one working hour.', bot_unknown:'Sorry, quick reply doesn’t support this kind of request. If you need anything else, you can contact a customer service agent.', bot_err:'Something went wrong on my side. Want me to connect you with the team?',
   bc_track:'Where is my request?', bc_fasting:'Fasting rules', bc_price:'Prices', bc_results:'When are results ready?', bc_nurse:'Female / male nurse', bc_human:'Talk to a person', bc_book:'How to book', bc_area:'Coverage area', bc_pay:'Payment options', bc_cancel:'Cancel or change', bc_privacy:'Privacy',
   hours_s:'h',
   /* about */
@@ -339,7 +339,7 @@ Object.assign(window.I18N.ar, {
   bot_partner:'يمكن للممرضين والمختبرات وشركات النقل وجهات العمل الانضمام كشركاء.', bot_privacy:'بياناتك محمية: الممرض يرى عنوانك بعد القبول فقط، والمندوب لا يراه أبداً، والرقم المدني يظهر آخر 4 أرقام فقط.',
   bot_book:'اختر الفحوصات، ولمن الفحص، وموقعك، والممرض، والوقت. العملية تأخذ دقيقتين تقريباً.',
   bot_ask_phone:'أكيد، بحوّلك لفريقنا. ما رقم الهاتف الذي نتصل عليك فيه؟', bot_need_phone:'أرسل رقم هاتف صحيح (8 أرقام أو أكثر).',
-  bot_ticket:'تم ✅ فتحت طلب دعم رقم #{n} مع هذه المحادثة، وسيرد فريقنا قريباً، عادة خلال ساعة عمل.', bot_unknown:'ما فهمت سؤالك تماماً. جرّب أحد هذه المواضيع، أو اطلب التحدث مع موظف.', bot_err:'صار خطأ عندي. تبغى أوصلك بالفريق؟',
+  bot_ticket:'تم ✅ فتحت طلب دعم رقم #{n} مع هذه المحادثة، وسيرد فريقنا قريباً، عادة خلال ساعة عمل.', bot_unknown:'عذراً، الرد السريع لا يدعم هذا النوع من الطلبات. إذا عندك استفسار آخر تقدر تتواصل مع موظف خدمة العملاء.', bot_err:'صار خطأ عندي. تبغى أوصلك بالفريق؟',
   bc_track:'وين طلبي؟', bc_fasting:'قواعد الصيام', bc_price:'الأسعار', bc_results:'متى تجهز النتائج؟', bc_nurse:'ممرضة / ممرض', bc_human:'التحدث مع موظف', bc_book:'طريقة الحجز', bc_area:'مناطق التغطية', bc_pay:'طرق الدفع', bc_cancel:'إلغاء أو تغيير', bc_privacy:'الخصوصية',
   hours_s:'س',
   story_eyebrow:'قصتنا', story_t:'لماذا بدأنا، وكيف نحل المشكلة', problem:'المشكلة', our_answer:'حلّنا',
