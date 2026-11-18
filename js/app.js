@@ -68,7 +68,7 @@ function topbar(){
   const n = cartCount();
   return `<header class="topbar"><div class="wrap-w in">
     <button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>
-    <a href="#/" class="brand">${A.logo}<span>Lab@Home<small>${esc(t('brand_sub'))}</small></span></a>
+    <a href="#/" class="brand">${brandInner(t('brand_sub'))}</a>
     <nav class="nav"><a href="#/#how">${t('nav_how')}</a><a href="#/tests">${t('nav_tests')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></nav>
     <div class="grow"></div>
     <button class="lang hide-sm" data-lang>${t('lang')}</button>
@@ -146,6 +146,7 @@ async function viewLanding(){
       <div><b>48 h</b><span>${t('band1')}</span></div><div><b>${omr(fee())}</b><span>${t('band2')} (${t('omr')})</span></div>
       <div><b>${C ? C.wilayats.length : 7}</b><span>${t('band3')}</span></div><div><b>${C ? C.tests.length + C.packages.length : 17}</b><span>${t('band4')}</span></div>
     </div>
+    <div class="section-h" style="margin:46px auto 20px"><span class="eyebrow">${t('net_eyebrow')}</span><h2>${t('net_t')}</h2><p>${t('net_p')}</p></div><div id="netb"></div>
   </div></section>
 
   <section class="section alt" id="coverage"><div class="wrap-w">
@@ -172,12 +173,12 @@ async function viewLanding(){
   if (C) bindCatalog(block, rer);
   $('#wl').onsubmit = async e => { e.preventDefault(); const f = e.target; const b = $('button', f);
     await busy(b, () => API.waitlist(f.n.value, f.p.value, f.w.value)).then(() => { toast(t('joined')); f.reset(); }).catch(() => {}); };
-  covMap();
+  covMap(); partnersHtml().then(h => { const el = $('#netb'); if (el) el.innerHTML = h; });
   const hash = location.hash.split('#')[2]; if (hash) setTimeout(() => { const el = document.getElementById(hash); if (el) el.scrollIntoView({ behavior:'smooth' }); }, 50);
 }
 function footer(){
   return `<footer class="site"><div class="wrap-w"><div class="row wrap between" style="gap:20px;align-items:flex-start">
-    <div style="max-width:520px"><div class="brand">${A.logo}<span>Lab@Home</span></div><p class="small" style="margin-top:12px">${t('foot_note')}</p><p class="xs" style="opacity:.75">${t('foot_team')}</p></div>
+    <div style="max-width:520px"><div class="brand">${brandInner()}</div><p class="small" style="margin-top:12px">${t('foot_note')}</p><p class="xs" style="opacity:.75">${t('foot_team')}</p></div>
     <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small"><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
     <p class="xs" style="opacity:.6;margin-top:24px">© 2026 Lab@Home · Oman</p></div></footer>`;
 }
@@ -200,10 +201,10 @@ async function viewTestsPublic(){
 
 /* ---------- auth ---------- */
 function authShell(inner){
-  return `<div class="auth"><div class="side"><a href="#/" class="brand" style="color:#fff">${A.logo}<span>Lab@Home</span></a>
+  return `<div class="auth"><div class="side"><a href="#/" class="brand on-dark">${brandInner()}</a>
     <div><h2>${t('hero_t1')} ${t('hero_t2')}</h2><p style="opacity:.85">${t('hero_p')}</p></div>
     <div style="max-width:420px;opacity:.95">${A.welcomeArt}</div></div>
-    <div class="main"><div class="box"><div class="row between" style="margin-bottom:22px"><a href="#/" class="brand">${A.logo}<span class="hide-d">Lab@Home</span></a><button class="lang" data-lang>${t('lang')}</button></div>${inner}</div></div></div>`;
+    <div class="main"><div class="box"><div class="row between" style="margin-bottom:22px"><a href="#/" class="brand">${brandInner()}</a><button class="lang" data-lang>${t('lang')}</button></div>${inner}</div></div></div>`;
 }
 function pwField(name, label, hint){
   return `<label class="field"><span>${label}</span><div class="pw"><input class="input" type="password" name="${name}" autocomplete="${name === 'password' ? 'current-password' : 'new-password'}" required><button type="button" class="eye" data-eye aria-label="${t('show')}">${ic('eye',20)}</button></div>${hint ? `<div class="meter"><i></i></div><div class="hint">${hint}</div>` : ''}</label>`;
@@ -218,13 +219,14 @@ async function afterLogin(r){
   go(back || (S.user.role === 'patient' && cartCount() ? 'app/book' : 'app'));
 }
 function viewLogin(){
-  const demos = [['patient','patient@demo.labathome.om'],['nurse','nurse@demo.labathome.om'],['courier','courier@demo.labathome.om'],['lab','lab@demo.labathome.om'],['company','company@demo.labathome.om'],['admin','admin@demo.labathome.om']];
+  const D = x => x + '@demo.labathome.om';
+  const demos = [['patient',D('patient'),''],['nurse',D('nurse'),t('female')],['nurse',D('mohammed.kindi'),t('male')],['courier',D('courier'),'Cold Chain'],['fleet',D('fleet.coldchain'),'Cold Chain'],['lab',D('lab'),'Ibra'],['lab',D('lab.sinaw'),'Sinaw'],['company',D('company'),''],['admin',D('admin'),'']];
   app.innerHTML = authShell(`<h1>${t('welcome_back')}</h1><p class="muted">${t('login_sub')}</p>
     <form id="lf" class="stack" style="margin-top:18px"><label class="field"><span>${t('email_or_phone')}</span><input class="input" name="login" autocomplete="username" required placeholder="name@email.com · 9XXXXXXX"></label>
     ${pwField('password', t('password'))}<div class="err" id="le"></div><button class="btn block">${t('login')}</button></form>
     <p class="center muted" style="margin:16px 0">${t('no_account')} <a href="#/register" class="b">${t('signup')}</a></p>
     <div class="card flat" style="margin-top:8px"><div class="small b" style="margin-bottom:10px">${t('try_demo')}</div>
-    <div class="demo-grid">${demos.map(([r, e]) => `<button type="button" data-demo="${e}">${A.roleIcon(r, 34)}${t('r_'+r)}</button>`).join('')}</div></div>`);
+    <div class="demo-grid">${demos.map(([r, e, sub]) => `<button type="button" data-demo="${e}">${A.roleIcon(r === 'fleet' ? 'courier' : r, 34)}<span>${t('r_'+r)}${sub ? `<small>${esc(sub)}</small>` : ''}</span></button>`).join('')}</div></div>`);
   bindPw(app);
   $('#lf').onsubmit = async e => { e.preventDefault(); const f = e.target; $('#le').textContent = '';
     try { const r = await busy($('button.btn', f), () => API.login(f.login.value, f.password.value)); afterLogin(r); } catch(err) { $('#le').textContent = errMsg(err); } };
@@ -251,7 +253,7 @@ function viewRegister(role){
       patient: '',
       nurse: `<div class="grid g2"><label class="field"><span>${t('license')}</span><input class="input" name="license" required placeholder="OMSB-RN-…"></label><label class="field"><span>${t('years')}</span><input class="input" type="number" min="0" max="50" name="years"></label></div>
         <label class="field"><span>${t('wilayat')}</span>${wsel('wilayat')}</label><div class="field"><span>${t('coverage')}</span>${wsel('coverage', true)}</div>`,
-      courier: `<label class="field"><span>${t('logistics_co')}</span><input class="input" name="company"></label><label class="field"><span>${t('vehicle')}</span><input class="input" name="vehicle" placeholder="Van · 2–8 °C box"></label><label class="field"><span>${t('wilayat')}</span>${wsel('wilayat')}</label>`,
+      courier: `<label class="field"><span>${t('logistics_co')}</span><input class="input" name="company"></label><div class="grid g2"><label class="field"><span>${t('vehicle')}</span><input class="input" name="vehicle" placeholder="Van · 2–8 °C box"></label><label class="field"><span>${t('plate')}</span><input class="input" name="plate" placeholder="12345 AB"></label></div><label class="field"><span>${t('wilayat')}</span>${wsel('wilayat')}</label><div class="field"><span>${t('coverage')}</span>${wsel('coverage', true)}</div>`,
       lab: `<label class="field"><span>${t('lab_name')}</span><input class="input" name="lab_name" required></label><div class="grid g2"><label class="field"><span>${t('lab_license')}</span><input class="input" name="license" required></label><label class="field"><span>${t('accreditation')}</span><input class="input" name="accreditation" placeholder="ISO 15189 / CAP"></label></div>
         <label class="field"><span>${t('wilayat')}</span>${wsel('wilayat')}</label>`,
       company: `<label class="field"><span>${t('company_name')}</span><input class="input" name="company_name" required></label><div class="grid g2"><label class="field"><span>${t('cr')}</span><input class="input" name="cr"></label><label class="field"><span>${t('employees')}</span><input class="input" type="number" min="1" name="employees"></label></div><label class="field"><span>${t('wilayat')}</span>${wsel('wilayat')}</label>`
@@ -261,6 +263,7 @@ function viewRegister(role){
       <form id="rf" class="stack" style="margin-top:16px" novalidate>
         <label class="field"><span>${r === 'company' || r === 'lab' ? t('contact_person') : t('full_name')}</span><input class="input" name="full_name" autocomplete="name" required></label>
         ${r === 'patient' || r === 'nurse' ? genderPick : ''}
+        ${['patient','nurse','courier'].includes(r) ? `<label class="field"><span>${t('civil_id')}</span><input class="input" name="civil_id" inputmode="numeric" maxlength="10" required placeholder="${t('civil_ph')}"><div class="hint">${ic('shield',13)} ${t('civil_hint')}</div></label>` : ''}
         <label class="field"><span>${t('phone')}</span><input class="input" name="phone" inputmode="tel" autocomplete="tel" placeholder="9XXX XXXX"></label>
         <label class="field"><span>${t('email_opt')}</span><input class="input" type="email" name="email" autocomplete="email"></label>
         ${pwField('newpass', t('password'), t('pass_rule'))}
@@ -277,14 +280,16 @@ function viewRegister(role){
     $('#rf').onsubmit = async e => { e.preventDefault(); const f = e.target; $('#re').textContent = '';
       const val = n => f[n] ? (f[n].value || '').trim() : '';
       if ((r === 'patient' || r === 'nurse') && !st.gender) { $('#re').textContent = t('e_NEED_GENDER'); return; }
+      const civ = val('civil_id').replace(/\D/g,'');
+      if (['patient','nurse','courier'].includes(r) && !/^\d{6,10}$/.test(civ)) { $('#re').textContent = t(civ ? 'e_BAD_CIVIL' : 'e_NEED_CIVIL'); return; }
       const meta = {}; if (st.gender) meta.gender = st.gender;
-      ['license','years','lab_name','accreditation','company_name','cr','employees','vehicle','company'].forEach(k => { if (f[k] && f[k].value) meta[k] = f[k].value.trim(); });
-      if (r === 'nurse') meta.coverage = $$('input[name=coverage]:checked', f).map(x => x.value);
+      ['license','years','lab_name','accreditation','company_name','cr','employees','vehicle','company','plate'].forEach(k => { if (f[k] && f[k].value) meta[k] = f[k].value.trim(); });
+      if (r === 'nurse' || r === 'courier') meta.coverage = $$('input[name=coverage]:checked', f).map(x => x.value);
       if (r === 'lab' && !meta.lab_name) { $('#re').textContent = t('e_NEED_NAME'); return; }
       const w = val('wilayat') || null; const ll = WILAYAT_LL[w] || [];
       const p = { role:r, full_name: r === 'lab' ? (meta.lab_name || val('full_name')) : r === 'company' ? (meta.company_name || val('full_name')) : val('full_name'),
         phone: val('phone'), email: val('email'), password: f.newpass.value, consent: f.consent.checked,
-        governorate: 'North Al Sharqiyah', wilayat: w, lat: ll[0] || '', lng: ll[1] || '', meta };
+        governorate: 'North Al Sharqiyah', wilayat: w, lat: ll[0] || '', lng: ll[1] || '', meta, civil_id: civ || null };
       if (r === 'lab' || r === 'company') p.meta.contact = val('full_name');
       try { const res = await busy($('button.btn', f), () => API.register(p)); localStorage.setItem('lah_seen', '1'); afterLogin(res); } catch(err) { $('#re').textContent = errMsg(err); }
     };
@@ -295,7 +300,7 @@ function viewRegister(role){
 /* ---------- app shell ---------- */
 function navFor(role){
   const m = {
-    patient: [['app','home','m_home'],['app/tests','flask','m_tests'],['app/orders','list','m_orders'],['app/profile','user','m_profile']],
+    patient: [['app','home','m_home'],['app/tests','flask','m_tests'],['app/cart','cart','m_cart'],['app/orders','list','m_orders'],['app/profile','user','m_profile']],
     nurse: [['app','home','m_home'],['app/orders','syringe','m_jobs'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     courier: [['app','home','m_home'],['app/orders','van','m_pickups'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     lab: [['app','home','m_home'],['app/orders','flask','m_samples'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
@@ -310,17 +315,15 @@ function shell(title, body, opts){
   const isOn = h => route === h || (h !== 'app' && route.startsWith(h));
   const n = cartCount();
   return `${u.is_demo ? `<div class="demo-banner">${ic('play',14)} ${S.lang === 'ar' ? 'حساب تجريبي' : 'Demo account'} · ${t('r_'+u.role)} · ${esc(u.full_name)}</div>` : ''}
-  <div class="shell"><aside class="side-nav"><a href="#/" class="brand">${A.logo}<span>Lab@Home<small>${t('r_'+u.role)}</small></span></a>
-    ${items.map(([h, i, k]) => `<a href="#/${h}" class="${isOn(h) ? 'on' : ''}">${ic(i)} <span class="grow">${t(k)}</span></a>`).join('')}
-    ${u.role === 'patient' ? `<a href="#/app/cart" class="${isOn('app/cart') ? 'on' : ''}">${ic('box')} <span class="grow">${t('m_cart')}</span>${n ? `<span class="chip red">${n}</span>` : ''}</a>` : ''}
+  <div class="shell"><aside class="side-nav"><a href="#/" class="brand">${brandInner(t('r_'+u.role))}</a>
+    ${items.map(([h, i, k]) => `<a href="#/${h}" class="${isOn(h) ? 'on' : ''}">${ic(i)} <span class="grow">${t(k)}</span>${h === 'app/cart' && n ? `<span class="chip red">${n}</span>` : ''}</a>`).join('')}
     <a href="#/app/notifs" class="${isOn('app/notifs') ? 'on' : ''}" style="${['patient','admin'].includes(u.role) ? '' : 'display:none'}">${ic('bell')} <span class="grow">${t('m_notifs')}</span>${S.unread ? `<span class="chip red">${S.unread}</span>` : ''}</a>
     <a href="#/support">${ic('chat')} <span class="grow">${t('m_support')}</span></a><a href="#/about">${ic('users')} <span class="grow">${t('m_about')}</span></a>
     <div class="me"><span class="avatar">${esc(initials(u.full_name))}</span><div class="grow"><div class="b small" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(u.full_name)}</div><button class="link small" data-logout>${t('logout')}</button></div></div></aside>
   <main class="main-area"><div class="app-top">${opts && opts.back ? `<button class="icon-btn" data-goback aria-label="${t('back')}"><span class="flip">${ic('back')}</span></button>` : `<button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>`}<h1 class="grow">${title}</h1>
-    ${u.role === 'patient' ? `<a class="icon-btn" href="#/app/cart" aria-label="${t('m_cart')}">${ic('box')}${n ? `<span class="dot">${n}</span>` : ''}</a>` : ''}
     <button class="icon-btn" data-go="app/notifs" aria-label="${t('m_notifs')}">${ic('bell')}${S.unread ? `<span class="dot">${S.unread}</span>` : ''}</button>${opts && opts.back ? `<button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>` : ''}</div>
   <div class="content">${u.status === 'pending' ? `<div class="banner amber" style="margin-bottom:16px">${ic('clock',22)}<div><b>${t('pending_t')}</b><div class="small">${t('pending_p')}</div></div></div>` : ''}${body}</div></main></div>
-  <nav class="tabbar">${items.slice(0, 4).map(([h, i, k]) => `<a href="#/${h}" class="${isOn(h) ? 'on' : ''}">${ic(i)}<span>${t(k)}</span></a>`).join('')}<a href="#" data-menu>${ic('menu')}<span>${t('menu')}</span></a></nav>`;
+  <nav class="tabbar">${items.slice(0, 4).map(([h, i, k]) => `<a href="#/${h}" class="${isOn(h) ? 'on' : ''}">${ic(i)}${h === 'app/cart' && n ? `<span class="dot">${n}</span>` : ''}<span>${t(k)}</span></a>`).join('')}<a href="#" data-menu>${ic('menu')}<span>${t('menu')}</span></a></nav>`;
 }
 function loading(title){ app.innerHTML = shell(title || '', `<div class="loading"><span class="spin"></span></div>`); }
 function orderItem(o, extra){
@@ -328,8 +331,9 @@ function orderItem(o, extra){
   return `<a class="oitem" href="#/app/order/${o.id}"><span class="oi" style="color:var(--blue)">${ic(o.status === 'completed' ? 'file' : 'flask', 26)}</span>
     <div class="grow"><div class="row between"><b>${esc(o.code)}</b>${stChip(o.status)}</div>
     <div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(names)}</div>
-    <div class="xs muted">${ic('cal',13)} ${fmtDate(o.slot_date)} · ${esc(o.slot_time)} · ${ic('pin',13)} ${esc(wN(o.wilayat))}${o.person ? ' · ' + esc(o.person) : ''}</div>${extra || ''}</div></a>`;
+    <div class="xs muted">${ic('cal',13)} ${fmtDate(o.slot_date)} · ${esc(o.slot_time)} · ${ic('pin',13)} ${esc(wN(o.wilayat))}${o.person ? ' · ' + esc(o.person) : ''}</div>${o.updated_at ? `<div class="xs upd">${ic('clock',12)} ${t('updated_x',{x:ago(o.updated_at)})}</div>` : ''}${extra || ''}</div></a>`;
 }
+function brandInner(sub){ return `${A.logo}<span class="bw">${A.wordmark}${sub ? `<small>${esc(sub)}</small>` : ''}</span>`; }
 function emptyBox(msg, cta){ return `<div class="card empty">${A.emptyArt}<p>${msg}</p>${cta || ''}</div>`; }
 
 /* ---------- patient ---------- */
@@ -386,18 +390,20 @@ async function viewBook(){
   const sub = b.program ? Number(C.P[b.program.package_id].price) : c.sub;
   const total = b.program ? 0 : sub + fee();
   const g = bkGender(b);
+  const fastH = b.program ? Math.max(0, ...C.P[b.program.package_id].test_ids.map(id => (C.T[id] || {}).fasting_hours || 0)) : (c.fasting || 0);
   const summary = `<div class="card summary"><h3>${t('summary')}</h3>${items.map(i => `<div class="line"><span>${esc(i.name)}</span><span class="num">${omr(i.price)}</span></div>`).join('')}
     <div class="line"><span>${t('home_fee')}</span><span class="num">${omr(fee())}</span></div>
     ${b.program ? `<div class="line" style="color:var(--teal)"><span>${t('discount')}</span><span class="num">−${omr(sub + fee())}</span></div>` : ''}
     <div class="line total"><span>${t('total')}</span><span class="num">${omr(total)} ${t('omr')}</span></div>
-    <hr class="sep"><div class="small muted stack" style="--g:6px">${b.step > 1 ? `<div>${ic('user',14)} ${esc(b.who === 'family' ? b.person.name : S.user.full_name)} · ${t(g)}</div>` : ''}${b.step > 2 ? `<div>${ic('pin',14)} ${esc(wN(b.wilayat))}</div>` : ''}${b.step > 3 ? `<div>${ic('syringe',14)} ${b.nurse ? esc(b.nurse.name) : t('any_nurse')}</div>` : ''}${b.step > 4 ? `<div>${ic('cal',14)} ${fmtDate(b.date)} · ${b.time}</div>` : ''}</div></div>`;
+    <hr class="sep"><div class="small muted stack" style="--g:6px">${b.step > 1 ? `<div>${ic('user',14)} ${esc(b.who === 'family' ? b.person.name : S.user.full_name)} · ${t(g)}</div>` : ''}${b.step > 2 ? `<div>${ic('pin',14)} ${esc(wN(b.wilayat))}</div>` : ''}${b.step > 3 ? `<div>${ic('syringe',14)} ${b.nurse ? esc(b.nurse.name) : t('any_nurse')}</div>` : ''}${b.step > 4 ? `<div>${ic('cal',14)} ${fmtDate(b.date)} · ${b.time}</div>` : ''}${fastH ? `<div style="color:var(--amber)">${ic('timer',14)} ${t('fasting',{h:fastH})}</div>` : ''}</div></div>`;
   let body = '';
   if (b.step === 1) {
     body = `<div class="card stack"><h3>${t('who_t')}</h3><div class="seg"><button data-who="me" class="${b.who === 'me' ? 'on' : ''}">${t('me')}</button><button data-who="family" class="${b.who === 'family' ? 'on' : ''}">${t('family')}</button></div>
       ${b.who === 'family' ? `<label class="field"><span>${t('full_name')}</span><input class="input" id="pn" value="${esc(b.person.name)}"></label>
       <div class="field"><span>${t('gender_q')}</span><div class="gpick"><button type="button" data-pg="female" class="${b.person.gender === 'female' ? 'on' : ''}">${ic('user',22)} ${t('female')}</button><button type="button" data-pg="male" class="${b.person.gender === 'male' ? 'on' : ''}">${ic('user',22)} ${t('male')}</button></div><div class="hint">${t('gender_hint')}</div></div>
       <div class="grid g2"><label class="field"><span>${t('relation')}</span><select class="input" id="pr">${['parent','child','spouse','other'].map(x => `<option value="${x}" ${b.person.relation === x ? 'selected' : ''}>${t('rel_'+x)}</option>`).join('')}</select></label>
-      <label class="field"><span>${t('dob')}</span><input class="input" type="date" id="pd" value="${esc(b.person.dob)}"></label></div>` : `<div class="row"><span class="avatar">${esc(initials(S.user.full_name))}</span><div><b>${esc(S.user.full_name)}</b><div class="small muted">${t(g)} · ${esc(S.user.phone || S.user.email || '')}</div></div></div><div class="hint">${t('gender_hint')}</div>`}</div>`;
+      <label class="field"><span>${t('dob')}</span><input class="input" type="date" id="pd" value="${esc(b.person.dob)}"></label></div>
+      <label class="field"><span>${t('civil_id')} <span class="muted">(${t('optional')})</span></span><input class="input" id="pc" inputmode="numeric" maxlength="10" value="${esc(b.person.civil_id || '')}" placeholder="${t('civil_ph')}"></label>` : `<div class="row"><span class="avatar">${esc(initials(S.user.full_name))}</span><div><b>${esc(S.user.full_name)}</b><div class="small muted">${t(g)} · ${esc(S.user.phone || S.user.email || '')}</div>${S.user.civil_id ? `<span class="chip gray" style="margin-top:6px">${ic('idcard',13)} •••• ${esc(String(S.user.civil_id).slice(-4))}</span>` : ''}</div></div><div class="hint">${t('gender_hint')}</div>`}</div>`;
   } else if (b.step === 2) {
     body = `<div class="card stack"><h3>${t('loc_t')}</h3>
       <div class="banner ${b.gps === 'ok' ? 'teal' : b.gps === 'denied' ? 'amber' : 'blue'}" id="gpsb">${ic('pin',22)}<div class="grow"><b>${b.gps === 'ok' ? t('gps_ok') : t('gps_ask_t')}</b><div class="small">${b.gps === 'denied' ? t('gps_denied') : b.gps === 'far' ? t('gps_far',{w:wN(b.wilayat)}) : t('gps_ask_p')}</div></div><button class="btn sm" id="gps">${t('use_gps')}</button></div>
@@ -412,10 +418,13 @@ async function viewBook(){
   } else if (b.step === 4) {
     const now = muscatNow(); const days = Array.from({ length: 14 }, (_, i) => addDays(now.date, i));
     const slots = C.slots; const dis = s => b.date === now.date && (parseInt(s) * 60 <= now.mins + 60);
+    const fl = String(C.fasting_last_slot || '10:00').replace(/"/g, ''); const lock = s => fastH > 0 && s > fl;
+    if (b.time && lock(b.time)) b.time = '';
+    const sbtn = s => `<button data-slot="${s}" class="${b.time === s ? 'on' : ''}${lock(s) ? ' locked' : ''}" ${dis(s) ? 'disabled' : ''} ${lock(s) ? `aria-disabled="true" title="${esc(t('fast_locked',{t:fl}))}"` : ''}>${lock(s) ? ic('lock',13) + ' ' : ''}${s}</button>`;
     body = `<div class="card stack"><h3>${t('date_t')}</h3><div class="cal">${days.map(d => { const x = new Date(d+'T12:00:00'); return `<button data-date="${d}" class="${b.date === d ? 'on' : ''}"><div class="xs" style="opacity:.75">${x.toLocaleDateString(loc(),{ weekday:'short' })}</div>${x.getDate()}</button>`; }).join('')}</div>
-      <h3 style="margin-top:8px">${t('time_t')}</h3>${c.fasting ? `<div class="banner amber small">${ic('clock',20)}<span>${t('fasting_tip')}</span></div>` : ''}
-      <div class="small b muted">${t('morning')}</div><div class="slots">${slots.filter(s => parseInt(s) < 13).map(s => `<button data-slot="${s}" class="${b.time === s ? 'on' : ''}" ${dis(s) ? 'disabled' : ''}>${s}</button>`).join('')}</div>
-      <div class="small b muted">${t('evening')}</div><div class="slots">${slots.filter(s => parseInt(s) >= 13).map(s => `<button data-slot="${s}" class="${b.time === s ? 'on' : ''}" ${dis(s) ? 'disabled' : ''}>${s}</button>`).join('')}</div></div>`;
+      <h3 style="margin-top:8px">${t('time_t')}</h3>${fastH ? `<div class="banner amber small" id="fastb">${ic('timer',20)}<span><b>${t('fast_banner_t',{h:fastH})}</b><br>${t('fast_banner_p',{t:fl})}</span></div>` : ''}
+      <div class="small b muted">${ic('sun',14)} ${t('morning')}</div><div class="slots">${slots.filter(s => parseInt(s) < 13).map(sbtn).join('')}</div>
+      <div class="small b muted">${t('evening')}${fastH ? ` · <span style="color:var(--amber)">${t('fast_evening')}</span>` : ''}</div><div class="slots">${slots.filter(s => parseInt(s) >= 13).map(sbtn).join('')}</div></div>`;
   } else {
     body = `<div class="card stack"><h3>${t('review_t')}</h3>
       <div class="vline"><span class="muted">${t('patient')}</span><b>${esc(b.who === 'family' ? b.person.name : S.user.full_name)} · ${t(g)}</b></div>
@@ -437,21 +446,22 @@ async function viewBook(){
   $$('[data-who]').forEach(x => x.onclick = () => { b.who = x.dataset.who; b.nurse = null; viewBook(); });
   $$('[data-pg]').forEach(x => x.onclick = () => { b.person.name = $('#pn').value; b.person.gender = x.dataset.pg; b.nurse = null; viewBook(); });
   $$('[data-date]').forEach(x => x.onclick = () => { b.date = x.dataset.date; b.time = ''; viewBook(); });
-  $$('[data-slot]').forEach(x => x.onclick = () => { b.time = x.dataset.slot; viewBook(); });
+  $$('[data-slot]').forEach(x => x.onclick = () => { if (x.classList.contains('locked')) { err(t('fast_locked',{t:String(C.fasting_last_slot || '10:00').replace(/"/g, '')})); x.classList.remove('shake'); void x.offsetWidth; x.classList.add('shake'); const fb = $('#fastb'); if (fb) { fb.classList.remove('flash'); void fb.offsetWidth; fb.classList.add('flash'); } return; } b.time = x.dataset.slot; viewBook(); });
   $$('input[name=pay]').forEach(x => x.onchange = () => { b.pay = x.value; viewBook(); });
   if (b.step === 2) bookMap(b);
   if (b.step === 3) API.nursesToday(b.wilayat, g).then(list => { const el = $('#nlist'); if (!el) return;
       el.innerHTML = list.length ? list.map(n => nurseCardHtml(n, b.nurse && b.nurse.id === n.id)).join('') : `<div class="banner amber small">${ic('clock',20)}<span>${t('no_nurses')}</span></div>`;
       bindNurses(list); }).catch(e => { $('#nlist').innerHTML = `<div class="err">${errMsg(e)}</div>`; });
-  function bindNurses(list){ $$('[data-nurse]').forEach(x => x.onclick = () => { const id = x.dataset.nurse; b.nurse = id ? { id, name: (list.find(n => n.id === id) || {}).name } : null; $$('[data-nurse]').forEach(y => y.classList.toggle('on', y === x)); }); }
+  function bindNurses(list){ $$('[data-np]').forEach(x => x.onclick = e => { e.stopPropagation(); const n = list.find(y => y.id === x.dataset.np); if (n) partyModal('nurse', { nurse: n }); }); $$('[data-nurse]').forEach(x => x.onclick = () => { const id = x.dataset.nurse; b.nurse = id ? { id, name: (list.find(n => n.id === id) || {}).name } : null; $$('[data-nurse]').forEach(y => y.classList.toggle('on', y === x)); }); }
   if (b.step === 3) bindNurses([]);
   const keep = () => {
-    if (b.step === 1 && b.who === 'family') { b.person = { name: $('#pn').value.trim(), relation: $('#pr').value, gender: b.person.gender, dob: $('#pd').value }; }
+    if (b.step === 1 && b.who === 'family') { b.person = { name: $('#pn').value.trim(), relation: $('#pr').value, gender: b.person.gender, dob: $('#pd').value, civil_id: $('#pc').value.replace(/\D/g, '') || undefined }; }
     if (b.step === 2) { b.wilayat = $('#bw').value; b.address = $('#ba').value.trim(); b.notes = $('#bn').value.trim(); }
   };
   if ($('#pv')) $('#pv').onclick = () => { keep(); b.step--; viewBook(); };
   if ($('#nx')) $('#nx').onclick = () => { keep();
     if (b.step === 1 && b.who === 'family' && !b.person.name) return err(t('e_NEED_NAME'));
+    if (b.step === 1 && b.who === 'family' && b.person.civil_id && !/^\d{6,10}$/.test(b.person.civil_id)) return err(t('e_BAD_CIVIL'));
     if (b.step === 2 && !b.address) return err(t('e_NEED_ADDRESS'));
     if (b.step === 4 && !b.time) return err(t('e_BAD_SLOT'));
     b.step++; viewBook(); window.scrollTo(0, 0); };
@@ -505,42 +515,124 @@ async function viewOrder(id){
   drawOrder(o);
   if (ACTIVE(o.status)) S.timers.push(setInterval(async () => { if (!location.hash.includes('/order/' + id) || document.hidden) return; try { const n = await API.order(id); if (n.updated_at !== o.updated_at && !$('.modal-bg') && !$('#results-form')) { o = n; drawOrder(o); } } catch(e) {} }, 8000));
 }
+const STEP_IC = { booked:'cal', assigned:'check', on_the_way:'truck', arrived:'pin', collected:'syringe', in_transit:'van', at_lab:'flask', processing:'gear', completed:'file' };
+const STEP_ROLE = { booked:'patient', assigned:'nurse', on_the_way:'nurse', arrived:'nurse', collected:'nurse', in_transit:'courier', at_lab:'courier', processing:'lab', completed:'lab' };
+function durTxt(ms){ const m = Math.max(0, Math.round(ms / 60000)); if (m < 60) return t('dur_m',{n:m}); const h = Math.floor(m / 60), r = m % 60; if (h < 48) return r ? t('dur_hm',{h, m:r}) : t('dur_h',{n:h}); return t('dur_d',{n:Math.round(h / 24)}); }
+function slotAt(o){ return new Date(o.slot_date + 'T' + (o.slot_time || '08:00') + ':00+04:00'); }
+function expectAt(o, s, ev){
+  const slot = slotAt(o).getTime(); const tat = Math.max(12, ...(o.tests || []).map(x => x.tat_hours || 24));
+  const base = ev.collected ? new Date(ev.collected).getTime() : slot + 20 * 60000;
+  const m = { on_the_way: slot - 25 * 60000, arrived: slot, collected: slot + 15 * 60000, in_transit: base + 40 * 60000, at_lab: base + 110 * 60000, processing: base + 130 * 60000, completed: base + tat * 3600000 }[s];
+  return m ? new Date(m) : null;
+}
+function fastStart(o){ const h = Math.max(0, ...(o.tests || []).map(x => x.fasting_hours || 0)); return h ? { h, at: new Date(slotAt(o).getTime() - h * 3600000) } : null; }
+function icsDownload(o){
+  const st = slotAt(o), en = new Date(st.getTime() + 30 * 60000); const f = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const fs = fastStart(o); const link = location.origin + location.pathname + '#/app/order/' + o.id;
+  const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Lab@Home//Oman//EN','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:' + o.id + '@labathome.om','DTSTAMP:' + f(new Date()),'DTSTART:' + f(st),'DTEND:' + f(en),
+    'SUMMARY:Lab@Home ' + o.code + ' – nurse home visit','LOCATION:' + String(o.address || wN(o.wilayat)).replace(/[,;\n]/g, ' '),
+    'DESCRIPTION:' + (fs ? 'Fasting ' + fs.h + 'h – stop eating by ' + fmtTime(fs.at) + '. ' : '') + 'Track: ' + link, 'URL:' + link,
+    'BEGIN:VALARM','TRIGGER:' + (fs ? '-PT' + (fs.h + 1) + 'H' : '-PT2H'),'ACTION:DISPLAY','DESCRIPTION:Lab@Home ' + o.code,'END:VALARM','END:VEVENT','END:VCALENDAR'];
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\r\n')], { type:'text/calendar' })); a.download = o.code + '.ics'; document.body.appendChild(a); a.click(); a.remove();
+}
+function partyRow(kind, p, state){
+  const col = kind === 'nurse' ? (p && p.gender === 'female' ? '#e8466f' : '#2563eb') : kind === 'courier' ? '#f59e0b' : '#0fae9b';
+  if (!p) return `<div class="party wait"><span class="pav" style="background:#e6ecf6;color:#8a97b0">${ic(kind === 'nurse' ? 'syringe' : kind === 'courier' ? 'van' : 'flask', 22)}</span><div class="grow"><div class="xs muted b">${t('pt_' + kind)}</div><b class="muted">${t('pt_wait_' + kind)}</b></div><span class="pulse"></span></div>`;
+  const sub = kind === 'nurse' ? `${p.rating ? '★ ' + p.rating + ' · ' : ''}${t('visits',{n:p.visits})}${p.years ? ' · ' + t('years_exp',{n:p.years}) : ''}`
+    : kind === 'courier' ? `${esc(p.company || '')}${p.vehicle ? ' · ' + esc(p.vehicle) : ''}`
+    : `${esc(p.accreditation || '')}${p.wilayat ? ' · ' + esc(wN(p.wilayat)) : ''}`;
+  return `<button type="button" class="party" data-party="${kind}"><span class="pav" style="background:${col}">${kind === 'lab' ? ic('flask', 22) : esc(initials(p.name))}</span>
+    <div class="grow"><div class="xs muted b">${t('pt_' + kind)} ${state ? `<span class="chip ${state === 'done' ? 'teal' : ''} xs-chip">${t(state === 'done' ? 'pt_done' : 'pt_now')}</span>` : ''}</div><b>${esc(p.name)}</b><div class="xs muted">${sub}</div></div>${ic('arrow', 18)}</button>`;
+}
+async function partyModal(kind, o){
+  if (kind === 'nurse') {
+    let n = o.nurse; try { n = Object.assign({}, n, await API.nurseProfile(o.nurse.id)); } catch(e) {}
+    const col = n.gender === 'female' ? '#e8466f' : '#2563eb';
+    return modal(`<div class="pm-head"><span class="pav xl" style="background:${col}">${esc(initials(n.name))}</span><div><h3 style="margin:0">${esc(n.name)}</h3><div class="small muted">${t('r_nurse')} · ${t(n.gender === 'female' ? 'female' : 'male')} · ${esc(wN(n.wilayat))}</div>
+      <div class="row wrap" style="gap:6px;margin-top:8px"><span class="chip teal">${ic('shield',12)} ${t('verified')}</span>${n.rating ? `<span class="chip amber">★ ${n.rating} · ${t('reviews_n',{n:n.reviews || 0})}</span>` : ''}</div></div></div>
+      <div class="pm-stats"><div><b>${n.visits}</b><span>${t('visits_l')}</span></div><div><b>${n.years || '—'}</b><span>${t('years')}</span></div><div><b>${esc(n.since || '—')}</b><span>${t('since')}</span></div></div>
+      ${n.bio ? `<p style="margin:12px 0 0">${esc(n.bio)}</p>` : ''}
+      <div class="vline"><span class="muted">${t('licence')}</span><b class="ltr">${esc(n.license || '—')}</b></div>
+      <div class="vline"><span class="muted">${t('langs')}</span><b>${(n.languages || []).map(esc).join(' · ')}</b></div>
+      ${(n.specialties || []).length ? `<div class="vline"><span class="muted">${t('specialties')}</span><span class="row wrap" style="gap:4px;justify-content:flex-end">${n.specialties.map(x => `<span class="chip gray">${esc(x)}</span>`).join('')}</span></div>` : ''}
+      ${(n.coverage || []).length ? `<div class="vline"><span class="muted">${t('coverage')}</span><span class="small" style="text-align:end">${n.coverage.map(w => esc(wN(w))).join(' · ')}</span></div>` : ''}
+      ${(n.recent || []).filter(x => x.review).length ? `<h4 style="margin:14px 0 6px">${t('recent_reviews')}</h4>${n.recent.filter(x => x.review).map(x => `<div class="rev"><span style="color:var(--amber)">${'★'.repeat(x.rating)}</span> <span class="small">${esc(x.review)}</span><div class="xs muted">${ago(x.at)}</div></div>`).join('')}` : ''}
+      <button class="btn ghost block" data-x style="margin-top:14px">${t('close')}</button>`, (el, close) => { $('[data-x]', el).onclick = close; });
+  }
+  if (kind === 'lab') { const l = o.lab;
+    return modal(`<div class="pm-head"><span class="pav xl" style="background:#0fae9b">${ic('flask', 30)}</span><div><h3 style="margin:0">${esc(l.name)}</h3><div class="small muted">${t('r_lab')} · ${esc(wN(l.wilayat))}</div><div class="row wrap" style="gap:6px;margin-top:8px">${l.accreditation ? `<span class="chip teal">${ic('award',12)} ${esc(l.accreditation)}</span>` : ''}</div></div></div>
+      <div class="pm-stats"><div><b>${l.done || 0}</b><span>${t('reports_done')}</span></div><div><b>${esc(l.tat || '24 h')}</b><span>${t('tat_l')}</span></div><div><b>2–8 °C</b><span>${t('cold_chain')}</span></div></div>
+      <div class="vline"><span class="muted">${t('lab_license')}</span><b class="ltr">${esc(l.license || '—')}</b></div>
+      ${l.director ? `<div class="vline"><span class="muted">${t('director')}</span><b>${esc(l.director)}</b></div>` : ''}
+      ${l.hours ? `<div class="vline"><span class="muted">${t('hours')}</span><b>${esc(l.hours)}</b></div>` : ''}
+      ${l.address ? `<div class="vline"><span class="muted">${t('address')}</span><span class="small" style="text-align:end">${esc(l.address)}</span></div>` : ''}
+      <div class="row" style="margin-top:14px">${l.lat ? `<a class="btn soft sm grow" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${l.lat},${l.lng}">${ic('pin',16)} ${t('open_maps')}</a>` : ''}${l.phone ? `<a class="btn soft sm grow" href="tel:${esc(l.phone)}">${ic('phone',16)} ${t('call')}</a>` : ''}<button class="btn ghost sm grow" data-x>${t('close')}</button></div>`, (el, close) => { $('[data-x]', el).onclick = close; });
+  }
+  const c = o.courier;
+  return modal(`<div class="pm-head"><span class="pav xl" style="background:#f59e0b">${esc(initials(c.name))}</span><div><h3 style="margin:0">${esc(c.name)}</h3><div class="small muted">${t('r_courier')} · ${esc(c.company || '')}</div><div class="row wrap" style="gap:6px;margin-top:8px"><span class="chip teal">${ic('thermo',12)} 2–8 °C</span></div></div></div>
+    ${c.vehicle ? `<div class="vline"><span class="muted">${t('vehicle')}</span><b>${esc(c.vehicle)}</b></div>` : ''}
+    ${c.plate ? `<div class="vline"><span class="muted">${t('plate')}</span><b class="ltr">${esc(c.plate)}</b></div>` : ''}
+    ${(c.coverage || []).length ? `<div class="vline"><span class="muted">${t('coverage')}</span><span class="small" style="text-align:end">${c.coverage.map(w => esc(wN(w))).join(' · ')}</span></div>` : ''}
+    ${o.sample_temp != null ? `<div class="vline"><span class="muted">${t('temp')}</span><b class="num">${esc(o.sample_temp)} °C</b></div>` : ''}
+    <div class="row" style="margin-top:14px">${c.phone ? `<a class="btn soft sm grow" href="tel:${esc(c.phone)}">${ic('phone',16)} ${t('call')}</a>` : ''}<button class="btn ghost sm grow" data-x>${t('close')}</button></div>`, (el, close) => { $('[data-x]', el).onclick = close; });
+}
 function drawOrder(o){
   const u = S.user, r = u.role;
   const idx = STATUS.indexOf(o.status);
-  const ev = {}; (o.events || []).forEach(e => ev[e.status] = e.at);
+  const ev = {}, by = {}; (o.events || []).forEach(e => { ev[e.status] = e.at; if (e.by) by[e.status] = e.by; });
   const pct = o.status === 'cancelled' ? 0 : Math.round(Math.max(0, idx) / (STATUS.length - 1) * 100);
+  const created = new Date(ev.booked || o.created_at);
   let eta = '';
   if (o.status === 'on_the_way') { const m = Math.max(3, 18 - Math.round((Date.now() - new Date(ev.on_the_way)) / 60000)); eta = `<div class="banner blue">${ic('truck',22)}<div><b>${t('st_on_the_way')}</b><div class="small">${t('eta',{m})}</div></div></div>`; }
-  const tl = `<ul class="tl">${STATUS.map((s, i) => { const cls = o.status === 'cancelled' ? 'todo' : i < idx || o.status === 'completed' ? 'done' : i === idx ? 'now' : 'todo';
-      return `<li class="${cls}"><span class="dotc">${cls === 'done' ? ic('check',16,2.6) : cls === 'now' ? ic('clock',16,2.2) : ''}</span><div><b>${t('st_'+s)}</b><div class="xs muted">${ev[s] ? fmtDT(ev[s]) : ''}</div></div></li>`; }).join('')}
+  let prev = null;
+  const tl = `<ul class="tl tl2">${STATUS.map((s, i) => { const cls = o.status === 'cancelled' ? 'todo' : i < idx || o.status === 'completed' ? 'done' : i === idx ? 'now' : 'todo';
+      const at = ev[s] ? new Date(ev[s]) : null; const gap = at && prev ? at - prev : null; if (at) prev = at;
+      const exp = !at && cls === 'todo' && o.status !== 'cancelled' ? expectAt(o, s, ev) : null;
+      return `<li class="${cls}"><span class="dotc">${cls === 'done' ? ic('check',16,2.6) : cls === 'now' ? ic(STEP_IC[s],15,2.2) : ic(STEP_IC[s],14,2)}</span><div class="grow"><div class="row between" style="gap:8px"><b>${t('st_'+s)}</b>${at ? `<span class="tm">${fmtTime(at)}</span>` : exp ? `<span class="tm exp">≈ ${fmtTime(exp)}</span>` : ''}</div>
+        <div class="xs muted">${at ? `${fmtDate(at, { day:'numeric', month:'short' })}${by[s] ? ' · ' + t('by_x',{x:esc(by[s])}) : ''}${gap != null && i ? ` · <span class="gap">+${durTxt(gap)}</span>` : ''}` : exp ? `${t('expected')} · ${fmtDate(exp, { weekday:'short', day:'numeric', month:'short' })}` : t('st_d_' + s)}</div></div></li>`; }).join('')}
     ${o.status === 'cancelled' ? `<li class="now"><span class="dotc" style="background:var(--red)">${ic('x',16,2.6)}</span><div><b>${t('st_cancelled')}</b><div class="xs muted">${fmtDT(ev.cancelled)}</div></div></li>` : ''}</ul>`;
-  const nurse = o.nurse ? `<div class="card"><div class="small muted b">${S.user.role==='patient'?t('your_nurse'):t('r_nurse')}</div><div class="row" style="margin-top:10px">${A.roleIcon('nurse', 52)}<div class="grow"><b>${esc(o.nurse.name)}</b>${o.preferred_nurse && o.nurse && o.preferred_nurse === o.nurse.id ? ` <span class="chip purple">${ic('star',12)} ${t('chose_you')}</span>` : ''}<div class="xs muted">${t('licence')}: ${esc(o.nurse.license || '—')} · ${o.nurse.rating ? '★ ' + o.nurse.rating + ' · ' : ''}${t('visits',{n:o.nurse.visits})}</div></div></div>
-    ${r === 'patient' && o.nurse.phone && ['assigned','on_the_way','arrived'].includes(o.status) ? `<div class="row" style="margin-top:12px"><a class="btn soft sm grow" href="tel:${esc(o.nurse.phone)}">${ic('phone',16)} ${t('call')}</a><a class="btn soft sm grow" target="_blank" rel="noopener" href="https://wa.me/${esc(o.nurse.phone.replace(/\D/g, ''))}">${ic('wa',16)} ${t('whatsapp')}</a></div>` : ''}</div>` : '';
-  const tests = `<div class="card"><h3>${t('tests')}</h3>${(o.tests || []).map(x => `<div class="vline"><div><b>${esc(LN(x,'name'))}</b><div class="xs muted">${t('tube')}: ${esc(x.tube)} · ${x.fasting_hours ? t('fasting',{h:x.fasting_hours}) : t('no_fasting')}</div></div></div>`).join('')}</div>`;
+  const totalTxt = o.status === 'completed' && ev.completed ? t('turnaround',{d:durTxt(new Date(ev.completed) - created)}) : o.status !== 'cancelled' ? t('elapsed',{d:durTxt(Date.now() - created)}) : '';
+  const stDone = k => ({ nurse: idx >= 4, courier: idx >= 6, lab: idx >= 8 })[k];
+  const stNow = k => ({ nurse: idx >= 1 && idx < 4, courier: idx >= 4 && idx < 6, lab: idx >= 6 && idx < 8 })[k];
+  const team = o.status === 'cancelled' ? '' : `<div class="card"><div class="row between"><h3 style="margin:0">${t('care_team')}</h3><span class="xs muted">${t('care_team_p')}</span></div><div class="stack" style="--g:8px;margin-top:12px">
+    ${['nurse','courier','lab'].map(k => partyRow(k, o[k], o[k] ? (stDone(k) ? 'done' : stNow(k) ? 'now' : '') : '')).join('')}</div></div>`;
+  const tests = `<div class="card"><h3>${t('tests')}</h3>${(o.tests || []).map(x => `<div class="vline"><div><b>${esc(LN(x,'name'))}</b><div class="xs muted">${t('tube')}: ${esc(x.tube)} · ${x.fasting_hours ? t('fasting',{h:x.fasting_hours}) : t('no_fasting')} · ${t('tat_x',{h:x.tat_hours || 24})}</div></div></div>`).join('')}</div>`;
   const pat = o.patient || {};
   const details = `<div class="card"><h3>${t('details')}</h3>
     <div class="vline"><span class="muted">${t('patient')}</span><b>${esc(pat.name)}${pat.relation && pat.relation !== 'self' ? ` <span class="chip gray">${t('rel_'+pat.relation)}</span>` : ''}</b></div>
+    ${pat.civil_last4 ? `<div class="vline"><span class="muted">${ic('idcard',16)} ${t('civil_id')}</span><b class="ltr">•••• ${esc(pat.civil_last4)}${r === 'nurse' ? `<div class="xs muted" style="font-weight:500">${t('civil_verify')}</div>` : ''}</b></div>` : ''}
     <div class="vline"><span class="muted">${t('appointment')}</span><b>${fmtDate(o.slot_date)} · ${esc(o.slot_time)}</b></div>
+    <div class="vline"><span class="muted">${t('booked_at')}</span><b>${fmtDT(created)}</b></div>
     <div class="vline"><span class="muted">${t('location')}</span><b style="text-align:end">${esc(wN(o.wilayat))}${o.address ? `<div class="small muted" style="font-weight:500">${esc(o.address)}</div>` : r === 'nurse' ? `<div class="xs muted" style="font-weight:500">${t('addr_hidden')}</div>` : ''}</b></div>
-    ${o.notes && o.address ? `<div class="vline"><span class="muted">${S.lang==='ar'?'ملاحظات':'Notes'}</span><span>${esc(o.notes)}</span></div>` : ''}
+    ${o.notes && o.address ? `<div class="vline"><span class="muted">${t('notes_l')}</span><span>${esc(o.notes)}</span></div>` : ''}
     ${pat.phone && r !== 'patient' ? `<div class="vline"><span class="muted">${t('phone')}</span><a class="b ltr" href="tel:${esc(pat.phone)}">${esc(pat.phone)}</a></div>` : ''}
-    ${r !== 'nurse' && r !== 'courier' ? `<div class="vline"><span class="muted">${t('payment')}</span><b>${omr(o.total)} ${t('omr')} · <span class="chip ${o.paid_at ? 'teal' : 'amber'}">${o.payment_method === 'sponsored' ? t('sponsored') : o.paid_at ? t('paid') : t('pay_at_visit')}</span></b></div>` : ''}
-    ${o.lab ? `<div class="vline"><span class="muted">${t('lab')}</span><b>${esc(o.lab.name)}</b></div>` : ''}
-    ${o.sample_temp != null ? `<div class="vline"><span class="muted">${ic('thermo',16)} ${t('temp')}</span><b class="num">${esc(o.sample_temp)} °C</b></div>` : ''}
+    ${r !== 'nurse' && r !== 'courier' && r !== 'lab' ? `<div class="vline"><span class="muted">${t('payment')}</span><b>${omr(o.total)} ${t('omr')} · <span class="chip ${o.paid_at ? 'teal' : 'amber'}">${o.payment_method === 'sponsored' ? t('sponsored') : o.paid_at ? t('paid') : t('pay_at_visit')}</span></b></div>` : ''}
+    ${o.sample_temp != null ? `<div class="vline"><span class="muted">${ic('thermo',16)} ${t('temp')}</span><b class="num">${esc(o.sample_temp)} °C <span class="chip ${o.sample_temp >= 2 && o.sample_temp <= 8 ? 'teal' : 'red'}">${o.sample_temp >= 2 && o.sample_temp <= 8 ? t('in_range') : t('out_range')}</span></b></div>` : ''}
     ${o.reject_reason ? `<div class="banner red small" style="margin-top:10px">${ic('x',18)}<span>${esc(o.reject_reason)}</span></div>` : ''}</div>`;
+  const fs = fastStart(o);
+  const prep = r === 'patient' && fs && ['booked','assigned'].includes(o.status) ? `<div class="card prep"><div class="row" style="align-items:flex-start">${ic('timer',30)}<div class="grow"><b>${t('prep_t',{h:fs.h})}</b><div class="small">${t('prep_p',{t:fmtTime(fs.at), d:fmtDate(fs.at)})}</div>
+      <ul class="small" style="margin:8px 0 0;padding-inline-start:18px"><li>${t('prep_1')}</li><li>${t('prep_2')}</li><li>${t('prep_3')}</li></ul></div></div></div>` : '';
   const acts = actionPanel(o);
-  const head = `<div class="card"><div class="row between wrap"><div><div class="small muted">${t('request')}</div><h2 style="margin:0">${esc(o.code)}</h2></div>${stChip(o.status)}</div>
+  const tools = r === 'patient' ? `<div class="row wrap" style="margin-top:14px;gap:8px">
+      ${o.status === 'completed' ? `<a class="btn teal sm" href="#/app/report/${o.id}">${ic('file',16)} ${t('view_report')}</a><button class="btn soft sm" data-again>${ic('plus',16)} ${t('book_again')}</button>` : ''}
+      ${ACTIVE(o.status) && idx < 4 ? `<button class="btn soft sm" data-ics>${ic('cal',16)} ${t('add_cal')}</button>` : ''}
+      <button class="btn ghost sm" data-copy>${ic('copy',16)} ${t('copy_code')}</button></div>` : o.status === 'completed' ? `<div class="row wrap" style="margin-top:14px"><a class="btn teal sm" href="#/app/report/${o.id}">${ic('file',16)} ${t('view_report')}</a></div>` : '';
+  const head = `<div class="card ohead"><div class="row between wrap"><div><div class="small muted">${t('request')}</div><h2 style="margin:0" class="ltr">${esc(o.code)}</h2></div><div class="row" style="gap:8px">${ACTIVE(o.status) ? `<span class="live"><i></i>${t('live')}</span>` : ''}${stChip(o.status)}</div></div>
     <div class="progress" style="margin-top:14px"><i style="width:${pct}%"></i></div>
-    ${o.status === 'completed' ? `<div class="row wrap" style="margin-top:14px"><a class="btn teal" href="#/app/report/${o.id}">${ic('file',18)} ${t('view_report')}</a></div>` : ''}</div>`;
+    <div class="row between xs muted" style="margin-top:8px"><span>${ic('clock',13)} ${totalTxt}</span><span>${t('step_x',{a:Math.max(1, idx + 1), b:STATUS.length})}</span></div>${tools}</div>`;
   const map = o.lat && (r === 'nurse' || r === 'admin') ? `<div class="card" style="padding:0;overflow:hidden"><div class="mapbox" id="omap" style="border-radius:0;height:220px"></div>${o.address ? `<div style="padding:12px"><a class="btn soft sm" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${o.lat},${o.lng}">${ic('pin',16)} ${t('open_maps')}</a></div>` : ''}</div>` : '';
   app.innerHTML = shell(esc(o.code), `<div class="grid" id="og" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;align-items:start">
-    <div class="stack">${head}${acts}${eta}${o.status === 'completed' && r === 'patient' ? rateBox(o) : ''}${map}${details}${tests}</div>
-    <div class="stack">${nurse}<div class="card"><h3>${t('q_track')}</h3>${tl}</div></div></div>`, { back: true });
+    <div class="stack">${head}${acts}${eta}${prep}${o.status === 'completed' && r === 'patient' ? rateBox(o) : ''}${map}${team}${details}${tests}</div>
+    <div class="stack"><div class="card"><h3>${t('q_track')}</h3>${tl}</div></div></div>`, { back: true });
   if (innerWidth < 900) $('#og').style.gridTemplateColumns = '1fr';
   bindActions(o);
-  if ($('#omap')) { const draw = () => { if (!window.L) return setTimeout(draw, 200); const m = L.map('omap', { scrollWheelZoom:false }).setView([o.lat, o.lng], o.address ? 15 : 12); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(m); if (o.address) L.marker([o.lat, o.lng]).addTo(m); else L.circle([o.lat, o.lng], { radius:1500, color:'#1257d6' }).addTo(m); }; draw(); }
+  $$('[data-party]').forEach(b => b.onclick = () => partyModal(b.dataset.party, o));
+  if ($('[data-ics]')) $('[data-ics]').onclick = () => { icsDownload(o); toast(t('cal_ok')); };
+  if ($('[data-copy]')) $('[data-copy]').onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(o.code) : Promise.reject()).then(() => toast(t('copied'))).catch(() => toast(o.code)); };
+  if ($('[data-again]')) $('[data-again]').onclick = async () => { await loadCatalog(); const ids = (o.tests || []).map(x => x.id).filter(id => S.catalog.T[id]); S.cart = { packages: [], tests: ids }; saveCart(); toast(t('again_ok')); go('app/cart'); };
+  if ($('#omap')) { const draw = () => { if (!window.L) return setTimeout(draw, 200); const m = L.map('omap', { scrollWheelZoom:false }).setView([o.lat, o.lng], o.address ? 15 : 12); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(m); if (o.address) L.marker([o.lat, o.lng]).addTo(m); else L.circle([o.lat, o.lng], { radius:1500, color:'#2563eb' }).addTo(m); }; draw(); }
 }
+
 function rateBox(o){
   if (o.rating) return `<div class="card"><b>${t('rate_t')}</b><div style="color:var(--amber);font-size:1.4rem">${'★'.repeat(o.rating)}${'☆'.repeat(5 - o.rating)}</div></div>`;
   return `<div class="card" id="rate"><b>${t('rate_t')}</b><div class="row" style="margin:8px 0;font-size:2rem;color:#d3dbea;gap:4px">${[1,2,3,4,5].map(i => `<button class="link" data-star="${i}" style="font-size:2rem;color:inherit">★</button>`).join('')}</div><input class="input" id="rv" placeholder="…"><button class="btn sm" id="rs" style="margin-top:10px">${t('rate_send')}</button></div>`;
@@ -631,7 +723,7 @@ async function viewReport(id){
       return `<tr><td>${esc(S.lang === 'ar' ? a.na : a.n)}</td><td class="num b" style="color:${r.f === 'N' ? 'inherit' : r.f === 'H' ? 'var(--red)' : '#9a6400'}">${r.v ?? '—'} <span class="xs muted" style="font-weight:500">${esc(a.u)}</span></td><td class="small muted num">${rangeTxt(a)}</td><td class="rb-col" style="width:120px"><div class="rangebar"><i style="left:${pos}%"></i></div></td><td>${r.f ? `<span class="flag ${r.f}">${t('f_'+r.f)}</span>` : ''}</td></tr>`; }).join('')).join('');
   const ce = (o.events || []).find(e => e.status === 'collected');
   app.innerHTML = shell(t('report_t'), `<div class="row no-print" style="margin-bottom:14px;flex-wrap:wrap"><button class="btn" id="pr">${ic('download',18)} ${t('download_pdf')}</button>${navigator.share ? `<button class="btn ghost" id="sh">${ic('share',18)} ${t('share')}</button>` : ''}</div>
-  <div class="report"><div class="rh"><div class="row">${A.logo.replace('<svg','<svg width="46" height="46"')}<div><div class="b" style="font-size:1.2rem">Lab@Home</div><div class="small" style="opacity:.8">${t('report_t')}</div></div></div>
+  <div class="report"><div class="rh"><div class="row">${A.logo.replace('<svg','<svg width="46" height="46"')}<div><div class="wm-inline">${A.wordmark}</div><div class="small" style="opacity:.8">${t('report_t')}</div></div></div>
     <div class="small" style="text-align:end"><b>${esc(o.lab ? o.lab.name : '')}</b><br>${o.lab && o.lab.license ? t('licence') + ': ' + esc(o.lab.license) : ''}</div></div>
   <div class="rb"><div class="grid g4" style="gap:12px;margin-bottom:18px">
     <div><div class="xs muted">${t('patient')}</div><b>${esc(p.name)}</b></div><div><div class="xs muted">${t('age')} / ${t('sex')}</div><b>${p.dob ? age(p.dob) : '—'} / ${p.gender ? t(p.gender) : '—'}</b></div>
@@ -663,8 +755,9 @@ async function viewNurseHome(){
 async function viewCourierHome(){
   loading(t('m_home'));
   const [st, av, mine] = await Promise.all([API.stats(), API.orders('available'), API.orders('mine')]);
-  const tr = mine.filter(o => o.status === 'in_transit');
+  const tr = mine.filter(o => o.status === 'in_transit'); const cm = S.user.meta || {};
   app.innerHTML = shell(t('hello',{n:esc(S.user.full_name.split(' ')[0])}), `<div class="stack-lg">
+    ${cm.company ? `<div class="card row wrap" style="gap:10px">${ic('van',22)}<b class="grow">${esc(cm.company)}</b>${cm.vehicle ? `<span class="chip gray">${esc(cm.vehicle)}</span>` : ''}${cm.plate ? `<span class="chip gray ltr">${esc(cm.plate)}</span>` : ''}${(cm.coverage || []).map(w => `<span class="chip">${esc(wN(w))}</span>`).join('')}</div>` : ''}
     <div class="grid g4"><div class="kpi blue"><span>${t('pickups_ready')}</span><b>${st.waiting}</b></div><div class="kpi"><span>${t('in_transit_list')}</span><b>${st.in_transit}</b></div><div class="kpi"><span>${t('delivered_n')}</span><b>${st.delivered}</b></div><div class="kpi"><span>${t('avg_temp')}</span><b>${st.avg_temp != null ? st.avg_temp + ' °C' : '—'}</b></div></div>
     <div><h3>${t('in_transit_list')}</h3>${tr.length ? `<div class="olist">${tr.map(o => orderItem(o)).join('')}</div>` : emptyBox(t('none_yet'))}</div>
     <div><h3>${t('pickups_ready')}</h3>${av.length ? `<div class="olist">${av.map(o => orderItem(o)).join('')}</div>` : emptyBox(t('none_yet'))}</div></div>`);
@@ -672,10 +765,12 @@ async function viewCourierHome(){
 async function viewLabHome(){
   loading(t('m_home'));
   const [st, list] = await Promise.all([API.stats(), API.orders()]);
+  const exp = list.filter(o => ['booked','assigned','on_the_way','arrived','collected'].includes(o.status));
   const inc = list.filter(o => ['in_transit','at_lab'].includes(o.status)), pr = list.filter(o => o.status === 'processing'), pub = list.filter(o => o.status === 'completed');
   app.innerHTML = shell(esc(S.user.meta && S.user.meta.lab_name || S.user.full_name), `<div class="stack-lg">
     <div class="grid g4"><div class="kpi blue"><span>${t('incoming')}</span><b>${st.incoming}</b></div><div class="kpi"><span>${t('processing_list')}</span><b>${st.processing}</b></div><div class="kpi"><span>${t('published_list')}</span><b>${st.published}</b></div><div class="kpi"><span>${t('avg_tat')}</span><b>${st.avg_tat_h != null ? st.avg_tat_h + ' h' : '—'}</b></div></div>
     <div><h3>${t('incoming')}</h3>${inc.length ? `<div class="olist">${inc.map(o => orderItem(o)).join('')}</div>` : emptyBox(t('none_yet'))}</div>
+    ${exp.length ? `<div><h3>${t('expected_samples')}</h3><p class="small muted" style="margin-top:-6px">${t('expected_samples_p')}</p><div class="olist">${exp.map(o => orderItem(o)).join('')}</div></div>` : ''}
     <div><h3>${t('processing_list')}</h3>${pr.length ? `<div class="olist">${pr.map(o => orderItem(o)).join('')}</div>` : emptyBox(t('none_yet'))}</div>
     ${pub.length ? `<div><h3>${t('published_list')}</h3><div class="olist">${pub.slice(0, 8).map(o => orderItem(o)).join('')}</div></div>` : ''}</div>`);
 }
@@ -753,6 +848,7 @@ async function viewProfile(){
     <div class="card row">${A.roleIcon(u.role, 60)}<div><h3 style="margin:0">${esc(u.full_name)}</h3><div class="small muted">${t('r_'+u.role)} · <span class="ltr">${esc(u.phone || u.email || '')}</span></div>${u.status === 'active' && u.role !== 'patient' ? `<span class="chip teal" style="margin-top:6px">${ic('shield',14)} ${t('active')}</span>` : ''}</div></div>
     <form class="card stack" id="pf"><h3>${t('details')}</h3><label class="field"><span>${t('full_name')}</span><input class="input" name="full_name" value="${esc(u.full_name)}"></label>
       <label class="field"><span>${t('phone')}</span><input class="input" name="phone" value="${esc(u.phone || '')}" inputmode="tel"></label>
+      ${['patient','nurse','courier'].includes(u.role) ? `<label class="field"><span>${ic('idcard',15)} ${t('civil_id')}</span><input class="input ltr" name="civil_id" inputmode="numeric" maxlength="10" value="${esc(u.civil_id || '')}" placeholder="${t('civil_ph')}" ${u.is_demo ? 'readonly' : ''}><div class="hint">${t(u.is_demo ? 'civil_demo' : 'civil_hint')}</div></label>` : ''}
       <label class="field"><span>${t('wilayat')}</span><select class="input" name="wilayat">${W.map(w => `<option value="${esc(w)}" ${u.wilayat === w ? 'selected' : ''}>${esc(wN(w))}</option>`).join('')}</select></label>
       ${u.role === 'patient' ? `<label class="field"><span>${t('address')}</span><input class="input" name="address" value="${esc(u.address || '')}"></label>
       <h4 style="margin-top:8px">${t('medical')}</h4><div class="grid g3"><label class="field"><span>${t('blood')}</span><select class="input" name="blood">${['','A+','A-','B+','B-','AB+','AB-','O+','O-'].map(b => `<option ${m.blood === b ? 'selected' : ''}>${b}</option>`).join('')}</select></label>
@@ -766,7 +862,7 @@ async function viewProfile(){
   bindPw(app);
   $('#pf').onsubmit = async e => { e.preventDefault(); const f = e.target; const meta = {}; ['blood','gender','dob','allergies','chronic'].forEach(k => { if (f[k]) meta[k] = f[k].value; });
     const ll = WILAYAT_LL[f.wilayat.value] || [];
-    try { S.user = await busy($('button', f), () => API.profile({ full_name: f.full_name.value, phone: f.phone.value, wilayat: f.wilayat.value, address: f.address ? f.address.value : undefined, lat: u.lat || ll[0], lng: u.lng || ll[1], meta })); toast(t('saved')); } catch(err) {} };
+    try { S.user = await busy($('button', f), () => API.profile({ full_name: f.full_name.value, phone: f.phone.value, wilayat: f.wilayat.value, address: f.address ? f.address.value : undefined, lat: u.lat || ll[0], lng: u.lng || ll[1], meta, civil_id: f.civil_id && !u.is_demo && f.civil_id.value.trim() ? f.civil_id.value.replace(/\D/g, '') : undefined })); toast(t('saved')); } catch(err) {} };
   $('#pw').onsubmit = async e => { e.preventDefault(); const f = e.target; try { await busy($('button', f), () => API.password(f.old.value, f.new1.value)); toast(t('saved')); f.reset(); } catch(err) {} };
   if ($('#inst')) $('#inst').onclick = async () => { S.installEvt.prompt(); S.installEvt = null; };
 }
@@ -817,7 +913,7 @@ function openMenu(){
   const root = $('#modal-root'); const bg = document.createElement('div'); bg.className = 'drawer-bg';
   const u = S.user;
   bg.innerHTML = `<aside class="drawer" role="dialog" aria-modal="true" aria-label="${t('menu')}">
-    <div class="row between" style="margin-bottom:14px"><a href="#/" class="brand">${A.logo}<span>Lab@Home</span></a><button class="icon-btn" data-x aria-label="${t('close')}">${ic('x')}</button></div>
+    <div class="row between" style="margin-bottom:14px"><a href="#/" class="brand">${brandInner()}</a><button class="icon-btn" data-x aria-label="${t('close')}">${ic('x')}</button></div>
     ${u ? `<div class="me-card"><span class="avatar">${esc(initials(u.full_name))}</span><div class="grow"><b>${esc(u.full_name)}</b><div class="xs muted">${t('r_'+u.role)}</div></div></div>` : `<div class="me-card" style="display:block"><b>${t('hero_t1')}</b><div class="small muted">${t('hero_t2')}</div><div class="row" style="margin-top:10px"><a class="btn sm grow" href="#/register">${t('signup')}</a><a class="btn sm ghost grow" href="#/login">${t('login')}</a></div></div>`}
     <nav class="menu">${menuItems()}</nav></aside>`;
   root.appendChild(bg);
@@ -893,6 +989,7 @@ function nurseCardHtml(n, sel){
     <span class="grow" style="text-align:start"><b>${esc(n.name)}</b><span class="xs muted" style="display:block">${n.rating ? '★ ' + n.rating + ' · ' : ''}${t('visits',{n:n.visits})}${n.years ? ' · ' + t('years_exp',{n:n.years}) : ''}</span>
     ${n.bio ? `<span class="small" style="display:block;margin-top:4px;color:#3b4a66">${esc(n.bio)}</span>` : ''}
     <span class="row wrap" style="gap:4px;margin-top:6px"><span class="chip teal">${ic('check',12,3)} ${t('today_t')}</span>${(n.languages || []).map(l => `<span class="chip gray">${esc(l)}</span>`).join('')}</span></span>
+    <span class="np-link" data-np="${n.id}" role="button" tabindex="0">${ic('eye',13)} ${t('view_profile')}</span></span>
     <span class="radio"></span></button>`;
 }
 
@@ -919,19 +1016,29 @@ async function viewSupport(){
 
 async function viewAbout(){
   await loadCatalog().catch(() => {});
-  const team = [['Bilarab bin Suwailam Al Musallami','بلعرب بن سويلم المسلمي','dev','#1257d6'],['Jokha Al Rawahi','جوخة الرواحي','member','#e8466f'],['Ansam Al Noumani','أنسام النعماني','member','#7a5af8'],['Dr. Salim Al Rashdi','د. سالم الراشدي','supervisor','#0fae9b']];
+  const team = [['Bilarab bin Suwailam Al Musallami','بلعرب بن سويلم المسلمي','dev','#2563eb'],['Jokha Al Rawahi','جوخة الرواحي','member','#e8466f'],['Ansam Al Noumani','أنسام النعماني','member','#7a5af8'],['Dr. Salim Al Rashdi','د. سالم الراشدي','supervisor','#0fae9b']];
+  const values = [['heart','v_care'],['shield','v_trust'],['pin','v_access'],['award','v_quality'],['eye','v_transp'],['spark','v_innov']];
+  const goals = [['timer','g1'],['users','g2'],['thermo','g3'],['globe','g4']];
   const body = `<div class="stack-lg">
     <div class="about-hero"><div><span class="chip" style="background:rgba(255,255,255,.15);color:#fff">${t('m_about')}</span><h1>${t('about_t')}</h1><p>${t('about_p')}</p></div><div class="ah-art">${A.hero}</div></div>
-    <div class="grid g2 collapse"><div class="card pad-lg"><div class="ic-round">${ic('globe',26)}</div><h3>${t('about_story')}</h3><p class="muted">${t('about_story_p')}</p></div><div class="card pad-lg"><div class="ic-round" style="color:var(--teal);background:var(--teal-bg)">${ic('check',26)}</div><h3>${t('about_sol')}</h3><p class="muted">${t('about_sol_p')}</p></div></div>
-    <div class="grid g2 collapse"><div class="card pad-lg" style="background:linear-gradient(140deg,#0b2350,#1257d6);color:#fff"><h3>${t('vision')}</h3><p style="opacity:.9">${t('vision_p')}</p></div><div class="card pad-lg"><h3>${t('mission')}</h3><p class="muted">${t('mission_p')}</p></div></div>
+    <div class="card pad-lg story"><div class="story-l"><span class="eyebrow">${t('story_eyebrow')}</span><h2>${t('story_t')}</h2><p class="muted">${t('about_story_p')}</p><p class="muted">${t('about_sol_p')}</p></div>
+      <div class="story-r">${[1,2,3,4].map(i => `<div class="ps"><div class="ps-p"><span class="xs b">${t('problem')}</span>${t('pb'+i)}</div><span class="ps-arrow">${ic('arrow',18)}</span><div class="ps-s"><span class="xs b">${t('our_answer')}</span>${t('sl'+i)}</div></div>`).join('')}</div></div>
+    <div class="grid g2 collapse"><div class="card pad-lg vm dark"><div class="ic-round">${ic('eye',26)}</div><span class="eyebrow">${t('vision')}</span><p class="big">${t('vision_p')}</p></div><div class="card pad-lg vm"><div class="ic-round">${ic('target',26)}</div><span class="eyebrow">${t('mission')}</span><p class="big">${t('mission_p')}</p></div></div>
+    <div><div class="section-h" style="margin-bottom:20px"><span class="eyebrow">${t('values_eyebrow')}</span><h2>${t('values_t')}</h2></div>
+      <div class="grid g3 values">${values.map(([i, k]) => `<div class="card val"><span class="ic-round">${ic(i,24)}</span><div><b>${t(k)}</b><div class="small muted">${t(k+'_d')}</div></div></div>`).join('')}</div></div>
+    <div><div class="section-h" style="margin-bottom:20px"><span class="eyebrow">${t('goals_eyebrow')}</span><h2>${t('goals_t')}</h2></div>
+      <div class="grid g4 goals">${goals.map(([i, k], n) => `<div class="card goal"><span class="gn">0${n+1}</span><span class="gi">${ic(i,26)}</span><b class="gk">${t(k+'_k')}</b><div class="small muted">${t(k)}</div></div>`).join('')}</div></div>
+    <div><div class="section-h" style="margin-bottom:20px"><span class="eyebrow">${t('net_eyebrow')}</span><h2>${t('net_t')}</h2><p>${t('net_p')}</p></div><div id="netb"><div class="skel" style="height:180px"></div></div></div>
     <div><div class="section-h" style="margin-bottom:20px"><span class="eyebrow">${t('roles_eyebrow')}</span><h2>${t('roles_t')}</h2></div><div class="roles">${['patient','nurse','courier','lab','company'].map(r => `<div class="role" style="cursor:default">${A.roleIcon(r)}<h4>${t('r_'+r)}</h4><p>${t('r_'+r+'_d')}</p></div>`).join('')}</div></div>
-    <div class="card pad-lg"><h3>${t('app_t')}</h3><div class="grid g3" style="margin-top:10px">${[['globe','app_f1'],['users','app_f2'],['pin','app_f3'],['file','app_f4'],['download','app_f5'],['shield','app_f6']].map(([i, k]) => `<div class="row" style="align-items:flex-start"><span class="ic-round sm">${ic(i,20)}</span><span class="b small" style="padding-top:8px">${t(k)}</span></div>`).join('')}</div></div>
+    <div class="card pad-lg"><h3>${t('app_t')}</h3><div class="grid g3" style="margin-top:10px">${[['globe','app_f1'],['users','app_f2'],['pin','app_f3'],['file','app_f4'],['download','app_f5'],['shield','app_f6'],['bot','app_f7'],['idcard','app_f8'],['route','app_f9']].map(([i, k]) => `<div class="row" style="align-items:flex-start"><span class="ic-round sm">${ic(i,20)}</span><span class="b small" style="padding-top:8px">${t(k)}</span></div>`).join('')}</div></div>
     <div><div class="section-h" style="margin-bottom:20px"><span class="eyebrow">${t('m_team')}</span><h2>${t('team_t')}</h2><p>${t('team_p')}</p></div>
       <div class="grid g4 team">${team.map(([en, ar, role, c]) => `<div class="card center pad-lg"><span class="avatar xl" style="background:${c}">${esc(initials(en.replace('Dr. ', '')))}</span><h4 style="margin-top:12px">${esc(S.lang === 'ar' ? ar : en)}</h4><span class="chip ${role === 'supervisor' ? 'teal' : ''}">${t(role)}</span></div>`).join('')}</div></div>
     <div class="card pad-lg"><h3>${t('roadmap')}</h3>${['ph1','ph2','ph3'].map((p, i) => `<div class="phase"><span class="badge-n" style="${i ? 'background:#c4d4f2' : ''}">${i+1}</span><div><b>${t(p)}</b><div class="muted small">${t(p+'d')}</div></div></div>`).join('')}</div>
     <div class="welcome center" style="padding:30px"><h2>${t('contact_us')}</h2><p style="opacity:.85">${t('sup_p')}</p><div class="row wrap" style="justify-content:center"><a class="btn" style="background:#fff;color:var(--blue)" href="#/support">${ic('chat',18)} ${t('m_support')}</a><a class="btn ghost" style="background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)" href="#/${S.user ? 'app/tests' : 'register'}">${t('book_now')}</a></div></div>
     <p class="xs muted center">${t('foot_note')}</p></div>`;
   app.innerHTML = S.user ? shell(t('m_about'), body) : `${topbar()}<section class="section" style="padding-top:28px"><div class="wrap-w">${body}</div></section>${footer()}`;
+  if (!S.user) bindGlobal();
+  partnersHtml().then(h => { const el = $('#netb'); if (el) el.innerHTML = h || ''; });
 }
 
 async function viewAdminTickets(){
@@ -941,6 +1048,134 @@ async function viewAdminTickets(){
     <div class="xs muted">${esc(x.name || '')} ${x.contact ? '· <span class="ltr">' + esc(x.contact) + '</span>' : ''} · ${ago(x.created_at)}</div><p style="margin:10px 0">${esc(x.message)}</p>
     ${x.reply ? `<div class="banner teal small">${ic('chat',18)}<span>${esc(x.reply)}</span></div>` : `<div class="row"><input class="input grow" placeholder="${t('sup_reply')}…" data-rp="${x.id}"><button class="btn sm" data-send="${x.id}">${t('sup_send')}</button></div>`}</div>`).join('')}</div>` : emptyBox(t('none_yet')));
   $$('[data-send]').forEach(b => b.onclick = async () => { const v = $(`[data-rp="${b.dataset.send}"]`).value; try { await busy(b, () => API.adminReply(+b.dataset.send, v)); toast(t('saved')); viewAdminTickets(); } catch(e) {} });
+}
+
+/* ---------- support assistant (auto replies) ---------- */
+const BOT = { open: false, busy: false, stage: null, msgs: (() => { try { return JSON.parse(sessionStorage.getItem('lah_bot') || '[]'); } catch(e) { return []; } })() };
+const BOT_INTENTS = [
+  ['human', /human|agent|person|staff|someone|call me|موظف|انسان|إنسان|بشري|شخص|كلم|اتصل/],
+  ['track', /track|status|where.*(order|nurse|sample)|my order|lah-\d+|طلب|وين|تتبع|حالة|الممرض.*وين/],
+  ['fasting', /fast|empty stomach|صيام|صائم|اصوم|أصوم|الريق/],
+  ['price', /price|cost|how much|fee|charge|سعر|اسعار|أسعار|كم|تكلف|رسوم/],
+  ['results', /result|report|pdf|نتيج|نتائج|تقرير/],
+  ['nurse', /nurse|female|male|woman|man|ممرض|نسائي|رجالي|امرأة/],
+  ['area', /area|wilayat|cover|location|region|village|ولاي|منطق|تغطي|قري|مكان/],
+  ['pay', /pay|card|cash|apple|دفع|بطاق|كاش|نقد|فلوس/],
+  ['cancel', /cancel|reschedul|change.*time|الغ|إلغ|تأجيل|تغيير.*موعد/],
+  ['partner', /partner|join|work with|courier|company|employer|شريك|انضم|اشتغل|شرك|مندوب/],
+  ['privacy', /privacy|data|secure|civil|خصوص|بيانات|امان|أمان|مدني/],
+  ['book', /book|appointment|schedule|حجز|احجز|موعد/],
+  ['thanks', /thank|thx|شكر|مشكور|يعطيك/],
+  ['greet', /^(hi|hello|hey|salam|good (morning|evening))|السلام|مرحب|هلا|اهلا|أهلا|صباح|مساء/]
+];
+const BOT_CHIPS = ['track','fasting','price','results','nurse','human'];
+function botSave(){ try { sessionStorage.setItem('lah_bot', JSON.stringify(BOT.msgs.slice(-40))); } catch(e) {} }
+function botMount(){
+  if ($('#bot')) return botHead();
+  document.body.insertAdjacentHTML('beforeend', `<div id="bot"><button class="bot-fab" aria-label="Chat">${ic('bot',28)}<span class="bot-ping"></span></button>
+    <section class="bot-panel" role="dialog" aria-label="Support chat"><header></header><div class="bot-body" aria-live="polite"></div><div class="bot-chips"></div>
+    <form class="bot-in"><input class="input" maxlength="400" autocomplete="off"><button class="btn" aria-label="Send">${ic('send',18)}</button></form></section></div>`);
+  $('#bot .bot-fab').onclick = () => botToggle();
+  $('#bot form').onsubmit = e => { e.preventDefault(); const i = $('#bot form input'); const v = i.value.trim(); if (!v || BOT.busy) return; i.value = ''; botUser(v); };
+  botHead();
+}
+function botHead(){
+  const p = $('#bot .bot-panel'); if (!p) return;
+  $('header', p).innerHTML = `<span class="bot-av">${ic('bot',22)}</span><div class="grow"><b>${t('bot_name')}</b><div class="xs"><i class="on"></i> ${t('bot_status')}</div></div><button class="icon-btn" data-bx aria-label="${t('close')}">${ic('x',20)}</button>`;
+  $('[data-bx]', p).onclick = () => botToggle(false);
+  $('form input', p).placeholder = t('bot_ph');
+  $('#bot').classList.toggle('in-app', !!S.user);
+  botDraw();
+}
+function botToggle(v){
+  BOT.open = v == null ? !BOT.open : v; $('#bot').classList.toggle('open', BOT.open);
+  if (BOT.open && !BOT.msgs.length) botSay(t('bot_hi', { n: S.user ? ' ' + esc(S.user.full_name.split(' ')[0]) : '' }), BOT_CHIPS);
+  if (BOT.open) setTimeout(() => { const i = $('#bot form input'); if (i && innerWidth > 700) i.focus(); }, 200);
+}
+function botDraw(){
+  const b = $('#bot .bot-body'); if (!b) return;
+  b.innerHTML = BOT.msgs.map(m => `<div class="bm ${m.from}"><div class="bb">${m.html}</div><span class="bt">${fmtTime(m.at)}</span></div>`).join('') + (BOT.busy ? `<div class="bm bot"><div class="bb typing"><i></i><i></i><i></i></div></div>` : '');
+  const last = [...BOT.msgs].reverse().find(m => m.from === 'bot');
+  $('#bot .bot-chips').innerHTML = (last && last.chips || []).map(c => `<button type="button" data-chip="${c}">${t('bc_' + c)}</button>`).join('');
+  $$('#bot [data-chip]').forEach(x => x.onclick = () => botUser(t('bc_' + x.dataset.chip), x.dataset.chip));
+  b.scrollTop = b.scrollHeight;
+}
+function botSay(html, chips){ BOT.msgs.push({ from:'bot', html, chips: chips || null, at: Date.now() }); botSave(); botDraw(); }
+async function botUser(text, intent){
+  BOT.msgs.push({ from:'me', html: esc(text), at: Date.now() }); botSave(); BOT.busy = true; botDraw();
+  await new Promise(r => setTimeout(r, 550 + Math.random() * 450));
+  try { await botAnswer(text, intent); } catch(e) { botSay(t('bot_err'), ['human']); }
+  BOT.busy = false; botDraw();
+}
+async function botTicket(contact, name){
+  const transcript = BOT.msgs.slice(-10).map(m => (m.from === 'me' ? 'User: ' : 'Bot: ') + m.html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()).join('\n');
+  const r = await API.supportCreate({ topic:'other', order_code:'', message: '[Chat assistant]\n' + transcript, name: name || '', contact: contact || '' });
+  BOT.stage = null; botSay(t('bot_ticket', { n: r.id }), ['track','results']);
+}
+async function botAnswer(text, intent){
+  const q = text.toLowerCase();
+  if (BOT.stage === 'contact' && !intent) {
+    const ph = text.replace(/[^\d+]/g, ''); if (ph.replace(/\D/g, '').length < 8) return botSay(t('bot_need_phone'));
+    return botTicket(ph, '');
+  }
+  if (!intent) { const hit = BOT_INTENTS.find(([, re]) => re.test(q)); intent = hit ? hit[0] : null; }
+  const C = S.catalog || await loadCatalog().catch(() => null);
+  switch (intent) {
+    case 'greet': return botSay(t('bot_greet'), BOT_CHIPS);
+    case 'thanks': return botSay(t('bot_thanks'), ['book','track']);
+    case 'track': {
+      if (!S.user) return botSay(t('bot_track_guest'), ['book','human']);
+      if (S.user.role !== 'patient') return botSay(t('bot_track_staff'), ['human']);
+      const list = await API.orders(); const code = (q.match(/lah-\d+/) || [])[0];
+      const pick = code ? list.filter(o => o.code.toLowerCase() === code) : list.filter(o => ACTIVE(o.status));
+      if (!pick.length) return botSay(code ? t('bot_track_none_code') : t('bot_track_none'), ['book','results']);
+      return botSay(t('bot_track_hdr') + pick.slice(0, 3).map(o => `<a class="bot-card" href="#/app/order/${o.id}"><b class="ltr">${esc(o.code)}</b> ${stChip(o.status)}<span class="xs">${fmtDate(o.slot_date)} · ${esc(o.slot_time)} · ${t('updated_x',{x:ago(o.updated_at)})}</span><span class="xs">${t('st_d_' + o.status)}</span></a>`).join(''), ['fasting','cancel','human']);
+    }
+    case 'fasting': { const fl = C ? String(C.fasting_last_slot || '10:00').replace(/"/g, '') : '10:00';
+      const ft = C ? C.tests.filter(x => x.fasting_hours > 0).map(x => `${esc(LN(x,'name'))} (${x.fasting_hours} ${t('hours_s')})`).join('<br>') : '';
+      return botSay(t('bot_fasting', { t: fl }) + (ft ? `<div class="bot-note">${ft}</div>` : ''), ['book','price']); }
+    case 'price': { if (!C) return botSay(t('bot_price_na'));
+      const pk = C.packages.map(p => `<div class="bot-row"><span>${esc(LN(p,'name'))}</span><b class="num">${omr(p.price)}</b></div>`).join('');
+      const min = Math.min(...C.tests.map(x => Number(x.price)));
+      return botSay(t('bot_price', { fee: omr(fee()), min: omr(min) }) + `<div class="bot-note">${pk}</div><a class="bot-link" href="#/${S.user ? 'app/tests' : 'tests'}">${t('explore_tests')} →</a>`, ['book','pay']); }
+    case 'results': return botSay(t('bot_results'), ['track','privacy']);
+    case 'nurse': { const st = C && C.stats || {}; return botSay(t('bot_nurse', { f: st.nurses_f || '—', m: st.nurses_m || '—' }), ['book','area']); }
+    case 'area': return botSay(t('bot_area', { w: C ? C.wilayats.map(wN).join(' · ') : '' }), ['book','human']);
+    case 'pay': return botSay(t('bot_pay'), ['price','cancel']);
+    case 'cancel': return botSay(t('bot_cancel'), ['track','human']);
+    case 'partner': return botSay(t('bot_partner') + `<a class="bot-link" href="#/register?partner=1">${t('partner_link')} →</a>`, ['human']);
+    case 'privacy': return botSay(t('bot_privacy'), ['results','human']);
+    case 'book': return botSay(t('bot_book') + `<a class="bot-link" href="#/${S.user ? 'app/tests' : 'register'}">${t('book_now')} →</a>`, ['price','fasting','nurse']);
+    case 'human':
+      if (S.user) return botTicket('', S.user.full_name);
+      BOT.stage = 'contact'; return botSay(t('bot_ask_phone'));
+    default: return botSay(t('bot_unknown'), BOT_CHIPS);
+  }
+}
+
+/* ---------- network / partners ---------- */
+async function partnersHtml(){
+  let P; try { P = await API.partnersPublic(); } catch(e) { return ''; }
+  return `<div class="net">
+    <div class="net-col"><div class="net-h">${ic('flask',22)} <b>${t('net_labs')}</b><span class="chip">${P.labs.length}</span></div>${P.labs.map(l => `<div class="net-item"><b>${esc(l.name)}</b><div class="xs muted">${esc(wN(l.wilayat))}${l.accreditation ? ' · ' + esc(l.accreditation) : ''}</div>${l.hours ? `<div class="xs muted">${ic('clock',12)} ${esc(l.hours)}</div>` : ''}</div>`).join('')}</div>
+    <div class="net-col"><div class="net-h">${ic('van',22)} <b>${t('net_logistics')}</b><span class="chip">${P.logistics.length}</span></div>${P.logistics.map(c => `<div class="net-item"><b>${esc(c.company)}</b><div class="xs muted">${t('drivers_n',{n:c.drivers})} · 2–8 °C</div><div class="row wrap" style="gap:4px;margin-top:6px">${(c.coverage || []).map(w => `<span class="chip gray xs-chip">${esc(wN(w))}</span>`).join('')}</div></div>`).join('')}</div>
+    <div class="net-col"><div class="net-h">${ic('syringe',22)} <b>${t('net_nurses')}</b><span class="chip">${P.nurses.female + P.nurses.male}</span></div>
+      <div class="gbar"><div style="flex:${P.nurses.female}" class="f"><b>${P.nurses.female}</b> ${t('female')}</div><div style="flex:${P.nurses.male}" class="m"><b>${P.nurses.male}</b> ${t('male')}</div></div>
+      <p class="small muted" style="margin:10px 0 0">${t('net_nurses_p')}</p></div></div>`;
+}
+
+/* ---------- fleet (logistics company) ---------- */
+async function viewFleetHome(){
+  loading(t('m_home'));
+  const [fo, mine, av] = await Promise.all([API.fleet(), API.orders('mine'), API.orders('available')]);
+  const tr = mine.filter(o => o.status === 'in_transit');
+  app.innerHTML = shell(esc(fo.company || t('r_fleet')), `<div class="stack-lg">
+    <div class="welcome"><div class="art">${A.roleIcon('courier', 150)}</div><span class="chip" style="background:rgba(255,255,255,.15);color:#fff">${t('r_fleet')}</span><h2>${esc(fo.company)}</h2><p style="opacity:.85;max-width:460px">${t('fleet_p')}</p></div>
+    <div class="grid g4"><div class="kpi blue"><span>${t('drivers')}</span><b>${fo.drivers.length}</b></div><div class="kpi"><span>${t('in_transit_list')}</span><b>${tr.length}</b></div><div class="kpi"><span>${t('delivered_n')}</span><b>${fo.drivers.reduce((s, d) => s + d.delivered, 0)}</b></div><div class="kpi"><span>${t('pickups_ready')}</span><b>${av.length}</b></div></div>
+    <div class="card"><h3>${t('drivers')}</h3><div class="scroll-x"><table class="rtable"><thead><tr><th>${t('full_name')}</th><th>${t('vehicle')}</th><th>${t('coverage')}</th><th>${t('in_transit_list')}</th><th>${t('delivered_n')}</th><th>${t('avg_temp')}</th></tr></thead><tbody>
+      ${fo.drivers.map(d => `<tr><td><b>${esc(d.name)}</b><div class="xs muted ltr">${esc(d.plate || '')}</div></td><td class="small">${esc(d.vehicle || '—')}</td><td class="small">${(d.coverage || []).map(w => esc(wN(w))).join(' · ')}</td><td class="num">${d.in_transit}</td><td class="num">${d.delivered}</td><td class="num">${d.avg_temp != null ? d.avg_temp + ' °C' : '—'}</td></tr>`).join('')}</tbody></table></div></div>
+    <div><h3>${t('fleet_jobs')}</h3>${mine.length ? `<div class="olist">${mine.slice(0, 20).map(o => orderItem(o, o.courier_name ? `<div class="xs" style="color:var(--blue)">${ic('van',12)} ${esc(o.courier_name)}</div>` : '')).join('')}</div>` : emptyBox(t('none_yet'))}</div>
+    <div><h3>${t('pickups_ready')}</h3>${av.length ? `<div class="olist">${av.map(o => orderItem(o)).join('')}</div>` : emptyBox(t('none_yet'))}</div></div>`);
 }
 
 /* ---------- router ---------- */
@@ -970,7 +1205,7 @@ async function render(){
     } else {
       if (!S.user) { sessionStorage.setItem('lah_after', path); return go('login'); }
       const r = S.user.role; const sub = seg[1] || '';
-      if (sub === '') await ({ patient: viewPatientHome, nurse: viewNurseHome, courier: viewCourierHome, lab: viewLabHome, company: viewCompanyHome, admin: viewAdminHome }[r])();
+      if (sub === '') await ({ patient: viewPatientHome, nurse: viewNurseHome, courier: (S.user.meta || {}).fleet_admin ? viewFleetHome : viewCourierHome, lab: viewLabHome, company: viewCompanyHome, admin: viewAdminHome }[r])();
       else if (sub === 'tests') await viewAppTests();
       else if (sub === 'cart') await viewCart();
       else if (sub === 'book') await viewBook();
@@ -989,7 +1224,7 @@ async function render(){
     app.innerHTML = (S.user ? shell('', '') : topbar());
     const c = $('.content') || app; c.insertAdjacentHTML('beforeend', `<div class="card empty" style="margin:20px">${A.emptyArt}<p>${errMsg(e)}</p><button class="btn" onclick="location.reload()">${t('retry')}</button></div>`);
   }
-  bindGlobal();
+  bindGlobal(); botMount();
   if (!location.hash.includes('#', 1)) window.scrollTo(0, 0);
 }
 async function poll(){ if (!S.user || document.hidden) return; try { const r = await API.me(); const before = S.unread; S.user = r.user; S.unread = r.unread; if (r.unread !== before) { $$('[data-go="app/notifs"] .dot').forEach(d => d.textContent = r.unread); if (r.unread > before) { const b = $('[data-go="app/notifs"]'); if (b && !$('.dot', b)) b.insertAdjacentHTML('beforeend', `<span class="dot">${r.unread}</span>`); } } } catch(e) { if (e.code === 'AUTH_REQUIRED') { S.user = null; go('login'); } } }

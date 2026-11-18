@@ -42,15 +42,26 @@ const P = {
   van:'<path d="M2 7h12v9H2z"/><path d="M14 10h4.5l3 3.2V16H14"/><circle cx="6" cy="17.5" r="2"/><circle cx="17.5" cy="17.5" r="2"/><path d="M7 10.5h2M8 9.5v2"/>',
   eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   wa:'<path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 .8c-.9-.4-1.6-1.1-2-2l.8-1-1-2z"/>',
+  cart:'<path d="M3 4h2.2l2.3 11h10.8l2.2-8H6.4"/><circle cx="9.5" cy="19.5" r="1.6"/><circle cx="17" cy="19.5" r="1.6"/>',
+  idcard:'<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2.2"/><path d="M5.2 16.2a3.4 3.4 0 0 1 6.6 0M14 10h4.5M14 13.5h3"/>',
+  bot:'<rect x="4" y="8" width="16" height="11" rx="4"/><path d="M12 4.5V8"/><circle cx="12" cy="3.6" r="1.1"/><circle cx="9" cy="13.2" r="1.3"/><circle cx="15" cy="13.2" r="1.3"/><path d="M2 12.5v3M22 12.5v3"/>',
+  send:'<path d="M4 12l16-8-6 16-2.5-6.5z"/><path d="M11.5 13.5L20 4"/>',
+  lock:'<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/><circle cx="12" cy="15.5" r="1.3"/>',
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3"/>',
+  compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  hex:'<path d="M12 2.8l8 4.6v9.2l-8 4.6-8-4.6V7.4z"/>',
+  route:'<circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="6" r="2.4"/><path d="M8.4 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.6"/>',
+  timer:'<circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 1.5M9.5 2.8h5"/>',
+  award:'<circle cx="12" cy="9" r="6"/><path d="M8.5 14l-1.5 7 5-2.5 5 2.5-1.5-7"/><path d="M9.6 9l1.6 1.6 3.2-3.2"/>',
+  spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
   menu:'<path d="M4 6h16M4 12h16M4 18h16"/>'
 };
 function icon(name, size, sw){ return `<svg viewBox="0 0 24 24" width="${size||22}" height="${size||22}" fill="none" stroke="currentColor" stroke-width="${sw||1.9}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name]||''}</svg>`; }
 
 let _lg=0;
-function logoFn(){ const n=++_lg; return `<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lg1${n}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f7bff"/><stop offset="1" stop-color="#0b3fa8"/></linearGradient><linearGradient id="lg2${n}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5cc8ff"/><stop offset="1" stop-color="#1257d6"/></linearGradient></defs>
-<path d="M8 30L32 9l24 21" fill="none" stroke="url(#lg1${n})" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M14 27v24a4 4 0 0 0 4 4h28a4 4 0 0 0 4-4V27" fill="none" stroke="url(#lg1${n})" stroke-width="6" stroke-linecap="round"/>
-<path d="M32 23s9 9.6 9 16a9 9 0 0 1-18 0c0-6.4 9-16 9-16z" fill="url(#lg2${n})"/><ellipse cx="28.5" cy="38" rx="2.3" ry="3.6" fill="#fff" opacity=".7"/></svg>`; }
+function logoFn(){ return `<svg class="mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="#3b82f6" stroke-width="3.2"/>  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="#3b82f6" stroke-width="1.6" opacity=".9"/>  <g transform="rotate(-32 32 34)" stroke="#3b82f6" stroke-width="2.2">    <path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/>    <path d="M27 20.5h10"/>    <path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/>    <circle cx="29.6" cy="40.4" r="1.6" stroke-width="1.5"/>    <circle cx="34.6" cy="39.4" r="1" stroke-width="1.3"/>  </g>  <circle cx="20.6" cy="20.2" r="1.3" stroke="#3b82f6" stroke-width="1.4"/>  <circle cx="17.6" cy="15.6" r=".9" stroke="#3b82f6" stroke-width="1.2"/>  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="#3b82f6" stroke-width="1.3"/></svg>`; }
+const WORDMARK = `<svg class="wm" role="img" aria-label="Lab@Home" viewBox="-1 -1 135 22" fill="none" stroke="currentColor" stroke-width="3.3" stroke-linejoin="miter" stroke-linecap="butt"><path transform="translate(0 0)" d="M1.5 0V20H13"/><path transform="translate(17 0)" d="M1.5 20V4.5L5.5 0.5H9L13 4.5V20M1.5 11.5H13"/><path transform="translate(34 0)" d="M1.5 1.5H9.5L12.5 4.5V7.2L10.2 9.8L12.5 12.4V16.5L9.5 19.5H1.5ZM1.5 10H10"/><path transform="translate(51 0)" d="M13 16V5L9.5 1.5H5L1.5 5V15.5L5 19H12.5M9.2 6.5H5.8V12.5H9.2ZM9.2 6.5V14.2H13"/><path transform="translate(68 0)" d="M1.5 0V20M12.5 0V20M1.5 10H12.5"/><path transform="translate(85 0)" d="M5 1.5H9.5L12.5 4.5V15.5L9.5 18.5H5L1.5 15.5V4.5Z"/><path transform="translate(102 0)" d="M1.5 20V1L7.2 8.5L13 1V20"/><path transform="translate(119 0)" d="M13 1.5H1.5V18.5H13M1.5 10H10.5"/></svg>`;
 
 const hero = `<svg viewBox="0 0 620 540" style="direction:ltr" role="img" aria-label="A nurse visiting a home with the Lab@Home app">
 <defs>
@@ -157,5 +168,5 @@ const welcomeArt = `<svg viewBox="0 0 220 180" aria-hidden="true"><circle cx="13
 
 const steps = ['user','search','cal','card','pin','syringe','van','flask','check','file'];
 
-window.ART = { icon, get logo(){ return logoFn(); }, hero, catIcon, roleIcon, emptyArt, welcomeArt, steps };
+window.ART = { icon, get logo(){ return logoFn(); }, wordmark: WORDMARK, hero, catIcon, roleIcon, emptyArt, welcomeArt, steps };
 })();
