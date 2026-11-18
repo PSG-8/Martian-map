@@ -215,6 +215,7 @@ function bindPw(root){
 }
 async function afterLogin(r){
   API.setToken(r.token); S.user = r.user; S.unread = 0;
+  if ('Notification' in window && Notification.permission === 'granted' && localStorage.getItem('lah_push') === '1') setTimeout(() => pushEnable(true).catch(() => {}), 1500);
   const back = sessionStorage.getItem('lah_after'); sessionStorage.removeItem('lah_after');
   go(back || (S.user.role === 'patient' && cartCount() ? 'app/book' : 'app'));
 }
@@ -323,7 +324,7 @@ function shell(title, body, opts){
     <div class="me"><span class="avatar">${esc(initials(u.full_name))}</span><div class="grow"><div class="b small" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(u.full_name)}</div><button class="link small" data-logout>${t('logout')}</button></div></div></aside>
   <main class="main-area"><div class="app-top">${opts && opts.back ? `<button class="icon-btn" data-goback aria-label="${t('back')}"><span class="flip">${ic('back')}</span></button>` : `<button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>`}<h1 class="grow">${title}</h1>
     <button class="icon-btn" data-go="app/notifs" aria-label="${t('m_notifs')}">${ic('bell')}${S.unread ? `<span class="dot">${S.unread}</span>` : ''}</button>${opts && opts.back ? `<button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>` : ''}</div>
-  <div class="content">${u.status === 'pending' ? `<div class="banner amber" style="margin-bottom:16px">${ic('clock',22)}<div><b>${t('pending_t')}</b><div class="small">${t('pending_p')}</div></div></div>` : ''}${body}</div></main></div>
+  <div class="content">${pushBanner()}${u.status === 'pending' ? `<div class="banner amber" style="margin-bottom:16px">${ic('clock',22)}<div><b>${t('pending_t')}</b><div class="small">${t('pending_p')}</div></div></div>` : ''}${body}</div></main></div>
   <nav class="tabbar">${items.slice(0, 4).map(([h, i, k]) => `<a href="#/${h}" class="${isOn(h) ? 'on' : ''}">${ic(i)}${h === 'app/cart' && n ? `<span class="dot">${n}</span>` : ''}<span>${t(k)}</span></a>`).join('')}<a href="#" data-menu>${ic('menu')}<span>${t('menu')}</span></a></nav>`;
 }
 function loading(title){ app.innerHTML = shell(title || '', `<div class="loading"><span class="spin"></span></div>`); }
@@ -982,7 +983,7 @@ async function viewProfile(){
       <label class="field"><span>${t('allergies')}</span><input class="input" name="allergies" value="${esc(m.allergies || '')}"></label><label class="field"><span>${t('chronic')}</span><input class="input" name="chronic" value="${esc(m.chronic || '')}"></label>` : ''}
       <button class="btn">${t('save_changes')}</button></form></div>
     <div class="stack"><form class="card stack" id="pw"><h3>${t('change_pw')}</h3>${pwField('old', t('old_pw'))}${pwField('new1', t('new_pw'), t('pass_rule'))}<button class="btn ghost">${t('change_pw')}</button></form>
-      <div class="card"><h3>${t('install_t')}</h3><p class="muted small">${t('install_p')}</p>${S.installEvt ? `<button class="btn" id="inst">${ic('download',18)} ${t('install_btn')}</button>` : `<p class="small">${t('install_ios')}</p>`}</div>
+      ${pushCard()}<div class="card"><h3>${t('install_t')}</h3><p class="muted small">${t('install_p')}</p>${S.installEvt ? `<button class="btn" id="inst">${ic('download',18)} ${t('install_btn')}</button>` : `<p class="small">${t('install_ios')}</p>`}</div>
       <div class="card row between"><span class="b">${S.lang === 'ar' ? 'اللغة' : 'Language'}</span><button class="lang" data-lang>${t('lang')}</button></div>
       <button class="btn ghost block" data-logout>${ic('logout',18)} ${t('logout')}</button></div></div>`);
   bindPw(app);
@@ -1327,11 +1328,55 @@ async function viewFleetHome(){
     <div><h3>${t('pickups_ready')}</h3>${av.length ? `<div class="olist">${av.map(o => orderItem(o)).join('')}</div>` : emptyBox(t('none_yet'))}</div></div>`);
 }
 
+
+/* ---------- phone notifications (Web Push) ---------- */
+const VAPID = 'BKVzZaXp4VQWDbl1BLtaeaw59hvvlP2SeslVjf-AV1FJcHMrjtzKUUMzfhhQDb73I0ZJJp0Yg54TCfqtxDXUhxo';
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+function pushState(){
+  if (isIOS() && !isStandalone()) return 'ios_install';
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return 'unsupported';
+  if (Notification.permission === 'denied') return 'denied';
+  return Notification.permission === 'granted' && localStorage.getItem('lah_push') === '1' ? 'on' : 'off';
+}
+function b64u(s){ const p = '='.repeat((4 - s.length % 4) % 4); const b = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from([...b].map(c => c.charCodeAt(0))); }
+async function pushEnable(quiet){
+  if (location.protocol !== 'https:') throw new Error('https');
+  const perm = quiet ? Notification.permission : await Notification.requestPermission();
+  if (perm !== 'granted') { if (!quiet) toast(t('push_denied'), true); return false; }
+  const reg = await navigator.serviceWorker.ready;
+  let sub = await reg.pushManager.getSubscription();
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u(VAPID) });
+  await API.pushSubscribe(sub.toJSON(), S.lang); localStorage.setItem('lah_push', '1');
+  return true;
+}
+async function pushDisable(){ try { const reg = await navigator.serviceWorker.ready; const sub = await reg.pushManager.getSubscription(); if (sub) { await API.pushUnsubscribe(sub.endpoint).catch(() => {}); await sub.unsubscribe(); } } catch(e) {} localStorage.setItem('lah_push', '0'); }
+function pushBanner(){
+  const st = pushState(); if (st === 'on' || st === 'unsupported' || st === 'denied' || sessionStorage.getItem('lah_push_x')) return '';
+  return `<div class="push-banner" id="pushb"><span class="pb-ic">${ic('bell',22)}</span><div class="grow"><b>${t('push_t')}</b><div class="small">${st === 'ios_install' ? t('push_ios') : t('push_p')}</div></div>
+    ${st === 'ios_install' ? '' : `<button class="btn sm" data-push-on>${t('push_btn')}</button>`}<button class="icon-btn sm" data-push-x aria-label="${t('close')}">${ic('x',16)}</button></div>`;
+}
+function bindPush(){
+  $$('[data-push-on]').forEach(b => b.onclick = async () => { try { const ok = await busy(b, () => pushEnable(false)); if (ok) { toast(t('push_ok')); API.pushTest().catch(() => {}); const el = $('#pushb'); if (el) el.remove(); if (location.hash.includes('profile')) render(); } } catch(e) { toast(t('push_fail'), true); } });
+  $$('[data-push-x]').forEach(b => b.onclick = () => { sessionStorage.setItem('lah_push_x', '1'); const el = $('#pushb'); if (el) el.remove(); });
+  $$('[data-push-off]').forEach(b => b.onclick = async () => { await pushDisable(); toast(t('saved')); render(); });
+  $$('[data-push-test]').forEach(b => b.onclick = async () => { try { await busy(b, () => API.pushTest()); toast(t('push_sent')); } catch(e) {} });
+}
+function pushCard(){
+  const st = pushState();
+  return `<div class="card"><h3>${ic('bell',20)} ${t('push_card')}</h3><p class="muted small">${t('push_card_p')}</p>
+    ${st === 'on' ? `<div class="banner teal small">${ic('check',18)}<span>${t('push_on')}</span></div><div class="row" style="margin-top:10px"><button class="btn soft sm" data-push-test>${t('push_test')}</button><button class="btn ghost sm" data-push-off>${t('push_off_btn')}</button></div>`
+    : st === 'ios_install' ? `<div class="banner amber small">${ic('download',18)}<span>${t('push_ios')}</span></div>`
+    : st === 'denied' ? `<div class="banner red small">${ic('x',18)}<span>${t('push_blocked')}</span></div>`
+    : st === 'unsupported' ? `<div class="banner amber small">${ic('x',18)}<span>${t('push_unsup')}</span></div>`
+    : `<button class="btn" data-push-on>${ic('bell',18)} ${t('push_btn')}</button>`}</div>`;
+}
+
 /* ---------- router ---------- */
 function bindGo(){ $$('[data-go]').forEach(b => b.onclick = () => { const g = b.dataset.go; if (g === 'register' && !S.user) sessionStorage.setItem('lah_after', 'app/book'); go(g); }); }
 function bindGlobal(){
-  $$('[data-lang]').forEach(b => b.onclick = () => { setLang(S.lang === 'ar' ? 'en' : 'ar'); render(); });
-  $$('[data-logout]').forEach(b => b.onclick = async () => { await API.logout(); API.setToken(null); S.user = null; S.bk = null; go(''); });
+  $$('[data-lang]').forEach(b => b.onclick = () => { setLang(S.lang === 'ar' ? 'en' : 'ar'); render(); if (S.user && localStorage.getItem('lah_push') === '1') pushEnable(true).catch(() => {}); });
+  $$('[data-logout]').forEach(b => b.onclick = async () => { try { if ('serviceWorker' in navigator) { const reg = await navigator.serviceWorker.getRegistration(); const sub = reg && await reg.pushManager.getSubscription(); if (sub) await API.pushUnsubscribe(sub.endpoint).catch(() => {}); } } catch(e) {} await API.logout(); API.setToken(null); S.user = null; S.bk = null; go(''); });
   $$('[data-goback]').forEach(b => b.onclick = () => history.length > 1 ? history.back() : go('app'));
   $$('[data-menu]').forEach(b => b.onclick = e => { e.preventDefault(); openMenu(); });
   bindGo();
@@ -1373,7 +1418,7 @@ async function render(){
     app.innerHTML = (S.user ? shell('', '') : topbar());
     const c = $('.content') || app; c.insertAdjacentHTML('beforeend', `<div class="card empty" style="margin:20px">${A.emptyArt}<p>${errMsg(e)}</p><button class="btn" onclick="location.reload()">${t('retry')}</button></div>`);
   }
-  bindGlobal(); botMount();
+  bindGlobal(); botMount(); bindPush();
   if (!location.hash.includes('#', 1)) window.scrollTo(0, 0);
 }
 async function poll(){ if (!S.user || document.hidden) return; try { const r = await API.me(); const before = S.unread; S.user = r.user; S.unread = r.unread; if (r.unread !== before) { $$('[data-go="app/notifs"] .dot').forEach(d => d.textContent = r.unread); if (r.unread > before) { const b = $('[data-go="app/notifs"]'); if (b && !$('.dot', b)) b.insertAdjacentHTML('beforeend', `<span class="dot">${r.unread}</span>`); } } } catch(e) { if (e.code === 'AUTH_REQUIRED') { S.user = null; go('login'); } } }
@@ -1385,6 +1430,7 @@ async function boot(){
   window.addEventListener('hashchange', render);
   render();
   setInterval(poll, 20000);
+  if (S.user && 'Notification' in window && Notification.permission === 'granted' && localStorage.getItem('lah_push') === '1') setTimeout(() => pushEnable(true).catch(() => {}), 3000);
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 boot();

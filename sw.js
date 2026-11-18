@@ -1,10 +1,18 @@
-const V = 'lah-v7';
-const CORE = ['./', 'index.html', 'css/app.css?v=7', 'js/i18n.js?v=7', 'js/art.js?v=7', 'js/api.js?v=7', 'js/app.js?v=7', 'icons/icon.svg', 'manifest.webmanifest'];
+const V = 'lah-v8';
+const CORE = ['./', 'index.html', 'css/app.css?v=8', 'js/i18n.js?v=8', 'js/art.js?v=8', 'js/api.js?v=8', 'js/app.js?v=8', 'icons/icon.svg', 'manifest.webmanifest'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
   const r = e.request; const u = new URL(r.url);
-  if (r.method !== 'GET' || u.hostname.endsWith('supabase.co') || u.hostname.includes('tile.openstreetmap')) return;
+  if (r.method !== 'GET' || u.pathname.includes('/api/') || u.hostname.endsWith('supabase.co') || u.hostname.includes('tile.openstreetmap')) return;
   if (r.mode === 'navigate') { e.respondWith(fetch(r).catch(() => caches.match('index.html'))); return; }
   e.respondWith(caches.match(r).then(hit => hit || fetch(r).then(res => { if (res.ok && (u.origin === location.origin || u.hostname.includes('unpkg') || u.hostname.includes('gstatic') || u.hostname.includes('googleapis'))) { const cp = res.clone(); caches.open(V).then(c => c.put(r, cp)); } return res; })));
+});
+self.addEventListener('push', e => {
+  let d = {}; try { d = e.data ? e.data.json() : {}; } catch (x) { d = { title: 'Lab@Home', body: e.data ? e.data.text() : '' }; }
+  e.waitUntil(self.registration.showNotification(d.title || 'Lab@Home', { body: d.body || '', icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: d.tag || undefined, renotify: !!d.tag, dir: d.dir || 'auto', lang: d.lang || 'ar', data: { url: d.url || './#/app' }, vibrate: [120, 60, 120] }));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close(); const url = new URL((e.notification.data && e.notification.data.url) || './#/app', self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(ws => { for (const w of ws) { if (w.url.startsWith(self.registration.scope) && 'focus' in w) { w.navigate(url).catch(() => {}); return w.focus(); } } return self.clients.openWindow(url); }));
 });

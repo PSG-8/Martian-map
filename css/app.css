@@ -527,3 +527,5 @@ html[dir=rtl] .switch input:checked+i:before{transform:translateX(-24px)}
 .code-sm{font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em}
 .bb p{margin:0 0 6px}.bb p:last-child{margin:0}.bot-ul{margin:4px 0 6px;padding-inline-start:18px}.bot-ul li{margin:2px 0}
 .bot-code{font-weight:800;color:var(--blue);direction:ltr;unicode-bidi:embed}
+.push-banner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border-radius:16px;margin-bottom:16px;background:linear-gradient(120deg,#eaf2ff,#f3f8ff);border:1px solid #cfe0fb}
+.push-banner .pb-ic{width:42px;height:42px;border-radius:13px;background:var(--blue);color:#fff;display:grid;place-items:center;flex:none}

@@ -394,3 +394,15 @@ Object.assign(window.I18N.ar, {
 });
 Object.assign(window.I18N.en, { e_HAS_ACTIVE:'This account has active requests. Reassign or finish them first.', e_BAD_ROLE:'Choose a valid account type.', e_NEED_CONTACT:'Add an email or a phone number.', e_BAD_PAYMENT:'Please pay by card or Apple Pay.' });
 Object.assign(window.I18N.ar, { e_HAS_ACTIVE:'لهذا الحساب طلبات نشطة. أعد تعيينها أو أنهِها أولاً.', e_BAD_ROLE:'اختر نوع حساب صحيح.', e_NEED_CONTACT:'أضف بريداً إلكترونياً أو رقم هاتف.', e_BAD_PAYMENT:'يرجى الدفع بالبطاقة أو Apple Pay.' });
+Object.assign(window.I18N.en, {
+  push_t:'Get updates on your phone', push_p:'Turn on notifications to know when the nurse is coming and when your results are ready.', push_btn:'Turn on notifications',
+  push_ios:'On iPhone: tap Share → “Add to Home Screen”, open Lab@Home from the home screen, then turn on notifications.', push_ok:'Notifications are on for this device', push_denied:'Notifications were not allowed.',
+  push_fail:'Could not turn on notifications on this browser.', push_card:'Phone notifications', push_card_p:'Updates about each step of your requests appear on this device, even when the app is closed.',
+  push_on:'On for this device', push_test:'Send a test', push_sent:'Test sent — check your notifications', push_off_btn:'Turn off', push_blocked:'Notifications are blocked. Allow them for this site in your browser settings.', push_unsup:'This browser doesn’t support notifications. Try Chrome or Safari.'
+});
+Object.assign(window.I18N.ar, {
+  push_t:'خلّ التحديثات توصلك على جوالك', push_p:'فعّل الإشعارات عشان تعرف متى يوصل الممرض ومتى تجهز نتائجك.', push_btn:'تفعيل الإشعارات',
+  push_ios:'في الآيفون: اضغط مشاركة ← «إضافة إلى الشاشة الرئيسية»، وافتح لاب@هوم من الشاشة الرئيسية، ثم فعّل الإشعارات.', push_ok:'تم تفعيل الإشعارات على هذا الجهاز', push_denied:'لم يتم السماح بالإشعارات.',
+  push_fail:'تعذّر تفعيل الإشعارات على هذا المتصفح.', push_card:'إشعارات الجوال', push_card_p:'تحديثات كل خطوة في طلباتك تظهر على هذا الجهاز حتى لو كان التطبيق مقفل.',
+  push_on:'مفعّلة على هذا الجهاز', push_test:'إرسال تجربة', push_sent:'تم الإرسال — شوف إشعاراتك', push_off_btn:'إيقاف', push_blocked:'الإشعارات محظورة. اسمح بها لهذا الموقع من إعدادات المتصفح.', push_unsup:'هذا المتصفح لا يدعم الإشعارات. جرّب Chrome أو Safari.'
+});
