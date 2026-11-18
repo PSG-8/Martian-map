@@ -1,5 +1,5 @@
-const V = 'lah-v10';
-const CORE = ['./', 'index.html', 'css/app.css?v=10', 'js/i18n.js?v=10', 'js/art.js?v=10', 'js/api.js?v=10', 'js/app.js?v=10', 'icons/icon.svg', 'manifest.webmanifest'];
+const V = 'lah-v11';
+const CORE = ['./', 'index.html', 'css/app.css?v=11', 'js/i18n.js?v=11', 'js/art.js?v=11', 'js/api.js?v=11', 'js/app.js?v=11', 'icons/icon.svg', 'manifest.webmanifest'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
