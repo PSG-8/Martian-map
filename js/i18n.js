@@ -362,3 +362,35 @@ Object.assign(window.I18N.ar, {
   app_f7:'مساعد دعم يرد فوراً على مدار الساعة', app_f8:'التحقق من الرقم المدني عند الباب', app_f9:'سلسلة حيازة مع وقت كل خطوة',
   notes_l:'ملاحظات', expected_samples:'عينات متوقعة', expected_samples_p:'زيارات محجوزة موجهة لمختبرك، جهّز الأنابيب والفريق مسبقاً.', fleet_p:'تابع مندوبيك ودرجات حرارة التبريد وكل عينة ينقلها فريقك.', drivers:'المندوبون', fleet_jobs:'مهام الشركة'
 });
+Object.assign(window.I18N.en, {
+  bot_pay:'Payment is electronic only: card or Apple Pay when you book. Cash isn’t accepted. Company programs can cover the cost with a sponsor code.',
+  epay_only:'Electronic payment only (card / Apple Pay).',
+  r_staff:'Team / customer service', r_admin:'Leader (owner)', manual:'Manual', auto:'Automatic', manual_d:'this nurse/courier presses each step themselves; otherwise the system moves the request automatically.',
+  orders_n:'{n} requests', us_suspended:'Suspended', us_rejected:'Rejected', us_pending:'Pending', us_deleted:'Deleted', delete:'Delete', deleted:'Deleted', del_q:'Delete {n}? Their history stays in old requests, but the account is removed.',
+  reset_pw:'New password (optional)', reset_pw_ph:'Leave empty to keep the current one', generate:'Generate', add_user:'Add account', user_added:'Account created', user_added_p:'Share these login details privately with the person.',
+  job_title:'Job title', staff_note:'Team accounts can see everything and answer customers, but cannot delete, add accounts, change prices or see payments.',
+  search:'Search', last_update:'Last update', readonly_note:'Team view: you can see everything. Changes are made by the team leader.',
+  m_payments:'Payments', m_contracts:'Company contracts', m_settings:'Settings', pay_gross:'Collected (net)', pay_sponsored:'Company-sponsored value', pay_refunded:'Refunded', pay_nurses:'Nurse payouts due',
+  pay_by_method:'By payment method', pay_list:'Transactions', pm_card:'Card', pm_applepay:'Apple Pay', pm_cash:'Cash (old)', pm_sponsored:'Company program', time:'Time', unpaid:'Unpaid', refunded:'Refunded', refund:'Refund', refund_q:'Refund this payment to the patient? Active requests will be cancelled.',
+  contracts_p:'Company wellness contracts: employees book free with the sponsor code.', new_contract:'New contract', contract_name:'Contract name', package:'Package', seats_used:'Employees booked', contract_value:'Contract value', period:'Period', starts:'Starts', ends:'Ends', pause:'Pause', activate:'Activate', inactive:'Paused', contract_ok:'Contract created · code {c}',
+  auto_t:'Automatic operations', auto_p:'Requests for nurses other than the manual ones (Jokha & Ansam) move forward by themselves: accept, trip, arrival, collection, courier and lab.', auto_on:'Automatic mode on', auto_step:'Minutes between steps', auto_accept:'Minutes to wait for manual nurses before auto-assigning', auto_manual_note:'Mark a nurse as “Manual” from Users → edit, to let her handle her requests herself.',
+  fees_t:'Fees & rules', nurse_fee:'Nurse fee per visit', fast_last:'Last morning slot for fasting tests',
+  owner_t:'Welcome, {n}', owner_p:'You are the team leader: full control over accounts, nurses, contracts, payments and settings.', staff_t:'Hi {n} 👋', staff_p:'Team view: you can follow every request and answer customers. Changes are made by the team leader.', demo_admin_t:'Demo operations view'
+});
+Object.assign(window.I18N.ar, {
+  bot_pay:'الدفع إلكتروني فقط: بطاقة أو Apple Pay عند الحجز، ولا نقبل الدفع النقدي. وبرامج الشركات تغطي التكلفة برمز الراعي.',
+  epay_only:'الدفع إلكتروني فقط (بطاقة / Apple Pay).',
+  r_staff:'الفريق / خدمة العملاء', r_admin:'القائد (المالك)', manual:'يدوي', auto:'تلقائي', manual_d:'الممرض/المندوب يضغط كل خطوة بنفسه، وإلا النظام يحرّك الطلب تلقائياً.',
+  orders_n:'{n} طلب', us_suspended:'موقوف', us_rejected:'مرفوض', us_pending:'قيد المراجعة', us_deleted:'محذوف', delete:'حذف', deleted:'تم الحذف', del_q:'حذف {n}؟ يبقى سجله في الطلبات القديمة لكن الحساب يُحذف.',
+  reset_pw:'كلمة مرور جديدة (اختياري)', reset_pw_ph:'اتركها فارغة للإبقاء على الحالية', generate:'توليد', add_user:'إضافة حساب', user_added:'تم إنشاء الحساب', user_added_p:'أرسل بيانات الدخول هذه للشخص بشكل خاص.',
+  job_title:'المسمى الوظيفي', staff_note:'حسابات الفريق تشوف كل شيء وترد على العملاء، لكن ما تقدر تحذف أو تضيف حسابات أو تغيّر الأسعار أو تشوف المدفوعات.',
+  search:'بحث', last_update:'آخر تحديث', readonly_note:'عرض الفريق: تقدر تشوف كل شيء، والتعديلات عند قائد الفريق.',
+  m_payments:'المدفوعات', m_contracts:'عقود الشركات', m_settings:'الإعدادات', pay_gross:'المحصّل (الصافي)', pay_sponsored:'قيمة رعاية الشركات', pay_refunded:'المسترد', pay_nurses:'مستحقات الممرضين',
+  pay_by_method:'حسب طريقة الدفع', pay_list:'العمليات', pm_card:'بطاقة', pm_applepay:'Apple Pay', pm_cash:'نقدي (قديم)', pm_sponsored:'برنامج شركة', time:'الوقت', unpaid:'غير مدفوع', refunded:'مسترد', refund:'استرداد', refund_q:'استرداد هذا المبلغ للمريض؟ سيتم إلغاء الطلب إذا كان نشطاً.',
+  contracts_p:'عقود العافية للشركات: الموظفون يحجزون مجاناً برمز الراعي.', new_contract:'عقد جديد', contract_name:'اسم العقد', package:'الباقة', seats_used:'الموظفون الذين حجزوا', contract_value:'قيمة العقد', period:'المدة', starts:'يبدأ', ends:'ينتهي', pause:'إيقاف مؤقت', activate:'تفعيل', inactive:'موقوف', contract_ok:'تم إنشاء العقد · الرمز {c}',
+  auto_t:'التشغيل التلقائي', auto_p:'طلبات الممرضين غير اليدويين (غير جوخة وأنسام) تتقدم لوحدها: القبول، الطريق، الوصول، السحب، النقل والمختبر.', auto_on:'التشغيل التلقائي مفعّل', auto_step:'الدقائق بين كل خطوة', auto_accept:'دقائق انتظار الممرضين اليدويين قبل التعيين التلقائي', auto_manual_note:'لتخلي ممرضة تتابع طلباتها بنفسها: المستخدمين ← تعديل ← «يدوي».',
+  fees_t:'الرسوم والقواعد', nurse_fee:'أجر الممرض لكل زيارة', fast_last:'آخر موعد صباحي لفحوصات الصيام',
+  owner_t:'أهلاً {n}', owner_p:'أنت قائد الفريق: تحكم كامل في الحسابات والممرضين والعقود والمدفوعات والإعدادات.', staff_t:'هلا {n} 👋', staff_p:'عرض الفريق: تتابع كل الطلبات وترد على العملاء، والتعديلات عند قائد الفريق.', demo_admin_t:'عرض العمليات التجريبي'
+});
+Object.assign(window.I18N.en, { e_HAS_ACTIVE:'This account has active requests. Reassign or finish them first.', e_BAD_ROLE:'Choose a valid account type.', e_NEED_CONTACT:'Add an email or a phone number.', e_BAD_PAYMENT:'Please pay by card or Apple Pay.' });
+Object.assign(window.I18N.ar, { e_HAS_ACTIVE:'لهذا الحساب طلبات نشطة. أعد تعيينها أو أنهِها أولاً.', e_BAD_ROLE:'اختر نوع حساب صحيح.', e_NEED_CONTACT:'أضف بريداً إلكترونياً أو رقم هاتف.', e_BAD_PAYMENT:'يرجى الدفع بالبطاقة أو Apple Pay.' });

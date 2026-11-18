@@ -511,3 +511,19 @@ html[dir=rtl] .switch input:checked+i:before{transform:translateX(-24px)}
 @media print{#bot{display:none}}
 @media (max-width:900px){.tabbar a{position:relative}.tabbar a .dot{position:absolute;top:2px;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--red);color:#fff;font-size:.66rem;font-weight:800;display:grid;place-items:center}[dir=rtl] .tabbar a .dot{left:auto;right:calc(50% + 6px)}}
 @media (max-width:700px){.bot-fab{width:52px;height:52px;border-radius:17px}.bot-fab svg{width:24px;height:24px}#bot{inset-inline-end:14px}}
+/* v4 clear wordmark */
+.wm{font-family:Inter,system-ui,sans-serif;font-weight:800;font-size:1.32rem;letter-spacing:-.025em;line-height:1;color:var(--navy);white-space:nowrap;display:inline-block;height:auto!important;width:auto}
+.wm i{font-style:normal;color:#3b82f6;font-weight:800;margin:0 .02em}
+.brand .wm{font-size:1.3rem;height:auto}
+.side-nav .brand .wm{font-size:1.18rem}
+.brand.on-dark .wm,footer.site .brand .wm{color:#fff}
+.brand.on-dark .wm i,footer.site .brand .wm i,.wm-inline .wm i{color:#60a5fa}
+.wm-inline .wm{font-size:1.5rem;color:#fff}
+.lead-card{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:16px 18px;border-radius:18px;background:#eef4ff;border:1px solid #d6e3fb}
+.lead-card.owner{background:var(--hex) 0 0/56px 64px,linear-gradient(120deg,#0d1628,#1d4ed8);color:#fff;border:0}
+.lead-card.owner .ic-round{background:rgba(255,255,255,.14);color:#fff}.lead-card.owner .btn{background:#fff;color:var(--blue)}
+.icon-btn.sm{width:34px;height:34px;min-height:34px;border-radius:10px;display:inline-grid;place-items:center;vertical-align:middle;margin-inline-start:4px}
+.icon-btn.danger{color:#d64550}.icon-btn.danger:hover{background:#fff1f1}
+.code-sm{font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em}
+.bb p{margin:0 0 6px}.bb p:last-child{margin:0}.bot-ul{margin:4px 0 6px;padding-inline-start:18px}.bot-ul li{margin:2px 0}
+.bot-code{font-weight:800;color:var(--blue);direction:ltr;unicode-bidi:embed}

@@ -61,7 +61,7 @@ function icon(name, size, sw){ return `<svg viewBox="0 0 24 24" width="${size||2
 
 let _lg=0;
 function logoFn(){ return `<svg class="mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="#3b82f6" stroke-width="3.2"/>  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="#3b82f6" stroke-width="1.6" opacity=".9"/>  <g transform="rotate(-32 32 34)" stroke="#3b82f6" stroke-width="2.2">    <path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/>    <path d="M27 20.5h10"/>    <path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/>    <circle cx="29.6" cy="40.4" r="1.6" stroke-width="1.5"/>    <circle cx="34.6" cy="39.4" r="1" stroke-width="1.3"/>  </g>  <circle cx="20.6" cy="20.2" r="1.3" stroke="#3b82f6" stroke-width="1.4"/>  <circle cx="17.6" cy="15.6" r=".9" stroke="#3b82f6" stroke-width="1.2"/>  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="#3b82f6" stroke-width="1.3"/></svg>`; }
-const WORDMARK = `<svg class="wm" role="img" aria-label="Lab@Home" viewBox="-1 -1 135 22" fill="none" stroke="currentColor" stroke-width="3.3" stroke-linejoin="miter" stroke-linecap="butt"><path transform="translate(0 0)" d="M1.5 0V20H13"/><path transform="translate(17 0)" d="M1.5 20V4.5L5.5 0.5H9L13 4.5V20M1.5 11.5H13"/><path transform="translate(34 0)" d="M1.5 1.5H9.5L12.5 4.5V7.2L10.2 9.8L12.5 12.4V16.5L9.5 19.5H1.5ZM1.5 10H10"/><path transform="translate(51 0)" d="M13 16V5L9.5 1.5H5L1.5 5V15.5L5 19H12.5M9.2 6.5H5.8V12.5H9.2ZM9.2 6.5V14.2H13"/><path transform="translate(68 0)" d="M1.5 0V20M12.5 0V20M1.5 10H12.5"/><path transform="translate(85 0)" d="M5 1.5H9.5L12.5 4.5V15.5L9.5 18.5H5L1.5 15.5V4.5Z"/><path transform="translate(102 0)" d="M1.5 20V1L7.2 8.5L13 1V20"/><path transform="translate(119 0)" d="M13 1.5H1.5V18.5H13M1.5 10H10.5"/></svg>`;
+const WORDMARK = `<span class="wm" dir="ltr" role="img" aria-label="Lab@Home">Lab<i>@</i>Home</span>`;
 
 const hero = `<svg viewBox="0 0 620 540" style="direction:ltr" role="img" aria-label="A nurse visiting a home with the Lab@Home app">
 <defs>
@@ -148,7 +148,7 @@ const roleArt = {
   patient:['user','#1257d6','#eaf2ff'], nurse:['syringe','#0fae9b','#e3f7f4'], courier:['van','#f2a516','#fff4dc'],
   lab:['flask','#7a5af8','#efeaff'], company:['building','#e8466f','#fdeaf0'], admin:['shield','#0b2350','#e6ebf5']
 };
-function roleIcon(r, size){ const x = roleArt[r]||roleArt.patient; const s=size||64;
+function roleIcon(r, size){ const x = roleArt[r === 'staff' ? 'admin' : r]||roleArt.patient; const s=size||64;
   return `<svg viewBox="0 0 64 64" width="${s}" height="${s}" aria-hidden="true" style="flex:none"><circle cx="32" cy="32" r="30" fill="${x[2]}"/><g transform="translate(16 16) scale(1.3333)" fill="none" stroke="${x[1]}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${P[x[0]]}</g></svg>`; }
 
 const emptyArt = `<svg viewBox="0 0 200 140" aria-hidden="true"><ellipse cx="100" cy="126" rx="70" ry="8" fill="#e6ecf6"/>

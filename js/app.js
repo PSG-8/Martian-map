@@ -305,7 +305,8 @@ function navFor(role){
     courier: [['app','home','m_home'],['app/orders','van','m_pickups'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     lab: [['app','home','m_home'],['app/orders','flask','m_samples'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     company: [['app','home','m_programs'],['app/notifs','bell','m_notifs'],['support','chat','m_support'],['app/profile','user','m_profile']],
-    admin: [['app','chart','overview'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/tickets','chat','m_tickets'],['app/admin/catalog','flask','m_catalog'],['app/profile','user','m_profile']]
+    admin: [['app','chart','overview'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/tickets','chat','m_tickets'],['app/admin/payments','card','m_payments'],['app/admin/contracts','building','m_contracts'],['app/admin/catalog','flask','m_catalog'],['app/admin/settings','gear','m_settings'],['app/profile','user','m_profile']],
+    staff: [['app','chart','overview'],['app/admin/tickets','chat','m_tickets'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/contracts','building','m_contracts'],['app/admin/settings','gear','m_settings'],['app/profile','user','m_profile']]
   };
   return m[role] || m.patient;
 }
@@ -317,7 +318,7 @@ function shell(title, body, opts){
   return `${u.is_demo ? `<div class="demo-banner">${ic('play',14)} ${S.lang === 'ar' ? 'حساب تجريبي' : 'Demo account'} · ${t('r_'+u.role)} · ${esc(u.full_name)}</div>` : ''}
   <div class="shell"><aside class="side-nav"><a href="#/" class="brand">${brandInner(t('r_'+u.role))}</a>
     ${items.map(([h, i, k]) => `<a href="#/${h}" class="${isOn(h) ? 'on' : ''}">${ic(i)} <span class="grow">${t(k)}</span>${h === 'app/cart' && n ? `<span class="chip red">${n}</span>` : ''}</a>`).join('')}
-    <a href="#/app/notifs" class="${isOn('app/notifs') ? 'on' : ''}" style="${['patient','admin'].includes(u.role) ? '' : 'display:none'}">${ic('bell')} <span class="grow">${t('m_notifs')}</span>${S.unread ? `<span class="chip red">${S.unread}</span>` : ''}</a>
+    <a href="#/app/notifs" class="${isOn('app/notifs') ? 'on' : ''}" style="${['patient','admin','staff'].includes(u.role) ? '' : 'display:none'}">${ic('bell')} <span class="grow">${t('m_notifs')}</span>${S.unread ? `<span class="chip red">${S.unread}</span>` : ''}</a>
     <a href="#/support">${ic('chat')} <span class="grow">${t('m_support')}</span></a><a href="#/about">${ic('users')} <span class="grow">${t('m_about')}</span></a>
     <div class="me"><span class="avatar">${esc(initials(u.full_name))}</span><div class="grow"><div class="b small" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(u.full_name)}</div><button class="link small" data-logout>${t('logout')}</button></div></div></aside>
   <main class="main-area"><div class="app-top">${opts && opts.back ? `<button class="icon-btn" data-goback aria-label="${t('back')}"><span class="flip">${ic('back')}</span></button>` : `<button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>`}<h1 class="grow">${title}</h1>
@@ -368,7 +369,7 @@ async function viewOrders(){
     app.innerHTML = shell(t(rep ? 'q_reports' : 'm_orders'), l.length ? `<div class="olist">${l.map(o => orderItem(o)).join('')}</div>` : emptyBox(t('none_orders'), `<a class="btn" href="#/app/tests">${t('book_now')}</a>`));
     return;
   }
-  if (r === 'admin') return viewAdminOrders();
+  if (r === 'admin' || r === 'staff') return viewAdminOrders();
   const list = await API.orders();
   const title = t(r === 'nurse' ? 'my_visits' : r === 'courier' ? 'm_pickups' : 'm_samples');
   app.innerHTML = shell(title, list.length ? `<div class="olist">${list.map(o => orderItem(o)).join('')}</div>` : emptyBox(t('none_yet')));
@@ -381,7 +382,7 @@ function bkInit(){
   return S.bk;
 }
 async function viewBook(){
-  await loadCatalog(); const b = bkInit(); const C = S.catalog;
+  await loadCatalog(); const b = bkInit(); const C = S.catalog; if (b.pay === 'cash') b.pay = 'card';
   const c = cartCalc();
   if (!b.program && !c.items.length) { app.innerHTML = shell(t('q_book'), emptyBox(t('cart_empty'), `<a class="btn" href="#/app/tests">${t('explore_tests')}</a>`)); return; }
   const stepNames = ['b2_who','b2_loc','b2_nurse','b2_time','b2_pay'];
@@ -434,11 +435,11 @@ async function viewBook(){
       <div class="card stack"><h3>${t('pay_t')}</h3>
       <div class="row"><input class="input grow" id="code" placeholder="${t('sponsor_code')}" value="${esc(b.code)}" style="text-transform:uppercase"><button class="btn soft" id="apply">${t('apply')}</button></div>
       ${b.program ? `<div class="banner teal">${ic('check',20)}<b>${t('sponsored_by',{c:esc(b.program.company)})} · ${esc(b.program.name)}</b></div>` : `
-      <div class="paym">${[['card','card','pay_card'],['applepay','phone','pay_apple'],['cash','clock','pay_cash']].map(([v, i, k]) => `<label class="${b.pay === v ? 'on' : ''}"><input type="radio" name="pay" value="${v}" ${b.pay === v ? 'checked' : ''}> ${ic(i)} <span class="grow b">${t(k)}</span></label>`).join('')}</div>
+      <div class="paym">${[['card','card','pay_card'],['applepay','phone','pay_apple']].map(([v, i, k]) => `<label class="${b.pay === v ? 'on' : ''}"><input type="radio" name="pay" value="${v}" ${b.pay === v ? 'checked' : ''}> ${ic(i)} <span class="grow b">${t(k)}</span></label>`).join('')}</div>
       ${b.pay === 'card' ? `<div class="grid g3"><label class="field" style="grid-column:1/-1"><span>${t('card_no')}</span><input class="input ltr" id="cn" inputmode="numeric" placeholder="4242 4242 4242 4242" autocomplete="cc-number" style="width:100%"></label><label class="field"><span>${t('exp')}</span><input class="input" id="ce" placeholder="12/28" autocomplete="cc-exp"></label><label class="field"><span>${t('cvv')}</span><input class="input" id="cv" inputmode="numeric" placeholder="123" autocomplete="cc-csc"></label></div>` : ''}
-      <div class="banner blue small">${ic('shield',20)}<span>${t('test_mode')}</span></div>`}</div>`;
+      <div class="banner blue small">${ic('shield',20)}<span>${t('epay_only')} ${t('test_mode')}</span></div>`}</div>`;
   }
-  const next = b.step < 5 ? `<button class="btn" id="nx">${t('next')} ${'<span class="flip">'+ic('arrow',18)+'</span>'}</button>` : `<button class="btn teal" id="pay">${b.program || b.pay === 'cash' ? t('confirm_book') : t('confirm_pay',{x:omr(total)})}</button>`;
+  const next = b.step < 5 ? `<button class="btn" id="nx">${t('next')} ${'<span class="flip">'+ic('arrow',18)+'</span>'}</button>` : `<button class="btn teal" id="pay">${b.program ? t('confirm_book') : t('confirm_pay',{x:omr(total)})}</button>`;
   app.innerHTML = shell(t('q_book'), `${head}<div class="grid" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px" id="bkg">
     <div class="stack">${body}<div class="err" id="be"></div><div class="row">${b.step > 1 ? `<button class="btn ghost" id="pv">${t('back')}</button>` : `<a class="btn ghost" href="#/app/cart">${t('m_cart')}</a>`}<div class="grow"></div>${next}</div></div><div>${summary}</div></div>`, { back: true });
   if (innerWidth < 900) $('#bkg').style.gridTemplateColumns = '1fr';
@@ -658,7 +659,7 @@ function actionPanel(o){
     if (s === 'at_lab') h = `<div class="row"><button class="btn teal grow" data-act="receive">${ic('check',18)} ${t('receive_btn')}</button><button class="btn ghost" data-act="reject">${t('reject_btn')}</button></div>`;
     if (s === 'processing') h = resultsForm(o) + `<button class="btn ghost sm" data-act="reject" style="align-self:flex-start">${t('reject_btn')}</button>`;
   }
-  if (r === 'admin' && ['booked','recollect','assigned'].includes(s) && !u.is_demo) h = `<div class="row"><button class="btn sm" data-act="assign">${ic('syringe',16)} ${t('assign')}</button><button class="btn ghost sm" data-act="admincancel">${t('cancel_req')}</button></div>`;
+  if ((r === 'admin' || r === 'staff') && ['booked','recollect','assigned'].includes(s) && !u.is_demo) h = `<div class="row"><button class="btn sm" data-act="assign">${ic('syringe',16)} ${t('assign')}</button>${isOwner() ? `<button class="btn ghost sm" data-act="admincancel">${t('cancel_req')}</button>` : ''}</div>`;
   return h;
 }
 function resultsForm(o){
@@ -803,6 +804,7 @@ async function viewAdminHome(){
   const mx = Math.max(1, ...days.map(d => d[1]));
   const bs = ov.by_status || {}; const bsMax = Math.max(1, ...Object.values(bs));
   app.innerHTML = shell(t('overview'), `<div class="stack-lg">
+    <div class="lead-card ${isOwner() ? 'owner' : ''}"><span class="ic-round">${ic(isOwner() ? 'award' : 'eye',24)}</span><div class="grow"><b>${isOwner() ? t('owner_t',{n:esc(S.user.full_name)}) : S.user.role === 'staff' ? t('staff_t',{n:esc(S.user.full_name.split(' ')[0])}) : t('demo_admin_t')}</b><div class="small">${isOwner() ? t('owner_p') : t('staff_p')}</div></div>${isOwner() ? `<a class="btn sm" href="#/app/admin/users">${ic('plus',16)} ${t('add_user')}</a>` : `<a class="btn sm soft" href="#/app/admin/tickets">${ic('chat',16)} ${t('m_tickets')}</a>`}</div>
     <div class="grid g4"><div class="kpi blue"><span>${t('orders_today')}</span><b>${ov.today}</b></div><div class="kpi"><span>${t('active_orders')}</span><b>${ov.active}</b></div><div class="kpi"><span>${t('completed_orders')}</span><b>${ov.completed}</b></div><div class="kpi"><span>${t('revenue')}</span><b>${omr(ov.revenue)}</b></div>
     <div class="kpi"><span>${t('avg_tat')}</span><b>${ov.avg_tat_h != null ? ov.avg_tat_h + ' h' : '—'}</b></div><div class="kpi"><span>${t('rating')}</span><b>${ov.rating ? '★ ' + ov.rating : '—'}</b></div><div class="kpi"><span>${t('pending_verif')}</span><b>${ov.pending}</b></div><div class="kpi"><span>${t('waitlist_n')}</span><b>${ov.waitlist}</b></div></div>
     <div class="grid g2 collapse"><div class="card"><h3>${t('last14')}</h3><div class="bars" style="margin:18px 0 22px">${days.map(([d, n]) => `<div style="height:${n / mx * 100}%" title="${d}: ${n}"><span>${d.slice(8)}</span></div>`).join('')}</div></div>
@@ -810,29 +812,153 @@ async function viewAdminHome(){
     <div class="grid g2 collapse"><div class="card"><h3>${t('top_tests')}</h3>${(ov.top_tests || []).map(x => `<div class="vline"><span>${esc(LN(S.catalog.T[x.id],'name'))}</span><b>${x.n}</b></div>`).join('') || `<p class="muted">${t('none_yet')}</p>`}</div>
       <div class="card"><h3>${t('by_wilayat')}</h3>${Object.entries(ov.by_wilayat || {}).map(([w, n]) => `<div class="vline"><span>${esc(wN(w))}</span><b>${n}</b></div>`).join('') || `<p class="muted">${t('none_yet')}</p>`}</div></div>
     <div class="card"><h3>${t('pending_verif')} <span class="chip amber">${pend.length}</span></h3>${pend.length ? userTable(pend) : `<p class="muted">${t('none_yet')}</p>`}</div></div>`);
-  bindUserActions();
+  bindUserActions(pend);
 }
+/* ---------- leader (owner) & staff ---------- */
+const isOwner = () => S.user && S.user.role === 'admin' && !S.user.is_demo;
+const isOps = () => S.user && (S.user.role === 'admin' || S.user.role === 'staff');
 function userTable(list){
-  return `<div class="scroll-x"><table class="table"><thead><tr><th>${t('full_name')}</th><th>${t('role')}</th><th>${t('wilayat')}</th><th>${t('details')}</th><th>${t('status')}</th><th></th></tr></thead><tbody>
-    ${list.map(u => `<tr><td><b>${esc(u.full_name)}</b><div class="xs muted ltr">${esc(u.email || '')} ${esc(u.phone || '')}</div></td><td>${t('r_'+u.role)}</td><td>${esc(wN(u.wilayat || ''))}</td>
-      <td class="xs muted">${esc([u.meta.license, u.meta.lab_name, u.meta.company_name, u.meta.cr, u.meta.vehicle].filter(Boolean).join(' · '))}</td><td>${u.status === 'active' ? `<span class="chip teal">${t('active')}</span>` : `<span class="chip ${u.status === 'pending' ? 'amber' : 'red'}">${esc(u.status)}</span>`}</td>
-      <td style="white-space:nowrap">${u.role === 'admin' ? '' : u.status !== 'active' ? `<button class="btn sm teal" data-us="${u.id}:active">${t('approve')}</button> ` : ''}${u.role !== 'admin' && u.status === 'pending' ? `<button class="btn sm ghost" data-us="${u.id}:rejected">${t('reject')}</button>` : u.role !== 'admin' && u.status === 'active' && u.role !== 'patient' ? `<button class="btn sm ghost" data-us="${u.id}:suspended">${t('suspend')}</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+  const own = isOwner();
+  return `<div class="scroll-x"><table class="table"><thead><tr><th>${t('full_name')}</th><th>${t('role')}</th><th>${t('wilayat')}</th><th>${t('details')}</th><th>${t('status')}</th>${own ? '<th></th>' : ''}</tr></thead><tbody>
+    ${list.map(u => { const m = u.meta || {}; return `<tr><td><b>${esc(u.full_name)}</b><div class="xs muted ltr">${esc(u.email || '')} ${esc(u.phone || '')}</div>${u.civil_id ? `<div class="xs muted">${ic('idcard',11)} ${esc(u.civil_id)}</div>` : ''}</td>
+      <td>${t('r_'+u.role)}${u.role === 'nurse' ? `<div class="xs muted">${t(m.gender === 'female' ? 'female' : 'male')}${m.manual ? ` · <span class="chip purple xs-chip">${t('manual')}</span>` : ` · <span class="chip gray xs-chip">${t('auto')}</span>`}</div>` : ''}${m.fleet_admin ? `<div class="xs muted">${t('r_fleet')}</div>` : ''}</td><td>${esc(wN(u.wilayat || ''))}</td>
+      <td class="xs muted">${esc([m.license, m.lab_name, m.company_name, m.company, m.vehicle, m.plate, m.title].filter(Boolean).join(' · '))}${u.orders ? `<div>${t('orders_n',{n:u.orders})}</div>` : ''}</td>
+      <td>${u.status === 'active' ? `<span class="chip teal">${t('active')}</span>` : `<span class="chip ${u.status === 'pending' ? 'amber' : 'red'}">${esc(t('us_' + u.status))}</span>`}</td>
+      ${own ? `<td style="white-space:nowrap">${u.role === 'admin' ? '' : `${u.status !== 'active' ? `<button class="btn sm teal" data-us="${u.id}:active">${t('approve')}</button> ` : ''}${u.status === 'pending' ? `<button class="btn sm ghost" data-us="${u.id}:rejected">${t('reject')}</button> ` : u.status === 'active' && u.role !== 'patient' ? `<button class="btn sm ghost" data-us="${u.id}:suspended">${t('suspend')}</button> ` : ''}<button class="icon-btn sm" data-ue="${u.id}" title="${t('edit')}">${ic('gear',17)}</button><button class="icon-btn sm danger" data-ud="${u.id}" title="${t('delete')}">${ic('x',17)}</button>`}</td>` : ''}</tr>`; }).join('')}</tbody></table></div>`;
 }
-function bindUserActions(){ $$('[data-us]').forEach(b => b.onclick = async () => { const [id, s] = b.dataset.us.split(':'); try { await busy(b, () => API.adminSetStatus(id, s)); toast(t('saved')); render(); } catch(e) {} }); }
+function bindUserActions(list){
+  $$('[data-us]').forEach(b => b.onclick = async () => { const [id, s] = b.dataset.us.split(':'); try { await busy(b, () => API.adminSetStatus(id, s)); toast(t('saved')); render(); } catch(e) {} });
+  $$('[data-ud]').forEach(b => b.onclick = async () => { const u = (list || []).find(x => x.id === b.dataset.ud); if (!await confirmBox(t('del_q',{n:u ? u.full_name : ''}), t('delete'), t('keep'))) return; try { await busy(b, () => API.adminUserDelete(b.dataset.ud)); toast(t('deleted')); render(); } catch(e) {} });
+  $$('[data-ue]').forEach(b => b.onclick = () => { const u = (list || []).find(x => x.id === b.dataset.ue); if (u) userEditModal(u); });
+}
+function genPass(){ const a = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'; let s = 'Lah-'; for (let i = 0; i < 8; i++) s += a[Math.floor(Math.random() * a.length)]; return s; }
+function wChecks(name, sel){ const W = S.catalog ? S.catalog.wilayats : Object.keys(WILAYAT_AR); return `<div class="row wrap" style="gap:6px">${W.map(w => `<label class="chip gray" style="cursor:pointer;padding:7px 10px"><input type="checkbox" name="${name}" value="${esc(w)}" ${(sel || []).includes(w) ? 'checked' : ''}> ${esc(wN(w))}</label>`).join('')}</div>`; }
+function userEditModal(u){
+  const m = u.meta || {}; const W = S.catalog ? S.catalog.wilayats : Object.keys(WILAYAT_AR);
+  modal(`<h3>${t('edit')} · ${esc(u.full_name)}</h3><form class="stack" id="uef" style="margin-top:12px">
+    <label class="field"><span>${t('full_name')}</span><input class="input" name="full_name" value="${esc(u.full_name)}"></label>
+    <label class="field"><span>${t('wilayat')}</span><select class="input" name="wilayat">${W.map(w => `<option value="${esc(w)}" ${u.wilayat === w ? 'selected' : ''}>${esc(wN(w))}</option>`).join('')}</select></label>
+    ${['nurse','courier'].includes(u.role) ? `<div class="field"><span>${t('coverage')}</span>${wChecks('cov', m.coverage)}</div><label class="check"><input type="checkbox" name="manual" ${m.manual ? 'checked' : ''}> <span><b>${t('manual')}</b> — ${t('manual_d')}</span></label>` : ''}
+    <label class="field"><span>${t('reset_pw')}</span><div class="row"><input class="input grow ltr" name="password" placeholder="${t('reset_pw_ph')}"><button type="button" class="btn soft sm" data-gp>${t('generate')}</button></div></label>
+    <div class="row"><button type="button" class="btn ghost grow" data-x>${t('cancel')}</button><button class="btn grow">${t('save_changes')}</button></div></form>`, (el, close) => {
+    $('[data-x]', el).onclick = close; $('[data-gp]', el).onclick = () => { $('[name=password]', el).value = genPass(); };
+    $('#uef', el).onsubmit = async e => { e.preventDefault(); const f = e.target; const meta = {};
+      if (f.manual) meta.manual = f.manual.checked; if ($$('[name=cov]', f).length) meta.coverage = $$('[name=cov]:checked', f).map(x => x.value);
+      try { await busy($('button.btn:not(.ghost):not(.soft)', f), () => API.adminUserUpdate(u.id, { full_name: f.full_name.value, wilayat: f.wilayat.value, meta, password: f.password.value.trim() })); close(); toast(t('saved')); render(); } catch(err) {} };
+  });
+}
+function userAddModal(){
+  const W = S.catalog ? S.catalog.wilayats : Object.keys(WILAYAT_AR); let role = 'nurse';
+  const extra = r => ({
+    nurse: `<div class="grid g2"><label class="field"><span>${t('gender')}</span><select class="input" name="gender"><option value="female">${t('female')}</option><option value="male">${t('male')}</option></select></label><label class="field"><span>${t('license')}</span><input class="input" name="license" placeholder="OMSB-RN-…"></label></div>
+      <div class="grid g2"><label class="field"><span>${t('years')}</span><input class="input" type="number" name="years" min="0"></label><label class="field"><span>${t('civil_id')}</span><input class="input" name="civil_id" inputmode="numeric"></label></div>
+      <div class="field"><span>${t('coverage')}</span>${wChecks('cov', ['Ibra'])}</div><label class="check"><input type="checkbox" name="manual"> <span><b>${t('manual')}</b> — ${t('manual_d')}</span></label>`,
+    courier: `<label class="field"><span>${t('logistics_co')}</span><input class="input" name="company"></label><div class="grid g2"><label class="field"><span>${t('vehicle')}</span><input class="input" name="vehicle"></label><label class="field"><span>${t('plate')}</span><input class="input" name="plate"></label></div><label class="field"><span>${t('civil_id')}</span><input class="input" name="civil_id" inputmode="numeric"></label><div class="field"><span>${t('coverage')}</span>${wChecks('cov', ['Ibra'])}</div><label class="check"><input type="checkbox" name="fleet_admin"> <span>${t('r_fleet')}</span></label>`,
+    lab: `<label class="field"><span>${t('lab_name')}</span><input class="input" name="lab_name"></label><div class="grid g2"><label class="field"><span>${t('lab_license')}</span><input class="input" name="license"></label><label class="field"><span>${t('accreditation')}</span><input class="input" name="accreditation"></label></div><div class="grid g2"><label class="field"><span>${t('director')}</span><input class="input" name="director"></label><label class="field"><span>${t('hours')}</span><input class="input" name="hours" placeholder="07:00–20:00"></label></div>`,
+    company: `<label class="field"><span>${t('company_name')}</span><input class="input" name="company_name"></label><div class="grid g2"><label class="field"><span>${t('cr')}</span><input class="input" name="cr"></label><label class="field"><span>${t('employees')}</span><input class="input" type="number" name="employees"></label></div>`,
+    staff: `<label class="field"><span>${t('job_title')}</span><input class="input" name="title" placeholder="${t('r_staff')}"></label><div class="banner blue small">${ic('eye',18)}<span>${t('staff_note')}</span></div>`,
+    patient: `<label class="field"><span>${t('civil_id')}</span><input class="input" name="civil_id" inputmode="numeric"></label><label class="field"><span>${t('gender')}</span><select class="input" name="gender"><option value="male">${t('male')}</option><option value="female">${t('female')}</option></select></label>`
+  })[r];
+  modal(`<h3>${t('add_user')}</h3><div class="cats" style="margin:10px 0" id="arole">${['nurse','courier','lab','company','staff','patient'].map(r => `<button type="button" data-ar="${r}" class="${r === role ? 'on' : ''}">${t('r_'+r)}</button>`).join('')}</div>
+    <form class="stack" id="uaf"><label class="field"><span>${t('full_name')}</span><input class="input" name="full_name" required></label>
+    <div class="grid g2"><label class="field"><span>${t('email')}</span><input class="input ltr" type="email" name="email"></label><label class="field"><span>${t('phone')}</span><input class="input ltr" name="phone" inputmode="tel"></label></div>
+    <label class="field"><span>${t('wilayat')}</span><select class="input" name="wilayat">${W.map(w => `<option value="${esc(w)}">${esc(wN(w))}</option>`).join('')}</select></label>
+    <div id="uax">${extra(role)}</div>
+    <label class="field"><span>${t('password')}</span><div class="row"><input class="input grow ltr" name="password" value="${genPass()}"><button type="button" class="btn soft sm" data-gp>${t('generate')}</button></div></label>
+    <div class="err" id="uae"></div><div class="row"><button type="button" class="btn ghost grow" data-x>${t('cancel')}</button><button class="btn grow" id="uas">${t('add_user')}</button></div></form>`, (el, close) => {
+    $('[data-x]', el).onclick = close; $('[data-gp]', el).onclick = () => { $('[name=password]', el).value = genPass(); };
+    $$('[data-ar]', el).forEach(b => b.onclick = () => { role = b.dataset.ar; $$('[data-ar]', el).forEach(x => x.classList.toggle('on', x === b)); $('#uax', el).innerHTML = extra(role); });
+    $('#uaf', el).onsubmit = async e => { e.preventDefault(); const f = e.target; const g = n => f[n] ? (f[n].type === 'checkbox' ? f[n].checked : String(f[n].value || '').trim()) : undefined;
+      const meta = {}; ['gender','license','years','company','vehicle','plate','lab_name','accreditation','director','hours','company_name','cr','employees','title'].forEach(k => { const v = g(k); if (v) meta[k] = v; });
+      if (f.manual) meta.manual = f.manual.checked; if (f.fleet_admin) meta.fleet_admin = f.fleet_admin.checked; if ($$('[name=cov]', f).length) meta.coverage = $$('[name=cov]:checked', f).map(x => x.value);
+      if (role === 'nurse') { meta.languages = ['Arabic','English']; }
+      const ll = WILAYAT_LL[g('wilayat')] || [];
+      const p = { role, full_name: role === 'lab' && meta.lab_name ? meta.lab_name : role === 'company' && meta.company_name ? meta.company_name : g('full_name'), email: g('email'), phone: g('phone'), wilayat: g('wilayat'), lat: ll[0], lng: ll[1], password: g('password'), civil_id: (g('civil_id') || '').replace(/\D/g, ''), meta };
+      if (role === 'lab' || role === 'company') meta.contact = g('full_name');
+      try { const u = await busy($('#uas', el), () => API.adminUserCreate(p)); close();
+        modal(`<div class="center"><div class="ic-round" style="margin:0 auto 10px;color:var(--teal);background:var(--teal-bg)">${ic('check',26)}</div><h3>${t('user_added')}</h3><p class="muted small">${t('user_added_p')}</p></div>
+          <div class="card flat" style="margin-top:10px"><div class="vline"><span class="muted">${t('r_'+role)}</span><b>${esc(u.full_name)}</b></div><div class="vline"><span class="muted">${t('email_or_phone')}</span><b class="ltr">${esc(p.email || p.phone)}</b></div><div class="vline" style="border:0"><span class="muted">${t('password')}</span><b class="ltr">${esc(p.password)}</b></div></div>
+          <button class="btn block" data-x style="margin-top:12px">${t('done')}</button>`, (el2, c2) => { $('[data-x]', el2).onclick = () => { c2(); render(); }; });
+      } catch(err) { $('#uae', el).textContent = errMsg(err); } };
+  });
+}
 async function viewAdminUsers(){
-  loading(t('m_users'));
+  loading(t('m_users')); await loadCatalog().catch(() => {});
   const role = new URLSearchParams(location.hash.split('?')[1] || '').get('role') || '';
   const list = await API.adminUsers(role || null, null);
-  app.innerHTML = shell(t('m_users'), `<div class="cats" style="margin-bottom:12px">${['','patient','nurse','courier','lab','company','admin'].map(r => `<button class="${r === role ? 'on' : ''}" data-r="${r}">${r ? t('r_'+r) : t('cat_all')}</button>`).join('')}</div><div class="card">${userTable(list)}</div>`);
+  app.innerHTML = shell(t('m_users'), `<div class="row between wrap" style="margin-bottom:12px;gap:10px"><div class="cats" style="margin:0">${['','patient','nurse','courier','lab','company','staff','admin'].map(r => `<button class="${r === role ? 'on' : ''}" data-r="${r}">${r ? t('r_'+r) : t('cat_all')}</button>`).join('')}</div>
+    <div class="row" style="gap:8px"><input class="input" id="uq" placeholder="${t('search')}…" style="min-height:42px;width:200px">${isOwner() ? `<button class="btn" id="uadd">${ic('plus',18)} ${t('add_user')}</button>` : ''}</div></div>
+    ${!isOwner() ? `<div class="banner blue small" style="margin-bottom:12px">${ic('eye',18)}<span>${t('readonly_note')}</span></div>` : ''}
+    <div class="card" id="ut">${userTable(list)}</div>`);
   $$('[data-r]').forEach(b => b.onclick = () => go('app/admin/users' + (b.dataset.r ? '?role=' + b.dataset.r : '')));
-  bindUserActions();
+  bindUserActions(list);
+  if ($('#uadd')) $('#uadd').onclick = userAddModal;
+  $('#uq').oninput = e => { const q = e.target.value.toLowerCase(); const l = list.filter(u => [u.full_name, u.email, u.phone, u.civil_id, u.wilayat].join(' ').toLowerCase().includes(q)); $('#ut').innerHTML = userTable(l); bindUserActions(l); };
 }
 async function viewAdminOrders(){
-  const list = await API.orders();
-  app.innerHTML = shell(t('m_all_orders'), `<div class="card"><div class="scroll-x"><table class="table"><thead><tr><th>${t('request')}</th><th>${t('patient')}</th><th>${t('appointment')}</th><th>${t('wilayat')}</th><th>${t('total')}</th><th>${t('status')}</th></tr></thead><tbody>
-    ${list.map(o => `<tr style="cursor:pointer" data-o="${o.id}"><td><b>${esc(o.code)}</b></td><td>${esc(o.person || '')}</td><td class="small">${fmtDate(o.slot_date)} · ${esc(o.slot_time)}</td><td>${esc(wN(o.wilayat))}</td><td class="num">${omr(o.total)}</td><td>${stChip(o.status)}</td></tr>`).join('')}</tbody></table></div></div>`);
-  $$('[data-o]').forEach(r => r.onclick = () => go('app/order/' + r.dataset.o));
+  loading(t('m_all_orders'));
+  const list = await API.orders(); let f = 'all', q = '';
+  const draw = () => { const l = list.filter(o => (f === 'all' || (f === 'active' ? ACTIVE(o.status) : o.status === f)) && (!q || [o.code, o.person, o.nurse, o.wilayat].join(' ').toLowerCase().includes(q)));
+    $('#ot').innerHTML = `<table class="table"><thead><tr><th>${t('request')}</th><th>${t('patient')}</th><th>${t('r_nurse')}</th><th>${t('appointment')}</th><th>${t('wilayat')}</th><th>${t('total')}</th><th>${t('status')}</th><th>${t('last_update')}</th></tr></thead><tbody>
+    ${l.map(o => `<tr style="cursor:pointer" data-o="${o.id}"><td><b class="ltr">${esc(o.code)}</b></td><td>${esc(o.person || '')}</td><td class="small">${esc(o.nurse || '—')}</td><td class="small">${fmtDate(o.slot_date)} · ${esc(o.slot_time)}</td><td>${esc(wN(o.wilayat))}</td><td class="num">${omr(o.total)}</td><td>${stChip(o.status)}</td><td class="xs muted">${o.updated_at ? ago(o.updated_at) : ''}</td></tr>`).join('')}</tbody></table>`;
+    $$('[data-o]').forEach(r => r.onclick = () => go('app/order/' + r.dataset.o)); };
+  app.innerHTML = shell(t('m_all_orders'), `<div class="row between wrap" style="margin-bottom:12px;gap:10px"><div class="cats" style="margin:0">${['all','active','booked','completed','cancelled'].map(x => `<button data-f="${x}" class="${x === f ? 'on' : ''}">${x === 'all' ? t('cat_all') : x === 'active' ? t('active_orders') : t('st_'+x)}</button>`).join('')}</div><input class="input" id="oq" placeholder="${t('search')}…" style="min-height:42px;width:220px"></div>
+    <div class="card"><div class="scroll-x" id="ot"></div></div>`);
+  $$('[data-f]').forEach(b => b.onclick = () => { f = b.dataset.f; $$('[data-f]').forEach(x => x.classList.toggle('on', x === b)); draw(); });
+  $('#oq').oninput = e => { q = e.target.value.toLowerCase(); draw(); };
+  draw();
 }
+async function viewAdminPayments(){
+  loading(t('m_payments'));
+  const P = await API.adminPayments(); const own = isOwner();
+  app.innerHTML = shell(t('m_payments'), `<div class="stack-lg">
+    <div class="grid g4"><div class="kpi blue"><span>${t('pay_gross')}</span><b>${omr(P.gross)}</b></div><div class="kpi"><span>${t('pay_sponsored')}</span><b>${omr(P.sponsored)}</b></div><div class="kpi"><span>${t('pay_refunded')}</span><b>${omr(P.refunded)}</b></div><div class="kpi"><span>${t('pay_nurses')}</span><b>${omr(P.nurse_payout)}</b></div></div>
+    <div class="card"><h3>${t('pay_by_method')}</h3>${Object.entries(P.by_method || {}).map(([k, v]) => `<div class="vline"><span>${t('pm_' + k)}</span><b class="num">${omr(v)} ${t('omr')}</b></div>`).join('') || `<p class="muted">${t('none_yet')}</p>`}<div class="banner blue small" style="margin-top:10px">${ic('shield',18)}<span>${t('epay_only')}</span></div></div>
+    <div class="card"><h3>${t('pay_list')}</h3><div class="scroll-x"><table class="table"><thead><tr><th>${t('request')}</th><th>${t('patient')}</th><th>${t('payment')}</th><th>${t('total')}</th><th>${t('time')}</th><th>${t('status')}</th>${own ? '<th></th>' : ''}</tr></thead><tbody>
+      ${P.list.map(x => `<tr><td><a class="b ltr" href="#/app/order/${x.id}">${esc(x.code)}</a></td><td>${esc(x.patient)}</td><td class="small">${t('pm_' + x.method)}</td><td class="num">${omr(x.total)}</td><td class="xs muted">${fmtDT(x.at)}</td>
+        <td>${x.refunded ? `<span class="chip red">${t('refunded')}</span>` : x.paid ? `<span class="chip teal">${t('paid')}</span>` : x.method === 'sponsored' ? `<span class="chip purple">${t('sponsored')}</span>` : `<span class="chip amber">${t('unpaid')}</span>`}</td>
+        ${own ? `<td>${x.paid && !x.refunded ? `<button class="btn sm ghost" data-rf="${x.id}">${t('refund')}</button>` : ''}</td>` : ''}</tr>`).join('')}</tbody></table></div></div></div>`);
+  $$('[data-rf]').forEach(b => b.onclick = async () => { if (!await confirmBox(t('refund_q'), t('refund'), t('keep'))) return; try { await busy(b, () => API.adminRefund(b.dataset.rf)); toast(t('saved')); render(); } catch(e) {} });
+}
+async function viewAdminContracts(){
+  loading(t('m_contracts')); await loadCatalog();
+  const [list, cos] = await Promise.all([API.programs(), API.adminUsers('company', 'active')]); const own = isOwner();
+  app.innerHTML = shell(t('m_contracts'), `<div class="stack-lg"><div class="row between wrap"><p class="muted" style="margin:0">${t('contracts_p')}</p>${own ? `<button class="btn" id="cadd">${ic('plus',18)} ${t('new_contract')}</button>` : ''}</div>
+    ${list.length ? `<div class="grid g2 collapse">${list.map(p => `<div class="card"><div class="row between"><div><div class="xs muted b">${esc(p.company || '')}</div><h3 style="margin:2px 0">${esc(p.name)}</h3></div><span class="chip ${p.active ? 'teal' : 'gray'}">${p.active ? t('active') : t('inactive')}</span></div>
+      <div class="vline"><span class="muted">${t('sponsor_code')}</span><b class="ltr code-sm">${esc(p.code)}</b></div><div class="vline"><span class="muted">${t('package')}</span><b>${esc(p.package ? LN(p.package,'name') : '')}</b></div>
+      <div class="vline"><span class="muted">${t('seats_used')}</span><b>${p.booked} / ${p.seats}</b></div><div class="vline"><span class="muted">${t('completed_orders')}</span><b>${p.completed}</b></div>
+      <div class="vline"><span class="muted">${t('contract_value')}</span><b class="num">${omr(p.price != null ? p.price : p.value)} ${t('omr')}</b></div>
+      ${p.starts_on || p.ends_on ? `<div class="vline"><span class="muted">${t('period')}</span><b>${p.starts_on ? fmtDate(p.starts_on) : '—'} → ${p.ends_on ? fmtDate(p.ends_on) : '—'}</b></div>` : ''}
+      <div class="progress" style="margin-top:10px"><i style="width:${Math.min(100, Math.round(p.booked / Math.max(1, p.seats) * 100))}%"></i></div>
+      ${own ? `<div class="row" style="margin-top:12px"><button class="btn sm ghost" data-ct="${p.id}:${p.active ? 0 : 1}">${p.active ? t('pause') : t('activate')}</button></div>` : ''}</div>`).join('')}</div>` : emptyBox(t('none_yet'))}</div>`);
+  $$('[data-ct]').forEach(b => b.onclick = async () => { const [id, a] = b.dataset.ct.split(':'); try { await busy(b, () => API.adminContractSave({ id, active: a === '1' })); toast(t('saved')); render(); } catch(e) {} });
+  if ($('#cadd')) $('#cadd').onclick = () => modal(`<h3>${t('new_contract')}</h3><form class="stack" id="cf" style="margin-top:12px">
+      <label class="field"><span>${t('r_company')}</span><select class="input" name="company_id" required>${cos.map(c => `<option value="${c.id}">${esc(c.full_name)}</option>`).join('')}</select></label>
+      <label class="field"><span>${t('contract_name')}</span><input class="input" name="name" required placeholder="Employee Wellness 2027"></label>
+      <div class="grid g2"><label class="field"><span>${t('package')}</span><select class="input" name="package_id">${S.catalog.packages.map(k => `<option value="${k.id}">${esc(LN(k,'name'))} · ${omr(k.price)}</option>`).join('')}</select></label><label class="field"><span>${t('employees')}</span><input class="input" type="number" name="seats" min="1" value="20"></label></div>
+      <div class="grid g3"><label class="field"><span>${t('contract_value')} (${t('omr')})</span><input class="input num" name="price" inputmode="decimal"></label><label class="field"><span>${t('starts')}</span><input class="input" type="date" name="starts_on"></label><label class="field"><span>${t('ends')}</span><input class="input" type="date" name="ends_on"></label></div>
+      <label class="field"><span>${t('notes_l')}</span><input class="input" name="notes"></label><div class="err" id="cfe"></div>
+      <div class="row"><button type="button" class="btn ghost grow" data-x>${t('cancel')}</button><button class="btn grow" id="cfs">${t('save_changes')}</button></div></form>`, (el, close) => {
+    $('[data-x]', el).onclick = close;
+    $('#cf', el).onsubmit = async e => { e.preventDefault(); const f = e.target; const p = {}; ['company_id','name','package_id','seats','price','starts_on','ends_on','notes'].forEach(k => p[k] = f[k].value);
+      try { const r = await busy($('#cfs', el), () => API.adminContractSave(p)); close(); toast(t('contract_ok',{c:r.code})); render(); } catch(err) { $('#cfe', el).textContent = errMsg(err); } }; });
+}
+async function viewAdminSettings(){
+  loading(t('m_settings'));
+  const st = await API.adminSettings(); const own = isOwner(); const v = k => String(st[k] == null ? '' : st[k]).replace(/"/g, '');
+  app.innerHTML = shell(t('m_settings'), `<div class="grid g2 collapse" style="align-items:start">
+    <div class="card stack"><h3>${ic('route',20)} ${t('auto_t')}</h3><p class="muted small" style="margin:0">${t('auto_p')}</p>
+      <label class="check"><input type="checkbox" id="am" ${st.auto_mode !== false ? 'checked' : ''} ${own ? '' : 'disabled'}> <b>${t('auto_on')}</b></label>
+      <div class="grid g2"><label class="field"><span>${t('auto_step')}</span><input class="input num" id="as" type="number" min="1" max="120" value="${v('auto_step_minutes')}" ${own ? '' : 'disabled'}></label><label class="field"><span>${t('auto_accept')}</span><input class="input num" id="aa" type="number" min="0" max="240" value="${v('auto_accept_minutes')}" ${own ? '' : 'disabled'}></label></div>
+      <div class="banner blue small">${ic('users',18)}<span>${t('auto_manual_note')}</span></div></div>
+    <div class="card stack"><h3>${ic('card',20)} ${t('fees_t')}</h3>
+      <div class="grid g2"><label class="field"><span>${t('home_fee')} (${t('omr')})</span><input class="input num" id="hf" value="${v('home_fee')}" ${own ? '' : 'disabled'}></label><label class="field"><span>${t('nurse_fee')} (${t('omr')})</span><input class="input num" id="nf" value="${v('nurse_fee')}" ${own ? '' : 'disabled'}></label></div>
+      <label class="field"><span>${t('fast_last')}</span><select class="input" id="fl" ${own ? '' : 'disabled'}>${['08:00','09:00','10:00','11:00'].map(x => `<option ${v('fasting_last_slot') === x ? 'selected' : ''}>${x}</option>`).join('')}</select></label></div>
+    ${own ? `<div><button class="btn" id="sts">${t('save_changes')}</button></div>` : `<div class="banner blue small">${ic('eye',18)}<span>${t('readonly_note')}</span></div>`}</div>`);
+  if ($('#sts')) $('#sts').onclick = async () => { const b = $('#sts'); const sets = [['auto_mode', $('#am').checked], ['auto_step_minutes', +$('#as').value || 2], ['auto_accept_minutes', +$('#aa').value || 0], ['home_fee', +$('#hf').value], ['nurse_fee', +$('#nf').value], ['fasting_last_slot', $('#fl').value]];
+    try { await busy(b, () => Promise.all(sets.map(([k, x]) => API.adminSetting(k, x)))); S.catalog = null; toast(t('saved')); } catch(e) {} };
+}
+
 async function viewAdminCatalog(){
   S.catalog = null; await loadCatalog();
   app.innerHTML = shell(t('m_catalog'), `<div class="card"><div class="scroll-x"><table class="table"><thead><tr><th>${t('analyte')}</th><th>${t('tube')}</th><th>${t('price')} (${t('omr')})</th><th></th></tr></thead><tbody>
@@ -1102,8 +1228,8 @@ function botDraw(){
 }
 function botSay(html, chips){ BOT.msgs.push({ from:'bot', html, chips: chips || null, at: Date.now() }); botSave(); botDraw(); }
 async function botUser(text, intent){
-  BOT.msgs.push({ from:'me', html: esc(text), at: Date.now() }); botSave(); BOT.busy = true; botDraw();
-  await new Promise(r => setTimeout(r, 550 + Math.random() * 450));
+  BOT.msgs.push({ from:'me', html: esc(text), raw: text, at: Date.now() }); botSave(); BOT.busy = true; botDraw();
+  if (intent === 'human' || BOT.stage === 'contact') await new Promise(r => setTimeout(r, 450));
   try { await botAnswer(text, intent); } catch(e) { botSay(t('bot_err'), ['human']); }
   BOT.busy = false; botDraw();
 }
@@ -1112,7 +1238,30 @@ async function botTicket(contact, name){
   const r = await API.supportCreate({ topic:'other', order_code:'', message: '[Chat assistant]\n' + transcript, name: name || '', contact: contact || '' });
   BOT.stage = null; botSay(t('bot_ticket', { n: r.id }), ['track','results']);
 }
+function botFmt(txt){
+  let h = esc(txt).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  const lines = h.split(/\n+/); let out = '', inList = false;
+  for (const l of lines) { const m = l.match(/^\s*[-•]\s+(.*)/); if (m) { if (!inList) { out += '<ul class="bot-ul">'; inList = true; } out += `<li>${m[1]}</li>`; } else { if (inList) { out += '</ul>'; inList = false; } if (l.trim()) out += `<p>${l}</p>`; } }
+  if (inList) out += '</ul>';
+  const ol = BOT.orders || [];
+  return out.replace(/LAH-\d{4,}/g, c => { const o = ol.find(x => x.code === c); return o ? `<a class="bot-code" href="#/app/order/${o.id}">${c}</a>` : `<b class="ltr">${c}</b>`; });
+}
+async function botAI(){
+  const hist = BOT.msgs.slice(-12).map(m => ({ role: m.from === 'me' ? 'user' : 'assistant', content: (m.raw || m.html.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim() })).filter(m => m.content);
+  while (hist.length && hist[0].role !== 'user') hist.shift();
+  if (S.user && S.user.role === 'patient' && !BOT.orders) BOT.orders = await API.orders().catch(() => []);
+  const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 20000);
+  try {
+    const r = await fetch('api/chat', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ messages: hist, lang: S.lang, token: localStorage.getItem('lah_token') || null }), signal: ctl.signal });
+    if (!r.ok) throw new Error(r.status); const j = await r.json(); if (!j.reply) throw new Error('empty'); return j;
+  } finally { clearTimeout(tm); }
+}
 async function botAnswer(text, intent){
+  if (intent === 'human' || (BOT.stage === 'contact' && !intent)) return botLocal(text, intent);
+  try { const j = await botAI(); BOT.msgs.push({ from:'bot', html: botFmt(j.reply), raw: j.reply, chips: j.human ? ['human'] : ['track','price','fasting'], at: Date.now() }); botSave(); return; }
+  catch(e) { return botLocal(text, intent); }
+}
+async function botLocal(text, intent){
   const q = text.toLowerCase();
   if (BOT.stage === 'contact' && !intent) {
     const ph = text.replace(/[^\d+]/g, ''); if (ph.replace(/\D/g, '').length < 8) return botSay(t('bot_need_phone'));
@@ -1205,7 +1354,7 @@ async function render(){
     } else {
       if (!S.user) { sessionStorage.setItem('lah_after', path); return go('login'); }
       const r = S.user.role; const sub = seg[1] || '';
-      if (sub === '') await ({ patient: viewPatientHome, nurse: viewNurseHome, courier: (S.user.meta || {}).fleet_admin ? viewFleetHome : viewCourierHome, lab: viewLabHome, company: viewCompanyHome, admin: viewAdminHome }[r])();
+      if (sub === '') await ({ patient: viewPatientHome, nurse: viewNurseHome, courier: (S.user.meta || {}).fleet_admin ? viewFleetHome : viewCourierHome, lab: viewLabHome, company: viewCompanyHome, admin: viewAdminHome, staff: viewAdminHome }[r])();
       else if (sub === 'tests') await viewAppTests();
       else if (sub === 'cart') await viewCart();
       else if (sub === 'book') await viewBook();
@@ -1215,7 +1364,7 @@ async function render(){
       else if (sub === 'profile') await viewProfile();
       else if (sub === 'notifs') await viewNotifs();
       else if (sub === 'programs') await viewCompanyHome();
-      else if (sub === 'admin' && r === 'admin') await ({ users: viewAdminUsers, catalog: viewAdminCatalog, tickets: viewAdminTickets }[seg[2]] || viewAdminHome)();
+      else if (sub === 'admin' && (r === 'admin' || r === 'staff')) await ((r === 'admin' ? { users: viewAdminUsers, catalog: viewAdminCatalog, tickets: viewAdminTickets, payments: viewAdminPayments, contracts: viewAdminContracts, settings: viewAdminSettings } : { users: viewAdminUsers, tickets: viewAdminTickets, contracts: viewAdminContracts, settings: viewAdminSettings })[seg[2]] || viewAdminHome)();
       else go('app');
     }
   } catch(e) {
