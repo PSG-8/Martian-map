@@ -603,3 +603,7 @@ button.link{min-height:44px;display:inline-flex;align-items:center;gap:6px}
 #uq{flex:1;min-width:0}
 /* the help button steps aside while you scroll, like a native app */
 .bot-fab.scrolling{opacity:.28;transform:scale(.86)}
+/* decorative layers must never sit on top of buttons */
+*::before,*::after{pointer-events:none}
+.ohead::after{z-index:0}
+.ohead>*{position:relative;z-index:1}
