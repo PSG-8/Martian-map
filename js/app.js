@@ -1202,9 +1202,35 @@ function botMount(){
   document.body.insertAdjacentHTML('beforeend', `<div id="bot"><button class="bot-fab" aria-label="Chat">${ic('bot',28)}<span class="bot-ping"></span></button>
     <section class="bot-panel" role="dialog" aria-label="Support chat"><header></header><div class="bot-body" aria-live="polite"></div><div class="bot-chips"></div>
     <form class="bot-in"><input class="input" maxlength="400" autocomplete="off"><button class="btn" aria-label="Send">${ic('send',18)}</button></form></section></div>`);
-  $('#bot .bot-fab').onclick = () => botToggle();
+  botDrag();
   $('#bot form').onsubmit = e => { e.preventDefault(); const i = $('#bot form input'); const v = i.value.trim(); if (!v || BOT.busy) return; i.value = ''; botUser(v); };
   botHead();
+}
+function botPos(){
+  const f = $('#bot .bot-fab'); if (!f) return; const sz = f.offsetWidth || 60, m = 14;
+  let p = null; try { p = JSON.parse(localStorage.getItem('lah_bot_pos') || 'null'); } catch(e) {}
+  const bottomGap = (S.user && innerWidth <= 900 ? 84 : 20);
+  const side = p ? p.side : (document.documentElement.dir === 'rtl' ? 'l' : 'r');
+  const y = p ? Math.round(p.y * innerHeight) : innerHeight - sz - bottomGap;
+  const top = Math.min(Math.max(y, 70), innerHeight - sz - bottomGap);
+  f.style.left = (side === 'l' ? m : innerWidth - sz - m) + 'px'; f.style.top = top + 'px';
+  $('#bot').classList.toggle('side-l', side === 'l');
+}
+function botDrag(){
+  const f = $('#bot .bot-fab'); let st = null, moved = false;
+  f.draggable = false; f.addEventListener('dragstart', e => e.preventDefault());
+  f.addEventListener('pointerdown', e => { if (e.button > 0) return; e.preventDefault(); const r = f.getBoundingClientRect(); st = { x: e.clientX, y: e.clientY, ox: e.clientX - r.left, oy: e.clientY - r.top }; moved = false; try { f.setPointerCapture(e.pointerId); } catch(x) {} });
+  f.addEventListener('pointermove', e => { if (!st) return; if (!moved && Math.hypot(e.clientX - st.x, e.clientY - st.y) < 6) return;
+    moved = true; f.classList.add('dragging'); const sz = f.offsetWidth;
+    f.style.left = Math.min(Math.max(e.clientX - st.ox, 4), innerWidth - sz - 4) + 'px'; f.style.top = Math.min(Math.max(e.clientY - st.oy, 4), innerHeight - sz - 4) + 'px'; });
+  const end = e => { if (!st) return; st = null; f.classList.remove('dragging');
+    if (!moved) { botToggle(); return; }
+    const r = f.getBoundingClientRect(); const side = r.left + r.width / 2 < innerWidth / 2 ? 'l' : 'r';
+    try { localStorage.setItem('lah_bot_pos', JSON.stringify({ side, y: r.top / innerHeight })); } catch(x) {}
+    f.classList.add('snap'); botPos(); setTimeout(() => f.classList.remove('snap'), 260); };
+  f.addEventListener('pointerup', end); f.addEventListener('pointercancel', end);
+  f.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); botToggle(); } });
+  addEventListener('resize', botPos); botPos();
 }
 function botHead(){
   const p = $('#bot .bot-panel'); if (!p) return;
@@ -1212,7 +1238,7 @@ function botHead(){
   $('[data-bx]', p).onclick = () => botToggle(false);
   $('form input', p).placeholder = t('bot_ph');
   $('#bot').classList.toggle('in-app', !!S.user);
-  botDraw();
+  botPos(); botDraw();
 }
 function botToggle(v){
   BOT.open = v == null ? !BOT.open : v; $('#bot').classList.toggle('open', BOT.open);

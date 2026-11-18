@@ -529,3 +529,14 @@ html[dir=rtl] .switch input:checked+i:before{transform:translateX(-24px)}
 .bot-code{font-weight:800;color:var(--blue);direction:ltr;unicode-bidi:embed}
 .push-banner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border-radius:16px;margin-bottom:16px;background:linear-gradient(120deg,#eaf2ff,#f3f8ff);border:1px solid #cfe0fb}
 .push-banner .pb-ic{width:42px;height:42px;border-radius:13px;background:var(--blue);color:#fff;display:grid;place-items:center;flex:none}
+/* draggable assistant button */
+#bot{position:static}
+.bot-fab{position:fixed;z-index:61;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;left:auto;top:auto}
+.bot-fab.dragging{cursor:grabbing;transform:scale(1.08);box-shadow:0 20px 40px rgba(29,78,216,.5);transition:none}
+.bot-fab.snap{transition:left .25s cubic-bezier(.2,.8,.2,1),top .25s cubic-bezier(.2,.8,.2,1)}
+.bot-panel{position:fixed;z-index:62;right:16px;left:auto;bottom:20px;transform-origin:bottom right}
+#bot.side-l .bot-panel{left:16px;right:auto;transform-origin:bottom left}
+@media (max-width:900px){#bot.in-app .bot-panel{bottom:84px}}
+@media (max-width:700px){.bot-panel{right:12px}#bot.side-l .bot-panel{left:12px}}
+.bot-fab{transition:transform .2s,box-shadow .2s,opacity .2s}
+.bot-fab.snap{transition:left .25s cubic-bezier(.2,.8,.2,1),top .25s cubic-bezier(.2,.8,.2,1),transform .2s}
