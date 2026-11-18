@@ -1,12 +1,9 @@
 # Builds the final Lab@Home film: silent picture + voice-over + music + sound effects.
 import subprocess, sys
 A = '/vercel/lah/aud/'; V = sys.argv[1]; OUT = sys.argv[2]
-OFF = 1.8; DUR = 60.0
-sfx = [('whoosh', 1.15, .40), ('pop', 13.2, .30), ('pop', 14.0, .30), ('pop', 15.25, .28), ('chime', 16.05, .22), ('pop', 17.35, .28), ('pop', 18.75, .2), ('pop', 19.5, .28),
-       ('pop', 20.85, .22), ('pop', 21.65, .28), ('pop', 22.95, .28), ('pop', 23.8, .3), ('chime', 24.32, .38), ('pop', 25.5, .25), ('chime', 26.15, .38), ('whoosh', 26.45, .18),
-       ('pop', 31.05, .25), ('chime', 31.6, .3), ('pop', 32.65, .28), ('whoosh', 34.35, .22), ('chime', 37.9, .32), ('whoosh', 41.3, .32), ('whoosh', 42.28, .32),
-       ('pop', 43.4, .22), ('chime', 45.5, .32), ('pop', 45.8, .22), ('pop', 46.1, .22), ('pop', 48.4, .28), ('chime', 48.6, .22), ('whoosh', 49.7, .38), ('pop', 53.4, .15), ('pop', 54.3, .2)]
-inputs = ['-i', V, '-i', A + 'vo.wav', '-i', A + 'music.wav']
+OFF = 1.8; DUR = 62.2
+sfx = [('whoosh', 1.15, 0.4), ('pop', 12.88, 0.3), ('pop', 13.65, 0.3), ('pop', 14.86, 0.28), ('chime', 15.64, 0.22), ('pop', 16.9, 0.28), ('pop', 18.25, 0.2), ('pop', 18.98, 0.28), ('pop', 20.29, 0.22), ('pop', 21.06, 0.28), ('pop', 22.32, 0.28), ('pop', 23.15, 0.3), ('chime', 23.65, 0.38), ('pop', 24.85, 0.25), ('chime', 25.55, 0.38), ('whoosh', 25.8, 0.18), ('whoosh', 26.4, 0.2), ('chime', 28.75, 0.25), ('pop', 29.05, 0.2), ('pop', 31.15, 0.22), ('pop', 33.0, 0.25), ('chime', 33.6, 0.3), ('pop', 34.65, 0.28), ('whoosh', 36.75, 0.22), ('chime', 40.15, 0.32), ('pop', 43.5, 0.2), ('whoosh', 44.25, 0.32), ('whoosh', 45.32, 0.32), ('pop', 46.0, 0.22), ('chime', 48.17, 0.32), ('pop', 48.5, 0.22), ('pop', 48.83, 0.22), ('pop', 51.37, 0.28), ('chime', 51.59, 0.22), ('whoosh', 52.8, 0.38), ('pop', 56.11, 0.15), ('pop', 56.92, 0.2)]
+inputs = ['-i', V, '-i', A + 'vo2.wav', '-i', A + 'music.wav']
 fc = []
 fc.append(f"[1:a]aresample=48000,highpass=f=70,acompressor=threshold=-20dB:ratio=3:attack=8:release=120:makeup=2,volume=1.0,adelay={int(OFF*1000)}|{int(OFF*1000)},apad,atrim=0:{DUR},asplit=2[vo][vosc]")
 fc.append(f"[2:a]aresample=48000,atrim=0:{DUR},afade=t=in:st=0:d=0.8,afade=t=out:st={DUR-3.2}:d=3.2,volume=0.55[mus]")
