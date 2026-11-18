@@ -2,7 +2,7 @@
    Each A4 page is drawn on a canvas (so Arabic shaping and fonts are exact) and embedded as a JPEG in a small PDF. */
 (function(){
 'use strict';
-const PW = 1240, PH = 1754, SC = 1.6;           // A4 at 150 dpi, drawn 1.6x for sharpness
+const PW = 1240, PH = 1754, SC = 1.4;           // A4 at 150 dpi, drawn 1.6x for sharpness
 const C = { navy:'#0d1628', navy2:'#14254a', blue:'#1257d6', blue2:'#3b82f6', ink:'#0f1b33', muted:'#5b6b88', line:'#e3e9f4', grp:'#f3f7ff',
   teal:'#0a7d70', tealBg:'#e3f7f4', amber:'#9a6400', amberBg:'#fff4dc', red:'#b3262e', redBg:'#fdecec', white:'#ffffff' };
 
@@ -86,7 +86,8 @@ async function build(d){
     y += h;
   }
   pages.forEach((p, i) => { x = p.getContext('2d'); x.setTransform(SC, 0, 0, SC, 0, 0); footer(i + 1, pages.length); });
-  const jpgs = await Promise.all(pages.map(p => new Promise(r => p.toBlob(b => b.arrayBuffer().then(a => r(new Uint8Array(a))), 'image/jpeg', .9))));
+  const jpgs = [];
+  for (const p of pages) jpgs.push(await new Promise((res, rej) => { try { p.toBlob(b => { if (!b) { try { const u = p.toDataURL('image/jpeg', .9); const bin = atob(u.split(',')[1]); const a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return res(a); } catch(e) { return rej(e); } } b.arrayBuffer().then(a => res(new Uint8Array(a)), rej); }, 'image/jpeg', .9); } catch(e) { rej(e); } }));
   pages.forEach(p => { p.width = p.height = 1; });     // free memory on phones
   return pdfFromJpegs(jpgs, Math.round(PW * SC), Math.round(PH * SC), d.title || 'Lab@Home report');
 }
@@ -113,13 +114,15 @@ function pdfFromJpegs(imgs, iw, ih, title){
 
 /* hand the file to the user: share sheet on iPhone/iPad (Save to Files, WhatsApp…), normal download elsewhere */
 function isIOS(){ return /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
-async function save(blob, name, preferShare){
-  const file = typeof File === 'function' ? new File([blob], name, { type: 'application/pdf' }) : null;
-  if ((preferShare || isIOS()) && file && navigator.canShare && navigator.canShare({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: name }); return 'shared'; } catch(e) { if (e && e.name === 'AbortError') return 'cancel'; }
+/* ready=false means the tap was spent waiting for the file: on iPhone the share sheet may then be refused, so we ask for one more tap */
+async function save(blob, name, preferShare, ready){
+  let file = null; try { file = new File([blob], name, { type: 'application/pdf' }); } catch(e) {}
+  const canShareFile = file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] });
+  if ((preferShare || isIOS()) && canShareFile) {
+    try { await navigator.share({ files: [file], title: name }); return 'shared'; } catch(e) { if (e && e.name === 'AbortError') return 'cancel'; return 'again'; }
   }
+  if (isIOS()) return 'again';
   const url = URL.createObjectURL(blob);
-  if (isIOS()) { const w = window.open(url, '_blank'); if (!w) location.href = url; setTimeout(() => URL.revokeObjectURL(url), 120000); return 'opened'; }
   const a = document.createElement('a'); a.href = url; a.download = name; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 120000); return 'downloaded';
 }

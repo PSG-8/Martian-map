@@ -65,7 +65,7 @@ en: {
   appointment:'Appointment', location:'Location', tests:'Tests', payment:'Payment', paid:'Paid', pay_at_visit:'Pay at visit', sponsored:'Sponsored',
   cancel_req:'Cancel request', cancel_q:'Cancel this request?', yes_cancel:'Yes, cancel', keep:'Keep it',
   demo_next:'Simulate next step', demo_auto:'Play the whole journey', demo_hint:'Demo account: watch the nurse, courier and lab move your request forward.',
-  view_report:'View report', download_pdf:'Download PDF', share:'Share', pdf_making:'Preparing your PDF…', pdf_ready:'PDF saved', pdf_fail:'Could not create the PDF. Please try again.', share_pdf:'Share with doctor', print:'Print', rate_t:'How was your nurse?', rate_send:'Send rating', thanks_rating:'Thank you for your feedback!',
+  view_report:'View report', download_pdf:'Download PDF', share:'Share', pdf_making:'Preparing your PDF…', pdf_ready:'PDF saved', pdf_ready_t:'Your PDF is ready', pdf_ready_p:'Tap below to open it. From there you can save it to Files or send it to your doctor.', pdf_open:'Open PDF', pdf_fail:'Could not create the PDF. Please try again.', share_pdf:'Share with doctor', print:'Print', rate_t:'How was your nurse?', rate_send:'Send rating', thanks_rating:'Thank you for your feedback!',
   // report
   report_t:'Laboratory report', patient:'User', age:'Age', sex:'Sex', request:'Request', collected_at:'Collected', reported_at:'Reported', lab:'Laboratory', verified_by:'Verified by',
   analyte:'Test', result:'Result', unit:'Unit', ref_range:'Reference range', flag:'Flag', f_N:'Normal', f_L:'Low', f_H:'High',
@@ -163,7 +163,7 @@ ar: {
   appointment:'الموعد', location:'الموقع', tests:'الفحوصات', payment:'الدفع', paid:'مدفوع', pay_at_visit:'الدفع عند الزيارة', sponsored:'برعاية الشركة',
   cancel_req:'إلغاء الطلب', cancel_q:'هل تريد إلغاء هذا الطلب؟', yes_cancel:'نعم، ألغِ', keep:'إبقاء',
   demo_next:'محاكاة الخطوة التالية', demo_auto:'تشغيل الرحلة كاملة', demo_hint:'حساب تجريبي: شاهد الممرض والمندوب والمختبر وهم يحركون طلبك.',
-  view_report:'عرض التقرير', download_pdf:'تحميل PDF', share:'مشاركة', pdf_making:'جاري تجهيز ملف PDF…', pdf_ready:'تم حفظ ملف PDF', pdf_fail:'تعذّر إنشاء ملف PDF، حاول مرة أخرى.', share_pdf:'مشاركة مع الطبيب', print:'طباعة', rate_t:'كيف كانت تجربتك مع الممرض؟', rate_send:'إرسال التقييم', thanks_rating:'شكراً لتقييمك!',
+  view_report:'عرض التقرير', download_pdf:'تحميل PDF', share:'مشاركة', pdf_making:'جاري تجهيز ملف PDF…', pdf_ready:'تم حفظ ملف PDF', pdf_ready_t:'ملف PDF جاهز', pdf_ready_p:'اضغط بالأسفل لفتحه، ومن هناك تقدر تحفظه في الملفات أو ترسله لطبيبك.', pdf_open:'فتح ملف PDF', pdf_fail:'تعذّر إنشاء ملف PDF، حاول مرة أخرى.', share_pdf:'مشاركة مع الطبيب', print:'طباعة', rate_t:'كيف كانت تجربتك مع الممرض؟', rate_send:'إرسال التقييم', thanks_rating:'شكراً لتقييمك!',
   report_t:'تقرير مخبري', patient:'المستخدم', age:'العمر', sex:'الجنس', request:'الطلب', collected_at:'وقت السحب', reported_at:'وقت الإصدار', lab:'المختبر', verified_by:'اعتمده',
   analyte:'الفحص', result:'النتيجة', unit:'الوحدة', ref_range:'المعدل الطبيعي', flag:'الحالة', f_N:'طبيعي', f_L:'منخفض', f_H:'مرتفع',
   all_normal:'جميع النتائج ضمن المعدل الطبيعي.', some_flags:'{n} نتيجة خارج المعدل الطبيعي. يرجى مشاركة التقرير مع طبيبك.',

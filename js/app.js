@@ -43,7 +43,7 @@ function modal(html, mount){
   document.body.classList.add('lock');
   const close = () => { bg.remove(); document.removeEventListener('keydown', onKey); if (!$('#modal-root .modal-bg') && !$('.drawer-bg.open')) document.body.classList.remove('lock'); };
   const onKey = e => { if (e.key === 'Escape') close(); };
-  document.addEventListener('keydown', onKey);
+  document.addEventListener('keydown', onKey); bg._close = close;
   bg.addEventListener('click', e => { if (e.target === bg) close(); });
   $$('[data-close]', bg).forEach(b => b.onclick = close);
   if (mount) mount(bg, close);
@@ -747,12 +747,19 @@ async function viewReport(id){
     info: [[t('patient'), p.name || '—'], [t('age') + ' / ' + t('sex'), `${p.dob ? age(p.dob) : '—'} / ${p.gender ? t(p.gender) : '—'}`], [t('request'), o.code], [t('collected_at'), ce ? fmtDT(ce.at) : '—'], [t('reported_at'), fmtDT(o.published_at)], [t('verified_by'), o.verified_by || '—']],
     groups: (o.tests || []).map(x => ({ name: LN(x,'name'), rows: x.analytes.map(a => { const r = res[a.c] || {}; return { name: ar ? a.na : a.n, v: r.v ?? '—', u: a.u || '', range: rangeTxt(a), f: r.f || '', fl: r.f ? t('f_' + r.f) : '' }; }) })),
     notes: (o.tests || []).flatMap(x => x.analytes.map(a => { const r = res[a.c] || {}; const n = r.f && r.f !== 'N' && INSIGHT[a.c] && INSIGHT[a.c][r.f]; return n ? `${ar ? a.na : a.n}: ${n[ar ? 1 : 0]}` : null; })).filter(Boolean) };
-  const fname = `LabAtHome-${o.code}.pdf`; let pdfP = null;
-  const make = () => pdfP || (pdfP = window.LAHPDF.build(pdfData).catch(e => { pdfP = null; throw e; }));
-  setTimeout(() => make().catch(() => {}), 300);
-  const deliver = async (btn, share) => { const lbl = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="spin" style="width:18px;height:18px;border-color:rgba(255,255,255,.35);border-top-color:currentColor"></span> ${t('pdf_making')}`;
-    try { const blob = await make(); const r = await window.LAHPDF.save(blob, fname, share); if (r === 'downloaded') toast(t('pdf_ready')); }
-    catch(e) { console.error(e); toast(t('pdf_fail'), true); } finally { btn.disabled = false; btn.innerHTML = lbl; } };
+  const fname = `LabAtHome-${o.code}.pdf`; let pdfP = null, pdfBlob = null;
+  const make = () => { if (!window.LAHPDF) return Promise.reject(new Error('pdf module missing'));
+    return pdfP || (pdfP = Promise.race([window.LAHPDF.build(pdfData), new Promise((_, rj) => setTimeout(() => rj(new Error('timeout')), 25000))]).then(b => (pdfBlob = b)).catch(e => { pdfP = null; throw e; })); };
+  (window.requestIdleCallback || (f => setTimeout(f, 1200)))(() => make().catch(() => {}));
+  const readySheet = blob => { const url = URL.createObjectURL(blob);
+    modal(`<div class="center"><div style="width:64px;height:64px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;background:var(--teal-bg);color:var(--teal)">${ic('check',32,2.6)}</div><h3>${t('pdf_ready_t')}</h3><p class="muted small">${t('pdf_ready_p')}</p>
+      <a class="btn block" href="${url}" download="${fname}" target="_blank" rel="noopener" data-x>${ic('download',18)} ${t('pdf_open')}</a><button class="btn ghost block" style="margin-top:10px" data-close>${t('close')}</button></div>`, (el, close) => { $('[data-x]', el).addEventListener('click', () => setTimeout(close, 300)); }); };
+  const deliver = async (btn, share) => {
+    if (btn.dataset.busy) return; btn.dataset.busy = '1'; const lbl = btn.innerHTML;
+    if (!pdfBlob) btn.innerHTML = `<span class="spin" style="width:18px;height:18px;border-color:rgba(255,255,255,.35);border-top-color:currentColor"></span> ${t('pdf_making')}`;
+    try { const ready = !!pdfBlob; const blob = await make(); const r = await window.LAHPDF.save(blob, fname, share, ready);
+      if (r === 'downloaded') toast(t('pdf_ready')); else if (r === 'again') readySheet(blob); }
+    catch(e) { console.error(e); toast(t('pdf_fail'), true); } finally { delete btn.dataset.busy; btn.innerHTML = lbl; } };
   $('#pr').onclick = () => deliver($('#pr'), false);
   if ($('#sh')) $('#sh').onclick = () => deliver($('#sh'), true);
   $('#pp').onclick = () => window.print();
@@ -1471,7 +1478,7 @@ async function render(){
 async function renderNow(){
   clearTimers();
   const route = location.hash.split('?')[0];
-  if (route !== lastRoute) { lastRoute = route; app.classList.remove('pg'); void app.offsetWidth; app.classList.add('pg'); $$('#modal-root .modal-bg, #modal-root .drawer-bg').forEach(m => m.remove()); document.body.classList.remove('lock', 'kb'); }
+  if (route !== lastRoute) { lastRoute = route; app.classList.remove('pg'); void app.offsetWidth; app.classList.add('pg'); $$('#modal-root .modal-bg, #modal-root .drawer-bg').forEach(m => m._close ? m._close() : m.remove()); document.body.classList.remove('lock', 'kb'); }
   const h = (location.hash.slice(2) || '').split('#')[0];
   const [path] = h.split('?'); const seg = path.split('/');
   const standalone = window.matchMedia && matchMedia('(display-mode: standalone)').matches;
@@ -1515,16 +1522,27 @@ async function poll(){ if (!S.user || document.hidden) return; try { const r = a
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
+const APP_V = 13;
+let updChecking = false;
+async function checkUpdate(){
+  if (updChecking || location.protocol !== 'https:') return; updChecking = true;
+  try { const r = await fetch('index.html?u=' + Date.now(), { cache:'no-store' }); const m = (await r.text()).match(/app\.js\?v=(\d+)/);
+    if (m && +m[1] > APP_V) { try { const reg = await navigator.serviceWorker.getRegistration(); if (reg) await reg.update(); } catch(e) {}
+      const busyNow = () => $('#modal-root .modal-bg') || (document.activeElement && document.activeElement.matches('input,textarea,select'));
+      if (!busyNow()) location.reload(); else window.addEventListener('hashchange', () => location.reload(), { once:true }); } }
+  catch(e) {} finally { updChecking = false; }
+}
 function appFeel(){
-  new MutationObserver(() => labelTables(app)).observe(app, { childList:true, subtree:true });
+  let lt = 0; new MutationObserver(() => { if (lt) return; lt = requestAnimationFrame(() => { lt = 0; labelTables(app); }); }).observe(app, { childList:true, subtree:true });
   const inMap = e => e.target && e.target.closest && e.target.closest('.leaflet-container');
   ['gesturestart', 'gesturechange', 'gestureend'].forEach(n => document.addEventListener(n, e => { if (!inMap(e)) e.preventDefault(); }, { passive:false }));
-  document.addEventListener('touchmove', e => { if (e.touches.length > 1 && !inMap(e)) e.preventDefault(); }, { passive:false });
   const field = el => el && el.matches && el.matches('input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea,select');
   document.addEventListener('focusin', e => { if (field(e.target) && matchMedia('(max-width:900px)').matches) document.body.classList.add('kb'); });
   document.addEventListener('focusout', () => setTimeout(() => { if (!field(document.activeElement)) document.body.classList.remove('kb'); }, 80));
   window.addEventListener('pageshow', e => { if (e.persisted) render(); });
-  let st; window.addEventListener('scroll', () => { const f = $('.bot-fab'); if (!f || f.classList.contains('dragging')) return; f.classList.add('scrolling'); clearTimeout(st); st = setTimeout(() => f.classList.remove('scrolling'), 650); }, { passive:true });
+  let st, on = false; window.addEventListener('scroll', () => { if (!on) { const f = $('.bot-fab'); if (!f || f.classList.contains('dragging')) return; f.classList.add('scrolling'); on = true; } clearTimeout(st); st = setTimeout(() => { on = false; const f = $('.bot-fab'); if (f) f.classList.remove('scrolling'); }, 650); }, { passive:true });
+  /* always run the newest version: an app left open on the phone checks for updates when it comes back */
+  checkUpdate(); document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(); }); setInterval(checkUpdate, 5 * 60000);
 }
 async function boot(){
   setLang(S.lang);
