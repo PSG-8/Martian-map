@@ -406,3 +406,15 @@ Object.assign(window.I18N.ar, {
   push_fail:'تعذّر تفعيل الإشعارات على هذا المتصفح.', push_card:'إشعارات الجوال', push_card_p:'تحديثات كل خطوة في طلباتك تظهر على هذا الجهاز حتى لو كان التطبيق مقفل.',
   push_on:'مفعّلة على هذا الجهاز', push_test:'إرسال تجربة', push_sent:'تم الإرسال — شوف إشعاراتك', push_off_btn:'إيقاف', push_blocked:'الإشعارات محظورة. اسمح بها لهذا الموقع من إعدادات المتصفح.', push_unsup:'هذا المتصفح لا يدعم الإشعارات. جرّب Chrome أو Safari.'
 });
+Object.assign(window.I18N.en, {
+  mail_t:'Confirm your email', mail_p:'We sent a link to {e}. Open it to receive updates and results by email.', mail_resend:'Send the link again', mail_sent:'Verification link sent to {e}. Check your inbox (and spam).',
+  mail_not_ready:'Email sending is being set up. Please try again later.', mail_too_soon:'Please wait a minute before sending again.', mail_card:'Email', mail_card_p:'Add your email and confirm it to receive booking confirmations, updates and results by email.',
+  mail_ok:'Verified — updates will also arrive by email.', mail_pending:'Not verified yet. Open the link we sent you.', mail_done_t:'Email verified ✅', mail_done_p:'{e} is confirmed. You’ll get request updates and results by email.',
+  mail_fail_t:'Link not valid', mail_expired:'This link has expired. Log in and send a new one from your profile.', mail_bad:'This link is not valid or was already replaced by a newer one.', e_BAD_EMAIL:'Enter a valid email address.', e_ALREADY_VERIFIED:'This email is already verified.', e_NEED_EMAIL:'Add an email first.'
+});
+Object.assign(window.I18N.ar, {
+  mail_t:'أكّد بريدك الإلكتروني', mail_p:'أرسلنا رابطاً إلى {e}. افتحه حتى توصلك التحديثات والنتائج على الإيميل.', mail_resend:'إرسال الرابط مرة ثانية', mail_sent:'تم إرسال رابط التحقق إلى {e}. شيّك على البريد الوارد (والرسائل المزعجة).',
+  mail_not_ready:'خدمة الإيميل قيد التجهيز، حاول لاحقاً.', mail_too_soon:'انتظر دقيقة قبل الإرسال مرة ثانية.', mail_card:'البريد الإلكتروني', mail_card_p:'أضف بريدك وأكّده حتى يوصلك تأكيد الحجز والتحديثات والنتائج على الإيميل.',
+  mail_ok:'موثّق — التحديثات توصلك على الإيميل أيضاً.', mail_pending:'لم يتم التوثيق بعد. افتح الرابط اللي أرسلناه لك.', mail_done_t:'تم توثيق بريدك ✅', mail_done_p:'تم تأكيد {e}. ستصلك تحديثات طلباتك ونتائجك على الإيميل.',
+  mail_fail_t:'الرابط غير صالح', mail_expired:'انتهت صلاحية الرابط. سجّل دخولك وأرسل رابطاً جديداً من ملفك.', mail_bad:'الرابط غير صالح أو تم استبداله برابط أحدث.', e_BAD_EMAIL:'أدخل بريداً إلكترونياً صحيحاً.', e_ALREADY_VERIFIED:'هذا البريد موثّق مسبقاً.', e_NEED_EMAIL:'أضف بريداً إلكترونياً أولاً.'
+});

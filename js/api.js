@@ -63,6 +63,9 @@ window.API = {
   pushSubscribe: (sub, lang) => rpc('push_subscribe', { p_token: tok(), p_sub: sub, p_lang: lang, p_ua: navigator.userAgent }),
   pushUnsubscribe: (ep) => rpc('push_unsubscribe', { p_token: tok(), p_endpoint: ep }),
   pushTest: () => rpc('push_test', { p_token: tok() }),
+  emailSet: (e) => rpc('email_set', { p_token: tok(), p_email: e }),
+  emailConfirm: (c) => rpc('email_verify_confirm', { p_code: c }),
+  emailSendVerify: async () => { let r; try { r = await fetch('api/mail', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ action:'verify', token: tok() }) }); } catch(e) { throw new ApiError('NETWORK'); } const j = await r.json().catch(() => ({})); if (!r.ok) throw new ApiError(j.error || 'GENERIC'); return j; },
   demoAdvance: (id) => rpc('demo_advance', { p_token: tok(), p_id:id }),
   setToken: (t) => t ? localStorage.setItem('lah_token', t) : localStorage.removeItem('lah_token'),
   hasToken: () => !!tok()

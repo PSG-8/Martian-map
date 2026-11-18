@@ -292,7 +292,7 @@ function viewRegister(role){
         phone: val('phone'), email: val('email'), password: f.newpass.value, consent: f.consent.checked,
         governorate: 'North Al Sharqiyah', wilayat: w, lat: ll[0] || '', lng: ll[1] || '', meta, civil_id: civ || null };
       if (r === 'lab' || r === 'company') p.meta.contact = val('full_name');
-      try { const res = await busy($('button.btn', f), () => API.register(p)); localStorage.setItem('lah_seen', '1'); afterLogin(res); } catch(err) { $('#re').textContent = errMsg(err); }
+      try { const res = await busy($('button.btn', f), () => API.register(p)); localStorage.setItem('lah_seen', '1'); afterLogin(res); if (p.email) setTimeout(() => mailSend(null, true), 800); } catch(err) { $('#re').textContent = errMsg(err); }
     };
     bindGlobal();
   };
@@ -324,7 +324,7 @@ function shell(title, body, opts){
     <div class="me"><span class="avatar">${esc(initials(u.full_name))}</span><div class="grow"><div class="b small" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(u.full_name)}</div><button class="link small" data-logout>${t('logout')}</button></div></div></aside>
   <main class="main-area"><div class="app-top">${opts && opts.back ? `<button class="icon-btn" data-goback aria-label="${t('back')}"><span class="flip">${ic('back')}</span></button>` : `<button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>`}<h1 class="grow">${title}</h1>
     <button class="icon-btn" data-go="app/notifs" aria-label="${t('m_notifs')}">${ic('bell')}${S.unread ? `<span class="dot">${S.unread}</span>` : ''}</button>${opts && opts.back ? `<button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>` : ''}</div>
-  <div class="content">${pushBanner()}${u.status === 'pending' ? `<div class="banner amber" style="margin-bottom:16px">${ic('clock',22)}<div><b>${t('pending_t')}</b><div class="small">${t('pending_p')}</div></div></div>` : ''}${body}</div></main></div>
+  <div class="content">${emailBanner()}${pushBanner()}${u.status === 'pending' ? `<div class="banner amber" style="margin-bottom:16px">${ic('clock',22)}<div><b>${t('pending_t')}</b><div class="small">${t('pending_p')}</div></div></div>` : ''}${body}</div></main></div>
   <nav class="tabbar">${items.slice(0, 4).map(([h, i, k]) => `<a href="#/${h}" class="${isOn(h) ? 'on' : ''}">${ic(i)}${h === 'app/cart' && n ? `<span class="dot">${n}</span>` : ''}<span>${t(k)}</span></a>`).join('')}<a href="#" data-menu>${ic('menu')}<span>${t('menu')}</span></a></nav>`;
 }
 function loading(title){ app.innerHTML = shell(title || '', `<div class="loading"><span class="spin"></span></div>`); }
@@ -983,7 +983,7 @@ async function viewProfile(){
       <label class="field"><span>${t('allergies')}</span><input class="input" name="allergies" value="${esc(m.allergies || '')}"></label><label class="field"><span>${t('chronic')}</span><input class="input" name="chronic" value="${esc(m.chronic || '')}"></label>` : ''}
       <button class="btn">${t('save_changes')}</button></form></div>
     <div class="stack"><form class="card stack" id="pw"><h3>${t('change_pw')}</h3>${pwField('old', t('old_pw'))}${pwField('new1', t('new_pw'), t('pass_rule'))}<button class="btn ghost">${t('change_pw')}</button></form>
-      ${pushCard()}<div class="card"><h3>${t('install_t')}</h3><p class="muted small">${t('install_p')}</p>${S.installEvt ? `<button class="btn" id="inst">${ic('download',18)} ${t('install_btn')}</button>` : `<p class="small">${t('install_ios')}</p>`}</div>
+      ${mailCard()}${pushCard()}<div class="card"><h3>${t('install_t')}</h3><p class="muted small">${t('install_p')}</p>${S.installEvt ? `<button class="btn" id="inst">${ic('download',18)} ${t('install_btn')}</button>` : `<p class="small">${t('install_ios')}</p>`}</div>
       <div class="card row between"><span class="b">${S.lang === 'ar' ? 'اللغة' : 'Language'}</span><button class="lang" data-lang>${t('lang')}</button></div>
       <button class="btn ghost block" data-logout>${ic('logout',18)} ${t('logout')}</button></div></div>`);
   bindPw(app);
@@ -1372,6 +1372,40 @@ function pushCard(){
     : `<button class="btn" data-push-on>${ic('bell',18)} ${t('push_btn')}</button>`}</div>`;
 }
 
+
+/* ---------- email verification ---------- */
+function emailBanner(){
+  const u = S.user; if (!u || u.is_demo || !u.email || u.email_verified || sessionStorage.getItem('lah_mail_x')) return '';
+  return `<div class="push-banner mail" id="mailb"><span class="pb-ic" style="background:#0fae9b">${ic('send',20)}</span><div class="grow"><b>${t('mail_t')}</b><div class="small">${t('mail_p',{e:`<span class="ltr">${esc(u.email)}</span>`})}</div></div>
+    <button class="btn sm soft" data-mail-send>${t('mail_resend')}</button><button class="icon-btn sm" data-mail-x aria-label="${t('close')}">${ic('x',16)}</button></div>`;
+}
+async function mailSend(btn, quiet){
+  try { const r = await (btn ? busy(btn, () => API.emailSendVerify()) : API.emailSendVerify()); toast(t('mail_sent',{e:r.email})); return true; }
+  catch(e) { if (!quiet) toast(e.code === 'NO_MAIL' ? t('mail_not_ready') : e.code === 'TOO_SOON' ? t('mail_too_soon') : errMsg(e), true); return false; }
+}
+function bindMail(){
+  $$('[data-mail-send]').forEach(b => b.onclick = () => mailSend(b));
+  $$('[data-mail-x]').forEach(b => b.onclick = () => { sessionStorage.setItem('lah_mail_x', '1'); const el = $('#mailb'); if (el) el.remove(); });
+  const f = $('#mailf'); if (f) f.onsubmit = async e => { e.preventDefault(); const v = f.em.value.trim(); if (!v) return;
+    try { S.user = await busy($('button', f), () => API.emailSet(v)); toast(t('saved')); if (!S.user.email_verified) await mailSend(null); render(); } catch(err) {} };
+}
+function mailCard(){
+  const u = S.user; if (u.is_demo) return '';
+  return `<div class="card"><h3>${ic('send',20)} ${t('mail_card')}</h3><p class="muted small">${t('mail_card_p')}</p>
+    <form id="mailf" class="row" style="gap:8px"><input class="input grow ltr" type="email" name="em" value="${esc(u.email || '')}" placeholder="name@email.com"><button class="btn soft sm">${t('save_changes')}</button></form>
+    ${u.email ? (u.email_verified ? `<div class="banner teal small" style="margin-top:10px">${ic('check',18)}<span>${t('mail_ok')}</span></div>` : `<div class="banner amber small" style="margin-top:10px">${ic('clock',18)}<span class="grow">${t('mail_pending')}</span><button class="btn sm" data-mail-send>${t('mail_resend')}</button></div>`) : ''}</div>`;
+}
+async function viewVerify(code){
+  app.innerHTML = authShell(`<div class="center" style="padding:30px 0"><span class="spin"></span></div>`);
+  let ok = false, em = '', msg = '';
+  try { const r = await API.emailConfirm(code); ok = true; em = r.email; if (S.user) { const me = await API.me().catch(() => null); if (me) S.user = me.user; } } catch(e) { msg = e.code === 'CODE_EXPIRED' ? t('mail_expired') : t('mail_bad'); }
+  app.innerHTML = authShell(`<div class="center" style="padding:10px 0">
+    <div style="width:84px;height:84px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;background:${ok ? 'var(--teal-bg)' : '#fff1f1'};color:${ok ? 'var(--teal)' : '#d64550'}">${ic(ok ? 'check' : 'x', 44, 2.6)}</div>
+    <h1>${ok ? t('mail_done_t') : t('mail_fail_t')}</h1><p class="muted">${ok ? t('mail_done_p',{e:`<b class="ltr">${esc(em)}</b>`}) : msg}</p>
+    <a class="btn block" style="margin-top:16px" href="#/${S.user ? 'app' : 'login'}">${S.user ? t('m_home') : t('login')}</a></div>`);
+  bindGlobal();
+}
+
 /* ---------- router ---------- */
 function bindGo(){ $$('[data-go]').forEach(b => b.onclick = () => { const g = b.dataset.go; if (g === 'register' && !S.user) sessionStorage.setItem('lah_after', 'app/book'); go(g); }); }
 function bindGlobal(){
@@ -1388,6 +1422,7 @@ async function render(){
   const standalone = window.matchMedia && matchMedia('(display-mode: standalone)').matches;
   try {
     if (seg[0] === 'start') { viewStart(); return; }
+    if (seg[0] === 'verify' && seg[1]) { await viewVerify(seg[1]); return; }
     if (seg[0] === '' && !S.user && !localStorage.getItem('lah_seen') && (innerWidth < 760 || standalone)) { location.replace('#/start'); return; }
     if (seg[0] === 'support') await viewSupport();
     else if (seg[0] === 'about') await viewAbout();
@@ -1418,7 +1453,7 @@ async function render(){
     app.innerHTML = (S.user ? shell('', '') : topbar());
     const c = $('.content') || app; c.insertAdjacentHTML('beforeend', `<div class="card empty" style="margin:20px">${A.emptyArt}<p>${errMsg(e)}</p><button class="btn" onclick="location.reload()">${t('retry')}</button></div>`);
   }
-  bindGlobal(); botMount(); bindPush();
+  bindGlobal(); botMount(); bindPush(); bindMail();
   if (!location.hash.includes('#', 1)) window.scrollTo(0, 0);
 }
 async function poll(){ if (!S.user || document.hidden) return; try { const r = await API.me(); const before = S.unread; S.user = r.user; S.unread = r.unread; if (r.unread !== before) { $$('[data-go="app/notifs"] .dot').forEach(d => d.textContent = r.unread); if (r.unread > before) { const b = $('[data-go="app/notifs"]'); if (b && !$('.dot', b)) b.insertAdjacentHTML('beforeend', `<span class="dot">${r.unread}</span>`); } } } catch(e) { if (e.code === 'AUTH_REQUIRED') { S.user = null; go('login'); } } }
