@@ -123,7 +123,7 @@ async function viewLanding(){
     <div><span class="chip" style="margin-bottom:16px">${ic('pin',14)} ${t('trust4')}</span>
       <h1>${t('hero_t1')}<br><em>${t('hero_t2')}</em></h1>
       <p class="lead">${t('hero_p')}</p>
-      <div class="cta"><a class="btn" href="#/${S.user ? 'app/tests' : 'register'}">${t('book_now')} ${'<span class="flip">'+ic('arrow',18)+'</span>'}</a><a class="btn ghost" href="#/#tests">${t('explore_tests')}</a></div>
+      <div class="cta"><a class="btn" href="#/${S.user ? 'app/tests' : 'register'}">${t('book_now')} ${'<span class="flip">'+ic('arrow',18)+'</span>'}</a><a class="btn ghost" href="#/#tests">${t('explore_tests')}</a></div>${platform().standalone ? '' : `<a class="ins-link" href="#/install">${ic('download',16)} ${t('ins_cta')}</a>`}
       <div class="trust"><span>${ic('shield',18)} ${t('trust1')}</span><span>${ic('flask',18)} ${t('trust2')}</span><span>${ic('clock',18)} ${t('trust3')}</span></div>
     </div>
     <div class="hero-art">${A.hero}</div>
@@ -1009,7 +1009,7 @@ async function viewProfile(){
       <label class="field"><span>${t('allergies')}</span><input class="input" name="allergies" value="${esc(m.allergies || '')}"></label><label class="field"><span>${t('chronic')}</span><input class="input" name="chronic" value="${esc(m.chronic || '')}"></label>` : ''}
       <button class="btn">${t('save_changes')}</button></form></div>
     <div class="stack"><form class="card stack" id="pw"><h3>${t('change_pw')}</h3>${pwField('old', t('old_pw'))}${pwField('new1', t('new_pw'), t('pass_rule'))}<button class="btn ghost">${t('change_pw')}</button></form>
-      ${mailCard()}${pushCard()}<div class="card"><h3>${t('install_t')}</h3><p class="muted small">${t('install_p')}</p>${S.installEvt ? `<button class="btn" id="inst">${ic('download',18)} ${t('install_btn')}</button>` : `<p class="small">${t('install_ios')}</p>`}</div>
+      ${mailCard()}${pushCard()}${platform().standalone ? '' : `<div class="card"><h3>${t('install_t')}</h3><p class="muted small">${t('install_p')}</p><a class="btn" href="#/install">${ic('download',18)} ${t('ins_cta')}</a></div>`}
       <div class="card row between"><span class="b">${S.lang === 'ar' ? 'اللغة' : 'Language'}</span><button class="lang" data-lang>${t('lang')}</button></div>
       <button class="btn ghost block" data-logout>${ic('logout',18)} ${t('logout')}</button></div></div>`);
   bindPw(app);
@@ -1051,6 +1051,7 @@ function menuItems(){
     if (r === 'admin') h += it('app/admin/tickets', 'chat', t('m_tickets'));
   }
   h += '<hr class="sep">';
+  if (!platform().standalone) h += it('install', 'download', t('m_install'));
   h += it('support', 'chat', t('m_support'));
   h += it('about', 'users', t('m_about') + ' · ' + t('m_team'));
   h += it('#how', 'globe', t('nav_how'));
@@ -1486,7 +1487,8 @@ async function renderNow(){
     if (seg[0] === 'start') { viewStart(); return; }
     if (seg[0] === 'verify' && seg[1]) { await viewVerify(seg[1]); return; }
     if (seg[0] === '' && !S.user && !localStorage.getItem('lah_seen') && (innerWidth < 760 || standalone)) { location.replace('#/start'); return; }
-    if (seg[0] === 'support') await viewSupport();
+    if (seg[0] === 'install') await viewInstall();
+    else if (seg[0] === 'support') await viewSupport();
     else if (seg[0] === 'about') await viewAbout();
     else if (seg[0] !== 'app') {
       if (seg[0] === 'login') { if (S.user) return go('app'); viewLogin(); }
@@ -1520,9 +1522,59 @@ async function renderNow(){
 }
 async function poll(){ if (!S.user || document.hidden) return; try { const r = await API.me(); const before = S.unread; S.user = r.user; S.unread = r.unread; if (r.unread !== before) { $$('[data-go="app/notifs"] .dot').forEach(d => d.textContent = r.unread); if (r.unread > before) { const b = $('[data-go="app/notifs"]'); if (b && !$('.dot', b)) b.insertAdjacentHTML('beforeend', `<span class="dot">${r.unread}</span>`); } } } catch(e) { if (e.code === 'AUTH_REQUIRED') { S.user = null; go('login'); } } }
 
+/* ---------- install page: turns the site into an app on the phone ---------- */
+function platform(){
+  const ua = navigator.userAgent; const ios = /iP(hone|ad|od)/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const inApp = /Instagram|FBAN|FBAV|FB_IAB|Line\/|Snapchat|TikTok|WhatsApp|Twitter/i.test(ua);
+  const iosSafari = ios && !inApp && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA\//.test(ua);
+  const android = /Android/i.test(ua);
+  return { ios, iosSafari, android, standalone, inApp, desktop: !ios && !android };
+}
+function installSteps(kind){
+  const step = (n, title, body, art) => `<li class="ist"><span class="ist-n">${n}</span><div class="grow"><b>${title}</b><p class="small muted">${body}</p>${art || ''}</div></li>`;
+  const shareIc = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"/></svg>`;
+  const addIc = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M12 8v8M8 12h8"/></svg>`;
+  if (kind === 'ios') return `<ol class="isteps">
+    ${step(1, t('ins_i1'), t('ins_i1p'), `<div class="mock-bar"><span>‹</span><span>›</span><span class="hl">${shareIc}</span><span>${ic('list',18)}</span><span>${ic('home',18)}</span></div>`)}
+    ${step(2, t('ins_i2'), t('ins_i2p'), `<div class="mock-row"><span>${t('ins_a2hs')}</span><span class="hl">${addIc}</span></div>`)}
+    ${step(3, t('ins_i3'), t('ins_i3p'), `<div class="mock-row"><span class="muted">${t('cancel')}</span><b>Lab@Home</b><span class="hl b">${t('ins_add')}</span></div>`)}
+    ${step(4, t('ins_i4'), t('ins_i4p'))}</ol>`;
+  return `<ol class="isteps">
+    ${step(1, t('ins_a1'), t('ins_a1p'), `<div class="mock-bar"><span class="grow small ltr" style="text-align:start">labathome-oman.vercel.app</span><span class="hl">⋮</span></div>`)}
+    ${step(2, t('ins_a2'), t('ins_a2p'), `<div class="mock-row"><span>${t('ins_inst_app')}</span><span class="hl">${ic('download',18)}</span></div>`)}
+    ${step(3, t('ins_a3'), t('ins_a3p'))}</ol>`;
+}
+async function viewInstall(){
+  const P = platform(); const url = window.LAHQR ? LAHQR.url : location.origin + '/#/install';
+  const tab = new URLSearchParams(location.hash.split('?')[1] || '').get('os') || (P.ios ? 'ios' : P.android ? 'android' : 'ios');
+  const head = S.user ? shell(t('ins_title'), '') : topbar();
+  let primary = '';
+  if (P.standalone) primary = `<div class="card ins-ok"><div class="ok-ic">${ic('check',30,2.6)}</div><h3>${t('ins_done_t')}</h3><p class="muted">${t('ins_done_p')}</p><a class="btn" href="#/${S.user ? 'app' : ''}">${t('ins_open')}</a></div>`;
+  else if (P.ios && !P.iosSafari) primary = `<div class="card ins-warn"><h3>${ic('globe',20)} ${t('ins_safari_t')}</h3><p class="muted">${t('ins_safari_p')}</p><div class="row wrap" style="gap:10px"><button class="btn" data-copy-url>${ic('copy',18)} ${t('ins_copy')}</button></div><p class="xs muted ltr" style="margin-top:10px">${esc(url)}</p></div>`;
+  else if (S.installEvt) primary = `<div class="card ins-one"><h3>${t('ins_one_t')}</h3><p class="muted">${t('ins_one_p')}</p><button class="btn block lg" id="instNow">${ic('download',20)} ${t('ins_btn')}</button></div>`;
+  app.innerHTML = head + `${S.user ? '' : '<main>'}<section class="ins wrap-w">
+    <div class="ins-hero">
+      <div class="ins-phone" aria-hidden="true"><div class="ins-screen"><div class="ins-clock">9:41</div><div class="ins-icons">${'<b class="ph"></b>'.repeat(6)}<span class="ins-app"><span class="ins-ico">${A.logo}</span><small>Lab@Home</small></span>${'<b class="ph"></b>'.repeat(5)}</div></div></div>
+      <div><span class="chip t">${t('ins_free')}</span><h1>${t('ins_h1')}</h1><p class="lead">${t('ins_lead')}</p>
+        <div class="ins-perks">${[['bell','ins_p1'],['clock','ins_p2'],['shield','ins_p3'],['box','ins_p4']].map(([i, k]) => `<span>${ic(i,18)} ${t(k)}</span>`).join('')}</div></div>
+    </div>
+    ${primary}
+    ${P.standalone ? '' : `<div class="card"><div class="seg ins-tabs" role="tablist"><button data-os="ios" class="${tab === 'ios' ? 'on' : ''}" role="tab">${ic('phone',16)} iPhone</button><button data-os="android" class="${tab === 'android' ? 'on' : ''}" role="tab">${ic('phone',16)} Android</button></div>
+      <div id="isteps">${installSteps(tab)}</div>${tab === 'ios' ? `<p class="xs muted" style="margin-top:6px">${t('ins_ios_note')}</p>` : ''}</div>`}
+    <div class="card ins-qr"><div class="qr-box">${window.LAHQR ? LAHQR.svg({ size: 200 }) : ''}</div><div class="grow"><h3>${t('ins_qr_t')}</h3><p class="muted small">${t('ins_qr_p')}</p>
+      <div class="row wrap" style="gap:10px">${navigator.share ? `<button class="btn soft" data-share-url>${ic('share',18)} ${t('ins_share')}</button>` : ''}<button class="btn ghost" data-copy-url>${ic('copy',18)} ${t('ins_copy')}</button></div></div></div>
+  </section>${S.user ? '' : '</main>' + footer()}`;
+  if (S.user && $('.content')) { const sec = $('.ins'); $('.content').appendChild(sec); }
+  $$('[data-os]').forEach(b => b.onclick = () => { $$('[data-os]').forEach(x => x.classList.toggle('on', x === b)); $('#isteps').innerHTML = installSteps(b.dataset.os); });
+  $$('[data-copy-url]').forEach(b => b.onclick = async () => { try { await navigator.clipboard.writeText(url); toast(t('copied')); } catch(e) { prompt('', url); } });
+  $$('[data-share-url]').forEach(b => b.onclick = () => navigator.share({ title: 'Lab@Home', text: t('ins_share_txt'), url }).catch(() => {}));
+  if ($('#instNow')) $('#instNow').onclick = async () => { const ev = S.installEvt; if (!ev) return; ev.prompt(); const r = await ev.userChoice.catch(() => ({})); S.installEvt = null; if (r.outcome === 'accepted') { toast(t('ins_ok_toast')); setTimeout(render, 600); } };
+}
+
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 14;
+const APP_V = 15;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -1546,7 +1598,8 @@ function appFeel(){
 }
 async function boot(){
   setLang(S.lang);
-  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installEvt = e; });
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installEvt = e; if (location.hash.startsWith('#/install')) render(); });
+  window.addEventListener('appinstalled', () => { S.installEvt = null; if (location.hash.startsWith('#/install')) render(); });
   if (API.hasToken()) { try { const r = await API.me(); S.user = r.user; S.unread = r.unread; } catch(e) { API.setToken(null); } }
   window.addEventListener('hashchange', render);
   appFeel();

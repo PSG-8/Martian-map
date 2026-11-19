@@ -607,3 +607,52 @@ button.link{min-height:44px;display:inline-flex;align-items:center;gap:6px}
 *::before,*::after{pointer-events:none}
 .ohead::after{z-index:0}
 .ohead>*{position:relative;z-index:1}
+/* ---------- install page ---------- */
+.ins{padding-top:22px;padding-bottom:40px;display:grid;gap:16px;max-width:880px}
+.ins-hero{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;margin-bottom:6px}
+.ins-hero h1{font-size:clamp(1.6rem,4.5vw,2.4rem);margin:10px 0 8px;line-height:1.2}
+.ins-hero .lead{margin:0 0 14px}
+.ins-perks{display:flex;flex-wrap:wrap;gap:8px}
+.ins-perks span{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:.86rem;font-weight:600;color:var(--navy)}
+.ins-perks svg{color:var(--blue)}
+.ins-phone{width:150px;height:300px;border-radius:30px;background:linear-gradient(160deg,#0d1628,#14254a);padding:9px;box-shadow:0 24px 50px rgba(13,22,40,.28)}
+.ins-screen{width:100%;height:100%;border-radius:23px;background:linear-gradient(170deg,#cfe0ff,#f4f8ff);padding:14px 12px;overflow:hidden}
+.ins-clock{text-align:center;font-weight:800;font-size:12px;color:var(--navy);margin-bottom:14px;direction:ltr}
+.ins-icons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 7px;justify-items:center}
+.ins-icons .ph{display:block;width:100%;aspect-ratio:1;border-radius:7px;background:rgba(18,87,214,.14)}
+.ins-app{display:grid;justify-items:center;gap:3px;width:100%;animation:insPop 2.4s ease-in-out infinite}
+.ins-ico{display:grid;place-items:center;width:100%;aspect-ratio:1;border-radius:7px;background:#0d1628;box-shadow:0 5px 12px rgba(18,87,214,.45)}
+.ins-ico svg{width:78%;height:78%;min-width:0;display:block}
+.ins-app small{font-size:6.5px;font-weight:800;color:var(--navy);white-space:nowrap;direction:ltr}
+@keyframes insPop{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@media(prefers-reduced-motion:reduce){.ins-app{animation:none}}
+.ins-ok,.ins-one{text-align:center}
+.ins-ok .ok-ic{width:62px;height:62px;border-radius:50%;margin:0 auto 8px;display:grid;place-items:center;background:var(--teal-bg);color:var(--teal)}
+.ins-one{background:linear-gradient(135deg,#eef4ff,#fff);border-color:#cfe0ff}
+.btn.lg{padding:15px 22px;font-size:1.05rem}
+.ins-warn{border-color:#ffd99a;background:#fffaf0}
+.ins-warn h3{display:flex;align-items:center;gap:8px}
+.ins-tabs{margin-bottom:14px}
+.ins-tabs button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px}
+.ins-tabs button.on{background:#fff;color:var(--navy);box-shadow:0 2px 8px rgba(16,40,90,.1)}
+.isteps{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.ist{display:flex;gap:14px;align-items:flex-start}
+.ist-n{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:#fff;font-weight:800}
+.ist b{display:block;margin-top:4px}
+.ist p{margin:2px 0 8px}
+.mock-bar,.mock-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f4f7fc;border:1px solid var(--line);border-radius:14px;padding:10px 14px;color:#56657f;max-width:340px}
+.mock-row{background:#fff}
+.mock-bar .hl,.mock-row .hl{color:var(--blue);background:#e5efff;border-radius:9px;padding:4px 7px;display:inline-flex;box-shadow:0 0 0 2px #fff,0 0 0 4px rgba(18,87,214,.35);animation:insPulse 1.6s ease-in-out infinite}
+.mock-row .hl.b{font-weight:800}
+@keyframes insPulse{0%,100%{box-shadow:0 0 0 2px #fff,0 0 0 4px rgba(18,87,214,.35)}50%{box-shadow:0 0 0 2px #fff,0 0 0 7px rgba(18,87,214,.12)}}
+.ins-qr{display:flex;gap:22px;align-items:center}
+.qr-box{flex:none;background:#fff;border:1px solid var(--line);border-radius:22px;padding:12px;line-height:0}
+.qr-box svg{width:170px;height:170px}
+.ins-link{display:inline-flex;align-items:center;gap:7px;margin-top:14px;font-weight:700;color:var(--blue);text-decoration:none;min-height:40px}
+@media(max-width:640px){
+  .ins-hero{grid-template-columns:1fr;text-align:center;gap:18px}
+  .ins-phone{margin:0 auto;width:124px;height:248px}
+  .ins-perks{justify-content:center}
+  .ins-qr{flex-direction:column;text-align:center}
+  .ins-qr .row{justify-content:center}
+}
