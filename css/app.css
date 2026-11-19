@@ -656,3 +656,16 @@ button.link{min-height:44px;display:inline-flex;align-items:center;gap:6px}
   .ins-qr{flex-direction:column;text-align:center}
   .ins-qr .row{justify-content:center}
 }
+/* contact */
+.ct-card h3{display:flex;align-items:center;gap:8px}
+.ct-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.ct-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;text-decoration:none;color:var(--navy);background:#fff;min-height:64px;transition:transform .12s,border-color .15s}
+.ct-item:active{transform:scale(.98)}.ct-item:hover{border-color:#bcd0f5}
+.ct-item b{display:block;font-size:.95rem}.ct-item small{display:block;color:var(--muted);font-size:.8rem;word-break:break-all}
+.ct-ic{flex:none;width:42px;height:42px;border-radius:12px;display:grid;place-items:center}
+.ct-item.wa .ct-ic{background:#e3f7ea;color:#128c4a}.ct-item.call .ct-ic{background:#e5efff;color:var(--blue)}.ct-item.mail .ct-ic{background:#fff1e0;color:#b25e00}
+.ct-page{display:grid;gap:16px;padding-top:20px;padding-bottom:40px;max-width:880px}
+.ft-ct a{direction:ltr;unicode-bidi:isolate}
+.ins-upd{display:flex;gap:12px;align-items:flex-start;background:#effaf6;border-color:#c7ecdf}.ins-upd>svg{color:var(--teal);flex:none;margin-top:2px}.ins-upd p{margin:2px 0 0}
+@media(max-width:760px){.ct-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.welcome .art{display:none}}

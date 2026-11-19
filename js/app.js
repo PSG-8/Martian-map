@@ -70,7 +70,7 @@ function topbar(){
   return `<header class="topbar"><div class="wrap-w in">
     <button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>
     <a href="#/" class="brand">${brandInner(t('brand_sub'))}</a>
-    <nav class="nav"><a href="#/#how">${t('nav_how')}</a><a href="#/tests">${t('nav_tests')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></nav>
+    <nav class="nav"><a href="#/#how">${t('nav_how')}</a><a href="#/tests">${t('nav_tests')}</a><a href="#/install">${t('m_install')}</a><a href="#/contact">${t('m_contact')}</a><a href="#/about">${t('m_about')}</a></nav>
     <div class="grow"></div>
     <button class="lang hide-sm" data-lang>${t('lang')}</button>
     <a class="icon-btn ${S.user ? '' : 'hide-sm'}" href="#/${S.user ? 'app/cart' : 'tests'}" aria-label="${t('m_cart')}">${ic('box')}${n ? `<span class="dot">${n}</span>` : ''}</a>
@@ -123,7 +123,7 @@ async function viewLanding(){
     <div><span class="chip" style="margin-bottom:16px">${ic('pin',14)} ${t('trust4')}</span>
       <h1>${t('hero_t1')}<br><em>${t('hero_t2')}</em></h1>
       <p class="lead">${t('hero_p')}</p>
-      <div class="cta"><a class="btn" href="#/${S.user ? 'app/tests' : 'register'}">${t('book_now')} ${'<span class="flip">'+ic('arrow',18)+'</span>'}</a><a class="btn ghost" href="#/#tests">${t('explore_tests')}</a></div>${platform().standalone ? '' : `<a class="ins-link" href="#/install">${ic('download',16)} ${t('ins_cta')}</a>`}
+      <div class="cta"><a class="btn" href="#/${S.user ? 'app/tests' : 'register'}">${t('book_now')} ${'<span class="flip">'+ic('arrow',18)+'</span>'}</a><a class="btn ghost" href="#/#tests">${t('explore_tests')}</a></div><a class="ins-link" href="#/install">${ic('download',16)} ${t('ins_cta')}</a>
       <div class="trust"><span>${ic('shield',18)} ${t('trust1')}</span><span>${ic('flask',18)} ${t('trust2')}</span><span>${ic('clock',18)} ${t('trust3')}</span></div>
     </div>
     <div class="hero-art">${A.hero}</div>
@@ -180,7 +180,7 @@ async function viewLanding(){
 function footer(){
   return `<footer class="site"><div class="wrap-w"><div class="row wrap between" style="gap:20px;align-items:flex-start">
     <div style="max-width:520px"><div class="brand">${brandInner()}</div><p class="small" style="margin-top:12px">${t('foot_note')}</p><p class="xs" style="opacity:.75">${t('foot_team')}</p></div>
-    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small"><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
+    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
     <p class="xs" style="opacity:.6;margin-top:24px">© 2026 Lab@Home · Oman</p></div></footer>`;
 }
 function covMap(){
@@ -741,7 +741,7 @@ async function viewReport(id){
   <p class="xs muted" style="margin-top:18px">${t('report_disclaimer')}</p></div></div>`, { back: true });
   /* real PDF file, made on the phone; prepared in advance so the tap opens the save/share sheet at once */
   const ar = S.lang === 'ar';
-  const pdfData = { lang: S.lang, logo: A.logo, code: o.code, lab: o.lab ? o.lab.name : '', licence: o.lab && o.lab.license ? t('licence') + ': ' + o.lab.license : '', flags,
+  const pdfData = { lang: S.lang, logo: A.logo, contact: `WhatsApp / Call ${CONTACT.phone}  ·  ${CONTACT.email}`, code: o.code, lab: o.lab ? o.lab.name : '', licence: o.lab && o.lab.license ? t('licence') + ': ' + o.lab.license : '', flags,
     title: `Lab@Home ${o.code}`,
     t: { title: t('report_t'), analyte: t('analyte'), result: t('result'), range: t('ref_range'), flag: t('flag'), insight: t('insight_t'), disclaimer: t('report_disclaimer'), summary: flags ? t('some_flags',{n:flags}) : t('all_normal') },
     info: [[t('patient'), p.name || '—'], [t('age') + ' / ' + t('sex'), `${p.dob ? age(p.dob) : '—'} / ${p.gender ? t(p.gender) : '—'}`], [t('request'), o.code], [t('collected_at'), ce ? fmtDT(ce.at) : '—'], [t('reported_at'), fmtDT(o.published_at)], [t('verified_by'), o.verified_by || '—']],
@@ -1009,7 +1009,7 @@ async function viewProfile(){
       <label class="field"><span>${t('allergies')}</span><input class="input" name="allergies" value="${esc(m.allergies || '')}"></label><label class="field"><span>${t('chronic')}</span><input class="input" name="chronic" value="${esc(m.chronic || '')}"></label>` : ''}
       <button class="btn">${t('save_changes')}</button></form></div>
     <div class="stack"><form class="card stack" id="pw"><h3>${t('change_pw')}</h3>${pwField('old', t('old_pw'))}${pwField('new1', t('new_pw'), t('pass_rule'))}<button class="btn ghost">${t('change_pw')}</button></form>
-      ${mailCard()}${pushCard()}${platform().standalone ? '' : `<div class="card"><h3>${t('install_t')}</h3><p class="muted small">${t('install_p')}</p><a class="btn" href="#/install">${ic('download',18)} ${t('ins_cta')}</a></div>`}
+      ${mailCard()}${pushCard()}<div class="card"><h3>${t('install_t')}</h3><p class="muted small">${t('install_p')}</p><a class="btn" href="#/install">${ic('download',18)} ${t('ins_cta')}</a></div>
       <div class="card row between"><span class="b">${S.lang === 'ar' ? 'اللغة' : 'Language'}</span><button class="lang" data-lang>${t('lang')}</button></div>
       <button class="btn ghost block" data-logout>${ic('logout',18)} ${t('logout')}</button></div></div>`);
   bindPw(app);
@@ -1051,7 +1051,8 @@ function menuItems(){
     if (r === 'admin') h += it('app/admin/tickets', 'chat', t('m_tickets'));
   }
   h += '<hr class="sep">';
-  if (!platform().standalone) h += it('install', 'download', t('m_install'));
+  h += it('install', 'download', t('m_install'));
+  h += it('contact', 'phone', t('m_contact'));
   h += it('support', 'chat', t('m_support'));
   h += it('about', 'users', t('m_about') + ' · ' + t('m_team'));
   h += it('#how', 'globe', t('nav_how'));
@@ -1152,7 +1153,7 @@ async function viewSupport(){
   const mine = u ? await API.supportMine().catch(() => []) : [];
   const topics = ['booking','results','payment','nurse','partner','other'];
   const body = `<div class="stack-lg">
-    <div class="welcome"><div class="art">${A.roleIcon('admin', 150)}</div><h2>${t('sup_t')}</h2><p style="opacity:.85;max-width:480px">${t('sup_p')}</p></div>
+    <div class="welcome"><div class="art">${A.roleIcon('admin', 150)}</div><h2>${t('sup_t')}</h2><p style="opacity:.85;max-width:480px">${t('sup_p')}</p></div>${contactCard(true)}
     <div class="grid g2 collapse" style="align-items:start">
       <form class="card stack" id="sf"><h3>${t('sup_new')}</h3>
         ${!u ? `<div class="banner blue small">${ic('user',18)}<span>${t('sup_guest')}</span></div><div class="grid g2"><label class="field"><span>${t('your_name')}</span><input class="input" name="name"></label><label class="field"><span>${t('phone')}</span><input class="input" name="contact" inputmode="tel" required></label></div>` : ''}
@@ -1488,6 +1489,7 @@ async function renderNow(){
     if (seg[0] === 'verify' && seg[1]) { await viewVerify(seg[1]); return; }
     if (seg[0] === '' && !S.user && !localStorage.getItem('lah_seen') && (innerWidth < 760 || standalone)) { location.replace('#/start'); return; }
     if (seg[0] === 'install') await viewInstall();
+    else if (seg[0] === 'contact') await viewContact();
     else if (seg[0] === 'support') await viewSupport();
     else if (seg[0] === 'about') await viewAbout();
     else if (seg[0] !== 'app') {
@@ -1521,6 +1523,23 @@ async function renderNow(){
   if (!location.hash.includes('#', 1)) window.scrollTo(0, 0);
 }
 async function poll(){ if (!S.user || document.hidden) return; try { const r = await API.me(); const before = S.unread; S.user = r.user; S.unread = r.unread; if (r.unread !== before) { $$('[data-go="app/notifs"] .dot').forEach(d => d.textContent = r.unread); if (r.unread > before) { const b = $('[data-go="app/notifs"]'); if (b && !$('.dot', b)) b.insertAdjacentHTML('beforeend', `<span class="dot">${r.unread}</span>`); } } } catch(e) { if (e.code === 'AUTH_REQUIRED') { S.user = null; go('login'); } } }
+
+/* ---------- contact ---------- */
+const CONTACT = { phone: '+968 9434 2557', tel: '+96894342557', wa: '96894342557', email: 'labathome.oman@gmail.com' };
+function contactCard(compact){
+  const waTxt = encodeURIComponent(t('ct_wa_txt'));
+  return `<div class="card ct-card${compact ? ' compact' : ''}"><h3>${ic('chat',20)} ${t('ct_title')}</h3>${compact ? '' : `<p class="muted small">${t('ct_p')}</p>`}
+    <div class="ct-grid">
+      <a class="ct-item wa" href="https://wa.me/${CONTACT.wa}?text=${waTxt}" target="_blank" rel="noopener"><span class="ct-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a.9.9 0 0 0-.7.3 2.8 2.8 0 0 0-.9 2.1 4.9 4.9 0 0 0 1 2.6 11.2 11.2 0 0 0 4.3 3.8c1.6.7 2.2.7 3 .6a2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3z"/></svg></span><div><b>${t('ct_wa')}</b><small class="ltr">${CONTACT.phone}</small></div></a>
+      <a class="ct-item call" href="tel:${CONTACT.tel}"><span class="ct-ic">${ic('phone',20)}</span><div><b>${t('ct_call')}</b><small class="ltr">${CONTACT.phone}</small></div></a>
+      <a class="ct-item mail" href="mailto:${CONTACT.email}?subject=${encodeURIComponent('Lab@Home')}"><span class="ct-ic">${ic('mail',20)}</span><div><b>${t('ct_mail')}</b><small class="ltr">${CONTACT.email}</small></div></a>
+    </div></div>`;
+}
+async function viewContact(){
+  app.innerHTML = (S.user ? shell(t('m_contact'), '') : topbar()) + `${S.user ? '' : '<main>'}<section class="wrap-w ct-page"><div class="welcome"><div class="art">${A.roleIcon('admin', 150)}</div><h2>${t('ct_title')}</h2><p style="opacity:.85;max-width:480px">${t('ct_p')}</p></div>${contactCard(true)}
+    <div class="card"><h3>${t('ct_hours_t')}</h3><p class="muted small">${t('ct_hours')}</p><a class="btn ghost" href="#/support">${ic('chat',18)} ${t('ct_ticket')}</a></div></section>${S.user ? '' : '</main>' + footer()}`;
+  if (S.user && $('.content')) $('.content').appendChild($('.ct-page'));
+}
 
 /* ---------- install page: turns the site into an app on the phone ---------- */
 function platform(){
@@ -1560,8 +1579,10 @@ async function viewInstall(){
         <div class="ins-perks">${[['bell','ins_p1'],['clock','ins_p2'],['shield','ins_p3'],['box','ins_p4']].map(([i, k]) => `<span>${ic(i,18)} ${t(k)}</span>`).join('')}</div></div>
     </div>
     ${primary}
-    ${P.standalone ? '' : `<div class="card"><div class="seg ins-tabs" role="tablist"><button data-os="ios" class="${tab === 'ios' ? 'on' : ''}" role="tab">${ic('phone',16)} iPhone</button><button data-os="android" class="${tab === 'android' ? 'on' : ''}" role="tab">${ic('phone',16)} Android</button></div>
+    ${`<div class="card">${P.standalone ? `<h3 style="margin-bottom:12px">${t('ins_others')}</h3>` : ''}<div class="seg ins-tabs" role="tablist"><button data-os="ios" class="${tab === 'ios' ? 'on' : ''}" role="tab">${ic('phone',16)} iPhone</button><button data-os="android" class="${tab === 'android' ? 'on' : ''}" role="tab">${ic('phone',16)} Android</button></div>
       <div id="isteps">${installSteps(tab)}</div>${tab === 'ios' ? `<p class="xs muted" style="margin-top:6px">${t('ins_ios_note')}</p>` : ''}</div>`}
+    <div class="card ins-upd">${ic('check',20,2.4)}<div><b>${t('ins_auto_t')}</b><p class="small muted">${t('ins_auto_p')}</p></div></div>
+    ${contactCard()}
     <div class="card ins-qr"><div class="qr-box">${window.LAHQR ? LAHQR.svg({ size: 200 }) : ''}</div><div class="grow"><h3>${t('ins_qr_t')}</h3><p class="muted small">${t('ins_qr_p')}</p>
       <div class="row wrap" style="gap:10px">${navigator.share ? `<button class="btn soft" data-share-url>${ic('share',18)} ${t('ins_share')}</button>` : ''}<button class="btn ghost" data-copy-url>${ic('copy',18)} ${t('ins_copy')}</button></div></div></div>
   </section>${S.user ? '' : '</main>' + footer()}`;
@@ -1574,7 +1595,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 15;
+const APP_V = 16;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -1594,7 +1615,7 @@ function appFeel(){
   window.addEventListener('pageshow', e => { if (e.persisted) render(); });
   let st, on = false; window.addEventListener('scroll', () => { if (!on) { const f = $('.bot-fab'); if (!f || f.classList.contains('dragging')) return; f.classList.add('scrolling'); on = true; } clearTimeout(st); st = setTimeout(() => { on = false; const f = $('.bot-fab'); if (f) f.classList.remove('scrolling'); }, 650); }, { passive:true });
   /* always run the newest version: an app left open on the phone checks for updates when it comes back */
-  checkUpdate(); document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(); }); setInterval(checkUpdate, 5 * 60000);
+  checkUpdate(); document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkUpdate(); navigator.serviceWorker && navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {}); } }); window.addEventListener('focus', checkUpdate); setInterval(checkUpdate, 5 * 60000);
 }
 async function boot(){
   setLang(S.lang);

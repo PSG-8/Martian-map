@@ -48,6 +48,7 @@ async function build(d){
     x.fillStyle = C.line; x.fillRect(M, PH - 96, CW, 2);
     const lines = wrap(d.t.disclaimer, CW - 140, 15, 400).slice(0, 2); lines.forEach((l, k) => txt(l, M, PH - 64 + k * 22, { s: 15, c: C.muted }));
     txt(`${i} / ${n}`, PW - M, PH - 64, { s: 16, w: 600, c: C.muted, a: 'end' });
+    if (d.contact) ltrTxt(d.contact, PW / 2, PH - 22, { s: 15, w: 600, c: C.blue, a: 'center' });
   }
 
   newPage(true);

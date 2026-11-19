@@ -1,11 +1,14 @@
-const V = 'lah-v15';
-const CORE = ['./', 'index.html', 'css/app.css?v=15', 'js/i18n.js?v=15', 'js/art.js?v=15', 'js/api.js?v=15', 'js/qr.js?v=15', 'js/pdf.js?v=15', 'js/app.js?v=15', 'icons/icon.svg', 'manifest.webmanifest'];
+const V = 'lah-v16';
+const CORE = ['./', 'index.html', 'css/app.css?v=16', 'js/i18n.js?v=16', 'js/art.js?v=16', 'js/api.js?v=16', 'js/qr.js?v=16', 'js/pdf.js?v=16', 'js/app.js?v=16', 'icons/icon.svg', 'manifest.webmanifest'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
   const r = e.request; const u = new URL(r.url);
   if (r.method !== 'GET' || u.pathname.includes('/api/') || u.hostname.endsWith('supabase.co') || u.hostname.includes('tile.openstreetmap')) return;
-  if (r.mode === 'navigate') { e.respondWith(fetch(r).catch(() => caches.match('index.html'))); return; }
+  /* pages and anything without a version number: always try the network first, so every change shows up at once */
+  if (r.mode === 'navigate') { e.respondWith(fetch(r.url, { cache: 'no-store', credentials: 'same-origin' }).catch(() => caches.match('index.html'))); return; }
+  const versioned = u.search.includes('v=') || u.hostname.includes('unpkg') || u.hostname.includes('gstatic');
+  if (!versioned && u.origin === location.origin) { e.respondWith(fetch(r, { cache: 'no-cache' }).then(res => { if (res.ok) { const cp = res.clone(); caches.open(V).then(c => c.put(r, cp)); } return res; }).catch(() => caches.match(r))); return; }
   e.respondWith(caches.match(r).then(hit => hit || fetch(r).then(res => { if (res.ok && (u.origin === location.origin || u.hostname.includes('unpkg') || u.hostname.includes('gstatic') || u.hostname.includes('googleapis'))) { const cp = res.clone(); caches.open(V).then(c => c.put(r, cp)); } return res; })));
 });
 self.addEventListener('push', e => {
