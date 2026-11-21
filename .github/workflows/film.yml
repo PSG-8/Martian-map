@@ -1,0 +1,24 @@
+name: render-film
+on:
+  push:
+    branches: [film-ex]
+  workflow_dispatch:
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - run: npm init -y >/dev/null && npm i playwright@1.49.1 && npx playwright install --with-deps chromium
+      - run: bash run.sh
+      - run: bash post2.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: film
+          path: |
+            out/final.mp4
+            out/poster.jpg
+            out/*.log
