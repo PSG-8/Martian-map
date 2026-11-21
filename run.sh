@@ -6,7 +6,7 @@ node render.mjs 0 $A s0 8901 > out/s0.log 2>&1 &
 node render.mjs $A $B s1 8902 > out/s1.log 2>&1 &
 node render.mjs $B $C s2 8903 > out/s2.log 2>&1 &
 node render.mjs $C $L s3 8904 > out/s3.log 2>&1 &
-wait; tail -1 out/*.log
+wait; for f in out/*.log; do tail -n 1 "$f"; done
 printf "file 's0.mp4'\nfile 's1.mp4'\nfile 's2.mp4'\nfile 's3.mp4'\n" > out/list.txt
 ffmpeg -y -loglevel error -f concat -safe 0 -i out/list.txt -c copy out/silent.mp4
 cd out
