@@ -1,6 +1,6 @@
 {
-  "name": "Lab@Home – Healthcare testing at your doorstep",
-  "short_name": "Lab@Home",
+  "name": "iLab@Home – Healthcare testing at your doorstep",
+  "short_name": "iLab@Home",
   "description": "Book lab tests at home in Oman. Licensed nurses, partner laboratories, results on your phone.",
   "start_url": "./#/app",
   "scope": "./",

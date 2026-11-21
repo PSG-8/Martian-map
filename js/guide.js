@@ -1,4 +1,4 @@
-/* Lab@Home – what to do after a result. General guidance only, never a diagnosis.
+/* iLab@Home – what to do after a result. General guidance only, never a diagnosis.
    For each analyte code and direction (H high / L low): eat, avoid, do, see (when to get help now).
    Critical limits (clo/chi) decide the "urgent" level; they are also stored with each test in the database. */
 (function(){

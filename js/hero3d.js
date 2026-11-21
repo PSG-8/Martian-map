@@ -1,4 +1,4 @@
-/* Lab@Home – real-time 3D banners and the opening splash (three.js, physically based materials, ACES tone mapping). */
+/* iLab@Home – real-time 3D banners and the opening splash (three.js, physically based materials, ACES tone mapping). */
 import * as THREE from './vendor/three.module.min.js';
 
 const R = {}; // renderer state
@@ -18,7 +18,7 @@ function rbox(w, h, d, r, bevel = .04){ const g = new THREE.ExtrudeGeometry(roun
 function hexMark(x, X, Y, s, col){ x.save(); x.translate(X, Y); x.scale(s / 64, s / 64); x.strokeStyle = col; x.lineCap = 'round'; x.lineJoin = 'round';
   x.lineWidth = 3.4; x.stroke(new Path2D('M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2')); x.lineWidth = 1.7; x.stroke(new Path2D('M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9'));
   x.translate(32, 34); x.rotate(-32 * Math.PI / 180); x.translate(-32, -34); x.lineWidth = 2.4; x.stroke(new Path2D('M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1')); x.stroke(new Path2D('M27 20.5h10')); x.lineWidth = 1.9; x.stroke(new Path2D('M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2')); x.restore(); }
-function wordmark(x, X, Y, size, col, at, align){ x.font = `800 ${size}px Inter, Arial`; x.textBaseline = 'middle'; const p = ['Lab', '@', 'Home']; const ws = p.map(s => x.measureText(s).width); let px = align === 'center' ? X - (ws[0] + ws[1] + ws[2]) / 2 : X; p.forEach((s, i) => { x.fillStyle = i === 1 ? at : col; x.fillText(s, px, Y); px += ws[i]; }); }
+function wordmark(x, X, Y, size, col, at, align){ x.font = `800 ${size}px Inter, Arial`; x.textBaseline = 'middle'; const p = ['i', 'Lab', '@', 'Home']; const ws = p.map(s => x.measureText(s).width); let px = align === 'center' ? X - (ws[0] + ws[1] + ws[2] + ws[3]) / 2 : X; p.forEach((s, i) => { x.fillStyle = i === 0 || i === 2 ? at : col; x.fillText(s, px, Y); px += ws[i]; }); }
 const bg = (stops) => ctex(16, 512, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); stops.forEach(([o, c]) => g.addColorStop(o, c)); x.fillStyle = g; x.fillRect(0, 0, w, h); });
 const radialBg = (inner, outer) => ctex(512, 512, (x, w, h) => { const g = x.createRadialGradient(w * .62, h * .42, 10, w * .55, h * .5, w * .75); g.addColorStop(0, inner); g.addColorStop(1, outer); x.fillStyle = g; x.fillRect(0, 0, w, h); });
 function shadowDisc(r, o = .28){ const t = ctex(128, 128, (x, w, h) => { const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, `rgba(10,20,40,${o})`); g.addColorStop(1, 'rgba(10,20,40,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
@@ -35,7 +35,7 @@ function studioEnv(renderer){
 /* ---------- models ---------- */
 function vanSideTex(){ return ctex(2048, 512, (x, w, h) => {
   hexMark(x, 40, 110, 290, '#ffffff'); wordmark(x, 360, 200, 190, '#ffffff', '#7cc0ff');
-  x.font = '600 92px "IBM Plex Sans Arabic", Arial'; x.fillStyle = '#cfe0ff'; x.textBaseline = 'middle'; x.fillText('لاب@هوم · فحوصات منزلية', 370, 360);
+  x.font = '600 92px "IBM Plex Sans Arabic", Arial'; x.fillStyle = '#cfe0ff'; x.textBaseline = 'middle'; x.fillText('آي لاب@هوم · فحوصات منزلية', 370, 360);
   x.strokeStyle = 'rgba(124,192,255,.9)'; x.lineWidth = 10; x.beginPath(); x.moveTo(1620, 420); x.bezierCurveTo(1700, 300, 1820, 520, 1990, 380); x.stroke(); }); }
 function vanRearTex(){ return ctex(512, 512, (x, w, h) => { hexMark(x, 156, 70, 200, '#ffffff'); wordmark(x, 256, 330, 76, '#ffffff', '#7cc0ff', 'center'); x.font = '600 34px Inter, Arial'; x.fillStyle = '#9fc4ff'; x.textAlign = 'center'; x.fillText('labathome-oman.vercel.app', 256, 410); }); }
 function wheel(){
@@ -152,10 +152,10 @@ function palm(h = 2.6){ const g = new THREE.Group(); let y = 0, x = 0; const lea
 function makeTextures(){
   R.texVan = vanSideTex(); R.texRear = vanRearTex();
   R.texLabel = ctex(256, 128, (x, w, h) => { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); for (let i = 0; i < 46; i++) { x.fillStyle = '#111'; x.fillRect(18 + i * 4.6, 18, (i * 7 % 3) + 1, 60); } x.fillStyle = '#0d1628'; x.font = '700 22px Inter, Arial'; x.fillText('LAH-10254', 20, 106); });
-  R.texBagLabel = ctex(512, 170, (x, w, h) => { wordmark(x, 24, 70, 92, '#ffffff', '#7cc0ff'); x.font = '600 40px "IBM Plex Sans Arabic", Arial'; x.fillStyle = '#9fc4ff'; x.textBaseline = 'middle'; x.fillText('لاب@هوم', 30, 140); });
+  R.texBagLabel = ctex(512, 170, (x, w, h) => { wordmark(x, 24, 70, 92, '#ffffff', '#7cc0ff'); x.font = '600 40px "IBM Plex Sans Arabic", Arial'; x.fillStyle = '#9fc4ff'; x.textBaseline = 'middle'; x.fillText('آي لاب@هوم', 30, 140); });
   R.texBP = ctex(512, 280, (x, w, h) => { x.fillStyle = '#c9e7dc'; rr(x, 0, 0, w, h, 26); x.fill(); x.fillStyle = '#0c2b22'; x.font = '800 116px Inter, Arial'; x.textBaseline = 'alphabetic'; x.fillText('120', 30, 128); x.font = '800 92px Inter, Arial'; x.fillText('80', 60, 238); x.font = '700 26px Inter, Arial'; x.fillText('SYS mmHg', 270, 60); x.fillText('DIA mmHg', 270, 170);
     x.fillStyle = '#e2474f'; x.font = '800 54px Inter, Arial'; x.fillText('♥ 72', 300, 250); });
-  R.texVial = ctex(512, 160, (x, w, h) => { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.fillStyle = '#0fae9b'; x.fillRect(0, 0, w, 34); x.fillStyle = '#0d1628'; x.font = '800 44px Inter, Arial'; x.fillText('VACCINE', 24, 96); x.font = '600 26px Inter, Arial'; x.fillStyle = '#56657f'; x.fillText('Lab@Home · soon', 24, 136); });
+  R.texVial = ctex(512, 160, (x, w, h) => { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.fillStyle = '#0fae9b'; x.fillRect(0, 0, w, 34); x.fillStyle = '#0d1628'; x.font = '800 44px Inter, Arial'; x.fillText('VACCINE', 24, 96); x.font = '600 26px Inter, Arial'; x.fillStyle = '#56657f'; x.fillText('iLab@Home · soon', 24, 136); });
   R.texScreen = ctex(660, 1430, (x, w, h) => {
     x.fillStyle = '#f4f7fc'; x.fillRect(0, 0, w, h); x.fillStyle = '#0d1628'; x.fillRect(0, 0, w, 230); hexMark(x, 34, 70, 96, '#7cc0ff'); wordmark(x, 146, 118, 58, '#ffffff', '#7cc0ff');
     x.fillStyle = '#9fb3d6'; x.font = '600 26px Inter, Arial'; x.fillText('LAH-10254 · Report', 148, 176);

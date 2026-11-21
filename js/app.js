@@ -1,4 +1,4 @@
-/* Lab@Home – single-page app (vanilla JS, no build step) */
+/* iLab@Home – single-page app (vanilla JS, no build step) */
 (function(){
 'use strict';
 const A = window.ART, ic = A.icon;
@@ -50,7 +50,7 @@ function modal(html, mount){
   return close;
 }
 function confirmBox(msg, yes, no){ return new Promise(r => modal(`<h3>${esc(msg)}</h3><div class="row" style="margin-top:18px"><button class="btn ghost grow" data-n>${esc(no||t('cancel'))}</button><button class="btn red grow" data-y>${esc(yes||t('confirm'))}</button></div>`, (el, close) => { $('[data-y]', el).onclick = () => { close(); r(true); }; $('[data-n]', el).onclick = () => { close(); r(false); }; })); }
-function setLang(l){ S.lang = l; localStorage.setItem('lah_lang', l); document.documentElement.lang = l; document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr'; document.title = 'Lab@Home · ' + t('brand_sub'); }
+function setLang(l){ S.lang = l; localStorage.setItem('lah_lang', l); document.documentElement.lang = l; document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr'; document.title = 'iLab@Home · ' + t('brand_sub'); }
 async function loadCatalog(){ if (!S.catalog) { S.catalog = await API.catalog(); S.catalog.T = {}; S.catalog.tests.forEach(x => S.catalog.T[x.id] = x); S.catalog.P = {}; S.catalog.packages.forEach(x => S.catalog.P[x.id] = x); } return S.catalog; }
 const fee = () => S.catalog ? Number(S.catalog.home_fee) : 5;
 function pkgFull(p){ return p.test_ids.reduce((s, id) => s + Number((S.catalog.T[id]||{}).price || 0), 0); }
@@ -161,8 +161,8 @@ async function viewHow(){
 function footer(){
   return `<footer class="site"><div class="wrap-w"><div class="row wrap between" style="gap:20px;align-items:flex-start">
     <div style="max-width:520px"><div class="brand">${brandInner()}</div><p class="small" style="margin-top:12px">${t('foot_note')}</p><p class="xs" style="opacity:.75">${t('foot_team')}</p></div>
-    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
-    <p class="xs" style="opacity:.6;margin-top:24px">© 2026 Lab@Home · Oman</p></div></footer>`;
+    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
+    <p class="xs" style="opacity:.6;margin-top:24px">© 2026 iLab@Home · Oman</p></div></footer>`;
 }
 function covMap(){
   const el = $('#cov-map'); if (!el) return;
@@ -519,10 +519,10 @@ function fastStart(o){ const h = Math.max(0, ...(o.tests || []).map(x => x.fasti
 function icsDownload(o){
   const st = slotAt(o), en = new Date(st.getTime() + 30 * 60000); const f = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const fs = fastStart(o); const link = location.origin + location.pathname + '#/app/order/' + o.id;
-  const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Lab@Home//Oman//EN','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:' + o.id + '@labathome.om','DTSTAMP:' + f(new Date()),'DTSTART:' + f(st),'DTEND:' + f(en),
-    'SUMMARY:Lab@Home ' + o.code + ' – nurse home visit','LOCATION:' + String(o.address || wN(o.wilayat)).replace(/[,;\n]/g, ' '),
+  const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//iLab@Home//Oman//EN','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:' + o.id + '@labathome.om','DTSTAMP:' + f(new Date()),'DTSTART:' + f(st),'DTEND:' + f(en),
+    'SUMMARY:iLab@Home ' + o.code + ' – nurse home visit','LOCATION:' + String(o.address || wN(o.wilayat)).replace(/[,;\n]/g, ' '),
     'DESCRIPTION:' + (fs ? 'Fasting ' + fs.h + 'h – stop eating by ' + fmtTime(fs.at) + '. ' : '') + 'Track: ' + link, 'URL:' + link,
-    'BEGIN:VALARM','TRIGGER:' + (fs ? '-PT' + (fs.h + 1) + 'H' : '-PT2H'),'ACTION:DISPLAY','DESCRIPTION:Lab@Home ' + o.code,'END:VALARM','END:VEVENT','END:VCALENDAR'];
+    'BEGIN:VALARM','TRIGGER:' + (fs ? '-PT' + (fs.h + 1) + 'H' : '-PT2H'),'ACTION:DISPLAY','DESCRIPTION:iLab@Home ' + o.code,'END:VALARM','END:VEVENT','END:VCALENDAR'];
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\r\n')], { type:'text/calendar' })); a.download = o.code + '.ics'; document.body.appendChild(a); a.click(); a.remove();
 }
 function partyRow(kind, p, state){
@@ -728,7 +728,7 @@ async function viewReport(id){
   /* real PDF file, made on the phone; prepared in advance so the tap opens the save/share sheet at once */
   const ar = S.lang === 'ar';
   const pdfData = { lang: S.lang, logo: A.logo, contact: `WhatsApp / Call ${CONTACT.phone}  ·  ${CONTACT.email}`, code: o.code, lab: o.lab ? o.lab.name : '', licence: o.lab && o.lab.license ? t('licence') + ': ' + o.lab.license : '', flags,
-    title: `Lab@Home ${o.code}`,
+    title: `iLab@Home ${o.code}`,
     t: { title: t('report_t'), analyte: t('analyte'), result: t('result'), range: t('ref_range'), flag: t('flag'), insight: t('insight_t'), disclaimer: t('report_disclaimer'), summary: t('lv_'+LVL+'_t') + ' · ' + (flags ? t('some_flags',{n:flags}) : t('all_normal')) },
     info: [[t('patient'), p.name || '—'], [t('age') + ' / ' + t('sex'), `${p.dob ? age(p.dob) : '—'} / ${p.gender ? t(p.gender) : '—'}`], [t('request'), o.code], [t('collected_at'), ce ? fmtDT(ce.at) : '—'], [t('reported_at'), fmtDT(o.published_at)], [t('verified_by'), o.verified_by || '—']],
     groups: (o.tests || []).map(x => ({ name: LN(x,'name'), rows: x.analytes.map(a => { const r = res[a.c] || {}; return { name: ar ? a.na : a.n, v: r.v ?? '—', u: a.u || '', range: rangeTxt(a), f: r.f || '', fl: r.f ? t('f_' + r.f) : '' }; }) })),
@@ -801,7 +801,7 @@ async function viewCompanyHome(){
       <div class="grid g3" style="margin-top:14px"><div class="kpi"><span>${t('booked_n')}</span><b>${p.booked}</b></div><div class="kpi"><span>${t('done_n')}</span><b>${p.completed}</b></div><div class="kpi"><span>${t('value')}</span><b>${omr(p.value)}</b></div></div>
       ${Object.keys(p.wilayats || {}).length ? `<div class="row wrap" style="gap:6px;margin-top:12px">${Object.entries(p.wilayats).map(([w, c]) => `<span class="chip gray">${esc(wN(w))} · ${c}</span>`).join('')}</div>` : ''}
       <div class="row wrap" style="margin-top:14px"><button class="btn soft sm" data-copy="${esc(p.code)}">${ic('share',16)} ${t('share_code')}</button></div></div>`; }).join('') : emptyBox(t('none_yet'))}</div>`);
-  $$('[data-copy]').forEach(b => b.onclick = () => { const txt = `${S.lang === 'ar' ? 'رمز برنامجنا الصحي في لاب@هوم' : 'Our Lab@Home wellness code'}: ${b.dataset.copy} · ${location.origin}`; if (navigator.share) navigator.share({ text: txt }).catch(() => {}); else navigator.clipboard.writeText(txt).then(() => toast('✓')); });
+  $$('[data-copy]').forEach(b => b.onclick = () => { const txt = `${S.lang === 'ar' ? 'رمز برنامجنا الصحي في آي لاب@هوم' : 'Our iLab@Home wellness code'}: ${b.dataset.copy} · ${location.origin}`; if (navigator.share) navigator.share({ text: txt }).catch(() => {}); else navigator.clipboard.writeText(txt).then(() => toast('✓')); });
   if ($('#np')) $('#np').onclick = () => modal(`<h3>${t('new_program')}</h3><form id="pf" class="stack" style="margin-top:12px"><label class="field"><span>${t('program_name')}</span><input class="input" name="name" required placeholder="Wellness 2027"></label>
     <label class="field"><span>${t('program_pkg')}</span><select class="input" name="pkg">${S.catalog.packages.map(p => `<option value="${p.id}">${esc(LN(p,'name'))} · ${omr(p.price)}</option>`).join('')}</select></label>
     <label class="field"><span>${t('seats')}</span><input class="input" type="number" name="seats" min="1" max="5000" value="25"></label><div class="err" id="pe"></div><button class="btn block">${t('create')}</button></form>`, (el, close) => {
@@ -1519,18 +1519,21 @@ async function renderNow(){
 async function poll(){ if (!S.user || document.hidden) return; try { const r = await API.me(); const before = S.unread; S.user = r.user; S.unread = r.unread; if (r.unread !== before) { $$('[data-go="app/notifs"] .dot').forEach(d => d.textContent = r.unread); if (r.unread > before) { const b = $('[data-go="app/notifs"]'); if (b && !$('.dot', b)) b.insertAdjacentHTML('beforeend', `<span class="dot">${r.unread}</span>`); } } } catch(e) { if (e.code === 'AUTH_REQUIRED') { S.user = null; go('login'); } } }
 
 /* ---------- contact ---------- */
-const CONTACT = { phone: '+968 9434 2557', tel: '+96894342557', wa: '96894342557', email: 'labathome.oman@gmail.com' };
+const CONTACT = { phone: '+968 9434 2557', tel: '+96894342557', wa: '96894342557', email: 'labathome.oman@gmail.com', ig: 'https://www.instagram.com/ilabathome', igh: '@ilabathome' };
+const IGSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>';
 function contactCard(compact){
   const waTxt = encodeURIComponent(t('ct_wa_txt'));
   return `<div class="card ct-card${compact ? ' compact' : ''}"><h3>${ic('chat',20)} ${t('ct_title')}</h3>${compact ? '' : `<p class="muted small">${t('ct_p')}</p>`}
     <div class="ct-grid">
       <a class="ct-item wa" href="https://wa.me/${CONTACT.wa}?text=${waTxt}" target="_blank" rel="noopener"><span class="ct-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a.9.9 0 0 0-.7.3 2.8 2.8 0 0 0-.9 2.1 4.9 4.9 0 0 0 1 2.6 11.2 11.2 0 0 0 4.3 3.8c1.6.7 2.2.7 3 .6a2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3z"/></svg></span><div><b>${t('ct_wa')}</b><small class="ltr">${CONTACT.phone}</small></div></a>
       <a class="ct-item call" href="tel:${CONTACT.tel}"><span class="ct-ic">${ic('phone',20)}</span><div><b>${t('ct_call')}</b><small class="ltr">${CONTACT.phone}</small></div></a>
-      <a class="ct-item mail" href="mailto:${CONTACT.email}?subject=${encodeURIComponent('Lab@Home')}"><span class="ct-ic">${ic('mail',20)}</span><div><b>${t('ct_mail')}</b><small class="ltr">${CONTACT.email}</small></div></a>
-    </div></div>`;
+      <a class="ct-item mail" href="mailto:${CONTACT.email}?subject=${encodeURIComponent('iLab@Home')}"><span class="ct-ic">${ic('mail',20)}</span><div><b>${t('ct_mail')}</b><small class="ltr">${CONTACT.email}</small></div></a>
+      <a class="ct-item ig" href="${CONTACT.ig}" target="_blank" rel="noopener"><span class="ct-ic">${IGSVG}</span><div><b>Instagram</b><small class="ltr">${CONTACT.igh}</small></div></a>
+    </div>${compact ? '' : `<div class="ig-qr"><div class="qr-box">${window.LAHQR ? LAHQR.svg({ code: 'ig', size: 150, accent: '#d62976' }) : ''}</div><div><b>${t('ig_follow')}</b><div class="small muted">${t('ig_scan')}</div><a class="btn sm" style="margin-top:8px;background:linear-gradient(45deg,#f58529,#dd2a7b,#8134af);color:#fff" href="${CONTACT.ig}" target="_blank" rel="noopener">${IGSVG} ${CONTACT.igh}</a></div></div>`}</div>`;
 }
 async function viewContact(){
   app.innerHTML = (S.user ? shell(t('m_contact'), '') : topbar()) + `${S.user ? '' : '<main>'}<section class="wrap-w ct-page"><div class="welcome"><div class="art">${A.roleIcon('admin', 150)}</div><h2>${t('ct_title')}</h2><p style="opacity:.85;max-width:480px">${t('ct_p')}</p></div>${contactCard(true)}
+    <div class="card ig-qr" style="margin-top:0;border-top:0"><div class="qr-box">${window.LAHQR ? LAHQR.svg({ code: 'ig', size: 150, accent: '#d62976' }) : ''}</div><div><b>${t('ig_follow')}</b><div class="small muted">${t('ig_scan')}</div><a class="btn sm" style="margin-top:8px;background:linear-gradient(45deg,#f58529,#dd2a7b,#8134af);color:#fff" href="${CONTACT.ig}" target="_blank" rel="noopener">${IGSVG} ${CONTACT.igh}</a></div></div>
     <div class="card"><h3>${t('ct_hours_t')}</h3><p class="muted small">${t('ct_hours')}</p><a class="btn ghost" href="#/support">${ic('chat',18)} ${t('ct_ticket')}</a></div></section>${S.user ? '' : '</main>' + footer()}`;
   if (S.user && $('.content')) $('.content').appendChild($('.ct-page'));
 }
@@ -1551,7 +1554,7 @@ function installSteps(kind){
   if (kind === 'ios') return `<ol class="isteps">
     ${step(1, t('ins_i1'), t('ins_i1p'), `<div class="mock-bar"><span>‹</span><span>›</span><span class="hl">${shareIc}</span><span>${ic('list',18)}</span><span>${ic('home',18)}</span></div>`)}
     ${step(2, t('ins_i2'), t('ins_i2p'), `<div class="mock-row"><span>${t('ins_a2hs')}</span><span class="hl">${addIc}</span></div>`)}
-    ${step(3, t('ins_i3'), t('ins_i3p'), `<div class="mock-row"><span class="muted">${t('cancel')}</span><b>Lab@Home</b><span class="hl b">${t('ins_add')}</span></div>`)}
+    ${step(3, t('ins_i3'), t('ins_i3p'), `<div class="mock-row"><span class="muted">${t('cancel')}</span><b>iLab@Home</b><span class="hl b">${t('ins_add')}</span></div>`)}
     ${step(4, t('ins_i4'), t('ins_i4p'))}</ol>`;
   return `<ol class="isteps">
     ${step(1, t('ins_a1'), t('ins_a1p'), `<div class="mock-bar"><span class="grow small ltr" style="text-align:start">labathome-oman.vercel.app</span><span class="hl">⋮</span></div>`)}
@@ -1568,7 +1571,7 @@ async function viewInstall(){
   else if (S.installEvt) primary = `<div class="card ins-one"><h3>${t('ins_one_t')}</h3><p class="muted">${t('ins_one_p')}</p><button class="btn block lg" id="instNow">${ic('download',20)} ${t('ins_btn')}</button></div>`;
   app.innerHTML = head + `${S.user ? '' : '<main>'}<section class="ins wrap-w">
     <div class="ins-hero">
-      <div class="ins-phone" aria-hidden="true"><div class="ins-screen"><div class="ins-clock">9:41</div><div class="ins-icons">${'<b class="ph"></b>'.repeat(6)}<span class="ins-app"><span class="ins-ico">${A.logo}</span><small>Lab@Home</small></span>${'<b class="ph"></b>'.repeat(5)}</div></div></div>
+      <div class="ins-phone" aria-hidden="true"><div class="ins-screen"><div class="ins-clock">9:41</div><div class="ins-icons">${'<b class="ph"></b>'.repeat(6)}<span class="ins-app"><span class="ins-ico">${A.logo}</span><small>iLab@Home</small></span>${'<b class="ph"></b>'.repeat(5)}</div></div></div>
       <div><span class="chip t">${t('ins_free')}</span><h1>${t('ins_h1')}</h1><p class="lead">${t('ins_lead')}</p>
         <div class="ins-perks">${[['bell','ins_p1'],['clock','ins_p2'],['shield','ins_p3'],['box','ins_p4']].map(([i, k]) => `<span>${ic(i,18)} ${t(k)}</span>`).join('')}</div></div>
     </div>
@@ -1583,13 +1586,13 @@ async function viewInstall(){
   if (S.user && $('.content')) { const sec = $('.ins'); $('.content').appendChild(sec); }
   $$('[data-os]').forEach(b => b.onclick = () => { $$('[data-os]').forEach(x => x.classList.toggle('on', x === b)); $('#isteps').innerHTML = installSteps(b.dataset.os); });
   $$('[data-copy-url]').forEach(b => b.onclick = async () => { try { await navigator.clipboard.writeText(url); toast(t('copied')); } catch(e) { prompt('', url); } });
-  $$('[data-share-url]').forEach(b => b.onclick = () => navigator.share({ title: 'Lab@Home', text: t('ins_share_txt'), url }).catch(() => {}));
+  $$('[data-share-url]').forEach(b => b.onclick = () => navigator.share({ title: 'iLab@Home', text: t('ins_share_txt'), url }).catch(() => {}));
   if ($('#instNow')) $('#instNow').onclick = async () => { const ev = S.installEvt; if (!ev) return; ev.prompt(); const r = await ev.userChoice.catch(() => ({})); S.installEvt = null; if (r.outcome === 'accepted') { toast(t('ins_ok_toast')); setTimeout(render, 600); } };
 }
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 20;
+const APP_V = 21;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -1631,7 +1634,7 @@ Object.assign(I18N.en, {
   or_with:'or', g_btn:'Continue with Google', needs_profile:'Complete your profile (phone, gender, date of birth, civil ID) before booking.', complete_now:'Complete now',
   cat_vitals:'Vital signs', cat_kids:'Children', cat_men:'Men', badge_kids:'For kids', badge_seniors:'60+',
   soon_t:'Coming soon', soon_p:'New home services we are preparing.', soon_1:'Vaccinations at home', soon_1d:'Children and adult vaccines given by a licensed nurse.', soon_2:'Home IV & treatment', soon_2d:'Drips, injections and dressings at home with a prescription.', soon_3:'Doctor video consult', soon_3d:'Talk to a doctor about your results from home.', soon_4:'ECG at home', soon_4d:'Heart tracing recorded at home and read by a doctor.', soon_chip:'Soon',
-  m_kit:'My kit', kit_t:'My Lab@Home kit', kit_p:'The navy Lab@Home bag issued to every nurse. Items go down automatically after each collection.', kit_low:'Low', kit_ok:'OK', kit_req:'Request restock', kit_req_ok:'Restock request sent to operations.', kit_hist:'Recent requests', kit_pending:'Pending', kit_done:'Ready', kit_from_t:'Where does the kit come from?', kit_from_p:'Lab@Home gives each nurse a branded navy kit (bag, tubes, needles, gloves, cold box, BP monitor) at onboarding. Refills are collected from the operations office or the partner lab. The branded coat with performance stars comes next.',
+  m_kit:'My kit', kit_t:'My iLab@Home kit', kit_p:'The navy iLab@Home bag issued to every nurse. Items go down automatically after each collection.', kit_low:'Low', kit_ok:'OK', kit_req:'Request restock', kit_req_ok:'Restock request sent to operations.', kit_hist:'Recent requests', kit_pending:'Pending', kit_done:'Ready', kit_from_t:'Where does the kit come from?', kit_from_p:'iLab@Home gives each nurse a branded navy kit (bag, tubes, needles, gloves, cold box, BP monitor) at onboarding. Refills are collected from the operations office or the partner lab. The branded coat with performance stars comes next.',
   stars_t:'My level', lvl_1:'Starter', lvl_2:'Silver', lvl_3:'Gold', lvl_4:'Platinum', lvl_next:'Next level: {v} visits and ★ {r}', lvl_top:'Top level reached. Thank you!',
   m_kits:'Nurse kits', kit_admin_t:'Nurse kits & restock', kit_fill:'Mark ready', kit_refill:'Refill full kit', kit_requests:'Restock requests', kit_nurses:'Stock by nurse', kit_items_low:'{n} low',
   demo_res_l:'Demo results', demo_res_p:'Which results demo and automatic requests produce.', dr_mixed:'Mixed (random)', dr_normal:'Always normal', dr_review:'Needs review', dr_urgent:'Urgent'
@@ -1655,7 +1658,7 @@ Object.assign(I18N.ar, {
   or_with:'أو', g_btn:'المتابعة بحساب Google', needs_profile:'أكمل ملفك (الهاتف، الجنس، تاريخ الميلاد، الرقم المدني) قبل الحجز.', complete_now:'أكمل الآن',
   cat_vitals:'العلامات الحيوية', cat_kids:'الأطفال', cat_men:'الرجال', badge_kids:'للأطفال', badge_seniors:'+60',
   soon_t:'قريباً', soon_p:'خدمات منزلية جديدة نجهّزها.', soon_1:'التطعيمات في البيت', soon_1d:'تطعيمات الأطفال والكبار على يد ممرض مرخّص.', soon_2:'المغذّي والعلاج في البيت', soon_2d:'مغذّيات وإبر وغيار جروح في البيت بوصفة طبية.', soon_3:'استشارة طبيب بالفيديو', soon_3d:'كلّم طبيباً عن نتائجك من البيت.', soon_4:'تخطيط القلب في البيت', soon_4d:'تخطيط قلب يُسجَّل في البيت ويقرأه طبيب.', soon_chip:'قريباً',
-  m_kit:'حقيبتي', kit_t:'حقيبة لاب@هوم', kit_p:'الحقيبة الكحلية اللي تُسلَّم لكل ممرض. تنقص المستلزمات تلقائياً بعد كل سحب.', kit_low:'ناقص', kit_ok:'متوفر', kit_req:'طلب تعبئة', kit_req_ok:'تم إرسال طلب التعبئة للعمليات.', kit_hist:'آخر الطلبات', kit_pending:'قيد التجهيز', kit_done:'جاهز', kit_from_t:'من وين يجيب الممرض الحقيبة؟', kit_from_p:'لاب@هوم تسلّم كل ممرض حقيبة كحلية بالشعار (الحقيبة، الأنابيب، الإبر، القفازات، صندوق التبريد، جهاز الضغط) عند الانضمام، والتعبئة تُستلم من مكتب العمليات أو المختبر الشريك. والمعطف الطبي بالشعار ونجوم الأداء قريباً.',
+  m_kit:'حقيبتي', kit_t:'حقيبة آي لاب@هوم', kit_p:'الحقيبة الكحلية اللي تُسلَّم لكل ممرض. تنقص المستلزمات تلقائياً بعد كل سحب.', kit_low:'ناقص', kit_ok:'متوفر', kit_req:'طلب تعبئة', kit_req_ok:'تم إرسال طلب التعبئة للعمليات.', kit_hist:'آخر الطلبات', kit_pending:'قيد التجهيز', kit_done:'جاهز', kit_from_t:'من وين يجيب الممرض الحقيبة؟', kit_from_p:'آي لاب@هوم تسلّم كل ممرض حقيبة كحلية بالشعار (الحقيبة، الأنابيب، الإبر، القفازات، صندوق التبريد، جهاز الضغط) عند الانضمام، والتعبئة تُستلم من مكتب العمليات أو المختبر الشريك. والمعطف الطبي بالشعار ونجوم الأداء قريباً.',
   stars_t:'مستواي', lvl_1:'مبتدئ', lvl_2:'فضي', lvl_3:'ذهبي', lvl_4:'بلاتيني', lvl_next:'المستوى التالي: {v} زيارة وتقييم ★ {r}', lvl_top:'وصلت أعلى مستوى. شكراً لك!',
   m_kits:'حقائب الممرضين', kit_admin_t:'حقائب الممرضين والتعبئة', kit_fill:'تم التجهيز', kit_refill:'تعبئة كاملة', kit_requests:'طلبات التعبئة', kit_nurses:'المخزون لكل ممرض', kit_items_low:'{n} ناقص',
   demo_res_l:'نتائج التجربة', demo_res_p:'نوع النتائج اللي تطلع في الطلبات التجريبية والتلقائية.', dr_mixed:'متنوعة (عشوائي)', dr_normal:'طبيعية دائماً', dr_review:'تحتاج مراجعة', dr_urgent:'عاجلة'
@@ -1714,7 +1717,7 @@ function guideHtml(flagged){
 function planStore(id){ try { return JSON.parse(localStorage.getItem('lah_plan_' + id) || '{}'); } catch(e) { return {}; } }
 function retestIcs(o, days){
   const d = new Date(Date.now() + days * 86400000); const ymd = d.toISOString().slice(0,10).replace(/-/g,'');
-  const ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LabAtHome//EN','BEGIN:VEVENT','UID:retest-' + o.id + '@labathome','DTSTAMP:' + new Date().toISOString().replace(/[-:]/g,'').slice(0,15) + 'Z','DTSTART;VALUE=DATE:' + ymd,'SUMMARY:Lab@Home – ' + (S.lang === 'ar' ? 'موعد إعادة الفحص' : 'Retest reminder') + ' (' + o.code + ')','DESCRIPTION:https://labathome-oman.vercel.app/#/app/tests','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LabAtHome//EN','BEGIN:VEVENT','UID:retest-' + o.id + '@labathome','DTSTAMP:' + new Date().toISOString().replace(/[-:]/g,'').slice(0,15) + 'Z','DTSTART;VALUE=DATE:' + ymd,'SUMMARY:iLab@Home – ' + (S.lang === 'ar' ? 'موعد إعادة الفحص' : 'Retest reminder') + ' (' + o.code + ')','DESCRIPTION:https://labathome-oman.vercel.app/#/app/tests','END:VEVENT','END:VCALENDAR'].join('\r\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type:'text/calendar' })); a.download = 'LabAtHome-retest.ics'; document.body.appendChild(a); a.click(); setTimeout(() => a.remove(), 500);
 }
 function careBlock(o){
@@ -1812,7 +1815,7 @@ const KIT_ART = `<svg viewBox="0 0 220 150" class="kit-art" aria-hidden="true"><
   <ellipse cx="110" cy="140" rx="86" ry="7" fill="#0d1628" opacity=".12"/><path d="M80 40c0-14 60-14 60 0" fill="none" stroke="#0d1628" stroke-width="8" stroke-linecap="round"/>
   <rect x="34" y="40" width="152" height="96" rx="18" fill="url(#kg)"/><rect x="34" y="62" width="152" height="6" fill="#2f7bff" opacity=".8"/>
   <circle cx="110" cy="100" r="22" fill="#fff"/><path d="M110 88v24M98 100h24" stroke="#e2474f" stroke-width="6" stroke-linecap="round"/>
-  <text x="110" y="56" text-anchor="middle" font-family="Inter,Arial" font-weight="800" font-size="13" fill="#fff">Lab<tspan fill="#60a5fa">@</tspan>Home</text></svg>`;
+  <text x="110" y="56" text-anchor="middle" font-family="Inter,Arial" font-weight="800" font-size="13" fill="#fff"><tspan fill="#60a5fa">i</tspan>Lab<tspan fill="#60a5fa">@</tspan>Home</text></svg>`;
 function nurseLevel(visits, rating){
   const L = [[0,0],[50,4.5],[150,4.7],[300,4.8]]; let lv = 1;
   for (let i = 1; i < L.length; i++) if (visits >= L[i][0] && rating >= L[i][1]) lv = i + 1;
@@ -1860,7 +1863,7 @@ Object.assign(I18N.en, {
   h3_e5:'Coming soon', h3_t5:'Vaccinations and treatment at home', h3_p5:'Vaccines, drips and doctor video consults are on the way.', h3_c5:'See what’s coming',
   hm_quick:'What do you need today?', hm_pk:'Popular packages', hm_steps:'Three simple steps', hm_how_more:'How it works in detail', hm_st1:'Book in 2 minutes', hm_st1d:'Pick tests, a time and your location.', hm_st2:'Nurse at your door', hm_st2d:'A licensed nurse collects the sample at home.', hm_st3:'Results on your phone', hm_st3d:'Clear report with advice and a PDF.',
   qt_book:'Book a test', qt_pk:'Packages', qt_kids:'Kids', qt_seniors:'Seniors 60+', qt_bp:'BP & sugar', qt_vit:'Vitamins', qt_results:'My results', qt_help:'Help',
-  hm_trust_t:'Trusted care, close to home', hm_app_t:'Lab@Home on your phone', hm_app_p:'Install the app in 10 seconds. It updates itself.', prev:'Previous', next_s:'Next', skip_intro:'Skip'
+  hm_trust_t:'Trusted care, close to home', hm_app_t:'iLab@Home on your phone', hm_app_p:'Install the app in 10 seconds. It updates itself.', prev:'Previous', next_s:'Next', skip_intro:'Skip'
 });
 Object.assign(I18N.ar, {
   h3_e1:'سحب العينات في البيت', h3_t1:'فحوصات المختبر عند باب بيتك', h3_p1:'ممرض مرخّص يجيك البيت، والعينة تنتقل في صندوق تبريد ٢–٨ °م، والتقرير الموثّق يوصلك على جوالك.', h3_c1:'احجز فحصك',
@@ -1870,7 +1873,7 @@ Object.assign(I18N.ar, {
   h3_e5:'قريباً', h3_t5:'التطعيمات والعلاج في البيت', h3_p5:'التطعيمات والمغذّيات واستشارة الطبيب بالفيديو قادمة قريباً.', h3_c5:'شوف الجديد',
   hm_quick:'ويش تحتاج اليوم؟', hm_pk:'الباقات الأكثر طلباً', hm_steps:'ثلاث خطوات بسيطة', hm_how_more:'كيف نشتغل بالتفصيل', hm_st1:'احجز في دقيقتين', hm_st1d:'اختر الفحوصات والوقت وموقعك.', hm_st2:'الممرض عند بابك', hm_st2d:'ممرض مرخّص يسحب العينة في البيت.', hm_st3:'النتائج على جوالك', hm_st3d:'تقرير واضح مع نصائح وملف PDF.',
   qt_book:'احجز فحص', qt_pk:'الباقات', qt_kids:'الأطفال', qt_seniors:'كبار السن', qt_bp:'الضغط والسكر', qt_vit:'الفيتامينات', qt_results:'نتائجي', qt_help:'المساعدة',
-  hm_trust_t:'رعاية موثوقة، قريبة من بيتك', hm_app_t:'لاب@هوم على جوالك', hm_app_p:'ثبّت البرنامج في 10 ثواني، ويتحدث تلقائياً.', prev:'السابق', next_s:'التالي', skip_intro:'تخطي'
+  hm_trust_t:'رعاية موثوقة، قريبة من بيتك', hm_app_t:'آي لاب@هوم على جوالك', hm_app_p:'ثبّت البرنامج في 10 ثواني، ويتحدث تلقائياً.', prev:'السابق', next_s:'التالي', skip_intro:'تخطي'
 });
 function heroSlides(){
   const P = (S.catalog && S.catalog.P) || {}; const pr = id => P[id] ? omr(P[id].price) : '—'; const u = !!S.user;
@@ -1938,7 +1941,7 @@ async function viewLanding(){
   try { if (window.LAHQR && $('#hqr')) $('#hqr').innerHTML = window.LAHQR.svg({ size: 132 }); } catch(e) {}
   const hash = location.hash.split('#')[2]; if (hash) setTimeout(() => { const el = document.getElementById(hash); if (el) el.scrollIntoView({ behavior:'smooth' }); }, 80);
 }
-/* opening splash: the Lab@Home van drives in (once per session) */
+/* opening splash: the iLab@Home van drives in (once per session) */
 let SPLASH = Promise.resolve();
 async function splashIntro(){
   const force = /splash=1/.test(location.search), hold = /splashhold/.test(location.search);
@@ -1956,15 +1959,15 @@ async function splashIntro(){
 }
 
 /* ================= v19: What's new (explainer video + changelog) ================= */
-Object.assign(I18N.en, { m_new:'What’s new', new_t:'What’s new in Lab@Home', new_vid:'How Lab@Home works, in one minute', new_sub:'English with Arabic subtitles', new_watch:'Watch the 1-minute video',
-  nw18:'3D home screen', nw18d:'Rotating 3D banners, an opening intro with the Lab@Home van, and quick service tiles.',
+Object.assign(I18N.en, { ig_follow:'Follow us on Instagram', ig_scan:'Scan the code with your phone camera.', m_new:'What’s new', new_t:'What’s new in iLab@Home', new_vid:'How iLab@Home works, in one minute', new_sub:'English with Arabic subtitles', new_watch:'Watch the 1-minute video',
+  nw18:'3D home screen', nw18d:'Rotating 3D banners, an opening intro with the iLab@Home van, and quick service tiles.',
   nw17a:'Clear result levels', nw17ad:'Normal, needs review or urgent, with diet tips and what to do until the doctor replies.',
   nw17b:'Doctor’s advice', nw17bd:'A doctor reviews results that need attention and sends a plan to the patient.',
   nw17c:'Nearest hospital', nw17cd:'Hospitals and health centres in North Al Sharqiyah, with distance and directions.',
   nw17d:'New tests and packages', nw17dd:'Kids, seniors 60+, blood pressure & sugar, and 12 more tests.',
   nw17e:'Forgot password', nw17ed:'Reset your password from a link sent to your email.' });
-Object.assign(I18N.ar, { m_new:'حدث البرنامج', new_t:'الجديد في لاب@هوم', new_vid:'كيف يشتغل لاب@هوم في دقيقة', new_sub:'بالإنجليزي مع ترجمة عربية', new_watch:'شاهد الفيديو (دقيقة)',
-  nw18:'واجهة رئيسية ثلاثية الأبعاد', nw18d:'بنرات ثلاثية الأبعاد تدور، ومقدمة افتتاحية بفان لاب@هوم، وأيقونات خدمات سريعة.',
+Object.assign(I18N.ar, { ig_follow:'تابعنا على إنستغرام', ig_scan:'امسح الكود بكاميرا جوالك.', m_new:'حدث البرنامج', new_t:'الجديد في آي لاب@هوم', new_vid:'كيف يشتغل آي لاب@هوم في دقيقة', new_sub:'بالإنجليزي مع ترجمة عربية', new_watch:'شاهد الفيديو (دقيقة)',
+  nw18:'واجهة رئيسية ثلاثية الأبعاد', nw18d:'بنرات ثلاثية الأبعاد تدور، ومقدمة افتتاحية بفان آي لاب@هوم، وأيقونات خدمات سريعة.',
   nw17a:'مستويات واضحة للنتائج', nw17ad:'طبيعي أو يحتاج مراجعة أو عاجل، مع نصائح غذائية وماذا تفعل لين يرد الطبيب.',
   nw17b:'توصية الطبيب', nw17bd:'طبيب يراجع النتائج اللي تحتاج متابعة ويرسل خطة للمريض.',
   nw17c:'أقرب مستشفى', nw17cd:'المستشفيات والمراكز الصحية في شمال الشرقية مع المسافة والاتجاهات.',

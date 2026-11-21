@@ -796,3 +796,6 @@ button.link{min-height:44px;display:inline-flex;align-items:center;gap:6px}
 .vid{width:100%;aspect-ratio:16/9;border-radius:18px;background:#0d1628;display:block}
 .topbar .nav a{white-space:nowrap}
 @media (max-width:1280px){.topbar .nav a[href="#/install"],.topbar .nav a[href="#/contact"]{display:none}}
+.ct-item.ig .ct-ic{background:linear-gradient(45deg,#f58529,#dd2a7b,#8134af);color:#fff}
+.ig-qr{display:flex;gap:16px;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}.ig-qr .qr-box svg{display:block;width:120px;height:120px}
+.btn svg{flex:none}

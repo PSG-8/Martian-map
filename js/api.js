@@ -1,4 +1,4 @@
-/* Lab@Home – API client. Every call goes to a secured Postgres function. */
+/* iLab@Home – API client. Every call goes to a secured Postgres function. */
 (function(){
 const URL = 'https://ufykiqxsegyuyablrjsq.supabase.co/rest/v1/rpc/';
 const KEY = 'sb_publishable_rVQ1jmPovakb-FMIgB1pUQ_BAoJlXMv';

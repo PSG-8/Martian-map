@@ -1,4 +1,4 @@
-/* Lab@Home – builds the results report as a real PDF file on the device (no print dialog, no libraries).
+/* iLab@Home – builds the results report as a real PDF file on the device (no print dialog, no libraries).
    Each A4 page is drawn on a canvas (so Arabic shaping and fonts are exact) and embedded as a JPEG in a small PDF. */
 (function(){
 'use strict';
@@ -31,8 +31,8 @@ async function build(d){
       const g = x.createLinearGradient(0, 0, PW, 260); g.addColorStop(0, C.navy); g.addColorStop(.65, C.navy2); g.addColorStop(1, C.blue); x.fillStyle = g; x.fillRect(0, 0, PW, 230);
       if (logo) x.drawImage(logo, rtl ? PW - M - 92 : M, 58, 92, 92);
       const wx = M + 112; font(800, 50); x.direction = 'ltr'; x.textAlign = rtl ? 'right' : 'left';
-      // wordmark "Lab@Home" with a blue @, always left-to-right
-      const parts = [['Lab', '#fff'], ['@', '#60a5fa'], ['Home', '#fff']]; let cx = rtl ? PW - wx : wx;
+      // wordmark "iLab@Home" with a blue @, always left-to-right
+      const parts = [['i', '#60a5fa'], ['Lab', '#fff'], ['@', '#60a5fa'], ['Home', '#fff']]; let cx = rtl ? PW - wx : wx;
       x.textAlign = 'left'; const total = parts.reduce((a, p) => a + x.measureText(p[0]).width, 0); if (rtl) cx -= total;
       for (const [s, c] of parts) { x.fillStyle = c; x.fillText(s, cx, 112); cx += x.measureText(s).width; }
       txt(d.t.title, wx, 150, { s: 24, w: 600, c: '#c7d7f5' });
@@ -41,7 +41,7 @@ async function build(d){
       txt(d.code, PW - M, 172, { s: 19, c: '#c7d7f5', a: 'end' });
       y = 280;
     } else {
-      x.fillStyle = C.navy; x.fillRect(0, 0, PW, 70); txt(`Lab@Home · ${d.t.title} · ${d.code}`, M, 45, { s: 20, w: 600, c: '#fff' }); y = 120;
+      x.fillStyle = C.navy; x.fillRect(0, 0, PW, 70); txt(`iLab@Home · ${d.t.title} · ${d.code}`, M, 45, { s: 20, w: 600, c: '#fff' }); y = 120;
     }
   }
   function footer(i, n){
@@ -90,7 +90,7 @@ async function build(d){
   const jpgs = [];
   for (const p of pages) jpgs.push(await new Promise((res, rej) => { try { p.toBlob(b => { if (!b) { try { const u = p.toDataURL('image/jpeg', .9); const bin = atob(u.split(',')[1]); const a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return res(a); } catch(e) { return rej(e); } } b.arrayBuffer().then(a => res(new Uint8Array(a)), rej); }, 'image/jpeg', .9); } catch(e) { rej(e); } }));
   pages.forEach(p => { p.width = p.height = 1; });     // free memory on phones
-  return pdfFromJpegs(jpgs, Math.round(PW * SC), Math.round(PH * SC), d.title || 'Lab@Home report');
+  return pdfFromJpegs(jpgs, Math.round(PW * SC), Math.round(PH * SC), d.title || 'iLab@Home report');
 }
 
 function pdfFromJpegs(imgs, iw, ih, title){
@@ -102,7 +102,7 @@ function pdfFromJpegs(imgs, iw, ih, title){
   push('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
   obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
   obj(2, `<< /Type /Pages /Count ${N} /Kids [${imgs.map((_, i) => `${4 + i * 3} 0 R`).join(' ')}] >>`);
-  obj(3, `<< /Title <${hexTitle}> /Producer (Lab@Home) /Creator (Lab@Home) >>`);
+  obj(3, `<< /Title <${hexTitle}> /Producer (iLab@Home) /Creator (iLab@Home) >>`);
   imgs.forEach((im, i) => { const p = 4 + i * 3; const cs = `q ${W} 0 0 ${H} 0 0 cm /Im0 Do Q`;
     obj(p, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im0 ${p + 2} 0 R >> >> /Contents ${p + 1} 0 R >>`);
     obj(p + 1, `<< /Length ${cs.length} >>`, enc.encode(cs));

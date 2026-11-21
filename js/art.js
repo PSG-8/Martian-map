@@ -1,4 +1,4 @@
-/* Lab@Home – original illustrations and icons (hand-made SVG) */
+/* iLab@Home – original illustrations and icons (hand-made SVG) */
 (function(){
 const P = {
   home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
@@ -67,9 +67,9 @@ function icon(name, size, sw){ return `<svg viewBox="0 0 24 24" width="${size||2
 
 let _lg=0;
 function logoFn(){ return `<svg class="mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="#3b82f6" stroke-width="3.2"/>  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="#3b82f6" stroke-width="1.6" opacity=".9"/>  <g transform="rotate(-32 32 34)" stroke="#3b82f6" stroke-width="2.2">    <path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/>    <path d="M27 20.5h10"/>    <path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/>    <circle cx="29.6" cy="40.4" r="1.6" stroke-width="1.5"/>    <circle cx="34.6" cy="39.4" r="1" stroke-width="1.3"/>  </g>  <circle cx="20.6" cy="20.2" r="1.3" stroke="#3b82f6" stroke-width="1.4"/>  <circle cx="17.6" cy="15.6" r=".9" stroke="#3b82f6" stroke-width="1.2"/>  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="#3b82f6" stroke-width="1.3"/></svg>`; }
-const WORDMARK = `<span class="wm" dir="ltr" role="img" aria-label="Lab@Home">Lab<i>@</i>Home</span>`;
+const WORDMARK = `<span class="wm" dir="ltr" role="img" aria-label="iLab@Home"><i>i</i>Lab<i>@</i>Home</span>`;
 
-const hero = `<svg viewBox="0 0 620 540" style="direction:ltr" role="img" aria-label="A nurse visiting a home with the Lab@Home app">
+const hero = `<svg viewBox="0 0 620 540" style="direction:ltr" role="img" aria-label="A nurse visiting a home with the iLab@Home app">
 <defs>
  <linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dcebff"/><stop offset="1" stop-color="#f4f8ff"/></linearGradient>
  <linearGradient id="hph" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b2b4f"/><stop offset="1" stop-color="#0b1730"/></linearGradient>
