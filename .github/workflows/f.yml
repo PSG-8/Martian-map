@@ -8,7 +8,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
-      - run: pip install -q "rembg[cpu]" pillow
+      - run: pip install -q "rembg[cpu,cli]" pillow
       - run: |
           mkdir pub; while read n u; do [ -n "$n" ] && curl -sfL -o "pub/$n" "$u" && echo "ok $n" || echo "FAIL $n"; done < urls.txt
           for f in img_*.png; do rembg i -m isnet-general-use "$f" "pub/cut_${f#img_}"; echo cut $f; done
