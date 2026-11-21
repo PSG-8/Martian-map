@@ -7,29 +7,33 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F5F8FD;--navy:#0D1628;--ink:#1E2A44;--mut:#5B6B86;--blue:#2563EB;--blue2:#60A5FA;--teal:#14B8A6;--orange:#F97316;--red:#EF4444;--pink:#E8466F;--purple:#7A5AF8;--line:#DCE5F3;--card:#fff}
+:root{--bg:#F5F8FD;--navy:#0D1628;--ink:#1E2A44;--mut:#3A4862;--blue:#2563EB;--blue2:#60A5FA;--teal:#14B8A6;--orange:#F97316;--red:#EF4444;--pink:#E8466F;--purple:#7A5AF8;--line:#DCE5F3;--card:#fff}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:var(--bg);overflow:hidden;font-family:Inter,"IBM Plex Sans Arabic",sans-serif;color:var(--ink)}
+html,body{height:100%;background:var(--bg);overflow:hidden;font-family:Inter,"IBM Plex Sans Arabic",sans-serif;color:var(--ink);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+::selection{background:transparent}
+#notes{-webkit-user-select:text;user-select:text}
 #bgc{position:fixed;inset:0;z-index:0}
 #wrap{position:fixed;inset:0;z-index:1;overflow:hidden}
 #stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:center center}
-.slide{position:absolute;inset:0;padding:70px 90px;opacity:0;pointer-events:none;transform:translateY(40px) scale(.98);transition:opacity .7s ease,transform .8s cubic-bezier(.2,.8,.2,1),filter .7s}
+.slide{position:absolute;inset:0;padding:64px 86px;opacity:0;pointer-events:none;transform:translateX(70px) scale(.97);transition:opacity .9s cubic-bezier(.65,0,.35,1),transform 1s cubic-bezier(.65,0,.35,1),filter .9s}
+.slide.from-left{transform:translateX(-70px) scale(.97)}
 .slide.on{opacity:1;pointer-events:auto;transform:none}
-.slide.out{opacity:0;transform:translateX(-120px) scale(.94) rotateY(8deg);filter:blur(6px)}
-.in{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
+.slide.out{opacity:0;transform:translateX(-70px) scale(.97);filter:blur(4px)}
+.slide.out.back{transform:translateX(70px) scale(.97)}
+.in{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.65,0,.35,1),transform .9s cubic-bezier(.22,1,.36,1)}
 .slide.on .in{opacity:1;transform:none;transition-delay:var(--d,0s)}
-[data-step]{opacity:0;transform:translateY(18px) scale(.97);transition:opacity .55s,transform .6s cubic-bezier(.2,.8,.2,1)}
+[data-step]{opacity:0;transform:translateY(16px) scale(.98);transition:opacity .7s cubic-bezier(.65,0,.35,1),transform .8s cubic-bezier(.22,1,.36,1)}
 [data-step].shown{opacity:1;transform:none}
 h1,h2,h3,.ttl{font-family:Poppins,"IBM Plex Sans Arabic",sans-serif;color:var(--navy);letter-spacing:-.02em}
-.eb{display:inline-flex;align-items:center;gap:10px;font:700 18px/1 Inter,"IBM Plex Sans Arabic";letter-spacing:.12em;text-transform:uppercase;color:var(--blue);background:rgba(37,99,235,.1);padding:10px 18px;border-radius:999px}
-h2{font-size:58px;line-height:1.05;margin:18px 0 14px}
-.lead{font-size:26px;line-height:1.45;color:var(--mut);max-width:720px}
+.eb{display:inline-flex;align-items:center;gap:10px;font:700 21px/1 Inter,"IBM Plex Sans Arabic";letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--blue);padding:11px 20px;border-radius:12px}
+h2{font-size:64px;line-height:1.04;margin:18px 0 14px}
+.lead{font-size:30px;line-height:1.42;color:var(--mut);max-width:740px}
 .card{background:var(--card);border-radius:28px;box-shadow:0 1px 0 var(--line),0 18px 50px rgba(13,22,40,.08)}
 .wm{font-family:Poppins;font-weight:800;letter-spacing:-.03em;direction:ltr;unicode-bidi:isolate;white-space:nowrap}.wm i{font-style:normal;color:var(--blue)}
 body:not(.lang-ar) .ar,body.lang-ar .en{display:none!important}
 body.lang-ar .rtl{direction:rtl;text-align:right}
 body.lang-ar .eb{letter-spacing:0}
-.pill{display:inline-flex;align-items:center;gap:12px;font:600 22px Inter;background:#fff;padding:14px 24px;border-radius:999px;box-shadow:0 10px 30px rgba(13,22,40,.1);color:var(--navy);text-decoration:none}
+.pill{display:inline-flex;align-items:center;gap:12px;font:700 25px Inter;background:#fff;padding:14px 24px;border-radius:999px;box-shadow:0 10px 30px rgba(13,22,40,.1);color:var(--navy);text-decoration:none}
 .pill svg{width:24px;height:24px}
 /* cover */
 #s1 .logo{width:120px;height:120px}
@@ -37,8 +41,8 @@ body.lang-ar .eb{letter-spacing:0}
 #s1.on .logo path,#s1.on .logo circle{animation:draw 2.2s .2s forwards cubic-bezier(.6,0,.2,1)}
 @keyframes draw{to{stroke-dashoffset:0}}
 #s1 .big{font-size:112px;line-height:1;margin:22px 0 10px}
-#s1 .sub{font:600 40px/1.2 Poppins,"IBM Plex Sans Arabic";color:var(--navy)}
-#s1 .tag{font-size:24px;color:var(--mut);margin-top:12px}
+#s1 .sub{font:700 44px/1.2 Poppins,"IBM Plex Sans Arabic";color:var(--navy)}
+#s1 .tag{font-size:28px;color:var(--mut);margin-top:12px;font-weight:500}
 .scene{position:absolute;right:60px;bottom:80px;width:640px;height:562px}
 .van{animation:vanIn 2.6s .6s both cubic-bezier(.2,.9,.25,1)}
 @keyframes vanIn{from{transform:translateX(-900px)}to{transform:none}}
@@ -46,42 +50,45 @@ body.lang-ar .eb{letter-spacing:0}
 .slide:not(.on) .wheel{animation-play-state:paused}
 @keyframes spin{to{transform:rotate(360deg)}}
 .bob{animation:bob 3s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-8px)}}
-.walk{animation:walkIn 2s 2.6s both ease-out}@keyframes walkIn{from{opacity:0;transform:translateX(-80px)}to{opacity:1;transform:none}}
+.walk{animation:walkIn 1.4s 3s both cubic-bezier(.22,1,.36,1)}@keyframes walkIn{from{opacity:0;transform:translateX(-46px)}to{opacity:1;transform:none}}
 /* network */
 .node{cursor:pointer}
 .node circle.halo{transition:r .3s,opacity .3s;opacity:.0}
 .node:hover circle.halo,.node.sel circle.halo{opacity:.25}
-.node text{font:700 20px Inter,"IBM Plex Sans Arabic";fill:var(--navy)}
-#info{position:absolute;left:90px;top:520px;width:600px;padding:26px 30px;transition:opacity .3s}
-#info b{font:700 28px Poppins,"IBM Plex Sans Arabic";color:var(--navy);display:block;margin-bottom:8px}
-#info span{font-size:22px;color:var(--mut);line-height:1.45}
-.hint{font-size:18px;color:var(--blue);font-weight:600;margin-top:10px;display:flex;align-items:center;gap:8px}
+.node text{font:700 23px Inter,"IBM Plex Sans Arabic";fill:var(--navy)}
+.node .lab{fill:#fff;stroke:var(--line);stroke-width:2}
+.node.sel .lab{stroke:currentColor;stroke-width:3}
+#info{position:absolute;left:86px;top:606px;width:640px;padding:28px 32px;transition:opacity .35s ease,transform .35s ease}
+#info.swap{opacity:0;transform:translateY(8px)}
+#info b{font:700 32px Poppins,"IBM Plex Sans Arabic";color:var(--navy);display:block;margin-bottom:10px}
+#info span{font-size:25px;color:var(--mut);line-height:1.45}
+.hint{font-size:20px;color:var(--blue);font-weight:700;margin-top:12px;display:flex;align-items:center;gap:8px}
 /* vision */
 .vm{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:30px}
 .vm .card{padding:34px 36px;position:relative;overflow:hidden}
 .vm .card.dark{background:linear-gradient(135deg,#0D1628,#1B3770);color:#fff}
-.vm .card.dark h3{color:#fff}.vm h3{font-size:30px;margin:14px 0 10px}.vm p{font-size:26px;line-height:1.4}
+.vm .card.dark h3{color:#fff}.vm h3{font-size:34px;margin:14px 0 10px}.vm p{font-size:29px;line-height:1.38}
 .vm .ic{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;background:rgba(37,99,235,.12);color:var(--blue)}.vm .dark .ic{background:rgba(255,255,255,.14);color:#9cc4ff}
 .tl{position:relative;margin-top:44px;height:260px}
 .phase{position:absolute;top:70px;width:440px;padding:24px 26px}
 .phase .n{font:800 22px Poppins;color:#fff;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;position:absolute;top:-90px;left:24px;box-shadow:0 0 0 8px var(--bg)}
-.phase b{font:700 26px Poppins,"IBM Plex Sans Arabic";color:var(--navy);display:block}.phase span{font-size:21px;color:var(--mut);line-height:1.4;display:block;margin-top:6px}
+.phase b{font:700 29px Poppins,"IBM Plex Sans Arabic";color:var(--navy);display:block}.phase span{font-size:24px;color:var(--mut);line-height:1.4;display:block;margin-top:6px}
 /* problem */
 .mapbox{position:absolute;right:70px;top:90px;width:820px;height:700px}
 .wil{cursor:pointer}.wil circle.dot{transition:r .25s}.wil:hover circle.dot,.wil.sel circle.dot{r:15}
-.wil text{font:700 19px Inter,"IBM Plex Sans Arabic";fill:var(--navy)}
+.wil text{font:700 23px Inter,"IBM Plex Sans Arabic";fill:var(--navy);paint-order:stroke;stroke:#F6E8D2;stroke-width:6px;stroke-linejoin:round}
 .dist{stroke-dasharray:6 8;stroke-width:3}
-.kmtag{font:800 22px Poppins;fill:var(--blue)}
+.kmtag{font:800 26px Poppins;fill:var(--blue)}
 .pts{margin-top:34px;display:flex;flex-direction:column;gap:18px;max-width:600px}
 .pt{display:flex;gap:16px;align-items:flex-start;padding:20px 22px}
 .pt .ic{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center}
-.pt b{font:700 24px Poppins,"IBM Plex Sans Arabic";color:var(--navy);display:block}.pt span{font-size:20px;color:var(--mut);line-height:1.4}
-#pinfo{position:absolute;right:120px;bottom:70px;width:520px;padding:20px 24px;font-size:21px;line-height:1.45}
+.pt b{font:700 27px Poppins,"IBM Plex Sans Arabic";color:var(--navy);display:block}.pt span{font-size:23px;color:var(--mut);line-height:1.38}
+#pinfo{position:absolute;right:96px;bottom:60px;width:560px;padding:22px 26px;font-size:23px;line-height:1.42}
 /* journey */
 .jpath{position:absolute;left:70px;top:270px;width:1000px;height:560px}
 .step{cursor:pointer}
-.step circle.b{transition:fill .3s,r .3s}
-.step text{font:700 20px Inter,"IBM Plex Sans Arabic";fill:var(--navy)}
+.step circle.b{transition:fill .5s ease,r .5s cubic-bezier(.22,1,.36,1)}
+.step text{font:700 23px Inter,"IBM Plex Sans Arabic";fill:var(--navy)}
 .step.act circle.b{r:44}
 .phone{position:absolute;right:110px;top:150px;width:330px;height:670px;border-radius:52px;background:linear-gradient(145deg,#e5ebf4,#9aa6b8);padding:12px;box-shadow:0 40px 90px rgba(13,22,40,.3)}
 .phone .scr{width:100%;height:100%;border-radius:42px;background:#F4F7FC;overflow:hidden;position:relative}
@@ -92,29 +99,29 @@ body.lang-ar .eb{letter-spacing:0}
 @keyframes pop{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
 .ps .bigic{width:110px;height:110px;border-radius:32px;display:grid;place-items:center;margin:20px auto 18px}
 .ps .bigic svg{width:58px;height:58px}
-.ps h4{font:700 26px Poppins,"IBM Plex Sans Arabic";text-align:center;color:var(--navy)}
-.ps p{font-size:18px;color:var(--mut);text-align:center;margin-top:8px;line-height:1.4}
-.ps .row{display:flex;justify-content:space-between;background:#fff;border-radius:16px;padding:14px 16px;margin-top:12px;font-size:17px;box-shadow:0 1px 0 var(--line)}
+.ps h4{font:700 29px Poppins,"IBM Plex Sans Arabic";text-align:center;color:var(--navy)}
+.ps p{font-size:21px;color:var(--mut);text-align:center;margin-top:8px;line-height:1.35}
+.ps .row{display:flex;justify-content:space-between;background:#fff;border-radius:16px;padding:14px 16px;margin-top:12px;font-size:19px;box-shadow:0 1px 0 var(--line)}
 /* services */
-.grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:30px}
-.flip{perspective:1200px;height:215px;cursor:pointer}
+.grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:22px}
+.flip{perspective:1200px;height:236px;cursor:pointer}
 .flip .fi{position:relative;width:100%;height:100%;transition:transform .7s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
 .flip.f .fi{transform:rotateY(180deg)}
 .flip .fa,.flip .fb{position:absolute;inset:0;backface-visibility:hidden;border-radius:26px;padding:26px 28px;background:#fff;box-shadow:0 1px 0 var(--line),0 14px 40px rgba(13,22,40,.08)}
 .flip .fb{transform:rotateY(180deg);background:linear-gradient(135deg,#0D1628,#1E3A7A);color:#fff}
 .flip .ic{width:58px;height:58px;border-radius:18px;display:grid;place-items:center}
-.flip b{font:700 27px Poppins,"IBM Plex Sans Arabic";color:var(--navy);display:block;margin-top:14px}.flip .fb b{color:#fff;margin-top:0}
-.flip span{font-size:19px;color:var(--mut);line-height:1.4;display:block;margin-top:6px}.flip .fb span{color:#cfe0ff}
-.flip .more{position:absolute;bottom:18px;right:22px;font-size:15px;font-weight:700;color:var(--blue)}
+.flip b{font:700 30px Poppins,"IBM Plex Sans Arabic";color:var(--navy);display:block;margin-top:12px}.flip .fb b{color:#fff;margin-top:0}
+.flip span{font-size:23px;color:var(--mut);line-height:1.4;display:block;margin-top:6px}.flip .fb span{color:#cfe0ff}
+.flip .more{position:absolute;top:26px;right:26px;font-size:18px;font-weight:700;color:var(--blue)}
 .pk{display:flex;gap:16px;margin-top:30px;align-items:center}
-.pk .pc{display:flex;align-items:center;gap:12px;background:#fff;border-radius:999px;padding:12px 22px 12px 12px;box-shadow:0 10px 30px rgba(13,22,40,.08);font:700 21px Inter,"IBM Plex Sans Arabic"}
+.pk .pc{display:flex;align-items:center;gap:12px;background:#fff;border-radius:999px;padding:12px 24px 12px 12px;box-shadow:0 10px 30px rgba(13,22,40,.08);font:700 24px Inter,"IBM Plex Sans Arabic"}
 .pk .pc i{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-style:normal}
-.note{font-size:17px;color:var(--mut);margin-top:18px}
+.note{font-size:20px;color:var(--mut);margin-top:16px}
 /* value */
 .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:34px}
 .col{padding:30px 30px 26px;position:relative}
-.col h3{font-size:30px;margin-bottom:14px;display:flex;gap:12px;align-items:center}
-.col .li{display:flex;gap:14px;align-items:center;padding:13px 0;border-top:1px solid var(--line);font:600 22px Inter,"IBM Plex Sans Arabic"}
+.col h3{font-size:33px;margin-bottom:12px;display:flex;gap:12px;align-items:center}
+.col .li{display:flex;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line);font:600 25px Inter,"IBM Plex Sans Arabic"}
 .col .li:first-of-type{border-top:0}
 .col .li i{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;flex:none;font-style:normal}
 .col .li svg{width:24px;height:24px}
@@ -126,12 +133,12 @@ body.lang-ar .eb{letter-spacing:0}
 .team{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:30px}
 .tm{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:22px;color:#fff;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
 .tm .av{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font:800 22px Poppins;color:#fff}
-.tm b{font:700 20px/1.3 Poppins;letter-spacing:-.01em}
-.adv{margin-top:20px;display:inline-flex;align-items:center;gap:14px;background:rgba(20,184,166,.16);border:1px solid rgba(20,184,166,.4);color:#ccfbf1;border-radius:999px;padding:12px 24px;font:600 22px Inter,"IBM Plex Sans Arabic"}
+.tm b{font:700 23px/1.28 Poppins;letter-spacing:-.01em}
+.adv{margin-top:22px;display:inline-flex;align-items:center;gap:14px;background:#0F766E;color:#fff;border-radius:16px;padding:14px 26px;font:700 25px Inter,"IBM Plex Sans Arabic"}
 .qrs{position:absolute;right:90px;top:120px;display:flex;flex-direction:column;gap:22px}
-.qr{background:#fff;border-radius:26px;padding:16px;display:flex;gap:16px;align-items:center;width:420px;color:var(--navy);text-decoration:none}
+.qr{background:#fff;border-radius:26px;padding:16px;display:flex;gap:16px;align-items:center;width:440px;color:var(--navy);text-decoration:none}
 .qr svg{width:150px;height:150px;flex:none}
-.qr b{font:700 22px Poppins;display:block}.qr span{font-size:16px;color:var(--mut);white-space:nowrap}
+.qr b{font:700 25px Poppins;display:block}.qr span{font-size:18px;color:var(--mut);white-space:nowrap;font-weight:600}
 .thanks{position:absolute;right:90px;bottom:70px;font:800 64px Poppins;color:#fff;opacity:.95}
 /* UI chrome */
 #prog{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--blue),var(--teal));z-index:5;transition:width .5s}
@@ -180,15 +187,18 @@ body.lang-ar .eb{letter-spacing:0}
       <rect x="22" y="90" width="50" height="56" rx="6" fill="#2A4A7A"/><rect x="190" y="90" width="50" height="56" rx="6" fill="#2A4A7A"/></g>
     <g transform="translate(740 330)"><rect x="-6" y="0" width="12" height="230" fill="#8A6A45"/><g fill="#3F9B5A"><path d="M0 0 C-60 -10 -90 20 -110 40 C-70 10 -30 10 0 6Z"/><path d="M0 0 C60 -10 90 20 110 40 C70 10 30 10 0 6Z"/><path d="M0 0 C-30 -50 -70 -60 -90 -55 C-50 -40 -25 -20 0 2Z"/><path d="M0 0 C30 -50 70 -60 90 -55 C50 -40 25 -20 0 2Z"/></g></g>
     <!-- nurse walking to the door -->
-    <g class="walk" transform="translate(500 420)" id="nurse1"></g>
+    
     <!-- van -->
     <g class="van"><ellipse cx="200" cy="640" rx="180" ry="14" fill="#000" opacity=".18" filter="url(#sh)"/>
       <g class="bob"><path d="M50 470 H300 Q330 470 345 500 L372 552 Q378 566 372 580 H40 Q30 580 30 568 V492 Q30 470 50 470Z" fill="url(#vanB)"/>
       <path d="M296 482 Q318 484 330 506 L350 546 H296Z" fill="#9CC2FF" opacity=".9"/><rect x="200" y="486" width="80" height="44" rx="8" fill="#9CC2FF" opacity=".85"/>
       <rect x="30" y="540" width="345" height="12" fill="#2563EB"/>
-      <text x="58" y="520" font-family="Poppins" font-weight="800" font-size="30" fill="#fff"><tspan fill="#7CC0FF">i</tspan>Lab<tspan fill="#7CC0FF">@</tspan>home</text>
+      <text x="48" y="526" font-family="Poppins" font-weight="800" font-size="25" fill="#fff" letter-spacing="-.5"><tspan fill="#7CC0FF">i</tspan>Lab<tspan fill="#7CC0FF">@</tspan>home</text>
+      <text x="49" y="500" font-family="Inter" font-weight="600" font-size="12" fill="#9CC2FF" letter-spacing="1.5">HOME LAB TESTS</text>
       <rect x="120" y="455" width="60" height="16" rx="5" fill="#EEF2F8"/><rect x="250" y="460" width="34" height="10" rx="4" fill="#ef4444"/></g>
       <g><circle class="wheel" cx="110" cy="582" r="34" fill="#15171c"/><circle cx="110" cy="582" r="15" fill="#C9D2DE"/><circle class="wheel" cx="300" cy="582" r="34" fill="#15171c"/><circle cx="300" cy="582" r="15" fill="#C9D2DE"/></g></g>
+    <!-- nurse steps out beside the van -->
+    <g class="walk"><g id="nurse1"></g></g>
   </svg>
 </section>
 
@@ -209,7 +219,8 @@ body.lang-ar .eb{letter-spacing:0}
     <div class="card in rtl" style="--d:.3s"><div class="ic"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></div><h3><span class="en">Mission</span><span class="ar">الرسالة</span></h3><p><span class="en">Coordinate safe home collection through a simple digital experience.</span><span class="ar">تنسيق سحب آمن للعينات في البيت من خلال تجربة رقمية بسيطة.</span></p></div>
   </div>
   <div class="tl">
-    <svg style="position:absolute;left:0;top:0;width:1420px;height:60px" viewBox="0 0 1420 60"><path id="tlp" d="M50 30 H1370" stroke="#DCE5F3" stroke-width="8" stroke-linecap="round"/><path id="tlf" d="M50 30 H1370" stroke="url(#tg)" stroke-width="8" stroke-linecap="round" stroke-dasharray="1320" stroke-dashoffset="1320" style="transition:stroke-dashoffset 1s ease"/><defs><linearGradient id="tg"><stop offset="0" stop-color="#2563EB"/><stop offset="1" stop-color="#14B8A6"/></linearGradient></defs></svg>
+    <svg style="position:absolute;left:0;top:0;width:1420px;height:60px" viewBox="0 0 1420 60"><path id="tlp" d="M50 30 H1370" stroke="#DCE5F3" stroke-width="8" stroke-linecap="round"/><path id="tlf" d="M50 30 H1370" stroke="url(#tg)" stroke-width="8" stroke-linecap="round" stroke-dasharray="1320" stroke-dashoffset="1320" style="transition:stroke-dashoffset 1.1s cubic-bezier(.65,0,.35,1)"/><defs><linearGradient id="tg"><stop offset="0" stop-color="#2563EB"/><stop offset="1" stop-color="#14B8A6"/></linearGradient></defs></svg>
+    <svg id="tlvan" viewBox="0 0 60 36" style="position:absolute;left:0;top:-14px;width:60px;height:36px;opacity:0;transition:transform 1.1s cubic-bezier(.65,0,.35,1),opacity .4s;z-index:2"><rect x="2" y="4" width="50" height="22" rx="7" fill="#13254B"/><rect x="36" y="8" width="12" height="9" rx="2" fill="#9CC2FF"/><rect x="2" y="18" width="50" height="4" fill="#2563EB"/><circle cx="14" cy="28" r="6" fill="#111"/><circle cx="42" cy="28" r="6" fill="#111"/></svg>
     <div class="phase card rtl" data-step="1" style="left:0"><span class="n" style="background:#2563EB">1</span><b><span class="en">Pilot · Ibra</span><span class="ar">تجربة · إبراء</span></b><span><span class="en">Ibra and nearby wilayats in North Al Sharqiyah.</span><span class="ar">إبراء والولايات المجاورة في شمال الشرقية.</span></span></div>
     <div class="phase card rtl" data-step="2" style="left:490px"><span class="n" style="background:#0EA5A0">2</span><b><span class="en">Regional</span><span class="ar">إقليمية</span></b><span><span class="en">More wilayats in Al Sharqiyah and corporate programmes.</span><span class="ar">ولايات أخرى في الشرقية وبرامج للشركات.</span></span></div>
     <div class="phase card rtl" data-step="3" style="left:980px"><span class="n" style="background:#F97316">3</span><b><span class="en">Nationwide</span><span class="ar">على مستوى السلطنة</span></b><span><span class="en">Other governorates, insurers and larger partners.</span><span class="ar">محافظات أخرى وشركات التأمين وشركاء أكبر.</span></span></div>
@@ -241,7 +252,7 @@ body.lang-ar .eb{letter-spacing:0}
 <!-- 6 SERVICES -->
 <section class="slide" id="s6" data-steps="0">
   <div class="in rtl" style="--d:.05s"><span class="eb"><span class="en">Services &amp; test categories</span><span class="ar">الخدمات وأنواع الفحوصات</span></span>
-    <h2 style="font-size:52px"><span class="en">Routine demand and preventive screening</span><span class="ar">الفحوصات الروتينية والوقائية</span></h2></div>
+    <h2 style="font-size:56px"><span class="en">Routine and preventive testing</span><span class="ar">الفحوصات الروتينية والوقائية</span></h2></div>
   <div class="grid6" id="g6"></div>
   <div class="pk in rtl" style="--d:.9s"><b style="font:700 22px Poppins,'IBM Plex Sans Arabic';color:var(--navy)"><span class="en">Packages:</span><span class="ar">الباقات:</span></b>
     <span class="pc"><i style="background:#FFF4DC;color:#D97706"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2.6"/><path d="M8 21v-6l-3-3 1.6-1.6L9.5 12h5l2.9-1.6L19 12l-3 3v6"/></svg></i><span class="en">Kids</span><span class="ar">الأطفال</span></span>
@@ -253,7 +264,7 @@ body.lang-ar .eb{letter-spacing:0}
 <!-- 7 VALUE -->
 <section class="slide" id="s7" data-steps="3">
   <div class="in rtl" style="--d:.05s"><span class="eb"><span class="en">Partners · Customers · Value</span><span class="ar">الشركاء · العملاء · القيمة</span></span>
-    <h2 style="font-size:52px"><span class="en">Everyone in one coordinated journey</span><span class="ar">الجميع في رحلة واحدة منسّقة</span></h2></div>
+    <h2 style="font-size:58px"><span class="en">Everyone in one coordinated journey</span><span class="ar">الجميع في رحلة واحدة منسّقة</span></h2></div>
   <div class="cols" style="margin-top:120px">
     <div class="col card rtl" data-step="1"><svg class="people" viewBox="0 0 260 110" id="pp1"></svg><h3><span class="en">Who we work with</span><span class="ar">مع من نعمل</span></h3><div id="c1"></div></div>
     <div class="col card rtl" data-step="2"><svg class="people" viewBox="0 0 260 110" id="pp2"></svg><h3><span class="en">Who we serve</span><span class="ar">من نخدم</span></h3><div id="c2"></div></div>
@@ -265,7 +276,7 @@ body.lang-ar .eb{letter-spacing:0}
 <section class="slide" id="s8" data-steps="0">
   <div class="in rtl" style="--d:.05s;max-width:900px"><span class="eb" style="color:#9cc4ff;background:rgba(255,255,255,.1)"><span class="en">About us</span><span class="ar">من نحن</span></span>
     <h2 style="font-size:66px"><span class="en">Your health, our mission</span><span class="ar">صحتك، مهمتنا</span></h2>
-    <p class="lead" style="max-width:860px;font-size:23px"><span class="en">iLab@home brings laboratory testing closer to every home in Oman, connecting patients, nurses, licensed labs and logistics in one app, with a focus on remote and underserved communities.</span><span class="ar">iLab@home يقرّب الفحوصات المخبرية من كل بيت في عُمان، ويربط المرضى والممرضين والمختبرات المرخّصة والتوصيل في برنامج واحد، مع تركيز على المناطق البعيدة والأقل خدمة.</span></p></div>
+    <p class="lead" style="max-width:880px;font-size:27px;color:#DCE8FF"><span class="en">iLab@home brings laboratory testing closer to every home in Oman, connecting patients, nurses, licensed labs and logistics in one app, with a focus on remote and underserved communities.</span><span class="ar">iLab@home يقرّب الفحوصات المخبرية من كل بيت في عُمان، ويربط المرضى والممرضين والمختبرات المرخّصة والتوصيل في برنامج واحد، مع تركيز على المناطق البعيدة والأقل خدمة.</span></p></div>
   <div class="team in" style="--d:.3s;max-width:900px" id="team"></div>
   <div class="in rtl" style="--d:.6s"><span class="adv"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg><span class="en">Team advisor: Dr. Salim Amer Salim Al-Rashdi</span><span class="ar">مشرف الفريق: د. سالم عامر سالم الراشدي</span></span></div>
   <div class="qrs in" style="--d:.45s">
@@ -304,34 +315,43 @@ function person(o){ // o: x,y,s, skin, body, head: massar|kumma|hijab|hair|cap|n
   const k = o.kid ? .72 : 1;
   return `<g transform="translate(${o.x} ${o.y}) scale(${s * k})"><ellipse cx="0" cy="34" rx="30" ry="6" fill="#0D1628" opacity=".12"/><path d="M-32 30 Q-34 -30 0 -36 Q34 -30 32 30Z" fill="${b}"/>${coat}${o.head === 'hijab' ? hw : ''}${face}${o.head !== 'hijab' ? hw : ''}${beard}<circle cx="-7" cy="-72" r="2.2" fill="#1B1F2A"/><circle cx="7" cy="-72" r="2.2" fill="#1B1F2A"/><path d="M-6 -62 Q0 -57 6 -62" stroke="#5A2A1C" stroke-width="2.2" fill="none" stroke-linecap="round"/>${o.bag ? `<rect x="22" y="-6" width="26" height="20" rx="5" fill="#13254B"/><path d="M30 -6 v-5 h10 v5" stroke="#13254B" stroke-width="3" fill="none"/><path d="M35 0 v8 M31 4 h8" stroke="#EF4444" stroke-width="2.5"/>` : ''}</g>`;
 }
-$('#nurse1').innerHTML = person({ x: 60, y: 120, s: 1.5, head: 'hijab', acc: '#13254B', body: '#13254B', skin: '#D6A87C', bag: true });
-/* ---------- slide 2: network ---------- */
+$('#nurse1').innerHTML = person({ x: 432, y: 562, s: 1.45, head: 'hijab', acc: '#13254B', body: '#13254B', skin: '#D6A87C', bag: true });
+/* ---------- slide 2: network (patient in the centre, five partners evenly around) ---------- */
+const CX = 410, CY = 392, RAD = 286;
 const NODES = [
-  { k: 'p', x: 410, y: 390, r: 92, c: '#2563EB', en: 'Patient', ar: 'المريض', pe: 'Requests a test online, picks a time and a nurse, pays and follows every step live.', pa: 'يطلب الفحص أونلاين، ويختار الوقت والممرض، ويدفع ويتابع كل خطوة مباشرة.', who: { head: 'massar', body: '#F5F1E6', beard: '#2B1D14' } },
-  { k: 'n', x: 410, y: 110, r: 66, c: '#14B8A6', en: 'Qualified nurse', ar: 'ممرض مؤهل', pe: 'Accepts nearby requests, verifies the ID and collects the sample safely at home.', pa: 'يقبل الطلبات القريبة، ويتحقق من الهوية، ويسحب العينة بأمان في البيت.', who: { head: 'hijab', acc: '#13254B', body: '#13254B', skin: '#D6A87C' } },
-  { k: 'l', x: 690, y: 300, r: 66, c: '#7A5AF8', en: 'Licensed laboratory', ar: 'مختبر مرخّص', pe: 'Receives the sample, processes it and publishes a verified report.', pa: 'يستلم العينة، ويحللها، وينشر تقريراً معتمداً.', who: { head: 'hair', body: '#7A5AF8', coat: true } },
-  { k: 'c', x: 610, y: 620, r: 66, c: '#F97316', en: 'Logistics', ar: 'التوصيل', pe: 'Carries the sample in a 2–8 °C cold box from the home to the lab.', pa: 'ينقل العينة في صندوق تبريد ٢–٨ °م من البيت إلى المختبر.', who: { head: 'cap', body: '#F97316', acc: '#0D1628', skin: '#B9875C' } },
-  { k: 'd', x: 160, y: 600, r: 62, c: '#0D7C6C', en: 'Doctor', ar: 'الطبيب', pe: 'Reviews results that need attention and sends clear advice to the patient.', pa: 'يراجع النتائج اللي تحتاج متابعة ويرسل توصية واضحة للمريض.', who: { head: 'hijab', acc: '#0D7C6C', body: '#fff', coat: true, skin: '#C99A6E' } },
-  { k: 'y', x: 130, y: 250, r: 62, c: '#E8466F', en: 'Payment partners', ar: 'شركاء الدفع', pe: 'Card, Apple Pay and company health programmes, settled securely.', pa: 'البطاقة وApple Pay وبرامج الشركات الصحية، بشكل آمن.', icon: true }
+  { k: 'p', a: null, r: 96, c: '#2563EB', en: 'Patient', ar: 'المريض', pe: 'Requests a test online, picks a time and a nurse, pays and follows every step live.', pa: '', who: { head: 'massar', body: '#F5F1E6', beard: '#2B1D14' } },
+  { k: 'n', a: -90, r: 64, c: '#0F9F8E', en: 'Qualified nurse', ar: '', pe: 'Accepts nearby requests, verifies the ID and collects the sample safely at home.', pa: '', who: { head: 'hijab', acc: '#13254B', body: '#13254B', skin: '#D6A87C' } },
+  { k: 'l', a: -18, r: 64, c: '#7A5AF8', en: 'Licensed lab', ar: '', pe: 'Receives the sample, processes it and publishes a verified report.', pa: '', who: { head: 'hair', body: '#7A5AF8', coat: true } },
+  { k: 'c', a: 54, r: 64, c: '#EA6A0C', en: 'Logistics', ar: '', pe: 'Carries the sample in a 2–8 °C cold box from the home to the lab.', pa: '', who: { head: 'cap', body: '#F97316', acc: '#0D1628', skin: '#B9875C' } },
+  { k: 'd', a: 126, r: 64, c: '#0D7C6C', en: 'Doctor', ar: '', pe: 'Reviews results that need attention and sends clear advice to the patient.', pa: '', who: { head: 'hijab', acc: '#0D7C6C', body: '#fff', coat: true, skin: '#C99A6E' } },
+  { k: 'y', a: 198, r: 64, c: '#D6336C', en: 'Payment', ar: '', pe: 'Card, Apple Pay and company health programmes, settled securely.', pa: '', icon: true }
 ];
-const net = $('#net');
+NODES.forEach(n => { if (n.a == null) { n.x = CX; n.y = CY; } else { const t = n.a * Math.PI / 180; n.x = Math.round(CX + Math.cos(t) * RAD); n.y = Math.round(CY + Math.sin(t) * RAD); } });
+const net = $('#net'); let netAuto = true, netIdx = 0, netLast = 0;
 function drawNet(){
-  let h = `<defs><radialGradient id="pg" cx=".5" cy=".4"><stop offset="0" stop-color="#3B82F6"/><stop offset="1" stop-color="#1D4ED8"/></radialGradient></defs>`;
-  NODES.slice(1).forEach((n, i) => { h += `<path id="ln${i}" d="M410 390 Q${(410 + n.x) / 2 + (i % 2 ? 60 : -60)} ${(390 + n.y) / 2} ${n.x} ${n.y}" stroke="${n.c}" stroke-opacity=".35" stroke-width="4" fill="none" stroke-dasharray="8 10"/>`; });
-  NODES.forEach(n => { h += `<g class="node" data-k="${n.k}"><circle class="halo" cx="${n.x}" cy="${n.y}" r="${n.r + 22}" fill="${n.c}"/><circle cx="${n.x}" cy="${n.y}" r="${n.r}" fill="#fff" stroke="${n.c}" stroke-width="5"/>
+  let h = `<defs>${NODES.slice(1).map((n, i) => `<linearGradient id="lg${i}" gradientUnits="userSpaceOnUse" x1="${CX}" y1="${CY}" x2="${n.x}" y2="${n.y}"><stop offset="0" stop-color="#2563EB" stop-opacity=".55"/><stop offset="1" stop-color="${n.c}" stop-opacity=".9"/></linearGradient>`).join('')}</defs>`;
+  NODES.slice(1).forEach((n, i) => { const dx = n.x - CX, dy = n.y - CY, L0 = Math.hypot(dx, dy), ux = dx / L0, uy = dy / L0;
+    const x1 = CX + ux * (NODES[0].r + 10), y1 = CY + uy * (NODES[0].r + 10), x2 = n.x - ux * (n.r + 10), y2 = n.y - uy * (n.r + 10);
+    h += `<path id="ln${i}" d="M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)}" stroke="url(#lg${i})" stroke-width="5" stroke-linecap="round" fill="none"/>`; });
+  NODES.forEach(n => { const lw = n.en.length * 13 + 40, ly = n.y + n.r + 30;
+    h += `<g class="node" data-k="${n.k}" style="color:${n.c}"><circle class="halo" cx="${n.x}" cy="${n.y}" r="${n.r + 20}" fill="${n.c}"/><circle cx="${n.x}" cy="${n.y}" r="${n.r}" fill="#fff" stroke="${n.c}" stroke-width="5"/>
     ${n.icon ? `<g transform="translate(${n.x - 26} ${n.y - 22})" stroke="${n.c}" stroke-width="4" fill="none" stroke-linecap="round"><rect x="0" y="4" width="52" height="36" rx="7"/><path d="M0 16h52M10 30h12"/></g>` : `<g>${person(Object.assign({ x: n.x, y: n.y + n.r * .45, s: n.r / 70 }, n.who))}</g>`}
-    <text x="${n.x}" y="${n.y + n.r + 32}" text-anchor="middle">${T(n.en, n.ar).replace(/<span class="(en|ar)">/g, '<tspan class="$1">').replace(/<\/span>/g, '</tspan>')}</text></g>`; });
+    <rect class="lab" x="${n.x - lw / 2}" y="${ly - 22}" width="${lw}" height="44" rx="22"/><text x="${n.x}" y="${ly + 8}" text-anchor="middle">${n.en}</text></g>`; });
   h += `<g id="pkts"></g>`; net.innerHTML = h;
-  $$('#net tspan.ar').forEach(e => e.setAttribute('display', L() === 'ar' ? 'inline' : 'none')); $$('#net tspan.en').forEach(e => e.setAttribute('display', L() === 'en' ? 'inline' : 'none'));
-  $$('#net .node').forEach(g => g.onclick = () => selNode(g.dataset.k));
+  $$('#net .node').forEach(g => g.onclick = () => { netAuto = false; selNode(g.dataset.k); });
 }
-function selNode(k){ const n = NODES.find(x => x.k === k); $$('#net .node').forEach(g => g.classList.toggle('sel', g.dataset.k === k)); $('#infoT').innerHTML = T(n.en, n.ar); $('#infoP').innerHTML = T(n.pe, n.pa); }
-const pk = []; function netTick(t){ const g = $('#pkts'); if (!g || !$('#s2').classList.contains('on')) return;
-  if (!pk.length) { for (let i = 0; i < 10; i++) { const c = document.createElementNS(NS, 'circle'); c.setAttribute('r', 7); g.appendChild(c); pk.push({ c, l: i % 5, o: i / 10 }); } }
-  pk.forEach(p => { const path = document.getElementById('ln' + p.l); if (!path) return; const len = path.getTotalLength(); let u = ((t / 2600) + p.o) % 1; if (p.l % 2) u = 1 - u; const pt = path.getPointAtLength(u * len); p.c.setAttribute('cx', pt.x); p.c.setAttribute('cy', pt.y); p.c.setAttribute('fill', NODES[p.l + 1].c); }); }
+function selNode(k){ const n = NODES.find(x => x.k === k); netIdx = NODES.indexOf(n); $$('#net .node').forEach(g => g.classList.toggle('sel', g.dataset.k === k));
+  const box = $('#info'); box.classList.add('swap'); clearTimeout(selNode.t); selNode.t = setTimeout(() => { $('#infoT').textContent = n.en; $('#infoP').textContent = n.pe; box.classList.remove('swap'); }, 220); }
+const pk = []; const easeIO = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+function netTick(t){ const g = $('#pkts'); if (!g || !$('#s2').classList.contains('on')) return;
+  if (!pk.length) { for (let i = 0; i < 5; i++) for (let j = 0; j < 2; j++) { const c = document.createElementNS(NS, 'circle'); c.setAttribute('r', 8); c.setAttribute('fill', j ? NODES[i + 1].c : '#2563EB'); c.setAttribute('stroke', '#fff'); c.setAttribute('stroke-width', 3); g.appendChild(c); pk.push({ c, l: i, back: j, o: i * .19 + j * .5 }); } }
+  pk.forEach(p => { const path = document.getElementById('ln' + p.l); if (!path) return; const len = path.getTotalLength(); const cyc = (t / 3400 + p.o) % 1;
+    const run = Math.min(1, cyc / .78); let u = easeIO(run); if (p.back) u = 1 - u; const pt = path.getPointAtLength(u * len);
+    p.c.setAttribute('cx', pt.x.toFixed(1)); p.c.setAttribute('cy', pt.y.toFixed(1)); p.c.setAttribute('opacity', (cyc > .78 ? 0 : Math.sin(Math.PI * run)).toFixed(2)); });
+  if (netAuto && t - netLast > 3600) { netLast = t; selNode(NODES[(netIdx + 1) % NODES.length].k); } }
 /* ---------- slide 4: map ---------- */
 const WIL = { 'Ibra': [22.6906, 58.5334, 'إبراء'], 'Al Mudhaybi': [22.5686, 58.1192, 'المضيبي'], 'Bidiyah': [22.4539, 58.8022, 'بدية'], 'Al Qabil': [22.5634, 58.6914, 'القابل'], 'Wadi Bani Khalid': [22.6119, 59.0897, 'وادي بني خالد'], 'Dima Wa At Taiyyin': [22.9856, 58.6719, 'دماء والطائيين'], 'Sinaw': [22.5006, 58.0328, 'سناو'] };
-const OFF = { 'Al Qabil': [40, 50], 'Ibra': [0, -6], 'Al Mudhaybi': [10, 0], 'Sinaw': [-30, 4], 'Wadi Bani Khalid': [0, -4], 'Bidiyah': [0, 52] };
+const OFF = { 'Al Qabil': [62, 32], 'Ibra': [0, -6], 'Al Mudhaybi': [6, -2], 'Sinaw': [-34, 6], 'Wadi Bani Khalid': [0, -6], 'Bidiyah': [44, 50] };
 const km = (a, b) => { const R = 6371, r = x => x * Math.PI / 180; const d = Math.sin(r(b[0] - a[0]) / 2) ** 2 + Math.cos(r(a[0])) * Math.cos(r(b[0])) * Math.sin(r(b[1] - a[1]) / 2) ** 2; return Math.round(2 * R * Math.asin(Math.sqrt(d))); };
 const P = ([la, lo]) => [80 + (lo - 57.9) / (59.2 - 57.9) * 660, 620 - (la - 22.3) / (23.1 - 22.3) * 540];
 function drawMap(){ const m = $('#map'); const ib = P(WIL['Ibra']);
@@ -341,14 +361,16 @@ function drawMap(){ const m = $('#map'); const ib = P(WIL['Ibra']);
   <text x="410" y="50" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="22" fill="#8B6A45">${T('North Al Sharqiyah', 'شمال الشرقية').replace(/<span class="(en|ar)">/g, '<tspan class="$1">').replace(/<\/span>/g, '</tspan>')}</text>`;
   Object.entries(WIL).forEach(([n, v]) => { if (n === 'Ibra') return; const p = P(v); h += `<path class="dist" id="d_${n.replace(/\W/g, '')}" d="M${ib[0]} ${ib[1]} L${p[0]} ${p[1]}" stroke="#2563EB" stroke-opacity=".28" fill="none"/>`; });
   Object.entries(WIL).forEach(([n, v]) => { const p = P(v); const isI = n === 'Ibra'; h += `<g class="wil" data-n="${n}"><circle cx="${p[0]}" cy="${p[1]}" r="${isI ? 26 : 22}" fill="${isI ? '#7A5AF8' : '#2563EB'}" opacity=".15"/><circle class="dot" cx="${p[0]}" cy="${p[1]}" r="${isI ? 13 : 10}" fill="${isI ? '#7A5AF8' : '#2563EB'}"/>
-    <text x="${p[0] + (OFF[n] || [0, 0])[0]}" y="${p[1] - 24 + (OFF[n] || [0, 0])[1]}" text-anchor="middle"><tspan class="en">${n}</tspan><tspan class="ar">${v[2]}</tspan></text>${isI ? `<text x="${p[0] - 70}" y="${p[1] + 34}" text-anchor="middle" font-size="16" fill="#7A5AF8"><tspan class="en">labs &amp; hospital</tspan><tspan class="ar">مختبرات ومستشفى</tspan></text>` : ''}<g class="nurseHere" opacity="0">${person({ x: p[0] + 26, y: p[1] + 30, s: .36, head: 'hijab', acc: '#0D7C6C', body: '#0D7C6C', skin: '#D6A87C' })}</g></g>`; });
+    <text x="${p[0] + (OFF[n] || [0, 0])[0]}" y="${p[1] - 24 + (OFF[n] || [0, 0])[1]}" text-anchor="middle"><tspan class="en">${n}</tspan><tspan class="ar">${v[2]}</tspan></text>${isI ? `<text x="${p[0] - 118}" y="${p[1] + 8}" text-anchor="middle" font-size="16" fill="#7A5AF8"><tspan class="en">labs &amp; hospital</tspan><tspan class="ar">مختبرات ومستشفى</tspan></text>` : ''}<g class="nurseHere" opacity="0">${person({ x: p[0] - 30, y: p[1] + 34, s: .36, head: 'hijab', acc: '#0D7C6C', body: '#0D7C6C', skin: '#D6A87C' })}</g></g>`; });
   h += `<g id="kmt" opacity="0"><rect id="kmr" rx="14" height="42" fill="#fff" stroke="#2563EB" stroke-width="2"/><text id="kmx" class="kmtag" text-anchor="middle"></text></g>`;
   m.innerHTML = h; langSvg(m);
   $$('#map .wil').forEach(g => g.onclick = () => selWil(g.dataset.n));
 }
 function selWil(n){ if (n === 'Ibra') return; const p = P(WIL[n]), ib = P(WIL['Ibra']); const d = km(WIL[n], WIL['Ibra']);
-  $$('#map .wil').forEach(g => g.classList.toggle('sel', g.dataset.n === n)); $$('#map .dist').forEach(e => { e.setAttribute('stroke-opacity', e.id === 'd_' + n.replace(/\W/g, '') ? '1' : '.2'); });
-  const mx = (p[0] + ib[0]) / 2, my = (p[1] + ib[1]) / 2; const txt = L() === 'ar' ? `${d} كم` : `${d} km`; $('#kmx').textContent = txt; $('#kmx').setAttribute('x', mx); $('#kmx').setAttribute('y', my + 8); $('#kmr').setAttribute('x', mx - 50); $('#kmr').setAttribute('y', my - 21); $('#kmr').setAttribute('width', 100); $('#kmt').setAttribute('opacity', 1); }
+  $$('#map .wil').forEach(g => g.classList.toggle('sel', g.dataset.n === n));
+  $$('#map .dist').forEach(e => { const on = e.id === 'd_' + n.replace(/\W/g, ''); const L0 = e.getTotalLength(); e.style.transition = 'none'; if (on) { e.style.strokeDasharray = L0; e.style.strokeDashoffset = L0; e.setAttribute('stroke-opacity', '1'); e.getBoundingClientRect(); e.style.transition = 'stroke-dashoffset .9s cubic-bezier(.65,0,.35,1)'; e.style.strokeDashoffset = 0; } else { e.style.strokeDasharray = ''; e.style.strokeDashoffset = ''; e.setAttribute('stroke-opacity', '.18'); } });
+  $('#kmt').style.transition = 'none'; $('#kmt').setAttribute('opacity', 0); setTimeout(() => { $('#kmt').style.transition = 'opacity .4s'; $('#kmt').setAttribute('opacity', 1); }, 650);
+  const mx = (p[0] + ib[0]) / 2, my = (p[1] + ib[1]) / 2; const txt = L() === 'ar' ? `${d} كم` : `${d} km`; $('#kmx').textContent = txt; $('#kmx').setAttribute('x', mx); $('#kmx').setAttribute('y', my + 8); $('#kmr').setAttribute('x', mx - 50); $('#kmr').setAttribute('y', my - 21); $('#kmr').setAttribute('width', 100); }
 function langSvg(root){ root.querySelectorAll('tspan.ar').forEach(e => e.setAttribute('display', L() === 'ar' ? 'inline' : 'none')); root.querySelectorAll('tspan.en').forEach(e => e.setAttribute('display', L() === 'en' ? 'inline' : 'none')); }
 /* ---------- slide 5: journey ---------- */
 const IC = {
@@ -373,14 +395,18 @@ function drawJourney(){ const s = $('#jsvg'); const pts = []; for (let i = 0; i 
     <circle cx="${pts[i][0] + 28}" cy="${pts[i][1] - 28}" r="14" fill="${st[1]}"/><text x="${pts[i][0] + 28}" y="${pts[i][1] - 22}" text-anchor="middle" fill="#fff" style="fill:#fff;font-size:15px">${i + 1}</text>
     <text x="${pts[i][0]}" y="${pts[i][1] + 70}" text-anchor="middle"><tspan class="en">${st[2]}</tspan><tspan class="ar">${st[3]}</tspan></text></g>`; });
   h += `<g id="jvan"><rect x="-26" y="-16" width="52" height="28" rx="8" fill="#13254B"/><rect x="10" y="-12" width="12" height="10" rx="2" fill="#9CC2FF"/><circle cx="-14" cy="14" r="6" fill="#111"/><circle cx="14" cy="14" r="6" fill="#111"/></g>`;
-  s.innerHTML = h; langSvg(s); const p = $('#jfill'); p.style.strokeDasharray = p.getTotalLength(); p.style.strokeDashoffset = p.getTotalLength(); p.style.transition = 'stroke-dashoffset .8s ease';
+  s.innerHTML = h; langSvg(s); const p = $('#jfill'); p.style.strokeDasharray = p.getTotalLength(); p.style.strokeDashoffset = p.getTotalLength(); jPos = 0;
   $$('#jsvg .step').forEach(g => g.onclick = () => { jAuto = false; setJ(+g.dataset.i); }); s._pts = pts; setJ(0);
 }
-function setJ(i){ jCur = i; const st = STEPS[i]; const p = $('#jfill'); const L0 = p.getTotalLength(); const frac = i / 7;
-  p.style.strokeDashoffset = L0 * (1 - frac); const pt = p.getPointAtLength(L0 * frac); $('#jvan').setAttribute('transform', `translate(${pt.x} ${pt.y - 52})`);
+let jPos = 0, jAnim = null;
+function placeJ(f){ const p = $('#jfill'); const L0 = p.getTotalLength(); p.style.strokeDashoffset = L0 * (1 - f); const pt = p.getPointAtLength(L0 * f), pt2 = p.getPointAtLength(Math.min(L0, L0 * f + 2)), pt0 = p.getPointAtLength(Math.max(0, L0 * f - 2));
+  const dx = pt2.x - pt0.x; const flip = dx < -0.2 ? -1 : 1; $('#jvan').setAttribute('transform', `translate(${pt.x.toFixed(1)} ${(pt.y - 52).toFixed(1)}) scale(${flip} 1)`); }
+function setJ(i){ const from = jPos, to = i / 7; jCur = i; const st = STEPS[i]; cancelAnimationFrame(jAnim); const t0 = performance.now(), D = 1100;
+  const p = $('#jfill'); p.style.transition = 'none';
+  const tick = now => { const k = Math.min(1, (now - t0) / D); const e = easeIO(k); jPos = from + (to - from) * e; placeJ(jPos); if (k < 1) jAnim = requestAnimationFrame(tick); }; jAnim = requestAnimationFrame(tick);
   $$('#jsvg .step').forEach((g, k) => { g.classList.toggle('act', k === i); g.querySelector('circle.b').setAttribute('fill', k <= i ? '#F0F6FF' : '#fff'); });
-  $('#pstep').textContent = L() === 'ar' ? `الخطوة ${i + 1} من 8` : `Step ${i + 1} of 8`;
-  $('#pbody').innerHTML = `<div class="ps on rtl"><div class="bigic" style="background:${st[1]}1f">${svgI(st[0], st[1], 58)}</div><h4>${T(st[2], st[3])}</h4><p>${T(st[4], st[5])}</p>${st[6].map(r => `<div class="row"><span style="color:#5B6B86">${r[0]}</span><b>${r[1]}</b></div>`).join('')}</div>`; }
+  $('#pstep').textContent = `Step ${i + 1} of 8`;
+  $('#pbody').innerHTML = `<div class="ps on"><div class="bigic" style="background:${st[1]}1f">${svgI(st[0], st[1], 58)}</div><h4>${st[2]}</h4><p>${st[4]}</p>${st[6].map(r => `<div class="row"><span style="color:#3A4862">${r[0]}</span><b>${r[1]}</b></div>`).join('')}</div>`; }
 /* ---------- slide 6: services ---------- */
 const SV = [
   ['#2563EB', '#EAF2FF', '<path d="M12 21s-7-4.5-7-11a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 6.5-7 11-7 11z"/>', 'General health', 'الصحة العامة', 'Complete blood count, glucose, basic panels', 'صورة الدم الكاملة، السكر، الفحوصات الأساسية', 'CBC · Fasting glucose · HbA1c', 'صورة الدم · السكر الصائم · التراكمي'],
@@ -421,9 +447,11 @@ const NOTES = [
 const slides = $$('.slide'); let cur = 0, step = 0;
 function stepsOf(i){ return +slides[i].dataset.steps || 0; }
 function applySteps(){ slides[cur].querySelectorAll('[data-step]').forEach(e => e.classList.toggle('shown', +e.dataset.step <= step));
-  if (cur === 2) $('#tlf').style.strokeDashoffset = 1320 * (1 - step / 3);
+  if (cur === 2) { const X = [50, 50, 540, 1030][step]; $('#tlf').style.strokeDashoffset = 1320 - (X - 50); $('#tlvan').style.transform = `translateX(${X - 30}px)`; $('#tlvan').style.opacity = step ? 1 : 0; }
   if (cur === 3) $$('#map .nurseHere').forEach((g, i) => { g.style.transition = `opacity .5s ${i * .12}s`; g.setAttribute('opacity', step >= 1 ? 1 : 0); }); }
-function go(i, st = 0){ if (i < 0 || i >= slides.length) return; slides.forEach((s, k) => { s.classList.toggle('on', k === i); s.classList.toggle('out', k === cur && k !== i); }); setTimeout(() => slides.forEach(s => s.classList.remove('out')), 800);
+function go(i, st = 0){ if (i < 0 || i >= slides.length) return; const back = i < cur;
+  slides.forEach((s, k) => { if (k === i) { s.classList.remove('out', 'back'); s.classList.toggle('from-left', back); s.getBoundingClientRect(); s.classList.add('on'); s.classList.remove('from-left'); } else { const was = s.classList.contains('on'); s.classList.remove('on'); s.classList.toggle('out', was); s.classList.toggle('back', was && back); } });
+  setTimeout(() => slides.forEach((s, k) => { if (k !== cur) s.classList.remove('out', 'back'); }), 1000);
   cur = i; step = st; applySteps(); $('#cnt').textContent = `${i + 1} / ${slides.length}`; $('#prog').style.width = ((i + 1) / slides.length * 100) + '%'; $('#notes').innerHTML = NOTES[i];
   if (i === 4) { jAuto = true; setJ(0); } history.replaceState(null, '', '#' + (i + 1)); }
 function next(){ if (step < stepsOf(cur)) { step++; applySteps(); } else go(cur + 1); }
@@ -447,7 +475,7 @@ function loop(t){ cx.clearRect(0, 0, cv.width, cv.height); const dark = cur === 
   for (let i = 0; i < pts2.length; i++) for (let j = i + 1; j < pts2.length; j++) { const a = pts2[i], b = pts2[j]; const d = Math.hypot(a.x - b.x, a.y - b.y); if (d < 180 * devicePixelRatio) { cx.strokeStyle = `rgba(37,99,235,${.08 * (1 - d / (180 * devicePixelRatio))})`; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo(b.x, b.y); cx.stroke(); } }
   pts2.forEach(p => { cx.fillStyle = 'rgba(37,99,235,.18)'; cx.beginPath(); cx.arc(p.x, p.y, 2.2 * devicePixelRatio, 0, 7); cx.fill(); });
   netTick(t);
-  if (cur === 4 && jAuto && !reduce) { if (!loop.lt || t - loop.lt > 1900) { loop.lt = t; setJ((jCur + 1) % 8); } }
+  if (cur === 4 && jAuto && !reduce) { if (!loop.lt || t - loop.lt > 2800) { loop.lt = t; setJ((jCur + 1) % 8); } }
   requestAnimationFrame(loop); }
 drawNet(); drawMap(); drawJourney(); drawSV(); drawCols(); selNode('p');
 const start = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1)) || 1) - 1)); go(start);
