@@ -1589,7 +1589,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 19;
+const APP_V = 20;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -1973,8 +1973,8 @@ Object.assign(I18N.ar, { m_new:'حدث البرنامج', new_t:'الجديد ف
 const MEDIA = 'https://ufykiqxsegyuyablrjsq.supabase.co/storage/v1/object/public/media/';
 async function viewNew(){
   const items = [['spark','nw18','v18'],['check','nw17a','v17'],['steth','nw17b','v17'],['hosp','nw17c','v17'],['flask','nw17d','v17'],['lock','nw17e','v17']];
-  const body = `<div class="stack-lg"><div class="card pad-lg vid-card"><div class="row between wrap" style="gap:8px;margin-bottom:12px"><div><h2 style="margin:0">${t('new_vid')}</h2><div class="small muted">${t('new_sub')}</div></div><span class="chip teal">${ic('play',14)} 1:01</span></div>
-      <video class="vid" controls playsinline preload="metadata" poster="${MEDIA}explainer_poster.jpg"><source src="${MEDIA}LabAtHome_Explainer.mp4" type="video/mp4"></video></div>
+  const body = `<div class="stack-lg"><div class="card pad-lg vid-card"><div class="row between wrap" style="gap:8px;margin-bottom:12px"><div><h2 style="margin:0">${t('new_vid')}</h2><div class="small muted">${t('new_sub')}</div></div><span class="chip teal">${ic('play',14)} 1:06</span></div>
+      <video class="vid" controls playsinline preload="metadata" poster="${MEDIA}explainer_poster_v2.jpg"><source src="${MEDIA}LabAtHome_Explainer_v2.mp4" type="video/mp4"></video></div>
     <div><h3>${t('new_t')}</h3><div class="stack" style="--g:10px">${items.map(([i, k, v]) => `<div class="card row" style="gap:14px;align-items:flex-start"><span class="qi" style="color:var(--blue);background:#eaf2ff;flex:none">${ic(i, 24, 2)}</span><div class="grow"><div class="row between"><b>${t(k)}</b><span class="chip gray">${v}</span></div><div class="small muted">${t(k + 'd')}</div></div></div>`).join('')}</div></div></div>`;
   app.innerHTML = S.user ? shell(t('m_new'), body) : `${topbar()}<section class="section" style="padding-top:28px"><div class="wrap-w" style="max-width:900px"><h1 style="margin-bottom:18px">${t('m_new')}</h1>${body}</div></section>${footer()}`;
   if (!S.user) bindGlobal();
