@@ -571,21 +571,9 @@ h2{font-size:64px}
   </div>
  </section>
 
- <section class="slide" data-steps="3">
-  <h2 class="in">Where SNMP lives</h2>
-  <p class="sub in" style="--d:.15s">A small application-layer protocol riding on fast, connectionless UDP.</p>
-  <svg id="s-stack" class="svgill" viewBox="0 0 900 560" role="img" aria-label="Protocol stack: SNMP over UDP over IP"></svg>
-  <div class="ill i-stack nonav" data-ill="stack"><div class="illhint">Drag to rotate · click a layer</div></div>
-  <div class="facts">
-   <div class="card fact" data-step="1"><span class="num">L3</span><div><b>IP</b><br>Delivers packets between hosts</div></div>
-   <div class="card fact" data-step="2"><span class="num" style="color:var(--teal)">L4</span><div><b>UDP</b><br>No handshake, tiny overhead</div></div>
-   <div class="card fact" data-step="3"><span class="num" style="color:var(--orange)">L7</span><div><b>SNMP</b><br>Agents listen on UDP 161, managers on 162</div></div>
-  </div>
- </section>
-
  <section class="slide" data-steps="2">
   <h2 class="in">The architecture</h2>
-  <p class="sub in" style="--d:.15s">One manager. Many agents. Every device becomes visible.</p>
+  <p class="sub in" style="--d:.15s">One manager, many agents, talking over UDP ports 161 and 162.</p>
   <svg id="s-arch" class="svgill" viewBox="0 0 1100 640" role="img" aria-label="Manager connected to agents in a router, switch, server and printer"></svg>
   <div class="ill i-arch nonav" data-ill="arch"><div class="illhint">Click a device to send a GET</div></div>
   <div class="legend">
@@ -603,13 +591,6 @@ h2{font-size:64px}
    <div id="oid" aria-live="polite"></div>
    <div class="card oidnote in" style="--d:.4s">1.3.6.1.2.1.1.3 = <b>sysUpTime</b>, how long the device has been running. The final <b>.0</b> means its single instance.</div>
   </div>
- </section>
-
- <section class="slide" data-hook="msg" data-steps="2">
-  <h2 class="in">Inside an SNMP message</h2>
-  <p class="sub in" style="--d:.15s">Encoded with ASN.1 BER and sent in one UDP datagram.</p>
-  <div class="ill i-msg nonav" data-ill="msg"><div class="illhint">Click any block</div></div>
-  <div class="card mpanel in" style="--d:.3s"><div class="mpsw" id="mpSw"></div><div><div class="mpn" id="mpName">A GetRequest from the manager</div><div class="mpd" id="mpDesc">Next click opens the packet. Every block is one field of the message.</div></div><div class="mpe" id="mpEx">GetRequest · sysUpTime.0</div></div>
  </section>
 
  <section class="slide">
@@ -638,46 +619,6 @@ h2{font-size:64px}
   <div class="lcap in" style="--d:.3s"><div class="lct" id="lct">SNMP lab</div><div class="lcd" id="lcd">The demo starts by itself</div><div class="lbar"><i id="lprog"></i></div></div>
  </section>
 
- <section class="slide" data-steps="2">
-  <h2 class="in">Polling vs notifications</h2>
-  <div class="lanes">
-   <div class="card bl" data-step="1">
-    <div class="port" style="color:var(--blue)"><span class="count" data-to="161">0</span><small>UDP port on the agent</small></div>
-    <div><h3>Polling: the manager asks</h3><p>Request goes out, the agent answers. Repeats on a schedule.</p>
-     <div class="lane"><span class="end m">Manager</span><span class="end a">Agent</span><i class="pk r1" style="color:#2563EB"></i><i class="pk l2" style="color:#14B8A6"></i></div></div>
-   </div>
-   <div class="card bl" data-step="2">
-    <div class="port" style="color:var(--orange)"><span class="count" data-to="162">0</span><small>UDP port on the manager</small></div>
-    <div><h3>Notifications: the agent speaks first</h3><p>TRAP or INFORM is sent the moment something happens.</p>
-     <div class="lane"><span class="end m">Manager</span><span class="end a" style="background:var(--orange)">Agent</span><i class="pk l1" style="color:#EF4444;--t:2.2s"></i></div></div>
-   </div>
-  </div>
- </section>
-
- <section class="slide" data-steps="2">
-  <h2 class="in">An everyday analogy</h2>
-  <div class="duo">
-   <div class="card" data-step="1"><h3 style="color:var(--blue)">Polling</h3><p>The principal walks to every class: "Everything okay?"</p>
-    <svg viewBox="0 0 640 400" aria-hidden="true">
-     <rect x="0" y="300" width="640" height="10" rx="5" fill="#E2E8F3"/>
-     <g fill="#fff" stroke="#DCE5F2" stroke-width="3"><rect x="40" y="120" width="100" height="180" rx="10"/><rect x="190" y="120" width="100" height="180" rx="10"/><rect x="340" y="120" width="100" height="180" rx="10"/><rect x="490" y="120" width="100" height="180" rx="10"/></g>
-     <g fill="#2563EB" opacity=".18"><rect x="58" y="140" width="64" height="60" rx="6"/><rect x="208" y="140" width="64" height="60" rx="6"/><rect x="358" y="140" width="64" height="60" rx="6"/><rect x="508" y="140" width="64" height="60" rx="6"/></g>
-     <g font-family="Poppins" font-weight="700" font-size="34" fill="#2563EB" text-anchor="middle"><text class="ask" x="90" y="100">?</text><text class="ask a2" x="240" y="100">?</text><text class="ask a3" x="390" y="100">?</text><text class="ask a4" x="540" y="100">?</text></g>
-     <g class="walker"><circle cx="90" cy="222" r="17" fill="#0F172A"/><rect x="72" y="243" width="36" height="56" rx="14" fill="#2563EB"/></g>
-    </svg></div>
-   <div class="card" data-step="2"><h3 style="color:var(--orange)">Trap</h3><p>A teacher calls the principal the moment there is a problem.</p>
-    <svg viewBox="0 0 640 400" aria-hidden="true">
-     <rect x="0" y="300" width="640" height="10" rx="5" fill="#E2E8F3"/>
-     <rect x="40" y="110" width="250" height="190" rx="14" fill="#fff" stroke="#DCE5F2" stroke-width="3"/>
-     <circle cx="130" cy="200" r="20" fill="#0F172A"/><rect x="110" y="224" width="40" height="76" rx="15" fill="#F97316"/>
-     <g class="phone"><rect x="168" y="168" width="44" height="74" rx="10" fill="#0F172A"/><rect x="175" y="178" width="30" height="48" rx="4" fill="#F97316"/></g>
-     <path class="shoot" d="M240 190 C 330 120, 420 120, 480 180" fill="none" stroke="#F97316" stroke-width="5" stroke-linecap="round"/>
-     <circle cx="545" cy="210" r="20" fill="#0F172A"/><rect x="525" y="234" width="40" height="66" rx="15" fill="#2563EB"/>
-     <g><circle cx="500" cy="130" r="28" fill="#EF4444"/><text x="500" y="142" text-anchor="middle" font-family="Poppins" font-weight="800" font-size="34" fill="#fff">!</text></g>
-    </svg></div>
-  </div>
- </section>
-
  <section class="slide" data-hook="ver" data-steps="3">
   <h2 class="in">Three versions</h2>
   <p class="sub in" style="--d:.15s">Same idea, three generations. Security is the real difference.</p>
@@ -686,76 +627,6 @@ h2{font-size:64px}
    <div class="card vr" data-step="2"><h3 style="color:var(--blue)">SNMPv2c</h3><div class="meta"><b>1996</b> · adds GET-BULK, INFORM<br>Same weak community</div><div class="wire"><span class="msg plain" style="animation-delay:1.3s">community: public</span></div><div class="flag bad">plain text</div></div>
    <div class="card vr v3" data-step="3"><h3 style="color:var(--orange)">SNMPv3</h3><div class="meta"><b>2002</b> · RFC 3411–3418<br>User-based security (USM)</div><div class="wire"><span class="msg enc" id="scr">x9#Lq2!vR8@kT</span></div><div class="flag good stamp" data-step="3" style="--d:.5s">Recommended</div></div>
   </div>
- </section>
-
- <section class="slide" data-steps="3">
-  <h2 class="in">SNMPv3 security levels</h2>
-  <p class="sub in" style="--d:.15s">Each level adds protection. Aim for the top step.</p>
-  <div class="stairs">
-   <div class="stair grow" data-step="1" style="height:44%;background:linear-gradient(160deg,#94A3B8,#64748B)">
-    <svg class="lock" viewBox="0 0 62 72" aria-hidden="true"><path class="shackle" d="M16 30V20a15 15 0 0 1 30 0" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" transform="translate(0,-8) rotate(-18 46 20)"/><rect x="6" y="30" width="50" height="40" rx="10" fill="#fff"/></svg>
-    <h3>noAuthNoPriv</h3><p>No authentication, no encryption</p></div>
-   <div class="stair grow" data-step="2" style="height:70%;background:linear-gradient(160deg,#3B82F6,#2563EB)">
-    <svg class="lock" viewBox="0 0 62 72" aria-hidden="true"><path class="shackle" d="M16 30V20a15 15 0 0 1 30 0" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" transform="translate(0,-8) rotate(-18 46 20)"/><rect x="6" y="30" width="50" height="40" rx="10" fill="#fff"/></svg>
-    <h3>authNoPriv</h3><p>Messages authenticated (e.g. SHA), not encrypted</p></div>
-   <div class="stair grow" data-step="3" style="height:100%;background:linear-gradient(160deg,#FB923C,#F97316);box-shadow:0 30px 60px -20px rgba(249,115,22,.6)">
-    <svg class="lock shut" viewBox="0 0 62 72" aria-hidden="true"><path class="shackle" d="M16 30V20a15 15 0 0 1 30 0" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" transform="translate(0,-10)"/><rect x="6" y="30" width="50" height="40" rx="10" fill="#fff"/></svg>
-    <h3>authPriv</h3><p>Authenticated and encrypted (e.g. AES). The strongest.</p></div>
-  </div>
-  <div class="expl"><span class="chip" data-step="3" style="--d:.6s"><b>Auth</b>&nbsp;who sent it, unchanged</span><span class="chip" data-step="3" style="--d:.75s"><b>Priv</b>&nbsp;content kept secret</span><span class="chip" data-step="3" style="--d:.9s"><b>VACM</b>&nbsp;which OIDs a user may see</span></div>
- </section>
-
- <section class="slide" data-hook="dash" data-steps="1">
-  <h2 class="in">SNMP in the real world</h2>
-  <p class="sub in" style="--d:.15s">Monitoring tools poll agents and collect traps to build live dashboards.</p>
-  <div class="card win in" style="--d:.25s">
-   <div class="bar"><i></i><i></i><i></i>&nbsp; Network monitor · campus core<span class="live">live</span></div>
-   <div class="tiles">
-    <div class="tile"><h4>CPU · core-router-01</h4><div class="val"><span id="cpu">42</span>%</div><svg class="spark" id="spark" viewBox="0 0 400 110" preserveAspectRatio="none" aria-hidden="true"></svg></div>
-    <div class="tile"><h4>Bandwidth · uplink (Mbps)</h4><div class="bars" id="bw"></div></div>
-    <div class="tile devs"><h4>Devices</h4><ul>
-     <li><span class="dot" style="background:var(--teal)"></span>core-router-01<span>up</span></li>
-     <li><span class="dot" style="background:var(--teal)"></span>sw-01<span>up</span></li>
-     <li id="sw3"><span class="dot" style="background:var(--teal)"></span>sw-03<span>up</span></li>
-     <li><span class="dot" style="background:var(--teal)"></span>srv-db<span>up</span></li>
-     <li><span class="dot" style="background:var(--teal)"></span>printer-2f<span>up</span></li>
-    </ul></div>
-    <div class="tile" style="grid-column:span 2"><h4>sysUpTime · 1.3.6.1.2.1.1.3.0</h4><div class="val" id="up" style="font-variant-numeric:tabular-nums">42d 06:13:22</div><div class="mono">GET every 30 s · response in 4 ms</div></div>
-   </div>
-  </div>
-  <div class="toast" data-step="1"><span class="dot" style="background:var(--red);width:14px;height:14px"></span><div><b>TRAP received</b> · linkDown on sw-03 port 7 → manager UDP 162</div></div>
-  <div class="tools in" style="--d:.6s">Real tools that work this way: Zabbix, PRTG, Nagios</div>
- </section>
-
- <section class="slide" data-hook="cli" data-steps="3">
-  <h2 class="in">Hands-on with Net-SNMP</h2>
-  <p class="sub in" style="--d:.15s">The same operations, typed by a network admin.</p>
-  <div class="term in nonav" id="term" style="--d:.25s">
-   <div class="tbar"><i></i><i></i><i></i><span>admin@nms: ~</span></div>
-   <div class="tbody">
-    <div class="out c st"># lab network · 10.0.0.20 is srv-db, a Linux server running the Net-SNMP agent</div>
-    <div class="tb" data-step="1"><div class="cmd">$ snmpget <span class="f" data-f="v">-v2c</span> <span class="f" data-f="c">-c public</span> 10.0.0.20 sysName.0</div><div class="out">SNMPv2-MIB::sysName.0 = STRING: srv-db</div></div>
-    <div class="tb" data-step="2"><div class="cmd">$ snmpwalk <span class="f" data-f="v">-v2c</span> <span class="f" data-f="c">-c public</span> 10.0.0.20 system</div><div class="out">SNMPv2-MIB::sysDescr.0 = STRING: Linux srv-db 6.8.0 x86_64</div><div class="out">SNMPv2-MIB::sysObjectID.0 = OID: NET-SNMP-MIB::netSnmpAgentOIDs.10</div><div class="out">DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (364051200) 42 days, 3:15:12.00</div><div class="out">SNMPv2-MIB::sysContact.0 = STRING: lab admin</div><div class="out">SNMPv2-MIB::sysName.0 = STRING: srv-db</div><div class="out">SNMPv2-MIB::sysLocation.0 = STRING: server room, rack 2</div></div>
-    <div class="tb" data-step="3"><div class="cmd">$ snmpget <span class="f" data-f="v">-v3</span> <span class="f" data-f="l">-l authPriv</span> <span class="f" data-f="u">-u admin</span> <span class="f" data-f="a">-a SHA -A ********</span> <span class="f" data-f="x">-x AES -X ********</span> 10.0.0.20 sysName.0</div><div class="out c"># same answer, now authenticated and encrypted</div><div class="out">SNMPv2-MIB::sysName.0 = STRING: srv-db</div></div>
-   </div>
-  </div>
-  <div class="flags in nonav" style="--d:.4s"><button data-f="v"><b>-v</b>version</button><button data-f="c"><b>-c</b>community</button><button data-f="l"><b>-l</b>security level</button><button data-f="u"><b>-u</b>user</button><button data-f="a"><b>-a -A</b>authentication</button><button data-f="x"><b>-x -X</b>privacy</button></div>
- </section>
-
- <section class="slide" data-hook="pros" data-steps="2">
-  <h2 class="in">Strengths and limits</h2>
-  <p class="sub in" style="--d:.15s">Why SNMP is everywhere, and what to watch out for.</p>
-  <div class="pl pl-l" data-step="1"><h3>Strengths</h3><ul>
-   <li><i></i><div><b>Lightweight</b><span>Small messages over UDP</span></div></li>
-   <li><i></i><div><b>Universal</b><span>Almost every router, switch, server and printer has an agent</span></div></li>
-   <li><i></i><div><b>Open standard</b><span>Defined by the IETF, not tied to one vendor</span></div></li>
-   <li><i></i><div><b>Instant alerts</b><span>Traps report problems the moment they happen</span></div></li></ul></div>
-  <div class="ill i-scale nonav" data-ill="scale"><div class="illhint">Click a block</div></div>
-  <div class="pl pl-r" data-step="2"><h3>Limits</h3><ul>
-   <li><i></i><div><b>Messages can be lost</b><span>UDP has no delivery guarantee: use INFORM for key alerts</span></div></li>
-   <li><i></i><div><b>Weak old security</b><span>v1 and v2c send the community in plain text</span></div></li>
-   <li><i></i><div><b>Polling traffic</b><span>Asking thousands of devices often adds load</span></div></li>
-   <li><i></i><div><b>Limited configuration</b><span>Modern networks add NETCONF and YANG</span></div></li></ul></div>
  </section>
 
  <section class="slide" data-hook="prac" data-steps="4">
@@ -773,17 +644,6 @@ h2{font-size:64px}
    <path class="sh-check" d="M150 270l55 55 105-115" fill="none" stroke="#fff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
   <div class="ill i-shield nonav" data-ill="shield"><div class="illhint">Click the shield</div></div>
- </section>
-
- <section class="slide" data-hook="quiz">
-  <h2 class="in">Quick quiz</h2>
-  <p class="sub in" style="--d:.15s">Answer out loud first, then tap an option to check.</p>
-  <div class="mcqs">
-   <div class="card mcq in" style="--d:.2s"><div class="qh"><span class="qn">01</span><h3>Which UDP port receives traps?</h3></div><div class="opts"><button>161</button><button data-ok>162</button><button>443</button></div><p class="why">Traps go to the manager on 162. Requests go to agents on 161.</p></div>
-   <div class="card mcq in" style="--d:.3s"><div class="qh"><span class="qn" style="color:var(--orange)">02</span><h3>Which version adds authentication and encryption?</h3></div><div class="opts"><button>SNMPv1</button><button>SNMPv2c</button><button data-ok>SNMPv3</button></div><p class="why">Only SNMPv3 has user-based security (USM).</p></div>
-   <div class="card mcq in" style="--d:.4s"><div class="qh"><span class="qn" style="color:var(--teal)">03</span><h3>Which operation changes a value on a device?</h3></div><div class="opts"><button>GET</button><button data-ok>SET</button><button>TRAP</button></div><p class="why">GET reads, SET writes, TRAP alerts.</p></div>
-   <div class="card mcq in" style="--d:.5s"><div class="qh"><span class="qn" style="color:#8B5CF6">04</span><h3>How is an INFORM different from a TRAP?</h3></div><div class="opts"><button>It is encrypted</button><button data-ok>It is acknowledged</button><button>It uses TCP</button></div><p class="why">The manager sends a Response back to every INFORM.</p></div>
-  </div>
  </section>
 
  <section class="slide s-end">
@@ -813,7 +673,7 @@ h2{font-size:64px}
 </div>
 
 <div id="prog"></div>
-<div id="hint" style="opacity:0">→ or tap: next · N: notes · F: full screen · M: sound · 1–6: reactions</div>
+<div id="hint" style="opacity:0">→ or tap: next · N: notes · F: full screen · M: sound</div>
 <aside id="notes" aria-live="polite"></aside>
 <nav id="ui" aria-label="Presentation controls">
  <button id="bPrev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -823,10 +683,7 @@ h2{font-size:64px}
  <button id="bFull" aria-label="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
  <button id="bSnd" aria-label="Mute sound"></button>
 </nav>
-<div id="react" aria-label="Reactions"></div>
-<div id="rlayer" aria-hidden="true"></div>
 <div id="alarm" aria-hidden="true"></div>
-<div id="rtoast" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>A question from the audience</div>
 
 <script src="three.min.js"></script>
 <script>
@@ -837,26 +694,17 @@ const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const C=Math.cos(Math.PI/6);
 const COL={blue:'#2563EB',teal:'#14B8A6',orange:'#F97316',red:'#EF4444',ink:'#0F172A'};
 const NOTES=[
- '<b>[0:10]</b> Good morning everyone. My name is Bilarab Suwailam Almusallami, student ID 32J2324, and this is my presentation for the Advanced Computer Network course. Today I will explain SNMP, the Simple Network Management Protocol: the protocol that lets network devices report their status to the people who manage them.',
- '<b>[0:15]</b> Imagine you manage 500 devices: routers, switches, servers. At 3 AM one of them fails. You cannot walk to every device. So how do you know? (Pause.) The answer is SNMP.',
- '<b>[0:20]</b> SNMP is an IETF standard. One central system can Monitor (read CPU, memory, traffic), Manage (change supported settings) and Alert (hear about problems immediately).',
- '<b>[0:20]</b> SNMP is an application-layer protocol that runs over UDP, on top of IP. Why UDP? Lightweight and connectionless: no handshake, small messages, still works when the network is struggling. The manager simply retries if a reply is lost.<br><b>If asked "why not TCP?":</b> less overhead; keeping TCP sessions to thousands of devices would be heavy.',
- '<b>[0:25]</b> Three parts. The Manager, or NMS, is the central software such as Zabbix or PRTG. The Agent is small software inside each device. The managed device is the router, switch, server or printer. The manager sends requests (blue), agents send responses (teal).<br><b>Try it:</b> click a device to send a GET, or click the manager to poll every agent.',
- '<b>[0:25]</b> Data lives in the MIB, a tree describing every value an agent can share. Each value has an OID. Follow the path: iso 1, org 3, dod 6, internet 1, mgmt 2, mib-2 1, system 1, sysUpTime 3. The final .0 is the single instance.<br><b>If asked:</b> MIB = the map, OID = the exact address of one item.<br><b>Also:</b> MIBs are written in SMI, a subset of ASN.1. The standard set is MIB-II (RFC 1213): system, interfaces, ip, tcp, udp and snmp.',
- '<b>[0:35]</b> This is one SNMP message. It travels in a single UDP datagram and is encoded with ASN.1 BER. (Click) The packet opens: IP and UDP headers for transport, then the SNMP header with the version and the community string, then the PDU: PDU type, request-id, error-status, error-index and the variable bindings, which are OID = value pairs. (Click) This is the agent’s Response: same request-id, error-status 0 and the value filled in. Click any block to explain it.<br><b>If asked:</b> SNMPv3 replaces the community with a security header: msgID, msgFlags and the USM parameters.',
- '<b>[0:25]</b> GET reads one value. GET-NEXT reads the next one, to walk a table. GET-BULK (v2c) reads many at once. SET changes a value. TRAP is an alert from the agent with no acknowledgment. INFORM (v2c) is an alert the manager must acknowledge.',
- '<b>[1:30]</b> This lab plays by itself like a short film, with a caption for every step. 1 GET: one value, request to UDP 161 and a RESPONSE back. 2 GET-NEXT: walking the MIB one OID at a time, as snmpwalk does. 3 GET-BULK: several values in one request. 4 SET: the manager switches port 7 off and on again. 5 TRAP: the laptop loses Wi-Fi, the screen turns red, and the alert goes to UDP 162 with no reply. 6 INFORM: the same kind of alert, but the manager acknowledges it. 7 Error: an unknown OID returns noSuchObject. 8 Wrong community: the request is dropped and an authenticationFailure trap is sent. 9 Timeout: UDP loses the packet and the manager retries with the same request-id.<br><b>Controls:</b> Pause or Play, click a step to jump to it, or click any device to send your own GET.',
- '<b>[0:20]</b> Polling: the manager sends a request to the agent on UDP 161 and gets a reply. Notifications: the agent sends a TRAP or INFORM to the manager on UDP 162. 161 = agent listens, 162 = manager listens.',
- '<b>[0:15]</b> Polling is a principal walking to every class asking "Everything okay?". A trap is a teacher calling the principal the moment there is a problem. Real networks use both.',
- '<b>[0:25]</b> SNMPv1, 1990, RFC 1157: protected only by a community string sent in plain text. SNMPv2c, 1996: adds GET-BULK and INFORM, same plain-text community. SNMPv3, 2002, RFCs 3411 to 3418: user-based security with authentication and encryption. That is why v3 is recommended.',
- '<b>[0:20]</b> noAuthNoPriv: no authentication, no encryption. authNoPriv: authenticated with hashes like SHA, not encrypted. authPriv: authenticated and encrypted, for example with AES. authPriv is best practice.<br><b>If asked:</b> Auth = who sent it and that it was not changed; Priv = privacy.<br><b>Also:</b> VACM, the View-based Access Control Model, decides which OIDs each user may read or write.',
- '<b>[0:15]</b> Tools like Zabbix, PRTG and Nagios use SNMP to build dashboards like this: CPU, bandwidth, uptime read with GET, and live alerts from traps. (Click: a linkDown trap arrives from sw-03.)',
- '<b>[0:30]</b> This is how admins use SNMP with the Net-SNMP tools. (Click) snmpget reads one value. (Click) snmpwalk sends GET-NEXT again and again to read a whole branch, here the system group. (Click) The last command is SNMPv3 with authPriv: a user name, SHA for authentication and AES for encryption. Same answer, but now nobody can read or fake it. Point at a flag below to highlight it in the commands.',
- '<b>[0:25]</b> (Click) Why is SNMP everywhere? It is lightweight, almost every device has an agent, it is an open IETF standard, and traps report problems immediately. (Click) Its limits: UDP can lose messages, so important alerts should use INFORM; v1 and v2c send the community in plain text; polling thousands of devices adds traffic; and for configuration, modern networks add NETCONF and YANG. For monitoring, the strengths win, so the scale tips that way.',
- '<b>[0:15]</b> Use SNMPv3 with authPriv. Never keep the default community strings public and private. Restrict access with ACLs. And monitor traps continuously.<br><b>Extra:</b> SNMP can also run over TLS or DTLS (RFC 6353) on ports 10161 and 10162. Click the shield: with fewer practices the attacks get through, with all four they bounce off.',
- '<b>[0:40]</b> Read each question, let the class answer, then tap an option. A wrong option shakes; the right one turns green. Answers: UDP 162; SNMPv3; SET; an INFORM is acknowledged.',
- '<b>[0:10]</b> Three things: SNMP gives central monitoring; it is built on Manager, Agent and MIB; always use SNMPv3.',
- '<b>[0:10]</b> Thank you for listening. I am happy to take your questions.<br><b>Likely questions:</b> Why UDP and not TCP? Trap vs Inform? MIB vs OID? What makes SNMPv3 safer?'
+ '<b>[0:15]</b> Good morning everyone. My name is Bilarab Suwailam Almusallami, ID 32J2324. Today I will explain SNMP, the Simple Network Management Protocol: how network devices report their status to the people who manage them.',
+ '<b>[0:15]</b> Imagine you manage 500 devices, and one of them fails at 3 AM. You cannot walk to every device to check. So how do you know? (Click) That is exactly the problem SNMP solves.',
+ '<b>[0:20]</b> SNMP is an IETF standard that lets one central system do three things. (Click) Monitor devices: CPU, memory, traffic and uptime. (Click) Manage them by changing settings remotely. (Click) And receive alerts the moment something goes wrong.',
+ '<b>[0:25]</b> SNMP has three parts. The manager, or NMS, is the central software. (Click) The agent is a small program inside every device: routers, switches, servers and printers. They talk over UDP, which is light and fast. Agents listen on port 161, and the manager listens on port 162 for alerts. (Click) Requests go out in blue, responses come back in teal.',
+ '<b>[0:25]</b> The data lives in the MIB, a tree of everything an agent can report. Each value has an address called an OID. Follow the path: 1.3.6.1.2.1.1.3 is sysUpTime, how long the device has been running. The final .0 means its single instance.',
+ '<b>[0:25]</b> SNMP has six operations. GET reads one value, GET-NEXT walks through a table, GET-BULK reads many values at once, and SET changes a value. Each of these gets a RESPONSE back. TRAP and INFORM go the other way: the agent alerts the manager. A TRAP gets no reply; an INFORM must be acknowledged.',
+ '<b>[0:50]</b> Here it is live. A GET goes to the switch on port 161, the agent finds the OID in its MIB and sends a RESPONSE back. That is polling: the manager asks. (Wait for the TRAP.) Now the laptop loses its Wi-Fi. The agent sends a TRAP to port 162 on its own and the screen turns red. That is a notification: the device speaks first. (Then press → to move on, or click Timeout to show a lost packet and a retry.)',
+ '<b>[0:25]</b> There are three versions. (Click) SNMPv1 from 1990 (click) and v2c from 1996 are protected only by a community string sent in plain text, like a password anyone can read. (Click) SNMPv3 from 2002 adds user-based security with authentication and encryption. That is why it is the recommended version.',
+ '<b>[0:20]</b> In practice: (click) use SNMPv3 with authPriv, which means authenticated and encrypted. (Click) Change the default community strings “public” and “private”. (Click) Allow only the manager’s address with ACLs. (Click) And always watch your traps.',
+ '<b>[0:15]</b> So, three things to remember: SNMP gives you central monitoring; it is built on a manager, agents and the MIB; and for security, always use SNMPv3.',
+ '<b>[0:05]</b> Thank you for listening. I am happy to take any questions.<br><b>Likely questions:</b> Why UDP? Less overhead and it still works when the network is struggling. Trap vs Inform? An INFORM is acknowledged. MIB vs OID? The MIB is the map, the OID is one address on it.'
 ];
 
 /* ---------- isometric drawing ---------- */
@@ -940,7 +788,7 @@ scene($('#s-arch'),{u:44,ox:440,oy:250,plat:[-3,-4,13,11.5],mgr:[-1,1.2],lc:'dra
  const L=[['IP','#475569','#334155','#1E293B',0,1],['UDP','#5EEAD4','#14B8A6','#0F9488',1.15,2],['SNMP','#93B4F8','#2563EB','#1D4ED8',2.3,3]];
  L.forEach(([n,t,l,r,z,st])=>{const b=box(p,0,0,z,5,3.2,.7,{t,l,r});const o=p(.35,3.2,z+.2);
   s+=`<g data-step="${st}" style="--y:-120px">${st==1?shadow(p,0,0,5,3.2):''}${b.s}<text transform="matrix(${C.toFixed(4)},.5,0,1,${o[0].toFixed(1)},${o[1].toFixed(1)})" font-family="Poppins" font-weight="800" font-size="30" fill="#fff">${n}</text></g>`});
- svg.innerHTML=s;
+ if(svg)svg.innerHTML=s;
 }
 { /* OID tree */
  const svg=$('#s-oid');const path=['iso (1)','org (3)','dod (6)','internet (1)','mgmt (2)','mib-2 (1)','system (1)','sysUpTime (3)'];
@@ -1170,6 +1018,7 @@ function makeLab(){
    say(M,'timeout!','err');cap('Timeout: no RESPONSE arrived','The manager stops waiting for this try');await wait(1500);
    say(M,'retry · request-id 7731','req');cap('Retry with the same request-id','GET sysName.0 · attempt 2');focus(d,11);await go(fly(d,BLUE));say(d,'= "wifi-ap"','resp');await go(fly(d,TEAL,true));
    focus(M,11);say(M,'received','resp');cap('The retry works','RESPONSE sysName.0 = "wifi-ap"');await wait(2000)}}];
+ {const O=['GET','TRAP','INFORM','Timeout','SET','GET-NEXT','GET-BULK','Error','Wrong community'];SC.sort((a,b)=>O.indexOf(a.k)-O.indexOf(b.k))}
  const FIN=async()=>{focus(null);cap('That is every case: requests, alerts and errors','Click a step below, or click any device to send your own GET','#14B8A6');await wait(3800)};
  const chipsEl=$('#lchips'),pbtn=document.createElement('button');pbtn.className='lplay';chipsEl.appendChild(pbtn);
  SC.forEach((s,i)=>{const b=document.createElement('button');b.className='lch';b.textContent=s.k;b.style.setProperty('--c',s.c);b.addEventListener('click',e=>{e.stopPropagation();aInit();play(i)});chipsEl.appendChild(b)});
@@ -1436,24 +1285,6 @@ ILL.reg('scale',{cam:{az:0,el:.2,dist:18,ty:2.7,fov:34,r:8,sway:.3},
   S.pans.forEach(p=>{p.hook.getWorldPosition(S.v);p.pan.position.set(S.v.x,S.v.y-2.3,S.v.z);const a=p.str.geometry.attributes.position;
    for(let i=0;i<3;i++){const an=i*2.094;a.setXYZ(i*2,S.v.x,S.v.y,S.v.z);a.setXYZ(i*2+1,p.pan.position.x+Math.cos(an)*1.2,p.pan.position.y+.08,p.pan.position.z+Math.sin(an)*1.2)}a.needsUpdate=true})}});
 
-/* ---------- reactions: floating icons the room can send ---------- */
-const RX=[['like','#2563EB','<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>','Like',0],
- ['love','#EF4444','<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>','Love',1],
- ['fire','#F97316','<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>','Fire',1],
- ['idea','#CA8A04','<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>','Got it',0],
- ['wow','#8B5CF6','<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>','Wow',1],
- ['ask','#0D9488','<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>','Question',0]];
-const rx=$('#react'),rhist={};const rsvg=(i,w)=>{const r=RX[i];return `<svg viewBox="0 0 24 24" fill="${r[4]?r[1]:'none'}" stroke="${r[1]}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${r[2]}</svg>`};
-RX.forEach((r,i)=>{const b=document.createElement('button');b.setAttribute('aria-label',`${r[3]} reaction, key ${i+1}`);b.title=`${r[3]} · ${i+1}`;b.innerHTML=rsvg(i,2.2);b.addEventListener('click',e=>{e.stopPropagation();react(i)});rx.appendChild(b)});
-function flyR(i,x,y,s,big){const el=document.createElement('div');el.className='rf';
- el.style.cssText=`left:${x}px;top:${y}px;--s:${s}px;--dx:${((Math.random()-.5)*(big?320:240)).toFixed(0)}px;--dy:${(-(big?innerHeight*.75+Math.random()*innerHeight*.3:260+Math.random()*260)).toFixed(0)}px;--r:${((Math.random()-.5)*60).toFixed(0)}deg;--t:${(big?2.8:2+Math.random()*.8).toFixed(2)}s;border-color:${RX[i][1]}`;
- el.innerHTML=rsvg(i,2.4);$('#rlayer').appendChild(el);el.addEventListener('animationend',()=>el.remove())}
-function react(i){aInit();const b=rx.children[i],r=b.getBoundingClientRect();b.animate([{transform:'scale(1.4)'},{transform:'scale(1)'}],{duration:320,easing:'ease-out'});
- const n=RM?1:5;for(let j=0;j<n;j++)setTimeout(()=>flyR(i,r.left+r.width/2,r.top,46+Math.random()*24),j*70);blip(520+i*90,.26,.03,0,'triangle',null,(520+i*90)*1.5);
- const now=performance.now();rhist[i]=(rhist[i]||[]).filter(x=>now-x<2500);rhist[i].push(now);
- if(rhist[i].length>=6&&!RM){rhist[i]=[];for(let j=0;j<28;j++)setTimeout(()=>flyR(i,Math.random()*innerWidth,innerHeight+30,64+Math.random()*40,1),j*45);SFX.win()}
- if(RX[i][0]==='ask'){const t=$('#rtoast');t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3200)}wake()}
-
 /* ---------- small reactions on the slides: tilt, ripple, quiz, terminal ---------- */
 const TILT='.trio .card,.fact,.op,.bl,.duo .card,.vr,.ck,.mcq,.pl li,.take div,.oidnote';
 let tiltEl=null,rings=[];
@@ -1535,7 +1366,7 @@ addEventListener('keydown',e=>{if(!started){if(['Enter',' ','ArrowRight','PageDo
  if((e.key==='Enter'||e.key===' ')&&e.target.closest&&e.target.closest('button,.qc'))return;
  if(['ArrowRight','ArrowDown',' ','PageDown','Enter'].includes(e.key)){e.preventDefault();next()}
  else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(e.key)){e.preventDefault();prev()}
- else if(e.key==='n'||e.key==='N')toggleNotes();else if(e.key==='f'||e.key==='F')full();else if(e.key==='m'||e.key==='M'){aInit();setSound(!S.on)}else if(e.key.length===1&&e.key>='1'&&e.key<='6')react(+e.key-1);else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);wake()});
+ else if(e.key==='n'||e.key==='N')toggleNotes();else if(e.key==='f'||e.key==='F')full();else if(e.key==='m'||e.key==='M'){aInit();setSound(!S.on)}else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);wake()});
 $('#bNext').onclick=e=>{e.stopPropagation();next()};$('#bPrev').onclick=e=>{e.stopPropagation();prev()};
 $('#bSnd').onclick=e=>{e.stopPropagation();aInit();setSound(!S.on)};
 $('#bNotes').onclick=e=>{e.stopPropagation();toggleNotes()};$('#bFull').onclick=e=>{e.stopPropagation();full()};
@@ -1543,7 +1374,7 @@ $$('.qc').forEach(c=>{c.addEventListener('click',e=>{e.stopPropagation();c.class
 let sx=null;
 addEventListener('pointerdown',e=>{if(!started||e.target.closest('#ui,#notes,.qc,.nonav,#react,button,'+TILT))return;sx=e.clientX});
 addEventListener('pointerup',e=>{if(sx===null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>50){dx<0?next():prev()}else{e.clientX>innerWidth*.3?next():prev()}wake()});
-let idle;function wake(){ui.classList.remove('idle');rx.classList.remove('idle');clearTimeout(idle);idle=setTimeout(()=>{ui.classList.add('idle');rx.classList.add('idle')},2600)}
+let idle;function wake(){ui.classList.remove('idle');clearTimeout(idle);idle=setTimeout(()=>ui.classList.add('idle'),2600)}
 addEventListener('pointermove',wake);
 
 /* ---------- fit stage ---------- */
