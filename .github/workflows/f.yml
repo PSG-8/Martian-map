@@ -6,6 +6,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install -q "rembg[cpu]" pillow
       - run: |
-          mkdir pub; while read n u; do [ -n "$n" ] && curl -sfL -o "pub/$n" "$u" && echo "ok $n" || echo "FAIL $n"; done < urls.txt; ls -la pub
-          cd pub && git init -q -b cast-assets && git config user.email a@b.c && git config user.name actions && git add . && git commit -qm assets && git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" cast-assets
+          mkdir pub; while read n u; do [ -n "$n" ] && curl -sfL -o "pub/$n" "$u" && echo "ok $n" || echo "FAIL $n"; done < urls.txt
+          for f in img_*.png; do rembg i -m isnet-general-use "$f" "pub/cut_${f#img_}"; echo cut $f; done
+          ls -la pub
+          cd pub && git init -q -b cast-assets2 && git config user.email a@b.c && git config user.name actions && git add . && git commit -qm assets && git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" cast-assets2

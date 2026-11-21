@@ -1,11 +1,3 @@
-img_hamad.png https://www.figma.com/api/mcp/asset/26de0886-ca6f-4da8-91a1-a5362cdce8b1.png
-img_salim.png https://www.figma.com/api/mcp/asset/db70ff11-97e2-4095-a3bf-3bed9770a454.png
-img_home.png https://www.figma.com/api/mcp/asset/6ca36ee7-c200-4754-bd65-20480851509f.png
-img_nurses.png https://www.figma.com/api/mcp/asset/4c0431d9-25be-4114-a299-5f3d4c1e20c8.png
-img_courier.png https://www.figma.com/api/mcp/asset/1ff2b9e8-e360-456c-a516-378737b9b768.png
-img_clinic.png https://www.figma.com/api/mcp/asset/3351adbd-d046-4e47-98d3-046c21da75c6.png
-img_flat.png https://www.figma.com/api/mcp/asset/891bfc8c-a235-47b2-bbc2-eb7df7305e08.png
-img_intro.png https://www.figma.com/api/mcp/asset/047d32cd-b13c-4be7-aa46-63473e60221a.png
-img_all.png https://www.figma.com/api/mcp/asset/b29b9e47-350b-4eea-b53d-d3b343661c96.png
-clip_village.mp4 https://heygen-product.s3.amazonaws.com/video/model_watermark/d20d47eac91f42b6a4c5aa1add01ef29-marked.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA3FLD4S3AU34WOEMJ%2F20261121%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20261121T192430Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=35f0a6728a021a93e5b15a8d8b20ae1e967513a26835dab1176513ba1b0190a6
-vo_male.wav https://resource2.heygen.ai/text_to_speech/ec9fd7d978f44532af3a0de45c03c25e/eae6fca42aae4b78b992533e96ab43c9/id=b9009e48f7e34c4388c0374b984976e8.wav
+clip_intro.mp4 https://heygen-product.s3.amazonaws.com/video/model_watermark/a42e507153194f268279bb517bbe4f63-marked.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA3FLD4S3AU34WOEMJ%2F20261121%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20261121T192723Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=822c4c02eab4dc308b40234144256f345bfba8dbad7791bfd4e95787f02a9aa6
+clip_office.mp4 https://heygen-product.s3.amazonaws.com/video/model_watermark/04689cab463c4d268cd94eeda4c34163-marked.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA3FLD4S3AU34WOEMJ%2F20261121%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20261121T192724Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a8a02836ac3e0729bded078d4e6a08addcf3f59b0d8595fad6a87856ef9c04b5
+music.wav https://heygen-product.s3-accelerate.amazonaws.com/astral_generated_music/d0e756d581b44a83a025a52ff58b549b.wav?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA3FLD4S3AU34WOEMJ%2F20261121%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20261121T152448Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=5eda0a2378d9b5fb129e93a94f11465dc4f47335234b12bcb67822c7aa51fc10
