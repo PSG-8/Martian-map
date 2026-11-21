@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iLab@home · Questions for nurses &amp; experts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F8FD;--navy:#0D1628;--ink:#1E2A44;--mut:#3A4862;--blue:#2563EB;--sky:#60A5FA;--teal:#14B8A6;--orange:#F97316;--red:#EF4444;--pink:#E8466F;--purple:#7A5AF8;--amber:#F5B300;--line:#DCE5F3}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);overflow:hidden;font-family:Inter,sans-serif;color:var(--ink);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+::selection{background:transparent}
+#bgc{position:fixed;inset:0;z-index:0}
+#stage{position:fixed;left:50%;top:50%;width:1600px;height:900px;transform-origin:center;z-index:1}
+.slide{position:absolute;inset:0;padding:70px 90px;opacity:0;pointer-events:none;transform:translateX(70px) scale(.97);transition:opacity .9s cubic-bezier(.65,0,.35,1),transform 1s cubic-bezier(.65,0,.35,1),filter .9s}
+.slide.from-left{transform:translateX(-70px) scale(.97)}
+.slide.on{opacity:1;pointer-events:auto;transform:none}
+.slide.out{opacity:0;transform:translateX(-70px) scale(.97);filter:blur(4px)}.slide.out.back{transform:translateX(70px) scale(.97)}
+.in{opacity:0;transform:translateY(24px);transition:opacity .8s cubic-bezier(.65,0,.35,1),transform .9s cubic-bezier(.22,1,.36,1)}
+.slide.on .in{opacity:1;transform:none;transition-delay:var(--d,0s)}
+h1,h2,.ttl{font-family:Poppins,sans-serif;color:var(--navy);letter-spacing:-.025em}
+.wm{font-family:Poppins;font-weight:800;letter-spacing:-.03em;white-space:nowrap}.wm i{font-style:normal;color:var(--blue)}
+/* cover */
+#cover{display:flex;flex-direction:column;justify-content:center}
+#cover .eb{display:inline-flex;align-self:flex-start;align-items:center;gap:10px;font:700 22px Inter;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--blue);padding:12px 22px;border-radius:14px}
+#cover h1{font-size:100px;max-width:880px;line-height:1;margin:28px 0 18px}
+#cover h1 span{color:var(--blue)}
+#cover p{font-size:32px;color:var(--mut);max-width:780px;line-height:1.4}
+#cover .count{position:absolute;right:70px;top:50%;transform:translateY(-50%);width:480px;height:480px}
+.qbig{font:800 380px/1 Poppins;fill:none;stroke:var(--blue);stroke-width:6;stroke-dasharray:2400;stroke-dashoffset:2400}
+#cover.on .qbig{animation:draw 2.6s .3s forwards cubic-bezier(.6,0,.2,1)}
+@keyframes draw{to{stroke-dashoffset:0}}
+.orb{animation:orb 6s ease-in-out infinite}.orb2{animation-delay:-2s}.orb3{animation-delay:-4s}
+@keyframes orb{50%{transform:translateY(-16px)}}
+/* question slide */
+.q{display:grid;grid-template-columns:1fr 640px;gap:60px;align-items:center;height:100%}
+.qn{display:flex;align-items:center;gap:18px}
+.qn b{width:92px;height:92px;border-radius:28px;display:grid;place-items:center;font:800 46px Poppins;color:#fff;background:var(--c);box-shadow:0 18px 40px color-mix(in srgb,var(--c) 40%,transparent)}
+.qn span{font:700 22px Inter;letter-spacing:.1em;text-transform:uppercase;color:var(--c)}
+.q h2{font-size:62px;line-height:1.1;margin:30px 0 26px}
+.q h2 em{font-style:normal;color:var(--c)}
+.tags{display:flex;flex-wrap:wrap;gap:12px}
+.tag{font:600 23px Inter;padding:12px 20px;border-radius:999px;background:#fff;color:var(--navy);box-shadow:0 8px 24px rgba(13,22,40,.08);display:inline-flex;align-items:center;gap:10px}
+.tag i{width:12px;height:12px;border-radius:50%;background:var(--c)}
+.art{width:640px;height:640px;position:relative}
+.art .card{position:absolute;inset:0;border-radius:44px;background:#fff;box-shadow:0 1px 0 var(--line),0 30px 80px rgba(13,22,40,.1)}
+.art svg{position:absolute;inset:0;width:100%;height:100%}
+.lbl{font:700 24px Inter;fill:var(--navy)}.lbs{font:600 19px Inter;fill:var(--mut)}
+/* animation helpers (run only on the visible slide) */
+.slide .an{animation-play-state:paused}.slide.on .an{animation-play-state:running}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 1.6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sweep{transform-box:view-box;transform-origin:320px 330px;animation:sweep 4s cubic-bezier(.6,0,.4,1) infinite}
+@keyframes sweep{0%{transform:rotate(-90deg)}70%,100%{transform:rotate(180deg)}}
+.dash{stroke-dasharray:14 12;animation:dash 1.2s linear infinite}@keyframes dash{to{stroke-dashoffset:-26}}
+.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2s ease-in-out infinite}@keyframes pulse{50%{transform:scale(1.08)}}
+.fill{transform-box:fill-box;transform-origin:bottom;animation:fill 3.4s cubic-bezier(.6,0,.3,1) infinite}@keyframes fill{0%{transform:scaleY(.15)}60%,100%{transform:scaleY(1)}}
+.pop{opacity:0;transform-box:fill-box;transform-origin:center;animation:pop .6s var(--t) cubic-bezier(.2,1.6,.4,1) forwards}@keyframes pop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+.slide:not(.on) .pop{animation:none;opacity:0}
+.drive{animation:drive 5s ease-in-out infinite}@keyframes drive{0%{transform:translateX(0)}50%{transform:translateX(250px)}100%{transform:translateX(0)}}
+.check{stroke-dasharray:40;stroke-dashoffset:40;animation:ck .5s var(--t) forwards}@keyframes ck{to{stroke-dashoffset:0}}
+.slide:not(.on) .check{animation:none}
+.stamp{opacity:0;transform-box:fill-box;transform-origin:center;animation:stamp .7s 1.2s cubic-bezier(.2,1.4,.4,1) forwards}@keyframes stamp{from{opacity:0;transform:scale(2) rotate(-25deg)}to{opacity:1;transform:rotate(-12deg)}}
+.slide:not(.on) .stamp{animation:none}
+.walker{animation:walker 6s ease-in-out infinite}@keyframes walker{0%,10%{transform:translateX(0)}55%,100%{transform:translateX(300px)}}
+.qm{animation:qm 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}@keyframes qm{50%{transform:translateY(-10px) rotate(8deg)}}
+/* overview */
+#all h2{font-size:58px;margin:10px 0 30px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.gq{background:#fff;border-radius:24px;padding:22px 22px 24px;box-shadow:0 1px 0 var(--line),0 16px 40px rgba(13,22,40,.07);border-top:6px solid var(--c);cursor:pointer;transition:transform .25s}
+.gq:hover{transform:translateY(-4px)}
+.gq b{font:800 30px Poppins;color:var(--c)}.gq p{font:600 22px/1.32 Inter;color:var(--navy);margin-top:8px}
+.gq.end{background:linear-gradient(150deg,#0b2350,#2563eb);color:#fff;border-top-color:#ffd666;display:flex;flex-direction:column;justify-content:center}
+.gq.end p{color:#fff;font-size:26px}
+/* chrome */
+#bar{position:fixed;left:0;top:0;height:5px;background:var(--blue);z-index:5;transition:width .6s}
+#ctl{position:fixed;right:18px;bottom:16px;z-index:5;display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.9);padding:8px 10px;border-radius:999px;box-shadow:0 8px 30px rgba(13,22,40,.12);transition:opacity .5s;font:700 15px Inter;color:var(--navy)}
+#ctl button{width:40px;height:40px;border-radius:50%;border:0;background:#eef3fb;color:var(--navy);cursor:pointer;font:700 18px Inter}
+body.idle #ctl{opacity:0}
+#brand{position:fixed;left:22px;bottom:18px;z-index:5;font-size:20px}
+#rot{display:none;position:fixed;inset:0;z-index:9;background:#0b2350;color:#fff;align-items:center;justify-content:center;text-align:center;font:600 22px Inter;padding:30px}
+@media (orientation:portrait) and (max-width:700px){#rot.show{display:flex}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.pop,.stamp{opacity:1}.check{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<canvas id="bgc"></canvas>
+<div id="bar"></div>
+<div id="stage">
+
+<section class="slide on" id="cover">
+  <span class="eb in" style="--d:.1s">iLab@home · Questions for nurses &amp; experts</span>
+  <h1 class="in" style="--d:.25s">Seven questions,<br>we need <span>your answers</span></h1>
+  <p class="in" style="--d:.4s">We are asking nurses and healthcare professionals. Your answers will shape how <span class="wm">i<i>Lab</i>@home</span> collects, transports and processes home blood samples, safely and legally.</p>
+  <svg class="count" viewBox="0 0 560 560">
+    <circle class="orb an" cx="90" cy="110" r="26" fill="#E8466F" opacity=".85"/><circle class="orb orb2 an" cx="470" cy="90" r="18" fill="#14B8A6"/><circle class="orb orb3 an" cx="480" cy="460" r="30" fill="#F5B300" opacity=".9"/>
+    <circle cx="280" cy="280" r="230" fill="#fff" stroke="#DCE5F3" stroke-width="3"/>
+    <text class="qbig" x="280" y="410" text-anchor="middle">?</text>
+    <text x="280" y="470" text-anchor="middle" style="font:800 46px Poppins;fill:#0D1628">7</text>
+  </svg>
+</section>
+
+<!-- Q1 time -->
+<section class="slide" style="--c:#2563EB"><div class="q">
+  <div><div class="qn in" style="--d:.1s"><b>1</b><span>Timing</span></div>
+    <h2 class="in" style="--d:.2s">What is the <em>maximum safe time</em> between blood collection and laboratory processing?</h2>
+    <div class="tags in" style="--d:.35s"><span class="tag"><i></i>Sample stability</span><span class="tag"><i></i>Per test type</span><span class="tag"><i></i>Route planning</span></div></div>
+  <div class="art in" style="--d:.3s"><div class="card"></div><svg viewBox="0 0 640 640">
+    <circle cx="320" cy="330" r="190" fill="#EEF4FF"/><circle cx="320" cy="330" r="190" fill="none" stroke="#C8D8F8" stroke-width="10"/>
+    <path d="M320 140 A190 190 0 0 1 510 330" fill="none" stroke="#2563EB" stroke-width="14" stroke-linecap="round"/>
+    <path d="M510 330 A190 190 0 0 1 320 520" fill="none" stroke="#F5B300" stroke-width="14" stroke-linecap="round"/>
+    <path d="M320 520 A190 190 0 0 1 152 418" fill="none" stroke="#EF4444" stroke-width="14" stroke-linecap="round"/>
+    <g class="sweep an"><line x1="320" y1="330" x2="320" y2="185" stroke="#0D1628" stroke-width="10" stroke-linecap="round"/></g>
+    <circle cx="320" cy="330" r="16" fill="#0D1628"/>
+    <g transform="translate(70 70)"><rect width="58" height="150" rx="29" fill="#fff" stroke="#0D1628" stroke-width="5"/><rect x="8" y="60" width="42" height="82" rx="21" fill="#E8466F"/><rect x="-4" y="-6" width="66" height="26" rx="8" fill="#7A5AF8"/></g>
+    <g transform="translate(480 470)"><rect width="110" height="80" rx="14" fill="#0D1628"/><rect x="14" y="16" width="82" height="10" rx="5" fill="#60A5FA"/><rect x="14" y="36" width="56" height="10" rx="5" fill="#60A5FA" opacity=".6"/><text x="55" y="110" text-anchor="middle" class="lbs">Lab</text></g>
+    <text x="520" y="250" class="lbl" fill="#2563EB">Safe</text><text x="545" y="400" class="lbl">Check</text><text x="120" y="500" class="lbl">Too late</text>
+  </svg></div></div></section>
+
+<!-- Q2 temperature -->
+<section class="slide" style="--c:#14B8A6"><div class="q">
+  <div><div class="qn in" style="--d:.1s"><b>2</b><span>Cold chain</span></div>
+    <h2 class="in" style="--d:.2s">What <em>temperature and preservation conditions</em> are required for different samples?</h2>
+    <div class="tags in" style="--d:.35s"><span class="tag"><i></i>Room temperature</span><span class="tag"><i></i>Chilled 2–8 °C</span><span class="tag"><i></i>Frozen</span><span class="tag"><i></i>Light protection</span></div></div>
+  <div class="art in" style="--d:.3s"><div class="card"></div><svg viewBox="0 0 640 640">
+    <g transform="translate(110 90)"><rect x="0" y="0" width="70" height="380" rx="35" fill="#EAF7F5" stroke="#0D1628" stroke-width="5"/><circle cx="35" cy="430" r="58" fill="#14B8A6" stroke="#0D1628" stroke-width="5"/>
+      <rect class="fill an" x="18" y="60" width="34" height="340" rx="17" fill="#14B8A6"/>
+      <g stroke="#0D1628" stroke-width="4"><line x1="70" y1="90" x2="96" y2="90"/><line x1="70" y1="190" x2="96" y2="190"/><line x1="70" y1="290" x2="96" y2="290"/></g></g>
+    <g transform="translate(250 110)">
+      <rect width="300" height="96" rx="22" fill="#FFF4E4"/><text x="26" y="44" class="lbl">Room</text><text x="26" y="76" class="lbs">short time only</text><circle cx="262" cy="48" r="22" fill="#F97316"/>
+      <rect y="130" width="300" height="96" rx="22" fill="#E3F7F4"/><text x="26" y="174" class="lbl">Chilled 2–8 °C</text><text x="26" y="206" class="lbs">cold box with a logger</text><circle class="pulse an" cx="262" cy="178" r="22" fill="#14B8A6"/>
+      <rect y="260" width="300" height="96" rx="22" fill="#EAF2FF"/><text x="26" y="304" class="lbl">Frozen</text><text x="26" y="336" class="lbs">special tests only</text>
+      <g transform="translate(262 308)" stroke="#2563EB" stroke-width="5" stroke-linecap="round"><line x1="0" y1="-22" x2="0" y2="22"/><line x1="-19" y1="-11" x2="19" y2="11"/><line x1="-19" y1="11" x2="19" y2="-11"/></g></g>
+    <g transform="translate(290 500)"><rect width="230" height="80" rx="18" fill="#2563EB"/><rect x="-6" y="-14" width="242" height="22" rx="10" fill="#fff" stroke="#2563EB" stroke-width="4"/><rect x="70" y="26" width="90" height="34" rx="8" fill="#0D1628"/><text x="115" y="51" text-anchor="middle" style="font:700 20px Inter;fill:#5EEAD4">4.2°</text></g>
+  </svg></div></div></section>
+
+<!-- Q3 home vs not -->
+<section class="slide" style="--c:#7A5AF8"><div class="q">
+  <div><div class="qn in" style="--d:.1s"><b>3</b><span>Scope</span></div>
+    <h2 class="in" style="--d:.2s">Which tests <em>can be collected at home</em>, and which cannot?</h2>
+    <div class="tags in" style="--d:.35s"><span class="tag"><i></i>Routine blood tests</span><span class="tag"><i></i>Special handling</span><span class="tag"><i></i>Hospital only</span></div></div>
+  <div class="art in" style="--d:.3s"><div class="card"></div><svg viewBox="0 0 640 640">
+    <g transform="translate(60 80)"><rect width="250" height="470" rx="30" fill="#E3F7F4"/>
+      <path d="M125 40 L200 100 V160 H50 V100 Z" fill="#14B8A6"/><rect x="100" y="120" width="50" height="40" rx="6" fill="#fff"/><text x="125" y="210" text-anchor="middle" class="lbl">At home</text>
+      <g class="pop" style="--t:.5s"><rect x="40" y="245" width="170" height="54" rx="27" fill="#fff"/><path class="check" style="--t:.8s" d="M60 272 l12 12 22-24" fill="none" stroke="#14B8A6" stroke-width="6" stroke-linecap="round"/><rect x="108" y="264" width="80" height="14" rx="7" fill="#C9EDE7"/></g>
+      <g class="pop" style="--t:.8s"><rect x="40" y="315" width="170" height="54" rx="27" fill="#fff"/><path class="check" style="--t:1.1s" d="M60 342 l12 12 22-24" fill="none" stroke="#14B8A6" stroke-width="6" stroke-linecap="round"/><rect x="108" y="334" width="70" height="14" rx="7" fill="#C9EDE7"/></g>
+      <g class="pop" style="--t:1.1s"><rect x="40" y="385" width="170" height="54" rx="27" fill="#fff"/><path class="check" style="--t:1.4s" d="M60 412 l12 12 22-24" fill="none" stroke="#14B8A6" stroke-width="6" stroke-linecap="round"/><rect x="108" y="404" width="86" height="14" rx="7" fill="#C9EDE7"/></g></g>
+    <g transform="translate(330 80)"><rect width="250" height="470" rx="30" fill="#FDECEC"/>
+      <rect x="55" y="45" width="140" height="115" rx="10" fill="#EF4444"/><rect x="108" y="70" width="34" height="70" rx="6" fill="#fff"/><rect x="90" y="88" width="70" height="34" rx="6" fill="#fff"/><text x="125" y="210" text-anchor="middle" class="lbl">Facility only</text>
+      <g class="pop" style="--t:1.3s"><rect x="40" y="245" width="170" height="54" rx="27" fill="#fff"/><path d="M62 260 l22 24 M84 260 l-22 24" stroke="#EF4444" stroke-width="6" stroke-linecap="round"/><rect x="108" y="264" width="80" height="14" rx="7" fill="#F8CACA"/></g>
+      <g class="pop" style="--t:1.6s"><rect x="40" y="315" width="170" height="54" rx="27" fill="#fff"/><path d="M62 330 l22 24 M84 330 l-22 24" stroke="#EF4444" stroke-width="6" stroke-linecap="round"/><rect x="108" y="334" width="66" height="14" rx="7" fill="#F8CACA"/></g>
+      <g class="pop" style="--t:1.9s"><rect x="40" y="385" width="170" height="54" rx="27" fill="#fff"/><text x="125" y="420" text-anchor="middle" style="font:800 30px Poppins;fill:#7A5AF8">?</text></g></g>
+  </svg></div></div></section>
+
+<!-- Q4 centrifugation -->
+<section class="slide" style="--c:#F97316"><div class="q">
+  <div><div class="qn in" style="--d:.1s"><b>4</b><span>Processing</span></div>
+    <h2 class="in" style="--d:.2s">Can blood samples be <em>transported without centrifugation</em>?</h2>
+    <div class="tags in" style="--d:.35s"><span class="tag"><i></i>Serum &amp; plasma</span><span class="tag"><i></i>Clotting time</span><span class="tag"><i></i>Spin before or after?</span></div></div>
+  <div class="art in" style="--d:.3s"><div class="card"></div><svg viewBox="0 0 640 640">
+    <g transform="translate(320 250)"><circle r="170" fill="#FFF1E6"/><circle r="150" fill="#fff" stroke="#0D1628" stroke-width="6"/>
+      <g class="spin an"><g>
+        <rect x="-15" y="-130" width="30" height="90" rx="15" fill="#E8466F" stroke="#0D1628" stroke-width="4"/>
+        <rect x="-15" y="40" width="30" height="90" rx="15" fill="#E8466F" stroke="#0D1628" stroke-width="4"/>
+        <rect x="40" y="-15" width="90" height="30" rx="15" fill="#F5B300" stroke="#0D1628" stroke-width="4"/>
+        <rect x="-130" y="-15" width="90" height="30" rx="15" fill="#F5B300" stroke="#0D1628" stroke-width="4"/></g></g>
+      <circle r="22" fill="#0D1628"/></g>
+    <g transform="translate(60 490)"><rect width="520" height="110" rx="26" fill="#EEF3FB"/>
+      <g class="drive an"><rect x="20" y="22" width="150" height="62" rx="14" fill="#13254B"/><rect x="128" y="30" width="30" height="24" rx="5" fill="#9CC7FF"/><circle cx="55" cy="90" r="14" fill="#0D1628"/><circle cx="135" cy="90" r="14" fill="#0D1628"/></g>
+      <text x="0" y="-18" class="lbl" style="fill:#F97316">Spin first, or ship whole blood?</text></g>
+  </svg></div></div></section>
+
+<!-- Q5 licensing -->
+<section class="slide" style="--c:#0F766E"><div class="q">
+  <div><div class="qn in" style="--d:.1s"><b>5</b><span>Regulation</span></div>
+    <h2 class="in" style="--d:.2s">What are the <em>licensing requirements</em> for home blood collection in Oman?</h2>
+    <div class="tags in" style="--d:.35s"><span class="tag"><i></i>Ministry of Health</span><span class="tag"><i></i>Service licence</span><span class="tag"><i></i>Partner laboratory</span></div></div>
+  <div class="art in" style="--d:.3s"><div class="card"></div><svg viewBox="0 0 640 640">
+    <g transform="translate(130 70)"><rect width="380" height="480" rx="26" fill="#fff" stroke="#0D1628" stroke-width="5"/>
+      <rect x="40" y="46" width="300" height="22" rx="11" fill="#0F766E"/><rect x="40" y="96" width="240" height="14" rx="7" fill="#C9E4E0"/><rect x="40" y="128" width="280" height="14" rx="7" fill="#C9E4E0"/><rect x="40" y="160" width="200" height="14" rx="7" fill="#C9E4E0"/>
+      <rect x="40" y="210" width="300" height="14" rx="7" fill="#E5ECF6"/><rect x="40" y="242" width="260" height="14" rx="7" fill="#E5ECF6"/><rect x="40" y="274" width="280" height="14" rx="7" fill="#E5ECF6"/>
+      <line x1="40" y1="420" x2="180" y2="420" stroke="#0D1628" stroke-width="3"/><path d="M50 410 q20 -30 40 0 t40 0 t30 -10" fill="none" stroke="#2563EB" stroke-width="4"/>
+      <g class="stamp"><circle cx="280" cy="390" r="66" fill="none" stroke="#EF4444" stroke-width="7"/><circle cx="280" cy="390" r="52" fill="none" stroke="#EF4444" stroke-width="3"/><text x="280" y="398" text-anchor="middle" style="font:800 24px Poppins;fill:#EF4444">LICENSED</text></g></g>
+    <g class="qm an" transform="translate(520 120)"><circle r="42" fill="#0F766E"/><text y="16" text-anchor="middle" style="font:800 48px Poppins;fill:#fff">?</text></g>
+  </svg></div></div></section>
+
+<!-- Q6 freelance nurses -->
+<section class="slide" style="--c:#E8466F"><div class="q">
+  <div><div class="qn in" style="--d:.1s"><b>6</b><span>Workforce</span></div>
+    <h2 class="in" style="--d:.2s">Can <em>licensed freelance nurses</em> collect samples outside healthcare facilities?</h2>
+    <div class="tags in" style="--d:.35s"><span class="tag"><i></i>Scope of practice</span><span class="tag"><i></i>Insurance</span><span class="tag"><i></i>Supervision</span></div></div>
+  <div class="art in" style="--d:.3s"><div class="card"></div><svg viewBox="0 0 640 640">
+    <line x1="60" y1="470" x2="580" y2="470" stroke="#DCE5F3" stroke-width="6"/>
+    <line class="dash an" x1="170" y1="440" x2="470" y2="440" stroke="#E8466F" stroke-width="5"/>
+    <g transform="translate(60 250)"><rect width="140" height="220" rx="10" fill="#EAF2FF" stroke="#0D1628" stroke-width="4"/><rect x="50" y="30" width="40" height="40" rx="6" fill="#EF4444"/><rect x="64" y="22" width="12" height="56" fill="#EF4444"/><rect x="42" y="44" width="56" height="12" fill="#EF4444"/>
+      <rect x="20" y="100" width="36" height="36" rx="4" fill="#9CC7FF"/><rect x="84" y="100" width="36" height="36" rx="4" fill="#9CC7FF"/><rect x="50" y="160" width="40" height="60" rx="4" fill="#0D1628"/></g>
+    <g transform="translate(440 300)"><path d="M70 0 L150 64 V170 H-10 V64 Z" fill="#FFF4E4" stroke="#0D1628" stroke-width="4"/><rect x="50" y="100" width="40" height="70" rx="4" fill="#7A4A26"/></g>
+    <g class="walker an"><g transform="translate(190 300)">
+      <circle cx="30" cy="22" r="22" fill="#C68E62"/><path d="M8 18 q22 -34 44 0 v10 q-22 -12 -44 0z" fill="#13254B"/>
+      <rect x="6" y="46" width="48" height="74" rx="18" fill="#13254B"/><rect x="12" y="116" width="14" height="50" rx="7" fill="#13254B"/><rect x="34" y="116" width="14" height="50" rx="7" fill="#13254B"/>
+      <rect x="44" y="80" width="36" height="28" rx="6" fill="#2563EB"/><rect x="56" y="86" width="12" height="16" rx="2" fill="#fff"/></g></g>
+    <g class="qm an" transform="translate(330 220)"><circle r="40" fill="#E8466F"/><text y="16" text-anchor="middle" style="font:800 46px Poppins;fill:#fff">?</text></g>
+  </svg></div></div></section>
+
+<!-- Q7 SOPs -->
+<section class="slide" style="--c:#2563EB"><div class="q">
+  <div><div class="qn in" style="--d:.1s"><b>7</b><span>Protocols</span></div>
+    <h2 class="in" style="--d:.2s">What are the <em>technical SOPs and clinical protocols</em> for blood sample collection?</h2>
+    <div class="tags in" style="--d:.35s"><span class="tag"><i></i>Patient ID</span><span class="tag"><i></i>Order of draw</span><span class="tag"><i></i>Labelling</span><span class="tag"><i></i>Safe disposal</span></div></div>
+  <div class="art in" style="--d:.3s"><div class="card"></div><svg viewBox="0 0 640 640">
+    <g transform="translate(150 60)"><rect width="340" height="500" rx="28" fill="#fff" stroke="#0D1628" stroke-width="5"/><rect x="110" y="-18" width="120" height="44" rx="12" fill="#2563EB"/>
+      <g transform="translate(36 80)">
+        <rect width="40" height="40" rx="10" fill="#EAF2FF" stroke="#2563EB" stroke-width="3"/><path class="check" style="--t:.5s" d="M9 21 l8 8 15-17" fill="none" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/><text x="60" y="28" class="lbl">Verify patient ID</text>
+        <g transform="translate(0 76)"><rect width="40" height="40" rx="10" fill="#EAF2FF" stroke="#2563EB" stroke-width="3"/><path class="check" style="--t:.9s" d="M9 21 l8 8 15-17" fill="none" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/><text x="60" y="28" class="lbl">Hand hygiene</text></g>
+        <g transform="translate(0 152)"><rect width="40" height="40" rx="10" fill="#EAF2FF" stroke="#2563EB" stroke-width="3"/><path class="check" style="--t:1.3s" d="M9 21 l8 8 15-17" fill="none" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/><text x="60" y="28" class="lbl">Order of draw</text></g>
+        <g transform="translate(0 228)"><rect width="40" height="40" rx="10" fill="#EAF2FF" stroke="#2563EB" stroke-width="3"/><path class="check" style="--t:1.7s" d="M9 21 l8 8 15-17" fill="none" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/><text x="60" y="28" class="lbl">Label at bedside</text></g>
+        <g transform="translate(0 304)"><rect width="40" height="40" rx="10" fill="#EAF2FF" stroke="#2563EB" stroke-width="3"/><path class="check" style="--t:2.1s" d="M9 21 l8 8 15-17" fill="none" stroke="#2563EB" stroke-width="5" stroke-linecap="round"/><text x="60" y="28" class="lbl">Sharps disposal</text></g>
+      </g></g>
+    <g transform="translate(470 420) rotate(-30)"><rect width="22" height="120" rx="6" fill="#fff" stroke="#0D1628" stroke-width="4"/><rect x="4" y="50" width="14" height="64" rx="4" fill="#E8466F"/><rect x="-6" y="-14" width="34" height="20" rx="6" fill="#7A5AF8"/></g>
+  </svg></div></div></section>
+
+<section class="slide" id="all">
+  <span class="in" style="--d:.05s;font:700 22px Inter;letter-spacing:.1em;text-transform:uppercase;color:var(--blue)">Your answers</span>
+  <h2 class="in" style="--d:.12s">Seven questions, we would love your answers</h2>
+  <div class="grid">
+    <div class="gq in" style="--c:#2563EB;--d:.2s" data-go="1"><b>01</b><p>Maximum safe time from collection to processing</p></div>
+    <div class="gq in" style="--c:#14B8A6;--d:.26s" data-go="2"><b>02</b><p>Temperature &amp; preservation for each sample</p></div>
+    <div class="gq in" style="--c:#7A5AF8;--d:.32s" data-go="3"><b>03</b><p>Which tests can, and cannot, be done at home</p></div>
+    <div class="gq in" style="--c:#F97316;--d:.38s" data-go="4"><b>04</b><p>Transport without centrifugation</p></div>
+    <div class="gq in" style="--c:#0F766E;--d:.44s" data-go="5"><b>05</b><p>Licensing for home collection in Oman</p></div>
+    <div class="gq in" style="--c:#E8466F;--d:.5s" data-go="6"><b>06</b><p>Freelance licensed nurses outside facilities</p></div>
+    <div class="gq in" style="--c:#2563EB;--d:.56s" data-go="7"><b>07</b><p>Technical SOPs &amp; clinical protocols</p></div>
+    <div class="gq end in" style="--d:.62s"><span class="wm" style="font-size:40px;color:#fff">i<i style="color:#9cc7ff">Lab</i>@home</span><p>Thank you for sharing your expertise.</p></div>
+  </div>
+</section>
+</div>
+<div id="brand" class="wm">i<i>Lab</i>@home</div>
+<div id="ctl"><button id="pv" aria-label="Previous">‹</button><span id="no">1 / 9</span><button id="nx" aria-label="Next">›</button><button id="fs" aria-label="Full screen">⛶</button></div>
+<div id="rot">Turn your phone sideways for the best view</div>
+<script>
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const S = $$('.slide'); let cur = 0;
+function fit(){ const s = Math.min(innerWidth / 1600, innerHeight / 900); $('#stage').style.transform = `translate(-50%,-50%) scale(${s})`; $('#rot').classList.toggle('show', innerHeight > innerWidth); }
+addEventListener('resize', fit); fit();
+function go(i){ i = Math.max(0, Math.min(S.length - 1, i)); if (i === cur) return; const back = i < cur; const a = S[cur], b = S[i];
+  a.classList.remove('on'); a.classList.add('out'); a.classList.toggle('back', back); setTimeout(() => a.classList.remove('out', 'back'), 900);
+  b.classList.remove('out', 'back'); b.classList.toggle('from-left', back); void b.offsetWidth; b.classList.add('on'); b.classList.remove('from-left');
+  // restart one-shot animations on the new slide
+  b.querySelectorAll('.pop,.check,.stamp').forEach(e => { e.style.animation = 'none'; void e.getBBox; requestAnimationFrame(() => e.style.animation = ''); });
+  cur = i; $('#no').textContent = `${i + 1} / ${S.length}`; $('#bar').style.width = (i / (S.length - 1) * 100) + '%'; history.replaceState(null, '', '#' + (i + 1)); }
+const nx = () => go(cur + 1), pv = () => go(cur - 1);
+addEventListener('keydown', e => { if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); nx(); } else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); pv(); } else if (e.key === 'Home') go(0); else if (e.key === 'End') go(S.length - 1); else if (e.key.toLowerCase() === 'f') fsT(); });
+$('#nx').onclick = e => { e.stopPropagation(); nx(); }; $('#pv').onclick = e => { e.stopPropagation(); pv(); };
+const fsT = () => { if (!document.fullscreenElement) (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen || (() => {})).call(document.documentElement); else document.exitFullscreen(); };
+$('#fs').onclick = e => { e.stopPropagation(); fsT(); };
+$$('[data-go]').forEach(g => g.onclick = e => { e.stopPropagation(); go(+g.dataset.go); });
+let x0 = null; addEventListener('touchstart', e => x0 = e.touches[0].clientX, { passive: true });
+addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) dx < 0 ? nx() : pv(); else if (!e.target.closest('#ctl,[data-go]')) nx(); x0 = null; }, { passive: true });
+addEventListener('click', e => { if (matchMedia('(pointer:coarse)').matches) return; if (!e.target.closest('#ctl,[data-go]')) nx(); });
+let idle; const wake = () => { document.body.classList.remove('idle'); clearTimeout(idle); idle = setTimeout(() => document.body.classList.add('idle'), 2500); }; addEventListener('mousemove', wake); wake();
+const h = parseInt(location.hash.slice(1)); if (h > 1) { S[0].classList.remove('on'); cur = h - 1; S[cur].classList.add('on'); $('#no').textContent = `${h} / ${S.length}`; $('#bar').style.width = ((h - 1) / (S.length - 1) * 100) + '%'; }
+// soft living background
+const c = $('#bgc'), g = c.getContext('2d'); let P = [];
+function bgSize(){ c.width = innerWidth * devicePixelRatio; c.height = innerHeight * devicePixelRatio; P = Array.from({ length: 26 }, () => ({ x: Math.random() * c.width, y: Math.random() * c.height, vx: (Math.random() - .5) * .25, vy: (Math.random() - .5) * .25 })); }
+addEventListener('resize', bgSize); bgSize();
+(function tick(){ g.clearRect(0, 0, c.width, c.height); const d = devicePixelRatio;
+  for (const p of P) { p.x += p.vx * d; p.y += p.vy * d; if (p.x < 0 || p.x > c.width) p.vx *= -1; if (p.y < 0 || p.y > c.height) p.vy *= -1; }
+  for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) { const a = P[i], b = P[j], dd = Math.hypot(a.x - b.x, a.y - b.y); if (dd < 220 * d) { g.strokeStyle = `rgba(37,99,235,${.08 * (1 - dd / (220 * d))})`; g.lineWidth = d; g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke(); } }
+  g.fillStyle = 'rgba(37,99,235,.18)'; for (const p of P) { g.beginPath(); g.arc(p.x, p.y, 2.4 * d, 0, 6.3); g.fill(); }
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(tick); })();
+</script>
+</body>
+</html>

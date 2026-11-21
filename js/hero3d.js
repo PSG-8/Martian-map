@@ -318,8 +318,8 @@ export async function filmSetup(canvas, w, h){
   r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap; r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05; r.outputColorSpace = THREE.SRGBColorSpace;
   R.r = r; R.canvas = null; R.env = studioEnv(r); if (!R.texVan) makeTextures(); R.scenes = []; R.fw = w; R.fh = h;
 }
-export function filmRender(i, t, ox = 0, oy = 0){
-  const sc = scene(i); const w = R.fw, h = R.fh; sc.cam.aspect = w / h; sc.cam.fov = 30;
+export function filmRender(i, t, ox = 0, oy = 0, fov = 30){
+  const sc = scene(i); const w = R.fw, h = R.fh; sc.cam.aspect = w / h; sc.cam.fov = fov;
   if (ox || oy) sc.cam.setViewOffset(w, h, -w * ox, -h * oy, w, h); else sc.cam.clearViewOffset(); sc.cam.updateProjectionMatrix();
   sc.update(t, 1 / 30, 'banner'); R.r.render(sc.s, sc.cam);
 }

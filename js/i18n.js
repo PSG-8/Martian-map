@@ -244,7 +244,7 @@ Object.assign(window.I18N.en, {
   vision:'Vision', vision_p:'To become one of Oman’s leading digital platforms for convenient home-based laboratory testing and preventive healthcare.',
   mission:'Mission', mission_p:'To improve access to diagnostic laboratory services by connecting users with qualified healthcare professionals and accredited laboratories through one integrated platform.',
   app_t:'The app', app_f1:'Bilingual: Arabic and English', app_f2:'Same-gender nurse matching', app_f3:'Live tracking of every step', app_f4:'Verified lab reports as PDF', app_f5:'Installs on your phone like an app', app_f6:'Private by design: data shared only with your care team',
-  team_t:'The team', team_p:'iLab@Home is a business concept developed by students in Oman.', supervisor:'Supervisor', member:'Founding team', dev:'Founding team · Platform developer',
+  team_t:'The team', team_p:'iLab@Home is a business concept developed by students in Oman. The platform is designed and built by Bilarab Al Musallami.', supervisor:'Supervisor', member:'Founding team', dev:'Founding team · Platform developer',
   roadmap:'Roadmap', contact_us:'Contact us',
   e_NEED_GENDER:'Please choose a gender.', e_BAD_NURSE:'This nurse is not available for this booking. Please choose another.', e_GENDER_MISMATCH:'Nurse and user must be the same gender.', e_NEED_MESSAGE:'Please write your message.'
 });
@@ -274,12 +274,13 @@ Object.assign(window.I18N.ar, {
   vision:'الرؤية', vision_p:'أن نكون من أبرز المنصات الرقمية في عُمان للفحوصات المخبرية المنزلية والرعاية الوقائية.',
   mission:'الرسالة', mission_p:'تحسين الوصول إلى خدمات التشخيص المخبري بربط المستخدمين بالكوادر الصحية المؤهلة والمختبرات المعتمدة عبر منصة متكاملة.',
   app_t:'التطبيق', app_f1:'ثنائي اللغة: العربية والإنجليزية', app_f2:'مطابقة الممرض حسب الجنس', app_f3:'تتبع مباشر لكل خطوة', app_f4:'تقارير مخبرية معتمدة بصيغة PDF', app_f5:'يُثبَّت على جوالك مثل التطبيقات', app_f6:'خصوصية من الأساس: البيانات لفريق رعايتك فقط',
-  team_t:'الفريق', team_p:'آي لاب@هوم فكرة مشروع طوّرها طلاب من عُمان.', supervisor:'المشرف', member:'الفريق المؤسس', dev:'الفريق المؤسس · مطوّر المنصة',
+  team_t:'الفريق', team_p:'آي لاب@هوم فكرة مشروع طوّرها طلاب من عُمان، والمنصة من تصميم وتطوير بلعرب المسلمي.', supervisor:'المشرف', member:'الفريق المؤسس', dev:'الفريق المؤسس · مطوّر المنصة',
   roadmap:'خارطة الطريق', contact_us:'تواصل معنا',
   e_NEED_GENDER:'يرجى اختيار الجنس.', e_BAD_NURSE:'هذا الممرض غير متاح لهذا الحجز. اختر ممرضاً آخر.', e_GENDER_MISMATCH:'يجب أن يكون الممرض والمستخدم من نفس الجنس.', e_NEED_MESSAGE:'يرجى كتابة رسالتك.'
 });
-I18N.en.foot_team = 'Team: Bilarab bin Suwailam Al Musallami, Jokha Al Rawahi and Ansam Al Noumani · Supervised by Dr. Salim Al Rashdi';
-I18N.ar.foot_team = 'الفريق: بلعرب بن سويلم المسلمي، جوخة الرواحي، أنسام النعماني · بإشراف د. سالم الراشدي';
+I18N.en.foot_team = 'Team: Bilarab bin Suwailam Al Musallami ★ (platform developer), Jokha Al Rawahi, Ansam Al Noumani and Tasnim Al Hasani · Supervised by Dr. Salim Al Rashdi';
+I18N.ar.foot_team = 'الفريق: بلعرب بن سويلم المسلمي ★ (مطوّر المنصة)، جوخة الرواحي، أنسام النعماني، تسنيم الحسني · بإشراف د. سالم الراشدي';
+I18N.en.dev_star = 'Platform developer'; I18N.ar.dev_star = 'مطوّر المنصة';
 I18N.en.try_demo = 'Try a demo account (password Demo@2026)';
 /* v3 strings */
 Object.assign(window.I18N.en, {

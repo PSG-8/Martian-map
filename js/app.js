@@ -335,6 +335,7 @@ async function viewPatientHome(){
       ${active.length ? `<div class="olist">${active.map(o => orderItem(o)).join('')}</div>` : emptyBox(t('none_orders'), `<a class="btn" href="#/app/tests">${t('book_now')}</a>`)}</div>
     ${done.length ? `<div><h3>${t('q_reports')}</h3><div class="olist">${done.slice(0, 3).map(o => orderItem(o)).join('')}</div></div>` : ''}
     <div><div class="row between"><h3>${t('hm_pk')}</h3><a href="#/app/tests?c=packages" class="small b">${t('see_all')}</a></div><div class="hscroll" id="hp">${C.packages.map(p => pkgCard(p, S.cart.packages.includes(p.id))).join('')}</div></div>
+    ${newBlock(true)}${contactCard(false)}
   </div>${cartBar()}`);
   bindHero();
   $$('#hp [data-add]').forEach(b => b.onclick = () => { const [ty, id] = b.dataset.add.split(':'); toggleCart(ty, id); viewPatientHome(); });
@@ -1158,9 +1159,10 @@ async function viewSupport(){
     try { const r = await busy($('button.btn', f), () => API.supportCreate(p)); toast(t('sup_sent',{n:r.id})); viewSupport(); } catch(err) { $('#se').textContent = errMsg(err); } };
 }
 
+const STAR = '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z" fill="currentColor"/></svg>';
 async function viewAbout(){
   await loadCatalog().catch(() => {});
-  const team = [['Bilarab bin Suwailam Al Musallami','بلعرب بن سويلم المسلمي','dev','#2563eb'],['Jokha Al Rawahi','جوخة الرواحي','member','#e8466f'],['Ansam Al Noumani','أنسام النعماني','member','#7a5af8'],['Dr. Salim Al Rashdi','د. سالم الراشدي','supervisor','#0fae9b']];
+  const team = [['Bilarab bin Suwailam Al Musallami','بلعرب بن سويلم المسلمي','dev','#2563eb'],['Jokha Al Rawahi','جوخة الرواحي','member','#e8466f'],['Ansam Al Noumani','أنسام النعماني','member','#7a5af8'],['Tasnim Al Hasani','تسنيم الحسني','member','#14b8a6'],['Dr. Salim Al Rashdi','د. سالم الراشدي','supervisor','#0fae9b']];
   const values = [['heart','v_care'],['shield','v_trust'],['pin','v_access'],['award','v_quality'],['eye','v_transp'],['spark','v_innov']];
   const goals = [['timer','g1'],['users','g2'],['thermo','g3'],['globe','g4']];
   const body = `<div class="stack-lg">
@@ -1176,7 +1178,7 @@ async function viewAbout(){
     <div><div class="section-h" style="margin-bottom:20px"><span class="eyebrow">${t('roles_eyebrow')}</span><h2>${t('roles_t')}</h2></div><div class="roles">${['patient','nurse','courier','lab','company'].map(r => `<div class="role" style="cursor:default">${A.roleIcon(r)}<h4>${t('r_'+r)}</h4><p>${t('r_'+r+'_d')}</p></div>`).join('')}</div></div>
     <div class="card pad-lg"><h3>${t('app_t')}</h3><div class="grid g3" style="margin-top:10px">${[['globe','app_f1'],['users','app_f2'],['pin','app_f3'],['file','app_f4'],['download','app_f5'],['shield','app_f6'],['bot','app_f7'],['idcard','app_f8'],['route','app_f9']].map(([i, k]) => `<div class="row" style="align-items:flex-start"><span class="ic-round sm">${ic(i,20)}</span><span class="b small" style="padding-top:8px">${t(k)}</span></div>`).join('')}</div></div>
     <div><div class="section-h" style="margin-bottom:20px"><span class="eyebrow">${t('m_team')}</span><h2>${t('team_t')}</h2><p>${t('team_p')}</p></div>
-      <div class="grid g4 team">${team.map(([en, ar, role, c]) => `<div class="card center pad-lg"><span class="avatar xl" style="background:${c}">${esc(initials(en.replace('Dr. ', '')))}</span><h4 style="margin-top:12px">${esc(S.lang === 'ar' ? ar : en)}</h4><span class="chip ${role === 'supervisor' ? 'teal' : ''}">${t(role)}</span></div>`).join('')}</div></div>
+      <div class="grid g4 team">${team.map(([en, ar, role, c]) => role === 'dev' ? `<div class="card center pad-lg dev-card"><span class="dev-star">${STAR}</span><span class="avatar xl" style="background:#ffd666;color:#0b2350">${esc(initials(en))}</span><h4 style="margin-top:12px">${esc(S.lang === 'ar' ? ar : en)}</h4><span class="chip dev-chip">★ ${t('dev_star')}</span><div class="xs" style="opacity:.85;margin-top:6px">${t('member')}</div></div>` : `<div class="card center pad-lg"><span class="avatar xl" style="background:${c}">${esc(initials(en.replace('Dr. ', '')))}</span><h4 style="margin-top:12px">${esc(S.lang === 'ar' ? ar : en)}</h4><span class="chip ${role === 'supervisor' ? 'teal' : ''}">${t(role)}</span></div>`).join('')}</div></div>
     <div class="card pad-lg"><h3>${t('roadmap')}</h3>${['ph1','ph2','ph3'].map((p, i) => `<div class="phase"><span class="badge-n" style="${i ? 'background:#c4d4f2' : ''}">${i+1}</span><div><b>${t(p)}</b><div class="muted small">${t(p+'d')}</div></div></div>`).join('')}</div>
     <div class="welcome center" style="padding:30px"><h2>${t('contact_us')}</h2><p style="opacity:.85">${t('sup_p')}</p><div class="row wrap" style="justify-content:center"><a class="btn" style="background:#fff;color:var(--blue)" href="#/support">${ic('chat',18)} ${t('m_support')}</a><a class="btn ghost" style="background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)" href="#/${S.user ? 'app/tests' : 'register'}">${t('book_now')}</a></div></div>
     <p class="xs muted center">${t('foot_note')}</p></div>`;
@@ -1592,7 +1594,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 24;
+const APP_V = 25;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -1887,7 +1889,7 @@ function heroSlides(){
 }
 function heroHtml(compact){
   const sl = heroSlides();
-  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => `<picture class="h3-im ${i ? '' : 'on'}"><source media="(max-width:760px)" srcset="img/hero/h${i}m.jpg"><img src="img/hero/h${i}d.jpg" alt="" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async"></picture>`).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
     <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
       <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
     <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
@@ -1895,6 +1897,7 @@ function heroHtml(compact){
 }
 let H3MOD = null;
 function loadH3(){ if (!H3MOD) H3MOD = import('./hero3d.js?v=' + APP_V).catch(e => { H3MOD = null; throw e; }); return H3MOD; }
+function liteMode(){ try { const nc = navigator.connection || {}; return /lite=1/.test(location.search) || (!/lite=0/.test(location.search) && (matchMedia('(max-width: 1024px)').matches || matchMedia('(pointer: coarse)').matches || (navigator.hardwareConcurrency || 8) < 6 || (navigator.deviceMemory || 8) < 4 || nc.saveData || matchMedia('(prefers-reduced-motion: reduce)').matches)); } catch(e) { return true; } }
 function webglOk(){ try { const c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl'))); } catch(e) { return false; } }
 function bindHero(){
   const root = $('#h3'); if (!root) return; const n = $$('.h3-s', root).length; let i = 0, timer = null, paused = false;
@@ -1902,6 +1905,7 @@ function bindHero(){
   let mod = null;
   const go3 = k => { i = (k + n) % n; root.dataset.i = i; $$('.h3-s', root).forEach((s, j) => { s.classList.toggle('on', j === i); s.setAttribute('aria-hidden', j === i ? 'false' : 'true'); });
     $$('.h3-dots button', root).forEach((d, j) => { d.classList.toggle('on', j === i); d.classList.remove('run'); if (j === i && !reduce && !paused) { void d.offsetWidth; d.classList.add('run'); } });
+    $$('.h3-im', root).forEach((m, j) => m.classList.toggle('on', j === i));
     const cv = $('.h3-c', root); if (mod) { cv.classList.add('swap'); setTimeout(() => { mod.show(i); cv.classList.remove('swap'); }, 220); } };
   const arm = () => { clearInterval(timer); if (reduce) return; timer = setInterval(() => { if (!paused && !document.hidden) go3(i + 1); }, DUR); S.timers.push(timer); };
   $$('.h3-dots button', root).forEach(d => d.onclick = () => { go3(+d.dataset.d); arm(); });
@@ -1912,7 +1916,7 @@ function bindHero(){
   root.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) { const fwd = S.lang === 'ar' ? dx > 0 : dx < 0; go3(i + (fwd ? 1 : -1)); arm(); } x0 = null; }, { passive:true });
   go3(0);
   SPLASH.then(() => { if (!root.isConnected) return; go3(0); arm();
-  if (!webglOk()) { root.classList.add('flat'); return; }
+  if (liteMode() || !webglOk()) { root.classList.add('flat'); return; }
   loadH3().then(m => m.init($('.h3-c', root)).then(() => { mod = m; m.show(i); root.classList.add('g3'); })).catch(e => { console.warn('3D off', e); root.classList.add('flat'); }); });
 }
 function quickTiles(){
@@ -1933,7 +1937,9 @@ async function viewLanding(){
       <div><b>48 h</b><span>${t('band1')}</span></div><div><b>${omr(fee())}</b><span>${t('band2')} (${t('omr')})</span></div>
       <div><b>${C ? C.wilayats.length : 7}</b><span>${t('band3')}</span></div><div><b>${C ? C.tests.length + C.packages.length : 30}</b><span>${t('band4')}</span></div></div></div></section>
   <section class="hm-sec alt"><div class="wrap-w">${soonBlock()}</div></section>
-  <section class="hm-sec"><div class="wrap-w"><div class="hm-app"><div class="grow"><h2>${t('hm_app_t')}</h2><p>${t('hm_app_p')}</p><div class="row wrap" style="gap:10px"><a class="btn" href="#/install">${ic('download',18)} ${t('ins_cta')}</a><a class="btn ghost" href="#/contact">${ic('phone',18)} ${t('m_contact')}</a></div></div><div class="hm-app-qr" id="hqr"></div></div></div></section>
+  <section class="hm-sec alt" id="whatsnew"><div class="wrap-w">${newBlock(true)}</div></section>
+  <section class="hm-sec" id="contact"><div class="wrap-w">${contactCard(false)}</div></section>
+  <section class="hm-sec alt"><div class="wrap-w"><div class="hm-app"><div class="grow"><h2>${t('hm_app_t')}</h2><p>${t('hm_app_p')}</p><div class="row wrap" style="gap:10px"><a class="btn" href="#/install">${ic('download',18)} ${t('ins_cta')}</a><a class="btn ghost" href="#/contact">${ic('phone',18)} ${t('m_contact')}</a></div></div><div class="hm-app-qr" id="hqr"></div></div></div></section>
   ${footer()}${cartBar()}`;
   bindHero();
   const lp = $('#lp'); if (lp) { const rer = () => { lp.innerHTML = C.packages.map(p => pkgCard(p, S.cart.packages.includes(p.id))).join(''); bind(); refreshCartBadges(); const cb = $('.cart-bar'); const nb = cartBar(); if (cb) cb.outerHTML = nb || '<span></span>'; else if (nb) app.insertAdjacentHTML('beforeend', nb); bindGo(); };
@@ -1952,8 +1958,9 @@ async function splashIntro(){
   document.body.appendChild(el); document.body.classList.add('lock');
   let done = false; const end = () => { if (done) return; done = true; el.classList.add('out'); document.body.classList.remove('lock'); setTimeout(() => { el.remove(); release(); }, 450); };
   $('.sp-skip', el).onclick = end; el.addEventListener('click', e => { if (e.target === el) end(); });
-  setTimeout(() => el.classList.add('brand'), 1500); if (!hold) setTimeout(end, 3400);
-  if (!webglOk()) { el.classList.add('flat'); return; }
+  const lite = liteMode() || !webglOk();
+  setTimeout(() => el.classList.add('brand'), lite ? 150 : 1500); if (!hold) setTimeout(end, lite ? 1500 : 3400);
+  if (lite) { el.classList.add('flat'); return; }
   const race = Promise.race([loadH3(), new Promise((_, rj) => setTimeout(() => rj(new Error('slow')), 1800))]);
   race.then(m => { if (!done) { el.classList.add('g3'); return m.splash($('canvas', el), hold ? 1e9 : 3200); } }).catch(() => el.classList.add('flat'));
 }
@@ -1974,11 +1981,25 @@ Object.assign(I18N.ar, { ig_follow:'تابعنا على إنستغرام', ig_sc
   nw17d:'فحوصات وباقات جديدة', nw17dd:'الأطفال، كبار السن +60، الضغط والسكر، و12 فحص إضافي.',
   nw17e:'نسيت كلمة المرور', nw17ed:'استعد كلمة المرور عبر رابط يوصلك على الإيميل.' });
 const MEDIA = 'https://ufykiqxsegyuyablrjsq.supabase.co/storage/v1/object/public/media/';
+const HOW_READY = false;
+const NEWS = [['phone','nw25','v25'],['users','nw25b','v25'],['spark','nw18','v18'],['check','nw17a','v17'],['steth','nw17b','v17'],['hosp','nw17c','v17'],['flask','nw17d','v17'],['lock','nw17e','v17']];
+const VIDS = { how: ['media/iLabAtHome_HowItWorks.mp4', 'media/how_poster.jpg', 'new_vid', 'new_sub', '1:02'], cast: ['media/iLabAtHome_Characters.mp4', 'media/cast_poster.jpg', 'new_vid2', 'new_sub2', '0:55'] };
+function vidCard(k){ const [src, poster, tt, st, dur] = VIDS[k]; return `<div class="card pad-lg vid-card"><div class="row between wrap" style="gap:8px;margin-bottom:12px"><div><h3 style="margin:0">${t(tt)}</h3><div class="small muted">${t(st)}</div></div><span class="chip teal">${ic('play',14)} ${dur}</span></div>
+  <video class="vid" controls playsinline preload="none" poster="${poster}"><source src="${src}" type="video/mp4"></video></div>`; }
+function newBlock(short){
+  const items = short ? NEWS.slice(0, 4) : NEWS;
+  return `<div class="stack-lg"><div class="row between wrap" style="gap:8px"><h2 class="hm-h" style="margin:0">${t('m_new')}</h2>${short ? `<a class="b small" href="#/new">${t('see_all')}</a>` : ''}</div>
+    <div class="grid g2 collapse">${HOW_READY ? vidCard('how') : ''}${vidCard('cast')}</div>
+    <div class="stack" style="--g:10px">${items.map(([i, k, v]) => `<div class="card row" style="gap:14px;align-items:flex-start"><span class="qi" style="color:var(--blue);background:#eaf2ff;flex:none">${ic(i, 24, 2)}</span><div class="grow"><div class="row between"><b>${t(k)}</b><span class="chip gray">${v}</span></div><div class="small muted">${t(k + 'd')}</div></div></div>`).join('')}</div></div>`;
+}
+Object.assign(I18N.en, { new_vid:'How iLab@Home works, and how to sign up', new_sub:'English narration with Arabic subtitles', new_vid2:'Meet the iLab@Home family', new_sub2:'Eleven people, one journey · Arabic subtitles',
+  nw25:'Faster on phones', nw25d:'A lighter home screen that loads instantly on any phone, with the latest news, Instagram code, email and phone right on the home page.',
+  nw25b:'New team member', nw25bd:'Tasnim Al Hasani joins the iLab@Home team.' });
+Object.assign(I18N.ar, { new_vid:'كيف يشتغل آي لاب@هوم، وطريقة التسجيل', new_sub:'بالإنجليزي مع ترجمة عربية', new_vid2:'تعرّف على عائلة آي لاب@هوم', new_sub2:'إحدى عشر شخص ورحلة وحدة · ترجمة عربية',
+  nw25:'أسرع على الجوال', nw25d:'واجهة رئيسية أخف تفتح فوراً على أي جوال، وفيها آخر التحديثات وكود الإنستغرام والبريد والرقم.',
+  nw25b:'عضوة جديدة في الفريق', nw25bd:'انضمت تسنيم الحسني لفريق آي لاب@هوم.' });
 async function viewNew(){
-  const items = [['spark','nw18','v18'],['check','nw17a','v17'],['steth','nw17b','v17'],['hosp','nw17c','v17'],['flask','nw17d','v17'],['lock','nw17e','v17']];
-  const body = `<div class="stack-lg"><div class="card pad-lg vid-card"><div class="row between wrap" style="gap:8px;margin-bottom:12px"><div><h2 style="margin:0">${t('new_vid')}</h2><div class="small muted">${t('new_sub')}</div></div><span class="chip teal">${ic('play',14)} 1:06</span></div>
-      <video class="vid" controls playsinline preload="metadata" poster="${MEDIA}explainer_poster_v2.jpg"><source src="${MEDIA}LabAtHome_Explainer_v2.mp4" type="video/mp4"></video></div>
-    <div><h3>${t('new_t')}</h3><div class="stack" style="--g:10px">${items.map(([i, k, v]) => `<div class="card row" style="gap:14px;align-items:flex-start"><span class="qi" style="color:var(--blue);background:#eaf2ff;flex:none">${ic(i, 24, 2)}</span><div class="grow"><div class="row between"><b>${t(k)}</b><span class="chip gray">${v}</span></div><div class="small muted">${t(k + 'd')}</div></div></div>`).join('')}</div></div></div>`;
+  const body = newBlock(false);
   app.innerHTML = S.user ? shell(t('m_new'), body) : `${topbar()}<section class="section" style="padding-top:28px"><div class="wrap-w" style="max-width:900px"><h1 style="margin-bottom:18px">${t('m_new')}</h1>${body}</div></section>${footer()}`;
   if (!S.user) bindGlobal();
 }

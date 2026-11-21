@@ -134,6 +134,10 @@ body.lang-ar .eb{letter-spacing:0}
 .tm{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:22px;color:#fff;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
 .tm .av{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font:800 22px Poppins;color:#fff}
 .tm b{font:700 23px/1.28 Poppins;letter-spacing:-.01em}
+.tm.dev{background:linear-gradient(160deg,#1d4ed8,#2563eb 60%,#3b82f6);border:2px solid #ffd666;box-shadow:0 18px 50px rgba(37,99,235,.45);position:relative}
+.tm.dev .av{background:#ffd666!important;color:#0b2350;box-shadow:0 0 0 4px rgba(255,214,102,.35)}
+.tm .dv{display:inline-flex;align-items:center;gap:6px;background:#ffd666;color:#0b2350;font:800 17px Poppins;padding:6px 12px;border-radius:999px}
+.tm .st{position:absolute;top:16px;right:16px;color:#ffd666;font-size:30px;line-height:1}
 .adv{margin-top:22px;display:inline-flex;align-items:center;gap:14px;background:#0F766E;color:#fff;border-radius:16px;padding:14px 26px;font:700 25px Inter,"IBM Plex Sans Arabic"}
 .qrs{position:absolute;right:90px;top:120px;display:flex;flex-direction:column;gap:22px}
 .qr{background:#fff;border-radius:26px;padding:16px;display:flex;gap:16px;align-items:center;width:440px;color:var(--navy);text-decoration:none}
@@ -432,7 +436,7 @@ function drawCols(){
 /* ---------- slide 8: team ---------- */
 const TEAM = [['BILARAB SUWAILAM ALMUSALLAMI', '#2563EB'], ['Jokha Suliaman Hamid Al Rawahi', '#E8466F'], ['Ansam Ibrahim Zaher Alnoumani', '#7A5AF8'], ['TASNIM SALIM HAMED AL HASANI', '#14B8A6']];
 const ini = n => n.split(/\s+/).filter(w => w.length > 2 || /^Al/i.test(w)).map(w => w[0]).filter(Boolean).slice(0, 1).join('') + n.split(/\s+/).slice(-1)[0].replace(/^Al-?/i, '')[0];
-$('#team').innerHTML = TEAM.map(([n, c]) => `<div class="tm"><span class="av" style="background:${c}">${ini(n).toUpperCase()}</span><b>${n.split(' ').map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ').replace(/ Al /g, ' Al ').replace(/Almusallami/, 'Almusallami')}</b></div>`).join('');
+$('#team').innerHTML = TEAM.map(([n, c], i) => `<div class="tm${i ? '' : ' dev'}">${i ? '' : '<span class="st">★</span>'}<span class="av" style="background:${c}">${ini(n).toUpperCase()}</span><b>${n.split(' ').map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ').replace(/ Al /g, ' Al ').replace(/Almusallami/, 'Almusallami')}</b>${i ? '' : '<span class="dv">★ Platform developer</span>'}</div>`).join('');
 /* ---------- notes ---------- */
 const NOTES = [
   '<b>[0:00–0:40] Cover.</b> Good morning. We are the iLab@home team. Our idea is a home healthcare testing platform for Oman, starting in North Al Sharqiyah. The van you see is our symbol: the lab comes to the patient, not the other way round. The app is live at labathome-oman.vercel.app and on Instagram as @ilabathome.',
@@ -442,7 +446,7 @@ const NOTES = [
   '<b>[2:50–3:40] How it works.</b> Eight steps, all visible in the app: register, choose a test, confirm the address, book a time, a nurse is assigned, the sample is collected, the lab processes it, and results are shared. The phone shows what the user sees at each step. Tap any step to jump to it.',
   '<b>[3:40–4:20] Services.</b> We start with routine and preventive tests: general health, metabolic, wellness, targeted tests requested by clinicians, home collection and digital results. Flip a card for examples. Packages for kids, seniors over sixty, and blood pressure and sugar. Final availability depends on lab confirmation and Omani regulations.',
   '<b>[4:20–5:00] Partners, customers, value.</b> Click three times. We work with licensed labs, qualified nurses, logistics and payment partners. We serve busy households, older adults, people with limited mobility and remote communities. Our difference: one coordinated journey, home convenience, transparent status, and a focus on Oman.<br><b>Q:</b> How do you make money? <b>A:</b> A home-visit fee plus a share of test value agreed with partner labs, and corporate programmes.',
-  '<b>[5:00–5:30] About us.</b> Your health, our mission. Introduce the team: Bilarab Al Musallami, Jokha Al Rawahi, Ansam Al Noumani and Tasnim Al Hasani, with our team advisor Dr. Salim Al-Rashdi. Invite the audience to scan the codes: the app and our Instagram. Thank you.'];
+  '<b>[5:00–5:30] About us.</b> Your health, our mission. Introduce the team: Bilarab Al Musallami (platform developer), Jokha Al Rawahi, Ansam Al Noumani and Tasnim Al Hasani, with our team advisor Dr. Salim Al-Rashdi. Invite the audience to scan the codes: the app and our Instagram. Thank you.'];
 /* ---------- engine ---------- */
 const slides = $$('.slide'); let cur = 0, step = 0;
 function stepsOf(i){ return +slides[i].dataset.steps || 0; }

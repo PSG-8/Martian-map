@@ -1,10 +1,10 @@
-const V = 'lah-v24';
-const CORE = ['./', 'index.html', 'css/app.css?v=24', 'js/i18n.js?v=24', 'js/art.js?v=24', 'js/api.js?v=24', 'js/qr.js?v=24', 'js/pdf.js?v=24', 'js/guide.js?v=24', 'js/app.js?v=24', 'icons/icon.svg', 'manifest.webmanifest'];
+const V = 'lah-v25';
+const CORE = ['./', 'index.html', 'css/app.css?v=25', 'js/i18n.js?v=25', 'js/art.js?v=25', 'js/api.js?v=25', 'js/qr.js?v=25', 'js/pdf.js?v=25', 'js/guide.js?v=25', 'js/app.js?v=25', 'icons/icon.svg', 'manifest.webmanifest', "img/hero/h0d.jpg", "img/hero/h0m.jpg"];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
   const r = e.request; const u = new URL(r.url);
-  if (r.method !== 'GET' || u.pathname.includes('/api/') || u.hostname.endsWith('supabase.co') || u.hostname.includes('tile.openstreetmap')) return;
+  if (r.method !== 'GET' || r.headers.has('range') || u.pathname.includes('/media/') || u.pathname.includes('/api/') || u.hostname.endsWith('supabase.co') || u.hostname.includes('tile.openstreetmap')) return;
   /* pages and anything without a version number: always try the network first, so every change shows up at once */
   if (r.mode === 'navigate') { e.respondWith(fetch(r.url, { cache: 'no-store', credentials: 'same-origin' }).catch(() => caches.match('index.html'))); return; }
   const versioned = u.search.includes('v=') || u.hostname.includes('unpkg') || u.hostname.includes('gstatic');
