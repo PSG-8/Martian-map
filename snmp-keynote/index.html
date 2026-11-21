@@ -470,6 +470,35 @@ h2{font-size:64px}
 #notes{font-size:20px}
 .who{bottom:72px}
 .expl{bottom:86px}
+
+/* guided lab */
+#labwrap{top:160px;height:470px;width:1408px}
+.lb{position:absolute;left:0;top:0;padding:8px 14px;border-radius:12px;background:#334155;color:#fff;font:700 20px ui-monospace,Menlo,monospace;white-space:nowrap;box-shadow:0 10px 24px -12px rgba(15,23,42,.55);opacity:0;transition:opacity .3s;pointer-events:none}
+.lb.on{opacity:1}
+.lb.req{background:#2563EB}.lb.resp{background:#0D9488}.lb.set,.lb.inform{background:#EA580C}.lb.trap,.lb.err{background:#DC2626}
+.labred{position:absolute;inset:0;pointer-events:none;opacity:0;border-radius:28px;box-shadow:inset 0 0 0 6px #EF4444,inset 0 0 180px 50px rgba(239,68,68,.5);background:rgba(239,68,68,.1);transition:opacity .35s}
+.labred.on{opacity:1;animation:redp .45s 3 alternate}
+.labred.warn{box-shadow:inset 0 0 0 6px #F97316,inset 0 0 180px 50px rgba(249,115,22,.45);background:rgba(249,115,22,.08)}
+@keyframes redp{to{opacity:.35}}
+#alarm{position:fixed;inset:0;pointer-events:none;z-index:13;opacity:0;box-shadow:inset 0 0 220px 70px rgba(239,68,68,.55);transition:opacity .3s}
+#alarm.on{opacity:1}
+.lstat{position:absolute;left:18px;top:16px;display:flex;gap:12px;align-items:center;font:700 18px Inter,sans-serif;color:var(--ink);background:rgba(255,255,255,.92);padding:8px 16px;border-radius:99px;pointer-events:none;box-shadow:0 8px 20px -14px rgba(15,23,42,.4)}
+.lnum{color:var(--blue)}
+.lchips{position:absolute;left:96px;right:96px;top:646px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.lch,.lplay{all:unset;cursor:pointer;padding:9px 16px;border-radius:99px;background:#fff;border:2px solid #DCE5F2;font:700 19px Inter,sans-serif;color:var(--ink);white-space:nowrap;transition:background .25s,border-color .25s,color .25s,transform .2s}
+.lch:hover,.lplay:hover{transform:translateY(-2px);border-color:var(--c,var(--blue))}
+.lch.on{background:var(--c);border-color:var(--c);color:#fff}
+.lplay{display:inline-flex;gap:8px;align-items:center;background:var(--ink);border-color:var(--ink);color:#fff;margin-right:6px}
+.lplay svg{width:18px;height:18px}
+.lch:focus-visible,.lplay:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.lcap{position:absolute;left:96px;right:96px;top:712px;height:120px;border-radius:22px;background:#0F172A;color:#fff;padding:16px 32px 20px 44px;display:flex;flex-direction:column;justify-content:center;gap:6px;overflow:hidden;--c:#2563EB;box-shadow:0 24px 50px -24px rgba(15,23,42,.6)}
+.lcap:before{content:"";position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--c);transition:background .4s}
+.lct{font:700 33px Poppins,sans-serif;line-height:1.15}
+.lcd{font:600 23px ui-monospace,Menlo,monospace;color:#5EEAD4}
+.lcap.new .lct,.lcap.new .lcd{animation:capin .45s var(--ease)}
+@keyframes capin{from{opacity:0;transform:translateY(10px)}}
+.lbar{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(255,255,255,.08)}
+.lbar i{display:block;height:100%;width:0;background:var(--c);transition:width .6s var(--ease)}
 @media (prefers-reduced-motion:reduce){*,*:before{animation:none!important;transition-duration:.01s!important}}
 </style>
 </head>
@@ -597,26 +626,16 @@ h2{font-size:64px}
  </section>
 
  <section class="slide" data-hook="lab">
-  <h2 class="in">SNMP lab: try it yourself</h2>
-  <p class="sub in" style="--d:.15s">Pick a device, send an operation, watch the packets. Drag to orbit in 3D.</p>
-  <div id="labwrap" class="in nonav" style="--d:.2s">
-   <canvas id="lab" aria-label="3D network: an SNMP manager in the middle and five agent devices around it"></canvas>
+  <h2 class="in">SNMP lab: watch it work</h2>
+  <div id="labwrap" class="in nonav" style="--d:.15s">
+   <canvas id="lab" aria-label="3D network: an SNMP manager in the middle and six agent devices around it"></canvas>
    <div class="lbls" id="lbls"></div>
-   <div class="labhint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg>Drag to orbit · click a device to select it</div>
+   <div class="labred" id="labred"></div>
+   <div class="lstat"><span class="lnum" id="lnum">1 / 9</span><span id="lmode">Auto demo</span></div>
    <div class="nogl" hidden>The 3D lab needs WebGL. Open this page in a current Chrome, Edge, Firefox or Safari.</div>
   </div>
-  <div class="panel in nonav" style="--d:.3s">
-   <div class="card selbox"><div class="k">Selected agent</div><div class="v" id="selName">sw-01</div><div class="ip" id="selIp">10.0.0.3 · agent on UDP 161</div></div>
-   <div class="opsg">
-    <button class="opb" data-op="get"><i style="background:#2563EB"></i>GET<span>read</span></button>
-    <button class="opb" data-op="next"><i style="background:#2563EB"></i>GET-NEXT<span>walk</span></button>
-    <button class="opb" data-op="bulk"><i style="background:#14B8A6"></i>GET-BULK<span>many</span></button>
-    <button class="opb" data-op="set"><i style="background:#F97316"></i>SET<span>write</span></button>
-    <button class="opb" data-op="trap"><i style="background:#EF4444"></i>TRAP<span>alert</span></button>
-    <button class="opb" data-op="inform"><i style="background:#F97316"></i>INFORM<span>ack</span></button>
-   </div>
-   <div class="con" id="con" aria-live="polite"><div class="c"># NMS console · SNMPv3 authPriv · ready</div></div>
-  </div>
+  <div class="lchips in nonav" id="lchips" style="--d:.25s"></div>
+  <div class="lcap in" style="--d:.3s"><div class="lct" id="lct">SNMP lab</div><div class="lcd" id="lcd">The demo starts by itself</div><div class="lbar"><i id="lprog"></i></div></div>
  </section>
 
  <section class="slide" data-steps="2">
@@ -806,6 +825,7 @@ h2{font-size:64px}
 </nav>
 <div id="react" aria-label="Reactions"></div>
 <div id="rlayer" aria-hidden="true"></div>
+<div id="alarm" aria-hidden="true"></div>
 <div id="rtoast" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>A question from the audience</div>
 
 <script src="three.min.js"></script>
@@ -825,7 +845,7 @@ const NOTES=[
  '<b>[0:25]</b> Data lives in the MIB, a tree describing every value an agent can share. Each value has an OID. Follow the path: iso 1, org 3, dod 6, internet 1, mgmt 2, mib-2 1, system 1, sysUpTime 3. The final .0 is the single instance.<br><b>If asked:</b> MIB = the map, OID = the exact address of one item.<br><b>Also:</b> MIBs are written in SMI, a subset of ASN.1. The standard set is MIB-II (RFC 1213): system, interfaces, ip, tcp, udp and snmp.',
  '<b>[0:35]</b> This is one SNMP message. It travels in a single UDP datagram and is encoded with ASN.1 BER. (Click) The packet opens: IP and UDP headers for transport, then the SNMP header with the version and the community string, then the PDU: PDU type, request-id, error-status, error-index and the variable bindings, which are OID = value pairs. (Click) This is the agent’s Response: same request-id, error-status 0 and the value filled in. Click any block to explain it.<br><b>If asked:</b> SNMPv3 replaces the community with a security header: msgID, msgFlags and the USM parameters.',
  '<b>[0:25]</b> GET reads one value. GET-NEXT reads the next one, to walk a table. GET-BULK (v2c) reads many at once. SET changes a value. TRAP is an alert from the agent with no acknowledgment. INFORM (v2c) is an alert the manager must acknowledge.',
- '<b>[0:40]</b> Now a live lab. This 3D scene is a small network: the manager in the middle and five agents around it. Click a device, then press GET: a blue request goes to UDP 161 and a teal response comes back with the value and its OID. GET-NEXT walks the MIB one OID at a time. GET-BULK returns several values in one request. SET writes a value, here ifAdminStatus, which switches a port off. TRAP: the agent reports a problem on its own to UDP 162, and nobody replies. INFORM is the same alert, but the manager sends an acknowledgement. Drag to rotate. If nobody touches it, it runs a demo by itself.<br><b>Fun detail:</b> the printer sends authenticationFailure, because someone tried the default community "public".',
+ '<b>[1:30]</b> This lab plays by itself like a short film, with a caption for every step. 1 GET: one value, request to UDP 161 and a RESPONSE back. 2 GET-NEXT: walking the MIB one OID at a time, as snmpwalk does. 3 GET-BULK: several values in one request. 4 SET: the manager switches port 7 off and on again. 5 TRAP: the laptop loses Wi-Fi, the screen turns red, and the alert goes to UDP 162 with no reply. 6 INFORM: the same kind of alert, but the manager acknowledges it. 7 Error: an unknown OID returns noSuchObject. 8 Wrong community: the request is dropped and an authenticationFailure trap is sent. 9 Timeout: UDP loses the packet and the manager retries with the same request-id.<br><b>Controls:</b> Pause or Play, click a step to jump to it, or click any device to send your own GET.',
  '<b>[0:20]</b> Polling: the manager sends a request to the agent on UDP 161 and gets a reply. Notifications: the agent sends a TRAP or INFORM to the manager on UDP 162. 161 = agent listens, 162 = manager listens.',
  '<b>[0:15]</b> Polling is a principal walking to every class asking "Everything okay?". A trap is a teacher calling the principal the moment there is a problem. Real networks use both.',
  '<b>[0:25]</b> SNMPv1, 1990, RFC 1157: protected only by a community string sent in plain text. SNMPv2c, 1996: adds GET-BULK and INFORM, same plain-text community. SNMPv3, 2002, RFCs 3411 to 3418: user-based security with authentication and encryption. That is why v3 is recommended.',
@@ -1054,112 +1074,134 @@ function Globe(canvas,o){
  return {frame,setSize,zoom(v){zt=v;lay={x:0,y:0,z:v}}};
 }
 
-/* ---------- 3D SNMP lab ---------- */
+/* ---------- 3D SNMP lab: a guided demo that plays by itself ---------- */
 function makeLab(){
- const cv=$('#lab'),L=$('#lbls'),W=960,H=630,con=$('#con');
+ const K=makeKit(),cv=$('#lab'),L=$('#lbls'),W=1408,H=470,BLUE=0x2563EB,TEAL=0x14B8A6,RED=0xEF4444,ORANGE=0xF97316;
  const R=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});R.setClearColor(0,0);R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
- const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(34,W/H,.1,200),ray=new THREE.Raycaster(),tex=sprTex();
- sc.add(new THREE.HemisphereLight(0xFFFFFF,0xC3D2EE,.9));
- const sun=new THREE.DirectionalLight(0xFFFFFF,.7);sun.position.set(7,14,9);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
- Object.assign(sun.shadow.camera,{left:-12,right:12,top:12,bottom:-12,near:1,far:40});sun.shadow.camera.updateProjectionMatrix();sun.shadow.bias=-.0004;sc.add(sun);
- const fill=new THREE.DirectionalLight(0xDCE8FF,.35);fill.position.set(-8,6,-6);sc.add(fill);
- const floor=new THREE.Mesh(new THREE.CircleGeometry(10.5,96),new THREE.MeshStandardMaterial({color:0xF3F6FC,roughness:.95}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;sc.add(floor);
- const flat=(geo,c,op,y)=>{const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:op}));m.rotation.x=-Math.PI/2;m.position.y=y||.004;sc.add(m);return m};
- [[3.2,.02,.18],[6.4,.025,.14],[10.4,.05,.1]].forEach(([r,w,op])=>flat(new THREE.RingGeometry(r-w,r+w,128),0x2563EB,op));
- const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.38,metalness:.1},o||{}));
- const LED=c=>{const m=new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:1.2,roughness:.5});m.userData={c,p:Math.random()*6};return m};
- const white=M(0xFFFFFF),pale=M(0xE9EFFA),blue=M(0x2563EB,{roughness:.3}),ink=M(0x1E293B,{roughness:.45}),slate=M(0x334155);
- function rbox(w,h,d,r){const s=new THREE.Shape(),x=-w/2,y=-d/2;r=Math.min(r||.12,w/2-.01,d/2-.01);
-  s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+d-r);s.quadraticCurveTo(x+w,y+d,x+w-r,y+d);s.lineTo(x+r,y+d);s.quadraticCurveTo(x,y+d,x,y+d-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);
-  const g=new THREE.ExtrudeGeometry(s,{depth:h-.06,bevelEnabled:true,bevelThickness:.03,bevelSize:.03,bevelSegments:3,curveSegments:8});g.rotateX(-Math.PI/2);g.translate(0,.03,0);return g}
- function mesh(g,m,x,y,z,parent){const o=new THREE.Mesh(g,m);o.position.set(x||0,y||0,z||0);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
- const scrC=document.createElement('canvas');scrC.width=512;scrC.height=288;const sg=scrC.getContext('2d'),scrT=new THREE.CanvasTexture(scrC);let alertT=0,alertTxt='',devs=[];
- function drawScreen(){const A=alertT>0;sg.fillStyle=A?'#7F1D1D':'#0B1A44';sg.fillRect(0,0,512,288);sg.fillStyle=A?'#FECACA':'#93C5FD';sg.font='700 26px Inter, sans-serif';sg.fillText(A?'TRAP received':'NMS · 5 agents',24,42);
-  if(A){sg.font='600 22px monospace';sg.fillText(alertTxt,24,80)}
-  devs.forEach((d,i)=>{const y=A?120+i*32:80+i*40;sg.fillStyle=d.down?'#EF4444':'#14B8A6';sg.beginPath();sg.arc(36,y-7,8,0,7);sg.fill();sg.fillStyle='#E2E8F0';sg.font='600 22px monospace';sg.fillText(d.def.id,56,y);
-   sg.fillStyle=d.down?'#FCA5A5':'#5EEAD4';sg.fillText(d.down?'DOWN':'up',290,y);sg.fillStyle='rgba(147,197,253,.35)';sg.fillRect(370,y-16,30+Math.random()*100,14)});scrT.needsUpdate=true}
- const B={
-  manager(){const g=new THREE.Group();mesh(rbox(3,.3,2,.2),pale,0,0,0,g);mesh(new THREE.CylinderGeometry(.1,.16,.55,16),ink,0,.55,-.25,g);mesh(rbox(2.5,1.45,.14,.07),ink,0,.78,-.25,g);
-   const scr=new THREE.Mesh(new THREE.PlaneGeometry(2.32,1.3),new THREE.MeshBasicMaterial({map:scrT}));scr.position.set(0,1.5,-.13);g.add(scr);
-   mesh(rbox(.6,1.1,.9,.1),white,1.95,0,.1,g);const l=LED(0x2563EB);mesh(new THREE.BoxGeometry(.08,.08,.02),l,1.95,.9,.6,g);return {g,leds:[l],top:2.4}},
-  router(){const g=new THREE.Group();mesh(rbox(1.8,.46,1.2,.16),white,0,0,0,g);const f=.64;mesh(new THREE.BoxGeometry(1.6,.05,.02),blue,0,.36,f,g);
-   [-.65,.65].forEach(x=>{const a=mesh(new THREE.CylinderGeometry(.04,.05,1,12),ink,x,.95,-.42,g);a.rotation.z=x>0?-.18:.18});
-   const leds=[];for(let i=0;i<4;i++){const m=LED(0x14B8A6);leds.push(m);mesh(new THREE.BoxGeometry(.12,.07,.02),m,-.5+i*.22,.2,f,g)}return {g,leds,top:1.7}},
-  switch(){const g=new THREE.Group();mesh(rbox(2.4,.36,1.1,.12),slate,0,0,0,g);const leds=[],f=.59;
-   for(let i=0;i<8;i++){const x=-.95+i*.27;mesh(new THREE.BoxGeometry(.19,.13,.02),ink,x,.15,f,g);const m=LED(0x14B8A6);leds.push(m);mesh(new THREE.BoxGeometry(.07,.04,.02),m,x,.28,f,g)}return {g,leds,top:1.05}},
-  server(){const g=new THREE.Group();mesh(rbox(1.05,2.3,1.15,.12),white,0,0,0,g);const leds=[],f=.615;
-   for(let i=0;i<4;i++){const y=.35+i*.5;mesh(new THREE.BoxGeometry(.85,.38,.02),pale,0,y,f,g);mesh(new THREE.BoxGeometry(.5,.05,.02),ink,-.1,y,f+.012,g);const m=LED(i%2?0x2563EB:0x14B8A6);leds.push(m);mesh(new THREE.BoxGeometry(.07,.07,.02),m,.3,y,f+.012,g)}return {g,leds,top:2.95}},
-  printer(){const g=new THREE.Group();mesh(rbox(1.6,.78,1.2,.16),white,0,0,0,g);const f=.64;mesh(new THREE.BoxGeometry(1.1,.08,.02),ink,0,.45,f,g);
-   mesh(new THREE.BoxGeometry(1.1,.05,.6),pale,0,.86,-.18,g).rotation.x=-.25;mesh(new THREE.BoxGeometry(.85,.02,.55),white,0,.9,-.16,g).rotation.x=-.25;
-   const m=LED(0x14B8A6);mesh(new THREE.BoxGeometry(.1,.06,.02),m,.6,.62,f,g);mesh(new THREE.BoxGeometry(.3,.08,.02),blue,.25,.62,f,g);return {g,leds:[m],top:1.55}},
-  laptop(){const g=new THREE.Group();mesh(rbox(1.6,.09,1.1,.1),pale,0,0,0,g);mesh(new THREE.BoxGeometry(1.2,.01,.5),M(0xCBD5E1),0,.1,.12,g);
-   const hinge=new THREE.Group();hinge.position.set(0,.09,-.52);hinge.rotation.x=-.22;g.add(hinge);mesh(rbox(1.6,1.05,.06,.03),pale,0,0,0,hinge);
-   const sm=LED(0x2563EB);const s=new THREE.Mesh(new THREE.PlaneGeometry(1.42,.86),sm);s.position.set(0,.53,.07);hinge.add(s);return {g,leds:[sm],top:1.6}}
- };
- const fmtUp=x=>`${Math.floor(x/86400)}d ${String(Math.floor(x%86400/3600)).padStart(2,'0')}:${String(Math.floor(x%3600/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`;
- const UP=['sysUpTime.0','1.3.6.1.2.1.1.3.0',d=>'Timeticks '+fmtUp(Math.floor(d.up0+performance.now()/1000))];
- const DEF=[
-  {id:'printer-2f',ip:'10.0.0.42',kind:'printer',a:38,vars:[UP,['sysLocation.0','1.3.6.1.2.1.1.6.0','"2nd floor, by the coffee"'],['prtMarkerSuppliesLevel.1.1','1.3.6.1.2.1.43.11.1.1.9.1.1','3 (toner almost empty)']],trap:['authenticationFailure','1.3.6.1.6.3.1.1.5.5',"someone tried community 'public'"]},
-  {id:'core-router',ip:'10.0.0.1',kind:'router',a:108,vars:[UP,['sysName.0','1.3.6.1.2.1.1.5.0','"core-router"'],['ifInOctets.2','1.3.6.1.2.1.2.2.1.10.2',()=>'Counter32 '+(Math.floor(3.1e9+performance.now()*913)%4294967296)]],trap:['linkDown','1.3.6.1.6.3.1.1.5.3','ifIndex 2 lost carrier']},
-  {id:'srv-db',ip:'10.0.0.20',kind:'server',a:180,vars:[UP,['sysName.0','1.3.6.1.2.1.1.5.0','"srv-db"'],['hrProcessorLoad.1','1.3.6.1.2.1.25.3.3.1.2.1',()=>(20+Math.random()*50|0)+' %']],trap:['warmStart','1.3.6.1.6.3.1.1.5.2','agent restarted']},
-  {id:'sw-01',ip:'10.0.0.3',kind:'switch',a:252,vars:[['sysDescr.0','1.3.6.1.2.1.1.1.0','"48-port gigabit switch"'],UP,['ifOperStatus.7','1.3.6.1.2.1.2.2.1.8.7',d=>d.port?'down(2)':'up(1)']],trap:['linkDown','1.3.6.1.6.3.1.1.5.3','port 7 cable unplugged']},
-  {id:'laptop-lab',ip:'10.0.0.77',kind:'laptop',a:322,vars:[['sysDescr.0','1.3.6.1.2.1.1.1.0','"Linux 6.8 x86_64"'],UP,['sysContact.0','1.3.6.1.2.1.1.4.0','"lab admin"']],trap:['linkDown','1.3.6.1.6.3.1.1.5.3','Wi-Fi dropped']}
- ];
- const mgr=B.manager();sc.add(mgr.g);const pick=[];
- const mL=document.createElement('div');mL.className='dl mgr';mL.innerHTML='NMS manager<small>10.0.0.10 · traps to UDP 162</small>';L.appendChild(mL);
- let sel=null,userAt=-1e9;
- devs=DEF.map((def,i)=>{const b=B[def.kind](),a=def.a*Math.PI/180,r=6.4;b.g.position.set(Math.sin(a)*r,0,Math.cos(a)*r);b.g.rotation.y=a*.22;sc.add(b.g);
-  const d={def,b,g:b.g,leds:b.leds,top:b.top,down:false,port:false,wi:0,up0:(12+i*9)*86400+Math.random()*80000};
-  const s0=new THREE.Vector3(0,.5,0),e0=new THREE.Vector3(b.g.position.x,.3,b.g.position.z),m0=s0.clone().add(e0).multiplyScalar(.5);m0.y=2.6;d.curve=new THREE.QuadraticBezierCurve3(s0,m0,e0);
-  d.tube=new THREE.Mesh(new THREE.TubeGeometry(d.curve,60,.035,8,false),new THREE.MeshBasicMaterial({color:0x2563EB,transparent:true,opacity:.28}));sc.add(d.tube);
-  d.halo=flat(new THREE.CircleGeometry(1.5,48),0xEF4444,0,.006);d.halo.position.x=e0.x;d.halo.position.z=e0.z;
+ const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(32,W/H,.1,200),ray=new THREE.Raycaster(),V=new THREE.Vector3();K.lights(sc,14);
+ const flat=(g,c,op,y)=>{const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:op,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.y=y||.004;sc.add(m);return m};
+ const fl=new THREE.Mesh(new THREE.CircleGeometry(10,96),new THREE.MeshStandardMaterial({color:0xF3F6FC,roughness:.95}));fl.rotation.x=-Math.PI/2;fl.scale.set(1.15,.72,1);fl.receiveShadow=true;sc.add(fl);
+ [[3.2,.18],[6.6,.12],[9.8,.08]].forEach(([r,op])=>flat(new THREE.RingGeometry(r-.03,r+.03,128),BLUE,op).scale.set(1.15,.72,1));
+ const scrC=document.createElement('canvas');scrC.width=512;scrC.height=288;const sg=scrC.getContext('2d'),scrT=new THREE.CanvasTexture(scrC);let scrMode='ok',scrTxt='';
+ const mg=new THREE.Group();sc.add(mg);K.mesh(K.rbox(3,.3,2,.2),K.mat.pale,0,0,0,mg);K.mesh(new THREE.CylinderGeometry(.1,.16,.55,16),K.mat.ink,0,.55,-.25,mg);K.mesh(K.rbox(2.5,1.45,.14,.07),K.mat.ink,0,.78,-.25,mg);
+ const scr=new THREE.Mesh(new THREE.PlaneGeometry(2.32,1.3),new THREE.MeshBasicMaterial({map:scrT}));scr.position.set(0,1.5,-.13);mg.add(scr);K.mesh(K.rbox(.6,1.1,.9,.1),K.mat.white,1.95,0,.1,mg);
+ const M={g:mg,top:2.4,isM:1};
+ const DEF=[{id:'core-router',ip:'10.0.0.1',kind:'router',p:[-7.6,0],up:42},{id:'sw-01',ip:'10.0.0.3',kind:'switch',p:[-4.2,4.3],up:17},{id:'srv-db',ip:'10.0.0.20',kind:'server',p:[-3.7,-4.4],up:63},
+  {id:'printer-2f',ip:'10.0.0.42',kind:'printer',p:[3.7,-4.4],up:9},{id:'wifi-ap',ip:'10.0.0.50',kind:'router',p:[4.2,4.3],up:28},{id:'laptop-lab',ip:'10.0.0.77',kind:'laptop',p:[7.6,0],up:3}];
+ const pick=[];
+ const devs=DEF.map(def=>{const b=K.B[def.kind]();b.g.position.set(def.p[0],0,def.p[1]);sc.add(b.g);const d=Object.assign({},def,{b,g:b.g,leds:b.leds,top:b.top,bad:0,port:0,bt:9,busy:0});
+  const s0=new THREE.Vector3(0,.6,0),e0=new THREE.Vector3(def.p[0],.4,def.p[1]),m0=s0.clone().add(e0).multiplyScalar(.5);m0.y=3;d.curve=new THREE.QuadraticBezierCurve3(s0,m0,e0);
+  d.tube=new THREE.Mesh(new THREE.TubeGeometry(d.curve,60,.045,8,false),new THREE.MeshBasicMaterial({color:BLUE,transparent:true,opacity:.25}));sc.add(d.tube);
+  d.halo=flat(new THREE.CircleGeometry(1.6,48),RED,0,.006);d.halo.position.x=def.p[0];d.halo.position.z=def.p[1];
   b.g.traverse(o=>{if(o.isMesh){o.userData.dev=d;pick.push(o)}});
-  const lb=document.createElement('button');lb.className='dl';lb.innerHTML=`${def.id}<small>${def.ip}</small>`;lb.onclick=ev=>{ev.stopPropagation();select(d,true)};L.appendChild(lb);d.lb=lb;return d});
- const ring=flat(new THREE.RingGeometry(1.45,1.6,64),0x2563EB,.85,.01);
- function select(d,user){sel=d;ring.position.x=d.g.position.x;ring.position.z=d.g.position.z;devs.forEach(x=>x.lb.classList.toggle('sel',x===d));
-  $('#selName').textContent=d.def.id;$('#selIp').textContent=`${d.def.ip} · agent on UDP 161`;if(user){userAt=performance.now();SFX.pop()}}
- function ledAll(d,hex){d.leds.forEach(m=>{const c=hex==null?m.userData.c:hex;m.color.setHex(c);m.emissive.setHex(c)});if(hex==null&&d.port){d.leds[0].color.setHex(0xF97316);d.leds[0].emissive.setHex(0xF97316)}}
- function log(c,a,b){const el=document.createElement('div');el.className=c;el.textContent=a;con.appendChild(el);if(b){const e2=document.createElement('div');e2.className='c';e2.textContent='  '+b;con.appendChild(e2)}while(con.children.length>16)con.firstChild.remove()}
- const val=(d,v)=>typeof v[2]==='function'?v[2](d):v[2];
- const pk=[];
- function shot(d,col,rev,cb,delay){const m=new THREE.Mesh(new THREE.SphereGeometry(.17,20,14),new THREE.MeshBasicMaterial({color:col}));
-  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,color:col,transparent:true,opacity:.55,depthWrite:false}));s.scale.setScalar(1.2);m.add(s);m.visible=false;sc.add(m);pk.push({m,d,rev,cb,t:-(delay||0)/1.05,dur:1.05})}
- function upPk(dt){devs.forEach(d=>d.busy=0);for(let i=pk.length-1;i>=0;i--){const p=pk[i];p.t+=dt/p.dur;if(p.t<0)continue;if(!p.m.visible){p.m.visible=true;if(!p.rev)SFX.send()}
-  const u=Math.min(1,p.t),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;p.m.position.copy(p.d.curve.getPoint(p.rev?1-e:e));p.d.busy=1;
-  if(p.t>=1){sc.remove(p.m);p.m.geometry.dispose();p.m.material.dispose();p.m.children[0].material.dispose();pk.splice(i,1);if(p.rev)SFX.recv();if(p.cb)p.cb()}}
-  devs.forEach(d=>d.tube.material.opacity+=((d.busy?.6:.28)-d.tube.material.opacity)*.2)}
- function op(k,d,auto){d=d||sel;if(!d)return;if(auto)select(d,false);else userAt=performance.now();const D=d.def,ip=D.ip;
-  if(k==='get'){const v=D.vars[0];log('o',`→ GET ${v[0]}`,`${ip}:161 · OID ${v[1]}`);shot(d,0x2563EB,false,()=>shot(d,0x14B8A6,true,()=>log('r',`← RESPONSE ${v[0]} = ${val(d,v)}`)))}
-  else if(k==='next'){const i=d.wi%D.vars.length,v=D.vars[i],from=i?D.vars[i-1][1]:'1.3.6.1.2.1 (mib-2)';d.wi++;
-   log('o',`→ GET-NEXT after ${from}`,`${ip}:161 · walk the MIB in OID order`);shot(d,0x2563EB,false,()=>shot(d,0x14B8A6,true,()=>log('r',`← ${v[0]} = ${val(d,v)}`)))}
-  else if(k==='bulk'){log('o','→ GET-BULK max-repetitions 3',`${ip}:161 · many values, one request`);
-   shot(d,0x2563EB,false,()=>D.vars.forEach((v,i)=>shot(d,0x14B8A6,true,i===2?()=>{log('r','← RESPONSE · 3 varbinds');D.vars.forEach(w=>log('c',`  ${w[0]} = ${val(d,w)}`))}:null,i*.18)))}
-  else if(k==='set'){const ix=D.kind==='switch'?7:1,nv=d.port?'up(1)':'down(2)';log('s',`→ SET ifAdminStatus.${ix} = ${nv}`,`${ip}:161 · needs write access`);
-   shot(d,0xF97316,false,()=>{d.port=!d.port;if(!d.down)ledAll(d);shot(d,0x14B8A6,true,()=>{log('r',`← RESPONSE ifAdminStatus.${ix} = ${nv}`);if(D.kind==='printer'&&d.port)log('c','# printer-2f is offline. Nobody has noticed yet.')})})}
-  else if(k==='trap'){const tp=D.trap;d.down=true;d.lb.classList.add('bad');ledAll(d,0xEF4444);
-   shot(d,0xEF4444,true,()=>{SFX.trap();log('t',`← TRAP ${tp[0]} from ${D.id}`,`to manager UDP 162 · ${tp[2]} · no reply`);alertT=2.6;alertTxt=`${tp[0]} · ${D.id}`;drawScreen();
-    setTimeout(()=>{d.down=false;d.lb.classList.remove('bad');ledAll(d);drawScreen()},2600)})}
-  else if(k==='inform'){log('s',`← INFORM from ${D.id}`,'to manager UDP 162 · waits for an acknowledgement');
-   shot(d,0xF97316,true,()=>shot(d,0x14B8A6,false,()=>log('r',`→ RESPONSE (ack) to ${D.id}`)))}}
- let az=.35,el=.8,dist=21,drag=null,moved=0;
- cv.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};moved=0;try{cv.setPointerCapture(e.pointerId)}catch(x){}userAt=performance.now()});
- cv.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved+=Math.abs(dx)+Math.abs(dy);drag={x:e.clientX,y:e.clientY};az-=dx*.008;el=Math.max(.3,Math.min(1.25,el+dy*.005))});
+  const lb=document.createElement('button');lb.className='dl';lb.innerHTML=`${def.id}<small>${def.ip}</small>`;lb.onclick=e=>{e.stopPropagation();manual(d)};L.appendChild(lb);d.lb=lb;return d});
+ const mL=document.createElement('div');mL.className='dl mgr';mL.innerHTML='NMS manager<small>10.0.0.10</small>';L.appendChild(mL);
+ const D=id=>devs.find(d=>d.id===id);
+ function drawScreen(){const m=scrMode;sg.fillStyle=m==='trap'||m==='err'?'#991B1B':m==='inform'?'#9A3412':'#0B1A44';sg.fillRect(0,0,512,288);
+  sg.fillStyle='#FFFFFF';sg.font='800 34px Inter, sans-serif';sg.fillText(m==='ok'?'NMS · 6 agents':scrTxt,22,48);
+  devs.forEach((d,i)=>{const y=96+i*32;sg.fillStyle=d.bad?'#EF4444':'#14B8A6';sg.beginPath();sg.arc(34,y-8,8,0,7);sg.fill();sg.fillStyle='#E2E8F0';sg.font='600 22px monospace';sg.fillText(d.id,52,y);sg.fillStyle=d.bad?'#FCA5A5':'#5EEAD4';sg.fillText(d.bad?'ALERT':'up',300,y)});scrT.needsUpdate=true}
+ const screen=(m,t)=>{scrMode=m;scrTxt=t||'';drawScreen()};
+ /* message bubbles over devices */
+ let bubs=[];
+ function say(o,txt,cls,ms){const el=document.createElement('div');el.className='lb '+(cls||'');el.textContent=txt;L.appendChild(el);bubs.push({el,o,life:(ms||2800)/1000});requestAnimationFrame(()=>el.classList.add('on'))}
+ /* packets */
+ const pk=[],spk=[];
+ function fly(d,col,rev,o){o=o||{};const dur=o.dur||1.25;return new Promise(res=>{const m=K.packet(col,.22);m.visible=false;sc.add(m);pk.push({m,d,rev,t:-(o.delay||0)/dur,dur,lose:o.lose,res})})}
+ function kill(i){const p=pk[i];sc.remove(p.m);p.m.geometry.dispose();p.m.material.dispose();p.m.children[0].material.dispose();pk.splice(i,1)}
+ function boom(pos,col){for(let i=0;i<14;i++){const g=K.glow(col||RED,.6);g.position.copy(pos);sc.add(g);spk.push({g,v:new THREE.Vector3((Math.random()-.5)*7,Math.random()*5,(Math.random()-.5)*7),l:.7})}}
+ function setBad(d,on){d.bad=on;d.lb.classList.toggle('bad',!!on);d.leds.forEach(m=>{const h=on?RED:m.userData.c;m.color.setHex(h);m.emissive.setHex(h)});if(!on&&d.port){d.leds[0].color.setHex(ORANGE);d.leds[0].emissive.setHex(ORANGE)}drawScreen()}
+ function alarm(kind){const r=$('#labred');r.className='labred';void r.offsetWidth;r.className='labred on '+(kind||'');clearTimeout(r._t);r._t=setTimeout(()=>r.className='labred',1900);
+  if(kind!=='warn'){const a=$('#alarm');a.classList.add('on');clearTimeout(a._t);a._t=setTimeout(()=>a.classList.remove('on'),1100)}}
+ const pulse=d=>{d.bt=0};
+ /* camera */
+ const OV={x:0,y:1.5,z:-.6,d:19.5};let F=Object.assign({},OV),FT=Object.assign({},OV),uaz=0,uel=0,drag=null,moved=0,userT=-1e9;
+ const focus=(o,dist)=>{FT=o?{x:o.g.position.x*.9,y:o.isM?2.5:o.top*.5+1.2,z:o.g.position.z*.9,d:(dist||10)*1.25}:Object.assign({},OV)};
+ cv.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};moved=0;userT=performance.now();try{cv.setPointerCapture(e.pointerId)}catch(x){}});
+ cv.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved+=Math.abs(dx)+Math.abs(dy);drag={x:e.clientX,y:e.clientY};uaz-=dx*.006;uel=Math.max(-.3,Math.min(.5,uel+dy*.004));userT=performance.now()});
  cv.addEventListener('pointerup',e=>{if(drag&&moved<6){const r=cv.getBoundingClientRect();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),cam);
-  const h=ray.intersectObjects(pick,false)[0];if(h)select(h.object.userData.dev,true)}drag=null});
- const tmp=new THREE.Vector3();let scr0=0;
- const place=(node,x,y,z)=>{tmp.set(x,y,z).project(cam);node.style.transform=`translate(${((tmp.x+1)/2*W).toFixed(1)}px,${((1-tmp.y)/2*H).toFixed(1)}px) translate(-50%,-100%)`};
- function frame(dt,now){const t=now/1000;if(!drag&&now-userAt>4000&&!RM)az+=dt*.07;
-  cam.position.set(Math.sin(az)*Math.cos(el)*dist,Math.sin(el)*dist,Math.cos(az)*Math.cos(el)*dist);cam.lookAt(0,.1,0);
-  ring.scale.setScalar(1+.05*Math.sin(t*4));
-  devs.forEach(d=>{d.halo.material.opacity+=((d.down?.22+.12*Math.sin(t*10):0)-d.halo.material.opacity)*.2;
-   d.leds.forEach(m=>m.emissiveIntensity=d.down?(Math.sin(t*14)>0?1.5:.3):1.05+.3*Math.sin(t*3+m.userData.p))});
-  if(alertT>0){alertT-=dt;if(alertT<=0)drawScreen()}if(now-scr0>800){scr0=now;drawScreen()}
-  upPk(dt);R.render(sc,cam);devs.forEach(d=>place(d.lb,d.g.position.x,d.top+.35,d.g.position.z));place(mL,0,mgr.top+.4,0)}
- const DEMO=['get','next','bulk','get','trap','set','inform','next','trap','set','get'];let di=0;
- function demo(){if(performance.now()-userAt<9000)return;op(DEMO[di++%DEMO.length],devs[Math.random()*devs.length|0],true)}
- drawScreen();select(devs[3],false);
- return {frame,op,demo,enter(){drawScreen()},size(k){R.setPixelRatio(Math.min(2.5,k*(devicePixelRatio||1)));R.setSize(W,H,false)}};
+  const h=ray.intersectObjects(pick,false)[0];if(h){manual(h.object.userData.dev);ripple(e.clientX,e.clientY)}}drag=null});
+ /* captions and controls */
+ const cap=(t,d,c)=>{const b=$('.lcap');$('#lct').textContent=t;$('#lcd').textContent=d||'';if(c)b.style.setProperty('--c',c);b.classList.remove('new');void b.offsetWidth;b.classList.add('new')};
+ let tok=0,paused=false,cur=0,mode='auto';const STOP={};
+ async function wait(ms){const my=tok;let left=ms;while(left>0){await new Promise(r=>setTimeout(r,50));if(my!==tok)throw STOP;if(!paused)left-=50}}
+ async function go(p){const my=tok,r=await p;if(my!==tok)throw STOP;return r}
+ const up=d=>`${d.up}d 06:13:22`;
+ const SC=[
+  {k:'GET',c:'#2563EB',run:async()=>{const d=D('sw-01');cap('GET: the manager asks a device for one value',`Target: sw-01 · ${d.ip} · UDP port 161`,'#2563EB');await wait(1700);
+   focus(d,11);say(M,'GET sysUpTime.0','req');cap('The request travels to the agent','GET sysUpTime.0   (OID 1.3.6.1.2.1.1.3.0)');await go(fly(d,BLUE));
+   pulse(d);say(d,'looking up the MIB…','');cap('The agent finds the OID in its MIB','sysUpTime.0 = how long the switch has been running');await wait(1600);
+   say(d,'= '+up(d),'resp');focus(M,11);cap('RESPONSE: the value comes back to the manager','RESPONSE sysUpTime.0 = Timeticks '+up(d));await go(fly(d,TEAL,true));say(M,'received','resp');await wait(1800)}},
+  {k:'GET-NEXT',c:'#2563EB',run:async()=>{const d=D('srv-db'),S=[['system','sysDescr.0','"Linux srv-db 6.8"'],['sysDescr.0','sysObjectID.0','netSnmpAgentOIDs.10'],['sysObjectID.0','sysUpTime.0',up(d)]];
+   cap('GET-NEXT: walk the MIB one OID at a time',`Target: srv-db · ${d.ip}`,'#2563EB');focus(d,12);await wait(1500);
+   for(let i=0;i<3;i++){const w=S[i];say(M,'GET-NEXT '+w[0],'req');cap(`Step ${i+1} of 3: what comes after ${w[0]}?`,'GET-NEXT '+w[0]);await go(fly(d,BLUE,false,{dur:.95}));
+    say(d,`${w[1]} = ${w[2]}`,'resp');cap('The agent returns the next object: '+w[1],`RESPONSE ${w[1]} = ${w[2]}`);await go(fly(d,TEAL,true,{dur:.95}));await wait(650)}
+   cap('This is how snmpwalk reads a whole branch','Repeat GET-NEXT until the branch ends');await wait(1900)}},
+  {k:'GET-BULK',c:'#14B8A6',run:async()=>{const d=D('core-router');cap('GET-BULK: many values with one request',`Target: core-router · ${d.ip} · SNMPv2c and later`,'#14B8A6');focus(d,11);await wait(1500);
+   say(M,'GET-BULK max-repetitions 3','req');cap('One request asks for several rows at once','GET-BULK ifInOctets · max-repetitions = 3');await go(fly(d,BLUE));pulse(d);await wait(500);
+   say(d,'3 varbinds','resp');focus(M,12);cap('Three values come back together','ifInOctets.1 · ifInOctets.2 · ifInOctets.3');await go(Promise.all([0,.25,.5].map(x=>fly(d,TEAL,true,{delay:x}))));
+   say(M,'3 values · 1 round trip','resp');cap('Fewer round trips than three separate GETs','RESPONSE · 3 varbinds');await wait(2000)}},
+  {k:'SET',c:'#F97316',run:async()=>{const d=D('sw-01');cap('SET: the manager changes a value on a device','Target: sw-01 · port 7 · needs write access','#F97316');focus(d,10);await wait(1500);
+   say(M,'SET ifAdminStatus.7 = down(2)','set');cap('The SET request carries the new value','SET ifAdminStatus.7 = down(2)');await go(fly(d,ORANGE));
+   d.port=1;setBad(d,0);pulse(d);say(d,'port 7 → down','set');cap('The agent applies it: port 7 is switched off','ifAdminStatus.7 = down(2)');await wait(1600);
+   focus(M,12);cap('RESPONSE confirms the change','RESPONSE ifAdminStatus.7 = down(2)');await go(fly(d,TEAL,true));await wait(1000);
+   cap('And back on with another SET','SET ifAdminStatus.7 = up(1)');await go(fly(d,ORANGE,false,{dur:.9}));d.port=0;setBad(d,0);say(d,'port 7 → up','resp');await go(fly(d,TEAL,true,{dur:.9}));await wait(1000)}},
+  {k:'TRAP',c:'#EF4444',run:async()=>{const d=D('laptop-lab');cap('A normal day. Then something breaks…',`Watching laptop-lab · ${d.ip}`,'#EF4444');focus(d,9);await wait(1700);
+   setBad(d,1);alarm();SFX.trap();say(d,'Wi-Fi link down!','trap');cap('The device detects a problem','laptop-lab · Wi-Fi interface goes down');await wait(1700);
+   say(d,'TRAP linkDown','trap');cap('TRAP: the agent alerts the manager on its own','TRAP linkDown → 10.0.0.10 : UDP 162');await go(fly(d,RED,true));
+   screen('trap','TRAP received');alarm();SFX.trap();focus(M,9);say(M,'TRAP linkDown · laptop-lab','trap');cap('The alert appears on the manager’s screen','OID 1.3.6.1.6.3.1.1.5.3 · linkDown');await wait(2300);
+   cap('Nobody replies to a TRAP','If it is lost, the manager never knows. That is why INFORM exists.');await wait(2300)}},
+  {k:'INFORM',c:'#F97316',run:async()=>{const d=D('srv-db');cap('INFORM: an alert that must be confirmed',`Watching srv-db · ${d.ip}`,'#F97316');focus(d,10);await wait(1500);
+   setBad(d,1);alarm('warn');say(d,'disk 95% full','inform');cap('The server sends an INFORM','INFORM disk 95% full → manager : UDP 162');await go(fly(d,ORANGE,true));
+   screen('inform','INFORM received');focus(M,10);say(M,'INFORM · disk 95% full','inform');cap('The manager receives it…','INFORM received from srv-db');await wait(1300);
+   say(M,'ACK','resp');cap('…and answers with a RESPONSE as acknowledgement','RESPONSE (ack) → srv-db');await go(fly(d,TEAL));say(d,'ACK received','resp');focus(d,10);
+   cap('Confirmed. Without the ACK, the agent would send it again','INFORM = TRAP + delivery confirmation');await wait(2300)}},
+  {k:'Error',c:'#EF4444',run:async()=>{const d=D('printer-2f');cap('What if we ask for something that does not exist?',`Target: printer-2f · ${d.ip}`,'#EF4444');focus(d,10);await wait(1500);
+   say(M,'GET 1.3.6.1.2.1.99.0','req');cap('The manager asks for an unknown OID','GET 1.3.6.1.2.1.99.0');await go(fly(d,BLUE));
+   pulse(d);setBad(d,1);say(d,'not in my MIB!','err');cap('The agent cannot find it','OID 1.3.6.1.2.1.99.0 is not in the printer’s MIB');await wait(1400);
+   await go(fly(d,RED,true));alarm();SFX.miss();screen('err','ERROR response');focus(M,10);say(M,'noSuchObject','err');cap('RESPONSE with an error','SNMPv2c: noSuchObject · SNMPv1: error-status noSuchName (2)');await wait(2700)}},
+  {k:'Wrong community',c:'#EF4444',run:async()=>{const d=D('core-router');cap('A request arrives with the wrong community',`Target: core-router · ${d.ip}`,'#EF4444');focus(d,10);await wait(1500);
+   say(M,'GET sysName.0 · community "public"','err');cap('Someone tries the default password','GET sysName.0 · community "public"');await go(fly(d,RED));
+   pulse(d);setBad(d,1);boom(new THREE.Vector3(d.g.position.x,1.2,d.g.position.z));alarm();say(d,'access denied · dropped','err');cap('The agent rejects it and sends no answer','Wrong community = request dropped');await wait(1700);
+   say(d,'TRAP authenticationFailure','trap');cap('Then it reports the attempt to the manager','TRAP authenticationFailure → UDP 162');await go(fly(d,RED,true));
+   screen('trap','AUTH FAILURE');alarm();SFX.trap();focus(M,10);say(M,'authenticationFailure · core-router','trap');cap('The admin sees the attempt immediately','OID 1.3.6.1.6.3.1.1.5.5 · SNMPv3 stops this kind of guessing');await wait(2700)}},
+  {k:'Timeout',c:'#EF4444',run:async()=>{const d=D('wifi-ap');cap('UDP has no delivery guarantee',`Target: wifi-ap · ${d.ip}`,'#EF4444');focus(d,11);await wait(1500);
+   say(M,'GET sysName.0','req');cap('The request leaves the manager…','GET sysName.0 · request-id 7731');await go(fly(d,BLUE,false,{lose:true}));
+   alarm();SFX.miss();cap('…and is lost on the way','No packet, so no answer');focus(M,10);say(M,'waiting…','');await wait(1600);
+   say(M,'timeout!','err');cap('Timeout: no RESPONSE arrived','The manager stops waiting for this try');await wait(1500);
+   say(M,'retry · request-id 7731','req');cap('Retry with the same request-id','GET sysName.0 · attempt 2');focus(d,11);await go(fly(d,BLUE));say(d,'= "wifi-ap"','resp');await go(fly(d,TEAL,true));
+   focus(M,11);say(M,'received','resp');cap('The retry works','RESPONSE sysName.0 = "wifi-ap"');await wait(2000)}}];
+ const FIN=async()=>{focus(null);cap('That is every case: requests, alerts and errors','Click a step below, or click any device to send your own GET','#14B8A6');await wait(3800)};
+ const chipsEl=$('#lchips'),pbtn=document.createElement('button');pbtn.className='lplay';chipsEl.appendChild(pbtn);
+ SC.forEach((s,i)=>{const b=document.createElement('button');b.className='lch';b.textContent=s.k;b.style.setProperty('--c',s.c);b.addEventListener('click',e=>{e.stopPropagation();aInit();play(i)});chipsEl.appendChild(b)});
+ const PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Play',PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>Pause';
+ function ui(){pbtn.innerHTML=mode==='auto'&&!paused?PAUSE:PLAY;$('#lmode').textContent=mode!=='auto'?'Your turn':paused?'Paused':'Auto demo';$$('.lch',chipsEl).forEach((c,i)=>c.classList.toggle('on',i===cur))}
+ pbtn.addEventListener('click',e=>{e.stopPropagation();aInit();if(mode!=='auto')play(Math.max(0,cur));else{paused=!paused;ui()}});
+ function reset(){while(pk.length)kill(0);bubs.forEach(b=>b.el.remove());bubs=[];devs.forEach(d=>{d.port=0;setBad(d,0)});screen('ok');$('#labred').className='labred';$('#alarm').classList.remove('on');focus(null)}
+ async function play(from){const my=++tok;mode='auto';paused=false;let i=from||0;
+  try{for(;;){cur=i;ui();reset();$('#lnum').textContent=`${i+1} / ${SC.length}`;$('#lprog').style.width=((i+1)/SC.length*100)+'%';await SC[i].run();await wait(500);
+   if(i===SC.length-1){cur=-1;ui();await FIN()}i=(i+1)%SC.length}}catch(e){if(e!==STOP)console.warn(e)}}
+ function manual(d){++tok;mode='manual';paused=false;reset();ui();$('#lnum').textContent='Try it';
+  (async()=>{try{cap('Your turn: GET to '+d.id,`${d.ip} · UDP 161`,'#2563EB');focus(d,10);say(M,'GET sysUpTime.0','req');await go(fly(d,BLUE));pulse(d);say(d,'= '+up(d),'resp');
+   await go(fly(d,TEAL,true));focus(M,11);say(M,'received','resp');cap('RESPONSE from '+d.id,`sysUpTime.0 = ${up(d)} · press Play to continue the demo`)}catch(e){}})()}
+ function frame(dt,now){const t=now/1000,kk=Math.min(1,dt*1.8);F.x+=(FT.x-F.x)*kk;F.y+=(FT.y-F.y)*kk;F.z+=(FT.z-F.z)*kk;F.d+=(FT.d-F.d)*kk;
+  if(!drag&&now-userT>5000){uaz*=.98;uel*=.98}const az=uaz+(RM?0:Math.sin(t*.15)*.12),el=.5+uel;
+  cam.position.set(F.x+Math.sin(az)*Math.cos(el)*F.d,F.y+Math.sin(el)*F.d,F.z+Math.cos(az)*Math.cos(el)*F.d);cam.lookAt(F.x,F.y,F.z);
+  devs.forEach(d=>{d.halo.material.opacity+=((d.bad?.25+.12*Math.sin(t*10):0)-d.halo.material.opacity)*.2;d.leds.forEach(m=>m.emissiveIntensity=d.bad?(Math.sin(t*14)>0?1.6:.3):1.05+.3*Math.sin(t*3+m.userData.p));
+   let k=0;if(d.bt<.7){d.bt+=dt;k=Math.sin(d.bt/.7*Math.PI)*(1-d.bt/.7)}d.g.scale.set(1-.08*k,1+.22*k,1-.08*k);d.busy=0});
+  if(!paused)for(let i=pk.length-1;i>=0;i--){const p=pk[i];p.t+=dt/p.dur;if(p.t<0)continue;if(!p.m.visible){p.m.visible=true;if(!p.rev)SFX.send()}const u=Math.min(1,p.t);
+   p.m.position.copy(p.d.curve.getPoint(p.rev?1-EASE(u):EASE(u)));p.d.busy=1;if(p.lose&&p.t>=.55){boom(p.m.position);kill(i);p.res(false);continue}if(p.t>=1){kill(i);if(p.rev)SFX.recv();p.res(true)}}
+  else pk.forEach(p=>{if(p.t>=0)p.d.busy=1});
+  devs.forEach(d=>d.tube.material.opacity+=((d.busy?.65:.25)-d.tube.material.opacity)*.2);
+  for(let i=spk.length-1;i>=0;i--){const s=spk[i];s.l-=dt;s.g.position.addScaledVector(s.v,dt);s.v.y-=9*dt;s.g.material.opacity=Math.max(0,s.l/.7)*.9;if(s.l<=0){sc.remove(s.g);s.g.material.dispose();spk.splice(i,1)}}
+  R.render(sc,cam);
+  const place=(el,x,y,z)=>{V.set(x,y,z).project(cam);el.style.transform=`translate(${((V.x+1)/2*W).toFixed(1)}px,${((1-V.y)/2*H).toFixed(1)}px) translate(-50%,-100%)`};
+  devs.forEach(d=>place(d.lb,d.g.position.x,d.top+.45,d.g.position.z));place(mL,0,M.top+.5,0);
+  const cnt=new Map();bubs=bubs.filter(b=>{if(!paused)b.life-=dt;if(b.life<=0){b.el.classList.remove('on');setTimeout(()=>b.el.remove(),400);return false}const n=cnt.get(b.o)||0;cnt.set(b.o,n+1);
+   place(b.el,b.o.g.position.x,b.o.top+1.45+n*.85,b.o.g.position.z);return true})}
+ drawScreen();ui();
+ return {frame,start(i){play(i||0)},stop(){++tok;paused=false;reset()},size(k){R.setPixelRatio(Math.min(2.5,k*(devicePixelRatio||1)));R.setSize(W,H,false)}};
 }
+
 $$('.opb').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();aInit();if(LAB)LAB.op(b.dataset.op)}));
 
 
@@ -1465,7 +1507,7 @@ const HOOK={
   let up=42*86400+6*3600+13*60+22;const fmt=x=>`${Math.floor(x/86400)}d ${String(Math.floor(x%86400/3600)).padStart(2,'0')}:${String(Math.floor(x%3600/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`;
   IV(()=>{up++;$('#up').textContent=fmt(up)},1000)},
  prac(s){s.classList.remove('secure')},
- lab(){if(!LAB)return;LAB.enter();T(()=>LAB.demo(),900);IV(()=>LAB.demo(),3400)},
+ lab(){if(LAB)LAB.start(0)},
  quiz(s){$$('.mcq',s).forEach(q=>{q.classList.remove('done');$$('button',q).forEach(b=>{b.classList.remove('ok','no');b.disabled=false})})},
  thx(){T(()=>{const q=toWin(470,380);confetti(q[0],q[1],170,1.3,1.1);SFX.win()},700)}
 };
@@ -1480,7 +1522,7 @@ function render(entered){
  $('#prog').style.width=(done/total*100)+'%';$('#count').textContent=`${cur+1} / ${slides.length}`;$('#notes').innerHTML=NOTES[cur]||'';
  document.body.classList.toggle('dk',!!slides[cur].dataset.dark);$('#foot').classList.toggle('hide',cur===0||!!slides[cur].dataset.dark);ILL.step(step);
 }
-function enter(){timers.forEach(clearTimeout);ivs.forEach(clearInterval);timers=[];ivs=[];SFX.slide();ILL.mount(slides[cur]);render(true);const s=slides[cur];if(HOOK[s.dataset.hook])HOOK[s.dataset.hook](s)}
+function enter(){timers.forEach(clearTimeout);ivs.forEach(clearInterval);timers=[];ivs=[];if(LAB)LAB.stop();SFX.slide();ILL.mount(slides[cur]);render(true);const s=slides[cur];if(HOOK[s.dataset.hook])HOOK[s.dataset.hook](s)}
 function next(){const s=slides[cur];if(step<maxStep(s)){step++;$$('[data-at]',s).length?SFX.flip():SFX.step();$$('[data-at]',s).forEach(e=>e.classList.toggle('on',step>=+e.dataset.at));render()}else if(cur<slides.length-1){cur++;step=0;enter()}}
 function prev(){if(step>0){step--;SFX.step();$$('[data-at]',slides[cur]).forEach(e=>e.classList.toggle('on',step>=+e.dataset.at));render()}else if(cur>0){cur--;step=maxStep(slides[cur]);enter()}}
 function go(i){cur=Math.max(0,Math.min(slides.length-1,i));step=0;enter()}
