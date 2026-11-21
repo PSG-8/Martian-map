@@ -312,3 +312,14 @@ export async function splash(canvas, ms = 2600){
       if (now - t0 < ms && canvas.isConnected) requestAnimationFrame(step); else { res(); setTimeout(() => { r.dispose(); r.forceContextLoss(); }, 800); } };
     requestAnimationFrame(step); });
 }
+/* film mode: fixed-size, frame-by-frame rendering for the explainer video */
+export async function filmSetup(canvas, w, h){
+  await fonts(); const r = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true }); r.setPixelRatio(1); r.setSize(w, h, false);
+  r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap; r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05; r.outputColorSpace = THREE.SRGBColorSpace;
+  R.r = r; R.canvas = null; R.env = studioEnv(r); if (!R.texVan) makeTextures(); R.scenes = []; R.fw = w; R.fh = h;
+}
+export function filmRender(i, t, ox = 0, oy = 0){
+  const sc = scene(i); const w = R.fw, h = R.fh; sc.cam.aspect = w / h; sc.cam.fov = 30;
+  if (ox || oy) sc.cam.setViewOffset(w, h, -w * ox, -h * oy, w, h); else sc.cam.clearViewOffset(); sc.cam.updateProjectionMatrix();
+  sc.update(t, 1 / 30, 'banner'); R.r.render(sc.s, sc.cam);
+}

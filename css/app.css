@@ -793,3 +793,6 @@ button.link{min-height:44px;display:inline-flex;align-items:center;gap:6px}
 #splash .sp-wm{filter:brightness(0) invert(1)}
 #splash small{font-weight:600;font-size:.9rem;opacity:1;color:#e8eefc;text-shadow:0 1px 10px rgba(0,0,0,.25)}
 #splash .sp-skip{position:absolute;top:calc(14px + env(safe-area-inset-top));inset-inline-end:14px;border:0;border-radius:999px;padding:8px 14px;background:rgba(255,255,255,.22);color:#fff;font-weight:700;backdrop-filter:blur(6px)}
+.vid{width:100%;aspect-ratio:16/9;border-radius:18px;background:#0d1628;display:block}
+.topbar .nav a{white-space:nowrap}
+@media (max-width:1280px){.topbar .nav a[href="#/install"],.topbar .nav a[href="#/contact"]{display:none}}

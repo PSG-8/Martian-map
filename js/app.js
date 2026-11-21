@@ -70,7 +70,7 @@ function topbar(){
   return `<header class="topbar"><div class="wrap-w in">
     <button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>
     <a href="#/" class="brand">${brandInner(t('brand_sub'))}</a>
-    <nav class="nav"><a href="#/how">${t('nav_how')}</a><a href="#/tests">${t('nav_tests')}</a><a href="#/install">${t('m_install')}</a><a href="#/contact">${t('m_contact')}</a><a href="#/about">${t('m_about')}</a></nav>
+    <nav class="nav"><a href="#/how">${t('nav_how')}</a><a href="#/tests">${t('nav_tests')}</a><a href="#/install">${t('m_install')}</a><a href="#/contact">${t('m_contact')}</a><a href="#/about">${t('m_about')}</a><a href="#/new">${t('m_new')}</a></nav>
     <div class="grow"></div>
     <button class="lang hide-sm" data-lang>${t('lang')}</button>
     <a class="icon-btn ${S.user ? '' : 'hide-sm'}" href="#/${S.user ? 'app/cart' : 'tests'}" aria-label="${t('m_cart')}">${ic('box')}${n ? `<span class="dot">${n}</span>` : ''}</a>
@@ -1039,6 +1039,7 @@ function menuItems(){
     if (r === 'admin') h += it('app/admin/tickets', 'chat', t('m_tickets'));
   }
   h += '<hr class="sep">';
+  h += it('new', 'play', t('m_new'), '<span class="chip red">NEW</span>');
   h += it('install', 'download', t('m_install'));
   h += it('contact', 'phone', t('m_contact'));
   h += it('support', 'chat', t('m_support'));
@@ -1483,6 +1484,7 @@ async function renderNow(){
     else if (seg[0] === 'support') await viewSupport();
     else if (seg[0] === 'about') await viewAbout();
     else if (seg[0] === 'how') await viewHow();
+    else if (seg[0] === 'new') await viewNew();
     else if (seg[0] !== 'app') {
       if (seg[0] === 'login') { if (S.user) return go('app'); viewLogin(); }
       else if (seg[0] === 'register') { if (S.user) return go('app'); await loadCatalog().catch(() => {}); viewRegister(seg[1]); }
@@ -1587,7 +1589,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 18;
+const APP_V = 19;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -1923,7 +1925,7 @@ async function viewLanding(){
   <section class="hm-sec"><div class="wrap-w"><h2 class="hm-h">${t('hm_quick')}</h2>${quickTiles()}</div></section>
   ${C ? `<section class="hm-sec alt"><div class="wrap-w"><div class="row between"><h2 class="hm-h">${t('hm_pk')}</h2><a class="b small" href="#/tests">${t('view_all_tests')}</a></div><div class="hscroll" id="lp">${C.packages.map(p => pkgCard(p, S.cart.packages.includes(p.id))).join('')}</div></div></section>` : ''}
   <section class="hm-sec"><div class="wrap-w"><h2 class="hm-h">${t('hm_steps')}</h2><div class="steps3">${steps.map(([i, k], n) => `<div class="st3"><span class="n">${n + 1}</span><span class="qi" style="color:var(--blue);background:#eaf2ff">${ic(i, 26, 2)}</span><b>${t(k)}</b><span class="small muted">${t(k + 'd')}</span></div>`).join('')}</div>
-    <div class="center" style="margin-top:18px"><a class="btn ghost" href="#/how">${ic('globe',18)} ${t('hm_how_more')}</a></div></div></section>
+    <div class="row wrap" style="justify-content:center;gap:10px;margin-top:18px"><a class="btn" href="#/new">${ic('play',18)} ${t('new_watch')}</a><a class="btn ghost" href="#/how">${ic('globe',18)} ${t('hm_how_more')}</a></div></div></section>
   <section class="hm-sec"><div class="wrap-w"><div class="band">
       <div><b>48 h</b><span>${t('band1')}</span></div><div><b>${omr(fee())}</b><span>${t('band2')} (${t('omr')})</span></div>
       <div><b>${C ? C.wilayats.length : 7}</b><span>${t('band3')}</span></div><div><b>${C ? C.tests.length + C.packages.length : 30}</b><span>${t('band4')}</span></div></div></div></section>
@@ -1951,6 +1953,31 @@ async function splashIntro(){
   if (!webglOk()) { el.classList.add('flat'); return; }
   const race = Promise.race([loadH3(), new Promise((_, rj) => setTimeout(() => rj(new Error('slow')), 1800))]);
   race.then(m => { if (!done) { el.classList.add('g3'); return m.splash($('canvas', el), hold ? 1e9 : 3200); } }).catch(() => el.classList.add('flat'));
+}
+
+/* ================= v19: What's new (explainer video + changelog) ================= */
+Object.assign(I18N.en, { m_new:'What’s new', new_t:'What’s new in Lab@Home', new_vid:'How Lab@Home works, in one minute', new_sub:'English with Arabic subtitles', new_watch:'Watch the 1-minute video',
+  nw18:'3D home screen', nw18d:'Rotating 3D banners, an opening intro with the Lab@Home van, and quick service tiles.',
+  nw17a:'Clear result levels', nw17ad:'Normal, needs review or urgent, with diet tips and what to do until the doctor replies.',
+  nw17b:'Doctor’s advice', nw17bd:'A doctor reviews results that need attention and sends a plan to the patient.',
+  nw17c:'Nearest hospital', nw17cd:'Hospitals and health centres in North Al Sharqiyah, with distance and directions.',
+  nw17d:'New tests and packages', nw17dd:'Kids, seniors 60+, blood pressure & sugar, and 12 more tests.',
+  nw17e:'Forgot password', nw17ed:'Reset your password from a link sent to your email.' });
+Object.assign(I18N.ar, { m_new:'حدث البرنامج', new_t:'الجديد في لاب@هوم', new_vid:'كيف يشتغل لاب@هوم في دقيقة', new_sub:'بالإنجليزي مع ترجمة عربية', new_watch:'شاهد الفيديو (دقيقة)',
+  nw18:'واجهة رئيسية ثلاثية الأبعاد', nw18d:'بنرات ثلاثية الأبعاد تدور، ومقدمة افتتاحية بفان لاب@هوم، وأيقونات خدمات سريعة.',
+  nw17a:'مستويات واضحة للنتائج', nw17ad:'طبيعي أو يحتاج مراجعة أو عاجل، مع نصائح غذائية وماذا تفعل لين يرد الطبيب.',
+  nw17b:'توصية الطبيب', nw17bd:'طبيب يراجع النتائج اللي تحتاج متابعة ويرسل خطة للمريض.',
+  nw17c:'أقرب مستشفى', nw17cd:'المستشفيات والمراكز الصحية في شمال الشرقية مع المسافة والاتجاهات.',
+  nw17d:'فحوصات وباقات جديدة', nw17dd:'الأطفال، كبار السن +60، الضغط والسكر، و12 فحص إضافي.',
+  nw17e:'نسيت كلمة المرور', nw17ed:'استعد كلمة المرور عبر رابط يوصلك على الإيميل.' });
+const MEDIA = 'https://ufykiqxsegyuyablrjsq.supabase.co/storage/v1/object/public/media/';
+async function viewNew(){
+  const items = [['spark','nw18','v18'],['check','nw17a','v17'],['steth','nw17b','v17'],['hosp','nw17c','v17'],['flask','nw17d','v17'],['lock','nw17e','v17']];
+  const body = `<div class="stack-lg"><div class="card pad-lg vid-card"><div class="row between wrap" style="gap:8px;margin-bottom:12px"><div><h2 style="margin:0">${t('new_vid')}</h2><div class="small muted">${t('new_sub')}</div></div><span class="chip teal">${ic('play',14)} 1:01</span></div>
+      <video class="vid" controls playsinline preload="metadata" poster="${MEDIA}explainer_poster.jpg"><source src="${MEDIA}LabAtHome_Explainer.mp4" type="video/mp4"></video></div>
+    <div><h3>${t('new_t')}</h3><div class="stack" style="--g:10px">${items.map(([i, k, v]) => `<div class="card row" style="gap:14px;align-items:flex-start"><span class="qi" style="color:var(--blue);background:#eaf2ff;flex:none">${ic(i, 24, 2)}</span><div class="grow"><div class="row between"><b>${t(k)}</b><span class="chip gray">${v}</span></div><div class="small muted">${t(k + 'd')}</div></div></div>`).join('')}</div></div></div>`;
+  app.innerHTML = S.user ? shell(t('m_new'), body) : `${topbar()}<section class="section" style="padding-top:28px"><div class="wrap-w" style="max-width:900px"><h1 style="margin-bottom:18px">${t('m_new')}</h1>${body}</div></section>${footer()}`;
+  if (!S.user) bindGlobal();
 }
 
 async function boot(){
