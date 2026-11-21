@@ -44,6 +44,18 @@ function notifyMail(name, n) {
     <p style="margin:6px 0 0;text-align:center">${btn(link, 'فتح الطلب · Open request')}</p>`),
     text: `${n.title_ar}\n${n.body_ar}\n\n${n.title_en}\n${n.body_en}\n\n${link}` };
 }
+function resetMail(name, code) {
+  const link = SITE + '#/reset/' + code;
+  return { subject: 'إعادة تعيين كلمة المرور · Reset your password – Lab@Home', html: shell(`
+    <div dir="rtl" style="text-align:right"><h2 style="margin:0 0 10px;font-size:20px">أهلاً ${esc(name)}</h2>
+    <p style="font-size:15px;line-height:1.8;margin:0 0 18px">وصلنا طلب لتغيير كلمة المرور. اضغط الزر لتعيين كلمة مرور جديدة. الرابط صالح لمدة ساعة واحدة.</p>
+    <p style="margin:0 0 22px">${btn(link, 'تعيين كلمة مرور جديدة')}</p></div>
+    <hr style="border:0;border-top:1px solid #e6ecf5;margin:8px 0 18px">
+    <div dir="ltr"><p style="font-size:14px;line-height:1.7;margin:0 0 16px">Hi ${esc(name)}, we received a request to reset your password. The link works for one hour.</p>
+    <p style="margin:0 0 16px">${btn(link, 'Set a new password')}</p>
+    <p style="font-size:12px;color:#6b7a93;margin:0">If you did not ask for this, you can ignore this email. Your password stays the same.</p></div>`),
+    text: `Reset your Lab@Home password (valid 1 hour): ${link}` };
+}
 let tx = null;
 function transport() {
   if (!process.env.MAIL_USER || !process.env.MAIL_PASS) return null;
@@ -68,6 +80,14 @@ module.exports = async (req, res) => {
       const k = await rpc('email_token_create', { p_secret: process.env.PUSH_SECRET, p_session: String(b.token || '') });
       await send(k.email, verifyMail(k.name, k.code));
       return res.status(200).json({ ok: true, email: k.email });
+    }
+    if (b.action === 'reset') {
+      const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0] || 'x'; const now = Date.now();
+      const h = (hits.get('r' + ip) || []).filter(x => now - x < 600000); h.push(now); hits.set('r' + ip, h); if (h.length > 6) return res.status(429).json({ error: 'TOO_MANY_ATTEMPTS' });
+      if (!transport()) return res.status(503).json({ error: 'NO_MAIL' });
+      let k = null; try { k = await rpc('password_reset_create', { p_secret: process.env.PUSH_SECRET, p_login: String(b.login || '').slice(0, 120) }); } catch (e) { if (e.code !== 'TOO_SOON' && e.code !== 'TOO_MANY_ATTEMPTS') throw e; }
+      if (k && k.email) await send(k.email, resetMail(k.name, k.code));
+      return res.status(200).json({ ok: true });
     }
     if (b.action === 'notify') {
       if (!process.env.PUSH_SECRET || b.secret !== process.env.PUSH_SECRET) return res.status(403).json({ error: 'FORBIDDEN' });

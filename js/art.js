@@ -56,7 +56,12 @@ const P = {
   award:'<circle cx="12" cy="9" r="6"/><path d="M8.5 14l-1.5 7 5-2.5 5 2.5-1.5-7"/><path d="M9.6 9l1.6 1.6 3.2-3.2"/>',
   spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/>',
   copy:'<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
-  menu:'<path d="M4 6h16M4 12h16M4 18h16"/>'
+  menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
+  steth:'<path d="M6 3H5v5a5 5 0 0 0 10 0V3h-1"/><path d="M10 13v2a5 5 0 0 0 10 0v-2"/><circle cx="20" cy="11" r="2"/>',
+  hosp:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 7v6M9 10h6M10 21v-4h4v4"/>',
+  gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4-5"/><circle cx="12" cy="17" r="1.3"/>',
+  kid:'<circle cx="12" cy="5" r="2.6"/><path d="M8 21v-6l-3-3 1.6-1.6L9.5 12h5l2.9-1.6L19 12l-3 3v6"/>',
+  male:'<circle cx="10" cy="14" r="5"/><path d="M14 10l6-6M15 4h5v5"/>'
 };
 function icon(name, size, sw){ return `<svg viewBox="0 0 24 24" width="${size||22}" height="${size||22}" fill="none" stroke="currentColor" stroke-width="${sw||1.9}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name]||''}</svg>`; }
 
@@ -142,12 +147,12 @@ const hero = `<svg viewBox="0 0 620 540" style="direction:ltr" role="img" aria-l
 <g transform="translate(470 360)" filter="url(#hsh)"><rect width="120" height="58" rx="16" fill="#0b2350"/><text x="16" y="25" font-family="Inter,Arial" font-size="9" fill="#9fb6e6">Sample box</text><text x="16" y="44" font-family="Inter,Arial" font-size="15" font-weight="800" fill="#fff">4.2 °C</text><circle cx="98" cy="30" r="9" fill="#0fae9b"/></g>
 </svg>`;
 
-const cats = { vitamins:['sun','#f2a516','#fff4dc'], blood:['drop','#e2474f','#fdecec'], diabetes:['glucose','#7a5af8','#efeaff'], heart:['heart','#e8466f','#fdeaf0'], thyroid:['butterfly','#0fae9b','#e3f7f4'], organs:['organs','#1257d6','#eaf2ff'], packages:['box','#1257d6','#eaf2ff'] };
+const cats = { vitamins:['sun','#f2a516','#fff4dc'], blood:['drop','#e2474f','#fdecec'], diabetes:['glucose','#7a5af8','#efeaff'], heart:['heart','#e8466f','#fdeaf0'], thyroid:['butterfly','#0fae9b','#e3f7f4'], organs:['organs','#1257d6','#eaf2ff'], packages:['box','#1257d6','#eaf2ff'], vitals:['gauge','#0fae9b','#e3f7f4'], kids:['kid','#f2a516','#fff4dc'], men:['male','#1257d6','#eaf2ff'] };
 function catIcon(c, size){ const x = cats[c]||cats.organs; return `<span class="ti" style="background:${x[2]};color:${x[1]}">${icon(x[0], size||26, 2)}</span>`; }
 
 const roleArt = {
   patient:['user','#1257d6','#eaf2ff'], nurse:['syringe','#0fae9b','#e3f7f4'], courier:['van','#f2a516','#fff4dc'],
-  lab:['flask','#7a5af8','#efeaff'], company:['building','#e8466f','#fdeaf0'], admin:['shield','#0b2350','#e6ebf5']
+  lab:['flask','#7a5af8','#efeaff'], company:['building','#e8466f','#fdeaf0'], admin:['shield','#0b2350','#e6ebf5'], doctor:['steth','#0d7c6c','#dff5ef']
 };
 function roleIcon(r, size){ const x = roleArt[r === 'staff' ? 'admin' : r]||roleArt.patient; const s=size||64;
   return `<svg viewBox="0 0 64 64" width="${s}" height="${s}" aria-hidden="true" style="flex:none"><circle cx="32" cy="32" r="30" fill="${x[2]}"/><g transform="translate(16 16) scale(1.3333)" fill="none" stroke="${x[1]}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${P[x[0]]}</g></svg>`; }
