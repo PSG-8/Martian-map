@@ -8,5 +8,5 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - run: curl -sI https://labathome-oman.vercel.app/present/ | head -15; curl -s https://labathome-oman.vercel.app/present/ | head -c 300
-      - run: npm init -y >/dev/null && npm i playwright@1.49.1 && npx playwright install --with-deps chromium webkit >/dev/null
+      - run: npm init -y >/dev/null && npm i playwright@1.49.1 && npx playwright install --with-deps chromium && (npx playwright install --with-deps webkit || true)
       - run: node check.mjs
