@@ -2,6 +2,8 @@
 import * as H from './js/hero3d.js';
 const A = window.ART, ic = (n, s = 30, w = 2) => A.icon(n, s, w);
 const CUES = await (await fetch('cues.json')).json();
+const WK = (await (await fetch('warp.json')).json()).knots;
+const warp = tn => { for (let i = 1; i < WK.length; i++) { const [n0, o0] = WK[i - 1], [n1, o1] = WK[i]; if (tn <= n1 || i === WK.length - 1) return n1 === n0 ? o1 : o0 + (Math.min(tn, n1) - n0) / (n1 - n0) * (o1 - o0); } return tn; };
 const ui = document.getElementById('ui'); const bgui = document.getElementById('bgui'); const gl = document.getElementById('gl');
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v)); const seg = (t, a, b) => clamp((t - a) / (b - a));
 const eo = x => 1 - Math.pow(1 - x, 3); const eio = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; const back = x => { const c1 = 1.5, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
@@ -51,7 +53,7 @@ const subs = el('<div class="ar"></div>', '', 'subs'); const subAr = subs.queryS
 await H.filmSetup(gl, 1920, 1080);
 for (const i of [0, 1, 2]) H.filmRender(i, 0.01);
 
-window.setT = t => {
+window.setT = tn => { const t = warp(tn);
   /* 3D */
   const sh = SHOTS.find(s => t >= s[0] - .4 && t < s[1] + .4);
   if (sh) { H.filmRender(sh[2], t - sh[0] + (sh[5] || 0), sh[3], sh[4]); gl.style.opacity = op(t, sh[0] - .4, sh[1] + .4, .4, .4) * (t < .4 ? 1 : 1); if (sh[0] === 0) gl.style.opacity = 1 - seg(t, sh[1] - .0, sh[1] + .4); }
