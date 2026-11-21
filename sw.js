@@ -1,5 +1,5 @@
-const V = 'lah-v25';
-const CORE = ['./', 'index.html', 'css/app.css?v=25', 'js/i18n.js?v=25', 'js/art.js?v=25', 'js/api.js?v=25', 'js/qr.js?v=25', 'js/pdf.js?v=25', 'js/guide.js?v=25', 'js/app.js?v=25', 'icons/icon.svg', 'manifest.webmanifest', "img/hero/h0d.jpg", "img/hero/h0m.jpg"];
+const V = 'lah-v26';
+const CORE = ['./', 'index.html', 'css/app.css?v=26', 'js/i18n.js?v=26', 'js/art.js?v=26', 'js/api.js?v=26', 'js/qr.js?v=26', 'js/pdf.js?v=26', 'js/guide.js?v=26', 'js/app.js?v=26', 'icons/icon.svg', 'manifest.webmanifest', "img/hero/h0d.jpg", "img/hero/h0m.jpg"];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
