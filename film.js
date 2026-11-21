@@ -1,4 +1,4 @@
-// Lab@Home explainer – time-driven film. setT(t) draws frame t (seconds).
+// iLab@home explainer – time-driven film. setT(t) draws frame t (seconds).
 import * as H from './js/hero3d.js';
 const A = window.ART, ic = (n, s = 30, w = 2) => A.icon(n, s, w);
 const CUES = await (await fetch('cues.json')).json();
@@ -10,7 +10,7 @@ const eo = x => 1 - Math.pow(1 - x, 3); const eio = x => x < .5 ? 4 * x * x * x 
 const op = (t, a, b, fi = .35, fo = .35) => seg(t, a, a + fi) * (1 - seg(t, b - fo, b));
 const el = (html, cls, id) => { const d = document.createElement('div'); if (cls) d.className = cls; if (id) d.id = id; d.innerHTML = html; ui.appendChild(d); return d; };
 const st = (e, o) => { for (const k in o) e.style[k] = o[k]; };
-const WM = '<span class="wm">Lab<i>@</i>Home</span>';
+const WM = '<span class="wm">iLab<i>@</i>home</span>';
 const logo = A.logo;
 
 /* 3D shots: [from, to, scene, ox, oy, tOffset] */
@@ -18,7 +18,7 @@ const SHOTS = [[0, 5.05, 0, .2, 0], [9.1, 12.0, 1, .2, 0, 0], [25.0, 27.55, 0, .
 /* text blocks */
 const C = (icon, label, col, bg, at) => ({ icon, label, col, bg, at });
 const TX = [
-  { a: 0.3, b: 5.05, dark: true, eb: 'Lab@Home · Oman', h: 'Lab tests at<br>your doorstep', p: 'Home sample collection across North Al Sharqiyah.', chips: [] },
+  { a: 0.3, b: 5.05, dark: true, eb: 'iLab@home · Oman', h: 'Lab tests at<br>your doorstep', p: 'Home sample collection across North Al Sharqiyah.', chips: [] },
   { a: 5.05, b: 9.1, eb: 'Step 1 · Sign up', h: 'Join in a minute', chips: [C('phone', 'Phone number', '#1257d6', '#eaf2ff', 6.1), C('mail', 'Email', '#7a5af8', '#efeaff', 7.0), C('user', 'Google account', '#0fae9b', '#e3f7f4', 8.2)] },
   { a: 9.1, b: 15.45, eb: 'Step 2 · Choose', h: 'Single tests &<br>family packages', chips: [C('kid', 'Kids', '#f2a516', '#fff4dc', 10.7), C('users', 'Adults', '#1257d6', '#eaf2ff', 12.3), C('heart', 'Seniors 60+', '#e8466f', '#fdeaf0', 13.9)] },
   { a: 15.45, b: 22.3, eb: 'Step 3 · Book', h: 'Book in three taps', chips: [C('clock', 'Pick a time', '#1257d6', '#eaf2ff', 15.8), C('pin', 'Drop a pin', '#e2474f', '#fdecec', 17.4), C('card', 'Pay securely', '#0fae9b', '#e3f7f4', 19.3)] },
@@ -43,10 +43,10 @@ const imgs = [...phone.querySelectorAll('img')];
 const notif = el(`<span class="ni">${logo}</span><div><b>New request near you</b><span>LAH-10250 · Ibra · 07:00</span></div>`, '', 'notif');
 const mapc = el(`<div class="road" style="top:70px;transform:rotate(-8deg)"></div><div class="road" style="top:150px;transform:rotate(14deg)"></div><div class="road" style="left:150px;width:22px;top:-20px;bottom:-20px;right:auto;height:auto"></div><svg class="pin" viewBox="0 0 44 58"><path d="M22 2C11 2 3 10.5 3 21c0 14 19 34 19 34s19-20 19-34C41 10.5 33 2 22 2z" fill="#e2474f"/><circle cx="22" cy="21" r="7" fill="#fff"/></svg>`, '', 'map');
 const cold = el(`<span class="ci" style="background:#e0ecff;color:#2563eb">${ic('thermo', 30, 2.2)}</span>4.2 °C · cold box`, 'badge', 'cold');
-const pdfb = el(`<span class="ci" style="background:#fdecec;color:#e2474f">${ic('file', 30, 2.2)}</span>LabAtHome-LAH-10255.pdf`, 'badge', 'pdfb');
+const pdfb = el(`<span class="ci" style="background:#fdecec;color:#e2474f">${ic('file', 30, 2.2)}</span>iLabAtHome-LAH-10255.pdf`, 'badge', 'pdfb');
 const scrim = el('', '', 'scrim'); ui.prepend(scrim); const bug = el(`${logo}${WM}`, '', 'bug');
 const endbg = el('', '', 'endbg');
-const end = el(`<div class="el">${logo}</div><div class="ew wm">Lab<i>@</i>Home</div><div class="words"><span>Book.</span><span>Test.</span><span>Get results.</span></div><div class="url">labathome-oman.vercel.app</div>`, '', 'end');
+const end = el(`<div class="el">${logo}</div><div class="ew wm">iLab<i>@</i>home</div><div class="words"><span>Book.</span><span>Test.</span><span>Get results.</span></div><div class="url">labathome-oman.vercel.app</div>`, '', 'end');
 const vig = el('', '', 'vig');
 const subs = el('<div class="ar"></div>', '', 'subs'); const subAr = subs.querySelector('.ar');
 
