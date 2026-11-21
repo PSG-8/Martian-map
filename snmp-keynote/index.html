@@ -343,6 +343,133 @@ body.dk #bg{opacity:0}
 .iticker i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#14B8A6;margin-right:8px;animation:led 1.2s infinite}
 @media (max-width:760px),(max-aspect-ratio:1/1){.ibox{top:auto;bottom:70px;transform:none}}
 #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:15}
+
+/* 3D illustrations */
+.ill{position:absolute;display:none}
+body.has3d .ill{display:block}
+body.has3d .svgill{display:none}
+.illcv{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+.illcv:active{cursor:grabbing}
+.ill-l{position:absolute;inset:0;pointer-events:none}
+.i-title{left:720px;top:70px;width:880px;height:760px}
+.i-hook{left:720px;top:110px;width:860px;height:700px}
+.i-stack{left:30px;top:180px;width:930px;height:640px}
+.i-arch{left:110px;top:150px;width:1200px;height:650px}
+.i-end{left:740px;top:90px;width:860px;height:740px}
+.i-shield{left:970px;top:150px;width:600px;height:680px}
+.i-msg{left:96px;top:200px;width:1408px;height:410px}
+.i-scale{left:530px;top:170px;width:540px;height:660px}
+.illhint{position:absolute;right:14px;top:10px;z-index:2;font:600 17px Inter,sans-serif;color:var(--mut);background:rgba(255,255,255,.88);padding:7px 14px;border-radius:99px;pointer-events:none;transition:opacity .8s}
+.illhint.fade{opacity:0}
+.il{position:absolute;left:0;top:0;padding:7px 14px;border-radius:12px;background:#fff;border:1px solid #DCE5F2;font:700 20px Inter,sans-serif;color:var(--ink);white-space:nowrap;box-shadow:0 8px 20px -12px rgba(15,23,42,.45);opacity:0;transition:opacity .4s}
+.il.on{opacity:1}
+.il-blue{background:var(--blue);color:#fff;border-color:var(--blue)}
+.il-dark{background:var(--ink);color:#fff;border-color:var(--ink)}
+.il-teal{background:var(--teal);color:#fff;border-color:var(--teal)}
+.il-orange{background:var(--orange);color:#fff;border-color:var(--orange)}
+.il-red{background:var(--red);color:#fff;border-color:var(--red)}
+.il-ok{background:#ECFDF5;color:#047857;border-color:#A7F3D0}
+.il-bang{font:800 34px Poppins,sans-serif;width:56px;height:56px;padding:0;border-radius:50%;display:grid;place-items:center;animation:bang .8s infinite}
+@keyframes bang{50%{scale:1.15}}
+.il-bub{font:700 19px ui-monospace,Menlo,monospace}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(37,99,235,.55)}100%{box-shadow:0 0 0 22px rgba(37,99,235,0)}}
+.ping{animation:ping .9s ease-out}
+
+/* message structure */
+.mpanel{position:absolute;left:96px;right:96px;top:628px;min-height:170px;padding:24px 32px;display:grid;grid-template-columns:18px 1fr 400px;gap:26px;align-items:center}
+.mpsw{width:18px;align-self:stretch;border-radius:9px;background:var(--blue);transition:background .4s}
+.mpn{font:700 34px Poppins,sans-serif;line-height:1.15}
+.mpd{font-size:24px;color:var(--mut);margin-top:6px;line-height:1.4}
+.mpe{font:700 23px ui-monospace,Menlo,monospace;color:var(--blue);background:#EEF4FE;border-radius:16px;padding:18px 20px;text-align:center;overflow-wrap:anywhere}
+
+/* terminal */
+.term{position:absolute;left:96px;right:96px;top:196px;height:560px;background:#0F172A;border-radius:24px;box-shadow:0 30px 70px -30px rgba(15,23,42,.7);overflow:hidden}
+.tbar{height:48px;display:flex;align-items:center;gap:9px;padding:0 20px;background:#1E293B;color:#94A3B8;font:600 17px ui-monospace,Menlo,monospace}
+.tbar i{width:13px;height:13px;border-radius:50%}.tbar i:nth-child(1){background:#EF4444}.tbar i:nth-child(2){background:#EAB308}.tbar i:nth-child(3){background:#22C55E}
+.tbar span{margin-left:12px}
+.tbody{padding:20px 28px;display:grid;gap:14px;font:500 22px/1.45 ui-monospace,Menlo,Consolas,monospace;color:#E2E8F0}
+.cmd{display:inline-block;white-space:pre;overflow:hidden;vertical-align:top;width:0;color:#FFFFFF;font-weight:700;border-right:3px solid transparent}
+.tb.on .cmd{width:calc(var(--n) * 1ch + 4px);transition:width var(--tt) steps(var(--n));border-right-color:#5EEAD4;animation:caret 1s step-end infinite}
+@keyframes caret{50%{border-right-color:transparent}}
+.out{white-space:pre;color:#5EEAD4;opacity:0;transition:opacity .3s}
+.tb.on .out,.out.st{opacity:1}
+.out.c{color:#7C8AA5}
+.term .f{border-radius:6px;transition:background .25s,color .25s}
+.term[data-hl="v"] .f[data-f="v"],.term[data-hl="c"] .f[data-f="c"],.term[data-hl="l"] .f[data-f="l"],.term[data-hl="u"] .f[data-f="u"],.term[data-hl="a"] .f[data-f="a"],.term[data-hl="x"] .f[data-f="x"]{background:#F97316;color:#fff}
+.flags{position:absolute;left:96px;right:96px;bottom:70px;display:flex;flex-wrap:wrap;gap:12px}
+.flags button{all:unset;cursor:pointer;padding:10px 18px;border-radius:99px;background:#fff;border:2px solid var(--line);font:500 22px Inter,sans-serif;color:var(--ink);box-shadow:0 8px 20px -14px rgba(30,58,138,.35);transition:transform .2s,border-color .2s}
+.flags button b{font-family:ui-monospace,Menlo,monospace;color:var(--orange);margin-right:6px}
+.flags button:hover,.flags button.on{border-color:var(--orange);transform:translateY(-2px)}
+.flags button:focus-visible{outline:3px solid var(--blue)}
+
+/* strengths and limits */
+.pl{position:absolute;top:208px;width:430px}
+.pl-l{left:96px}.pl-r{right:96px}
+.pl h3{font-size:38px;margin-bottom:14px}
+.pl-l h3{color:var(--teal)}.pl-r h3{color:var(--orange)}
+.pl ul{list-style:none;padding:0;margin:0;display:grid;gap:14px}
+.pl li{display:flex;gap:14px;align-items:flex-start;padding:14px 18px;border-radius:18px;background:#fff;border:1px solid #EAF0F8;box-shadow:0 12px 26px -18px rgba(30,58,138,.35)}
+.pl li i{width:14px;height:14px;border-radius:5px;margin-top:10px;flex:none}
+.pl-l li i{background:var(--teal)}.pl-r li i{background:var(--orange)}
+.pl li b{display:block;font:700 25px Poppins,sans-serif;line-height:1.25}
+.pl li span{display:block;font-size:22px;color:var(--mut);line-height:1.35;margin-top:2px}
+
+/* quiz with answers */
+.mcqs{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:30px}
+.mcq{padding:22px 28px}
+.qh{display:flex;gap:16px;align-items:baseline}
+.qh .qn{font:800 34px Poppins,sans-serif;color:var(--blue)}
+.mcq h3{font-size:30px;line-height:1.2}
+.opts{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+.opts button{all:unset;cursor:pointer;padding:11px 22px;border-radius:14px;border:2px solid #DCE5F2;background:#F8FAFD;font:700 25px Poppins,sans-serif;color:var(--ink);transition:transform .15s,background .25s,border-color .25s,color .25s}
+.opts button:hover{border-color:var(--blue);transform:translateY(-2px)}
+.opts button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.opts button.ok{background:#10B981;border-color:#10B981;color:#fff}
+.opts button.no{background:#FEF2F2;border-color:var(--red);color:var(--red);animation:shake .45s}
+@keyframes shake{20%{translate:-8px}40%{translate:8px}60%{translate:-5px}80%{translate:5px}}
+.why{font-size:21px;color:#047857;margin-top:12px;opacity:0;transition:opacity .4s}
+.mcq.done .why{opacity:1}
+.mcq.done{border-color:#A7F3D0}
+
+/* reactions */
+#react{position:fixed;left:calc(22px + env(safe-area-inset-left,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));display:flex;gap:4px;padding:6px;border-radius:99px;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);box-shadow:0 10px 30px -12px rgba(15,23,42,.35);z-index:6;transition:opacity .5s}
+#react.idle{opacity:.15}
+#react button{all:unset;cursor:pointer;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;transition:transform .15s,background .15s}
+#react button:hover{background:#EEF3FB;transform:translateY(-3px) scale(1.12)}
+#react button:focus-visible{outline:3px solid var(--blue)}
+#react svg{width:24px;height:24px}
+#rlayer{position:fixed;inset:0;pointer-events:none;z-index:14;overflow:hidden}
+.rf{position:absolute;width:var(--s);height:var(--s);margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2);border-radius:50%;background:#fff;border:3px solid;display:grid;place-items:center;box-shadow:0 10px 24px -10px rgba(15,23,42,.45);animation:rfly var(--t) cubic-bezier(.2,.7,.3,1) forwards}
+.rf svg{width:56%;height:56%}
+@keyframes rfly{0%{transform:translate(0,0) scale(.2);opacity:0}12%{transform:translate(calc(var(--dx) * .15),-40px) scale(1.15);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(.9) rotate(var(--r));opacity:0}}
+#rtoast{position:fixed;left:50%;top:22px;transform:translate(-50%,-30px);opacity:0;z-index:16;display:flex;gap:12px;align-items:center;padding:12px 22px;border-radius:99px;background:#0F172A;color:#fff;font:600 20px Inter,sans-serif;transition:opacity .4s,transform .4s;pointer-events:none}
+#rtoast.on{opacity:1;transform:translate(-50%,0)}
+#rtoast svg{width:24px;height:24px}
+@media (max-width:760px){#react{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+
+/* readability: larger type for a projected room */
+h2{font-size:64px}
+.sub{font-size:30px;max-width:1300px}
+.kicker{font-size:26px}
+.s-title h1{font-size:52px}
+.trio h3{font-size:40px}.trio p{font-size:26px}
+.fact{font-size:25px}.fact b{font-size:30px}.num{font-size:34px}
+.chip{font-size:22px}
+.oidnote{font-size:25px}
+.node text{font-size:20px}
+.op h3{font-size:36px}.op p{font-size:24px}
+.bl h3{font-size:34px}.bl p{font-size:25px}
+.duo h3{font-size:38px}.duo p{font-size:25px}
+.vr h3{font-size:40px}.vr .meta{font-size:23px}.vr .meta b{font-size:25px}.msg{font-size:21px}.flag{font-size:20px}
+.stair h3{font-size:36px}.stair p{font-size:23px}
+.tile h4{font-size:21px}.val{font-size:60px}.devs li{font-size:22px}.mono{font-size:20px}.toast{font-size:23px}.tools{font-size:24px;bottom:62px}
+.ck h3{font-size:32px}.ck p{font-size:24px}
+.take div{font-size:36px}
+.con{font-size:18px}.dl{font-size:18px}.dl small{font-size:15px}.opb{font-size:22px}.selbox .v{font-size:30px}.selbox .ip{font-size:18px}.labhint{font-size:18px}
+#foot{left:auto;bottom:auto;right:96px;top:28px;font-size:18px}
+#notes{font-size:20px}
+.who{bottom:72px}
+.expl{bottom:86px}
 @media (prefers-reduced-motion:reduce){*,*:before{animation:none!important;transition-duration:.01s!important}}
 </style>
 </head>
@@ -381,7 +508,8 @@ body.dk #bg{opacity:0}
    <h1 class="in" style="--d:.3s">How networks report to their admins</h1>
    <p class="sub in" style="--d:.45s">Simple Network Management Protocol</p>
   </div>
-  <svg id="s-title" class="float" viewBox="0 0 900 700" role="img" aria-label="Isometric network with a monitoring station connected to devices"></svg>
+  <svg id="s-title" class="float svgill" viewBox="0 0 900 700" role="img" aria-label="Isometric network with a monitoring station connected to devices"></svg>
+  <div class="ill i-title nonav" data-ill="net"><div class="illhint">Drag to rotate · click a device</div></div>
   <div class="who in" style="--d:.6s"><div class="av" aria-hidden="true">BA</div><div><div class="lbl">Presented by</div><div class="nm">BILARAB SUWAILAM ALMUSALLAMI</div><div class="meta2"><span class="id">ID 32J2324</span><span>Advanced Computer Network Course</span></div></div></div>
  </section>
 
@@ -391,7 +519,8 @@ body.dk #bg{opacity:0}
    <div class="big in" style="--d:.25s">One fails at 3&nbsp;AM.</div>
    <div class="q" data-step="1">How do you know?</div>
   </div>
-  <svg id="s-hook" viewBox="0 0 900 600" role="img" aria-label="Grid of network devices, one turns red"></svg>
+  <svg id="s-hook" class="svgill" viewBox="0 0 900 600" role="img" aria-label="Grid of network devices, one turns red"></svg>
+  <div class="ill i-hook nonav" data-ill="grid"><div class="illhint">Drag to rotate · click any server</div></div>
  </section>
 
  <section class="slide" data-steps="3">
@@ -416,7 +545,8 @@ body.dk #bg{opacity:0}
  <section class="slide" data-steps="3">
   <h2 class="in">Where SNMP lives</h2>
   <p class="sub in" style="--d:.15s">A small application-layer protocol riding on fast, connectionless UDP.</p>
-  <svg id="s-stack" viewBox="0 0 900 560" role="img" aria-label="Protocol stack: SNMP over UDP over IP"></svg>
+  <svg id="s-stack" class="svgill" viewBox="0 0 900 560" role="img" aria-label="Protocol stack: SNMP over UDP over IP"></svg>
+  <div class="ill i-stack nonav" data-ill="stack"><div class="illhint">Drag to rotate · click a layer</div></div>
   <div class="facts">
    <div class="card fact" data-step="1"><span class="num">L3</span><div><b>IP</b><br>Delivers packets between hosts</div></div>
    <div class="card fact" data-step="2"><span class="num" style="color:var(--teal)">L4</span><div><b>UDP</b><br>No handshake, tiny overhead</div></div>
@@ -427,7 +557,8 @@ body.dk #bg{opacity:0}
  <section class="slide" data-steps="2">
   <h2 class="in">The architecture</h2>
   <p class="sub in" style="--d:.15s">One manager. Many agents. Every device becomes visible.</p>
-  <svg id="s-arch" viewBox="0 0 1100 640" role="img" aria-label="Manager connected to agents in a router, switch, server and printer"></svg>
+  <svg id="s-arch" class="svgill" viewBox="0 0 1100 640" role="img" aria-label="Manager connected to agents in a router, switch, server and printer"></svg>
+  <div class="ill i-arch nonav" data-ill="arch"><div class="illhint">Click a device to send a GET</div></div>
   <div class="legend">
    <span class="chip in" style="--d:.5s"><span class="dot" style="background:#0F172A"></span>Manager (NMS): central software</span>
    <span class="chip in" style="--d:.65s"><span class="dot" style="background:#2563EB"></span>Agent: runs inside each device</span>
@@ -437,7 +568,7 @@ body.dk #bg{opacity:0}
 
  <section class="slide" data-hook="oid">
   <h2 class="in">MIB &amp; OID: addressing the data</h2>
-  <p class="sub in" style="--d:.15s">The MIB is a tree of everything an agent can report. An OID is the path to one value.</p>
+  <p class="sub in" style="--d:.15s">The MIB is a tree of all the data. An OID is the path to one value.</p>
   <svg id="s-oid" viewBox="0 0 1408 400" role="img" aria-label="OID tree from iso down to sysUpTime"></svg>
   <div class="oidrow">
    <div id="oid" aria-live="polite"></div>
@@ -445,9 +576,16 @@ body.dk #bg{opacity:0}
   </div>
  </section>
 
+ <section class="slide" data-hook="msg" data-steps="2">
+  <h2 class="in">Inside an SNMP message</h2>
+  <p class="sub in" style="--d:.15s">Encoded with ASN.1 BER and sent in one UDP datagram.</p>
+  <div class="ill i-msg nonav" data-ill="msg"><div class="illhint">Click any block</div></div>
+  <div class="card mpanel in" style="--d:.3s"><div class="mpsw" id="mpSw"></div><div><div class="mpn" id="mpName">A GetRequest from the manager</div><div class="mpd" id="mpDesc">Next click opens the packet. Every block is one field of the message.</div></div><div class="mpe" id="mpEx">GetRequest · sysUpTime.0</div></div>
+ </section>
+
  <section class="slide">
   <h2 class="in">Six operations</h2>
-  <p class="sub in" style="--d:.15s">M = manager, A = agent. Watch which way each message travels.</p>
+  <p class="sub in" style="--d:.15s">M = manager, A = agent. Every request gets a RESPONSE back.</p>
   <div class="ops">
    <div class="card op in" style="--d:.25s"><h3>GET</h3><p>Read one value</p><div class="lane"><span class="end m">M</span><span class="end a">A</span><i class="pk r1" style="color:#2563EB"></i><i class="pk l2" style="color:#14B8A6"></i></div></div>
    <div class="card op in" style="--d:.35s"><h3>GET-NEXT</h3><p>Read the next value: walk a table</p><div class="lane"><span class="end m">M</span><span class="end a">A</span><i class="pk r1" style="color:#2563EB;--t:1.8s"></i><i class="pk l2" style="color:#14B8A6;--t:1.8s"></i></div></div>
@@ -545,7 +683,7 @@ body.dk #bg{opacity:0}
     <svg class="lock shut" viewBox="0 0 62 72" aria-hidden="true"><path class="shackle" d="M16 30V20a15 15 0 0 1 30 0" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" transform="translate(0,-10)"/><rect x="6" y="30" width="50" height="40" rx="10" fill="#fff"/></svg>
     <h3>authPriv</h3><p>Authenticated and encrypted (e.g. AES). The strongest.</p></div>
   </div>
-  <div class="expl"><span class="chip" data-step="3" style="--d:.6s"><b>Auth</b>&nbsp;proves who sent it and that it was not changed</span><span class="chip" data-step="3" style="--d:.75s"><b>Priv</b>&nbsp;keeps the content secret</span></div>
+  <div class="expl"><span class="chip" data-step="3" style="--d:.6s"><b>Auth</b>&nbsp;who sent it, unchanged</span><span class="chip" data-step="3" style="--d:.75s"><b>Priv</b>&nbsp;content kept secret</span><span class="chip" data-step="3" style="--d:.9s"><b>VACM</b>&nbsp;which OIDs a user may see</span></div>
  </section>
 
  <section class="slide" data-hook="dash" data-steps="1">
@@ -570,6 +708,37 @@ body.dk #bg{opacity:0}
   <div class="tools in" style="--d:.6s">Real tools that work this way: Zabbix, PRTG, Nagios</div>
  </section>
 
+ <section class="slide" data-hook="cli" data-steps="3">
+  <h2 class="in">Hands-on with Net-SNMP</h2>
+  <p class="sub in" style="--d:.15s">The same operations, typed by a network admin.</p>
+  <div class="term in nonav" id="term" style="--d:.25s">
+   <div class="tbar"><i></i><i></i><i></i><span>admin@nms: ~</span></div>
+   <div class="tbody">
+    <div class="out c st"># lab network · 10.0.0.20 is srv-db, a Linux server running the Net-SNMP agent</div>
+    <div class="tb" data-step="1"><div class="cmd">$ snmpget <span class="f" data-f="v">-v2c</span> <span class="f" data-f="c">-c public</span> 10.0.0.20 sysName.0</div><div class="out">SNMPv2-MIB::sysName.0 = STRING: srv-db</div></div>
+    <div class="tb" data-step="2"><div class="cmd">$ snmpwalk <span class="f" data-f="v">-v2c</span> <span class="f" data-f="c">-c public</span> 10.0.0.20 system</div><div class="out">SNMPv2-MIB::sysDescr.0 = STRING: Linux srv-db 6.8.0 x86_64</div><div class="out">SNMPv2-MIB::sysObjectID.0 = OID: NET-SNMP-MIB::netSnmpAgentOIDs.10</div><div class="out">DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (364051200) 42 days, 3:15:12.00</div><div class="out">SNMPv2-MIB::sysContact.0 = STRING: lab admin</div><div class="out">SNMPv2-MIB::sysName.0 = STRING: srv-db</div><div class="out">SNMPv2-MIB::sysLocation.0 = STRING: server room, rack 2</div></div>
+    <div class="tb" data-step="3"><div class="cmd">$ snmpget <span class="f" data-f="v">-v3</span> <span class="f" data-f="l">-l authPriv</span> <span class="f" data-f="u">-u admin</span> <span class="f" data-f="a">-a SHA -A ********</span> <span class="f" data-f="x">-x AES -X ********</span> 10.0.0.20 sysName.0</div><div class="out c"># same answer, now authenticated and encrypted</div><div class="out">SNMPv2-MIB::sysName.0 = STRING: srv-db</div></div>
+   </div>
+  </div>
+  <div class="flags in nonav" style="--d:.4s"><button data-f="v"><b>-v</b>version</button><button data-f="c"><b>-c</b>community</button><button data-f="l"><b>-l</b>security level</button><button data-f="u"><b>-u</b>user</button><button data-f="a"><b>-a -A</b>authentication</button><button data-f="x"><b>-x -X</b>privacy</button></div>
+ </section>
+
+ <section class="slide" data-hook="pros" data-steps="2">
+  <h2 class="in">Strengths and limits</h2>
+  <p class="sub in" style="--d:.15s">Why SNMP is everywhere, and what to watch out for.</p>
+  <div class="pl pl-l" data-step="1"><h3>Strengths</h3><ul>
+   <li><i></i><div><b>Lightweight</b><span>Small messages over UDP</span></div></li>
+   <li><i></i><div><b>Universal</b><span>Almost every router, switch, server and printer has an agent</span></div></li>
+   <li><i></i><div><b>Open standard</b><span>Defined by the IETF, not tied to one vendor</span></div></li>
+   <li><i></i><div><b>Instant alerts</b><span>Traps report problems the moment they happen</span></div></li></ul></div>
+  <div class="ill i-scale nonav" data-ill="scale"><div class="illhint">Click a block</div></div>
+  <div class="pl pl-r" data-step="2"><h3>Limits</h3><ul>
+   <li><i></i><div><b>Messages can be lost</b><span>UDP has no delivery guarantee: use INFORM for key alerts</span></div></li>
+   <li><i></i><div><b>Weak old security</b><span>v1 and v2c send the community in plain text</span></div></li>
+   <li><i></i><div><b>Polling traffic</b><span>Asking thousands of devices often adds load</span></div></li>
+   <li><i></i><div><b>Limited configuration</b><span>Modern networks add NETCONF and YANG</span></div></li></ul></div>
+ </section>
+
  <section class="slide" data-hook="prac" data-steps="4">
   <h2 class="in">Best practices</h2>
   <div class="checks">
@@ -578,21 +747,23 @@ body.dk #bg{opacity:0}
    <div class="card ck" data-step="3"><svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="#14B8A6"/><path class="tick" d="M17 29l8 8 15-17" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><h3>Restrict access with ACLs</h3><p>Only the manager's address may talk to agents</p></div></div>
    <div class="card ck" data-step="4"><svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="#14B8A6"/><path class="tick" d="M17 29l8 8 15-17" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><h3>Watch traps continuously</h3><p>An alert nobody reads protects nobody</p></div></div>
   </div>
-  <svg id="shield" viewBox="0 0 460 540" aria-hidden="true">
+  <svg id="shield" class="svgill" viewBox="0 0 460 540" aria-hidden="true">
    <defs><linearGradient id="shg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B82F6"/><stop offset="1" stop-color="#14B8A6"/></linearGradient></defs>
    <path class="sh-fill" d="M230 30l180 64v150c0 130-84 222-180 266C134 466 50 374 50 244V94z" fill="url(#shg)"/>
    <path class="sh-out" d="M230 30l180 64v150c0 130-84 222-180 266C134 466 50 374 50 244V94z" fill="none" stroke="#2563EB" stroke-width="10" stroke-linejoin="round"/>
    <path class="sh-check" d="M150 270l55 55 105-115" fill="none" stroke="#fff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
+  <div class="ill i-shield nonav" data-ill="shield"><div class="illhint">Click the shield</div></div>
  </section>
 
- <section class="slide" data-steps="3">
+ <section class="slide" data-hook="quiz">
   <h2 class="in">Quick quiz</h2>
-  <p class="sub in" style="--d:.15s">Answer out loud first. Then we flip the card.</p>
-  <div class="quiz">
-   <div class="qc in" data-at="1" style="--d:.2s" tabindex="0" role="button" aria-label="Question 1"><div class="qi"><div class="card qf"><div class="qn">01</div><h3>Which port receives traps?</h3><div class="tap">Tap to reveal ↻</div></div><div class="card qb"><div>Answer</div><div class="ans">UDP 162</div><p>Agents send traps to the manager on port 162. Requests go to agents on 161.</p></div></div></div>
-   <div class="qc in" data-at="2" style="--d:.3s" tabindex="0" role="button" aria-label="Question 2"><div class="qi"><div class="card qf"><div class="qn" style="color:var(--orange)">02</div><h3>Which version adds encryption?</h3><div class="tap">Tap to reveal ↻</div></div><div class="card qb"><div>Answer</div><div class="ans">SNMPv3</div><p>v1 and v2c send the community string in plain text.</p></div></div></div>
-   <div class="qc in" data-at="3" style="--d:.4s" tabindex="0" role="button" aria-label="Question 3"><div class="qi"><div class="card qf"><div class="qn" style="color:var(--teal)">03</div><h3>Which operation changes a device setting?</h3><div class="tap">Tap to reveal ↻</div></div><div class="card qb"><div>Answer</div><div class="ans">SET</div><p>GET reads values. SET writes them.</p></div></div></div>
+  <p class="sub in" style="--d:.15s">Answer out loud first, then tap an option to check.</p>
+  <div class="mcqs">
+   <div class="card mcq in" style="--d:.2s"><div class="qh"><span class="qn">01</span><h3>Which UDP port receives traps?</h3></div><div class="opts"><button>161</button><button data-ok>162</button><button>443</button></div><p class="why">Traps go to the manager on 162. Requests go to agents on 161.</p></div>
+   <div class="card mcq in" style="--d:.3s"><div class="qh"><span class="qn" style="color:var(--orange)">02</span><h3>Which version adds authentication and encryption?</h3></div><div class="opts"><button>SNMPv1</button><button>SNMPv2c</button><button data-ok>SNMPv3</button></div><p class="why">Only SNMPv3 has user-based security (USM).</p></div>
+   <div class="card mcq in" style="--d:.4s"><div class="qh"><span class="qn" style="color:var(--teal)">03</span><h3>Which operation changes a value on a device?</h3></div><div class="opts"><button>GET</button><button data-ok>SET</button><button>TRAP</button></div><p class="why">GET reads, SET writes, TRAP alerts.</p></div>
+   <div class="card mcq in" style="--d:.5s"><div class="qh"><span class="qn" style="color:#8B5CF6">04</span><h3>How is an INFORM different from a TRAP?</h3></div><div class="opts"><button>It is encrypted</button><button data-ok>It is acknowledged</button><button>It uses TCP</button></div><p class="why">The manager sends a Response back to every INFORM.</p></div>
   </div>
  </section>
 
@@ -605,7 +776,8 @@ body.dk #bg{opacity:0}
     <div class="in" style="--d:.8s"><i style="background:var(--orange)">3</i>Use SNMPv3 for security</div>
    </div>
   </div>
-  <svg id="s-end" class="float" viewBox="0 0 900 700" aria-hidden="true"></svg>
+  <svg id="s-end" class="float svgill" viewBox="0 0 900 700" aria-hidden="true"></svg>
+  <div class="ill i-end nonav" data-ill="net"><div class="illhint">Drag to rotate · click a device</div></div>
  </section>
 
  <section class="slide s-thx" data-hook="thx" data-dark="1">
@@ -616,14 +788,13 @@ body.dk #bg{opacity:0}
    <div class="q2 in" style="--d:.3s">Questions?</div>
   </div>
   <div class="who in" style="--d:.6s"><div class="av" aria-hidden="true">BA</div><div><div class="lbl">Presented by</div><div class="nm">BILARAB SUWAILAM ALMUSALLAMI</div><div class="meta2"><span class="id">ID 32J2324</span><span>Advanced Computer Network Course</span></div></div></div>
-  <div class="joke in" style="--d:.9s">No printers were harmed in the making of this presentation. Mostly.</div>
  </section>
 
  <div id="foot" class="hide"><i></i><b>BILARAB SUWAILAM ALMUSALLAMI</b><span>32J2324</span><span>·</span><span>Advanced Computer Network</span></div>
 </div>
 
 <div id="prog"></div>
-<div id="hint" style="opacity:0">→ or tap: next · N: speaker notes · F: full screen · M: sound</div>
+<div id="hint" style="opacity:0">→ or tap: next · N: notes · F: full screen · M: sound · 1–6: reactions</div>
 <aside id="notes" aria-live="polite"></aside>
 <nav id="ui" aria-label="Presentation controls">
  <button id="bPrev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -633,6 +804,9 @@ body.dk #bg{opacity:0}
  <button id="bFull" aria-label="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
  <button id="bSnd" aria-label="Mute sound"></button>
 </nav>
+<div id="react" aria-label="Reactions"></div>
+<div id="rlayer" aria-hidden="true"></div>
+<div id="rtoast" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>A question from the audience</div>
 
 <script src="three.min.js"></script>
 <script>
@@ -647,17 +821,20 @@ const NOTES=[
  '<b>[0:15]</b> Imagine you manage 500 devices: routers, switches, servers. At 3 AM one of them fails. You cannot walk to every device. So how do you know? (Pause.) The answer is SNMP.',
  '<b>[0:20]</b> SNMP is an IETF standard. One central system can Monitor (read CPU, memory, traffic), Manage (change supported settings) and Alert (hear about problems immediately).',
  '<b>[0:20]</b> SNMP is an application-layer protocol that runs over UDP, on top of IP. Why UDP? Lightweight and connectionless: no handshake, small messages, still works when the network is struggling. The manager simply retries if a reply is lost.<br><b>If asked "why not TCP?":</b> less overhead; keeping TCP sessions to thousands of devices would be heavy.',
- '<b>[0:25]</b> Three parts. The Manager, or NMS, is the central software such as Zabbix or PRTG. The Agent is small software inside each device. The managed device is the router, switch, server or printer. The manager sends requests (blue), agents send responses (teal).',
- '<b>[0:25]</b> Data lives in the MIB, a tree describing every value an agent can share. Each value has an OID. Follow the path: iso 1, org 3, dod 6, internet 1, mgmt 2, mib-2 1, system 1, sysUpTime 3. The final .0 is the single instance.<br><b>If asked:</b> MIB = the map, OID = the exact address of one item.',
+ '<b>[0:25]</b> Three parts. The Manager, or NMS, is the central software such as Zabbix or PRTG. The Agent is small software inside each device. The managed device is the router, switch, server or printer. The manager sends requests (blue), agents send responses (teal).<br><b>Try it:</b> click a device to send a GET, or click the manager to poll every agent.',
+ '<b>[0:25]</b> Data lives in the MIB, a tree describing every value an agent can share. Each value has an OID. Follow the path: iso 1, org 3, dod 6, internet 1, mgmt 2, mib-2 1, system 1, sysUpTime 3. The final .0 is the single instance.<br><b>If asked:</b> MIB = the map, OID = the exact address of one item.<br><b>Also:</b> MIBs are written in SMI, a subset of ASN.1. The standard set is MIB-II (RFC 1213): system, interfaces, ip, tcp, udp and snmp.',
+ '<b>[0:35]</b> This is one SNMP message. It travels in a single UDP datagram and is encoded with ASN.1 BER. (Click) The packet opens: IP and UDP headers for transport, then the SNMP header with the version and the community string, then the PDU: PDU type, request-id, error-status, error-index and the variable bindings, which are OID = value pairs. (Click) This is the agent’s Response: same request-id, error-status 0 and the value filled in. Click any block to explain it.<br><b>If asked:</b> SNMPv3 replaces the community with a security header: msgID, msgFlags and the USM parameters.',
  '<b>[0:25]</b> GET reads one value. GET-NEXT reads the next one, to walk a table. GET-BULK (v2c) reads many at once. SET changes a value. TRAP is an alert from the agent with no acknowledgment. INFORM (v2c) is an alert the manager must acknowledge.',
  '<b>[0:40]</b> Now a live lab. This 3D scene is a small network: the manager in the middle and five agents around it. Click a device, then press GET: a blue request goes to UDP 161 and a teal response comes back with the value and its OID. GET-NEXT walks the MIB one OID at a time. GET-BULK returns several values in one request. SET writes a value, here ifAdminStatus, which switches a port off. TRAP: the agent reports a problem on its own to UDP 162, and nobody replies. INFORM is the same alert, but the manager sends an acknowledgement. Drag to rotate. If nobody touches it, it runs a demo by itself.<br><b>Fun detail:</b> the printer sends authenticationFailure, because someone tried the default community "public".',
  '<b>[0:20]</b> Polling: the manager sends a request to the agent on UDP 161 and gets a reply. Notifications: the agent sends a TRAP or INFORM to the manager on UDP 162. 161 = agent listens, 162 = manager listens.',
  '<b>[0:15]</b> Polling is a principal walking to every class asking "Everything okay?". A trap is a teacher calling the principal the moment there is a problem. Real networks use both.',
  '<b>[0:25]</b> SNMPv1, 1990, RFC 1157: protected only by a community string sent in plain text. SNMPv2c, 1996: adds GET-BULK and INFORM, same plain-text community. SNMPv3, 2002, RFCs 3411 to 3418: user-based security with authentication and encryption. That is why v3 is recommended.',
- '<b>[0:20]</b> noAuthNoPriv: no authentication, no encryption. authNoPriv: authenticated with hashes like SHA, not encrypted. authPriv: authenticated and encrypted, for example with AES. authPriv is best practice.<br><b>If asked:</b> Auth = who sent it and that it was not changed; Priv = privacy.',
+ '<b>[0:20]</b> noAuthNoPriv: no authentication, no encryption. authNoPriv: authenticated with hashes like SHA, not encrypted. authPriv: authenticated and encrypted, for example with AES. authPriv is best practice.<br><b>If asked:</b> Auth = who sent it and that it was not changed; Priv = privacy.<br><b>Also:</b> VACM, the View-based Access Control Model, decides which OIDs each user may read or write.',
  '<b>[0:15]</b> Tools like Zabbix, PRTG and Nagios use SNMP to build dashboards like this: CPU, bandwidth, uptime read with GET, and live alerts from traps. (Click: a linkDown trap arrives from sw-03.)',
- '<b>[0:15]</b> Use SNMPv3 with authPriv. Never keep the default community strings public and private. Restrict access with ACLs. And monitor traps continuously.',
- '<b>[0:30]</b> Ask each question and let the class answer before flipping. Answers: UDP 162; SNMPv3; SET.',
+ '<b>[0:30]</b> This is how admins use SNMP with the Net-SNMP tools. (Click) snmpget reads one value. (Click) snmpwalk sends GET-NEXT again and again to read a whole branch, here the system group. (Click) The last command is SNMPv3 with authPriv: a user name, SHA for authentication and AES for encryption. Same answer, but now nobody can read or fake it. Point at a flag below to highlight it in the commands.',
+ '<b>[0:25]</b> (Click) Why is SNMP everywhere? It is lightweight, almost every device has an agent, it is an open IETF standard, and traps report problems immediately. (Click) Its limits: UDP can lose messages, so important alerts should use INFORM; v1 and v2c send the community in plain text; polling thousands of devices adds traffic; and for configuration, modern networks add NETCONF and YANG. For monitoring, the strengths win, so the scale tips that way.',
+ '<b>[0:15]</b> Use SNMPv3 with authPriv. Never keep the default community strings public and private. Restrict access with ACLs. And monitor traps continuously.<br><b>Extra:</b> SNMP can also run over TLS or DTLS (RFC 6353) on ports 10161 and 10162. Click the shield: with fewer practices the attacks get through, with all four they bounce off.',
+ '<b>[0:40]</b> Read each question, let the class answer, then tap an option. A wrong option shakes; the right one turns green. Answers: UDP 162; SNMPv3; SET; an INFORM is acknowledged.',
  '<b>[0:10]</b> Three things: SNMP gives central monitoring; it is built on Manager, Agent and MIB; always use SNMPv3.',
  '<b>[0:10]</b> Thank you for listening. I am happy to take your questions.<br><b>Likely questions:</b> Why UDP and not TCP? Trap vs Inform? MIB vs OID? What makes SNMPv3 safer?'
 ];
@@ -817,7 +994,7 @@ const toWin=(x,y)=>{const r=STG.getBoundingClientRect();return [r.left+x*r.width
 function confetti(x,y,n,spread,power){if(RM)return;n=n||110;spread=spread||1.1;power=power||1;const d=Math.min(2,devicePixelRatio||1),cols=['#2563EB','#14B8A6','#F97316','#FACC15','#EF4444','#8B5CF6'];
  for(let i=0;i<n;i++){const a=-Math.PI/2+(Math.random()-.5)*Math.PI*spread,v=(5+Math.random()*11)*power;
   parts.push({x:x*d,y:y*d,vx:Math.cos(a)*v*d,vy:Math.sin(a)*v*d,r:Math.random()*6,vr:(Math.random()-.5)*.35,w:(7+Math.random()*7)*d,h:(4+Math.random()*4)*d,c:cols[i%6],l:1,d})}}
-function fxFrame(){if(!parts.length){if(fx.dirty){fc.clearRect(0,0,fx.width,fx.height);fx.dirty=0}return}fx.dirty=1;fc.clearRect(0,0,fx.width,fx.height);
+function fxFrame(){if(!parts.length&&!rings.length){if(fx.dirty){fc.clearRect(0,0,fx.width,fx.height);fx.dirty=0}return}fx.dirty=1;fc.clearRect(0,0,fx.width,fx.height);drawRings();
  parts=parts.filter(p=>{p.vy+=.28*p.d;p.vx*=.985;p.vy*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.l-=.0065;if(p.l<=0||p.y>fx.height+40)return false;
   fc.save();fc.globalAlpha=Math.min(1,p.l*2);fc.translate(p.x,p.y);fc.rotate(p.r);fc.scale(1,Math.cos(p.r*2.3));fc.fillStyle=p.c;fc.fillRect(-p.w/2,-p.h/2,p.w,p.h);fc.restore();return true})}
 
@@ -986,14 +1163,280 @@ function makeLab(){
 $$('.opb').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();aInit();if(LAB)LAB.op(b.dataset.op)}));
 
 
+/* ---------- shared 3D kit for the slide illustrations ---------- */
+function makeKit(){
+ const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.38,metalness:.1},o||{}));
+ const LED=c=>{const m=new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:1.2,roughness:.5});m.userData={c,p:Math.random()*6};return m};
+ const mat={white:M(0xFFFFFF),pale:M(0xE9EFFA),blue:M(0x2563EB,{roughness:.3}),ink:M(0x1E293B,{roughness:.45}),slate:M(0x334155)};
+ function rbox(w,h,d,r){const s=new THREE.Shape(),x=-w/2,y=-d/2;r=Math.min(r||.12,w/2-.01,d/2-.01);
+  s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+d-r);s.quadraticCurveTo(x+w,y+d,x+w-r,y+d);s.lineTo(x+r,y+d);s.quadraticCurveTo(x,y+d,x,y+d-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);
+  const g=new THREE.ExtrudeGeometry(s,{depth:Math.max(.01,h-.06),bevelEnabled:true,bevelThickness:.03,bevelSize:.03,bevelSegments:3,curveSegments:8});g.rotateX(-Math.PI/2);g.translate(0,.03,0);return g}
+ function mesh(g,m,x,y,z,p){const o=new THREE.Mesh(g,m);o.position.set(x||0,y||0,z||0);o.castShadow=true;o.receiveShadow=true;p.add(o);return o}
+ function canvasTex(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d'),t=new THREE.CanvasTexture(c);t.anisotropy=4;
+  const api={c,g,t,f:null,draw(f){api.f=f;g.clearRect(0,0,w,h);f(g,w,h);t.needsUpdate=true}};if(document.fonts)document.fonts.ready.then(()=>{if(api.f)api.draw(api.f)});return api}
+ const B={
+  manager(){const g=new THREE.Group(),sc=canvasTex(512,288);
+   sc.draw((x,w,h)=>{x.fillStyle='#0B1A44';x.fillRect(0,0,w,h);x.fillStyle='#93C5FD';x.font='700 30px Inter, sans-serif';x.fillText('NMS · live',24,46);
+    [.5,.8,.6,.95,.7,.85,.55].forEach((v,i)=>{x.fillStyle=i%2?'#5EEAD4':'#FFFFFF';x.fillRect(28+i*40,h-30-v*170,26,v*170)});
+    x.strokeStyle='#FDBA74';x.lineWidth=5;x.beginPath();for(let i=0;i<6;i++){const px=318+i*34,py=210-Math.abs(Math.sin(i*1.3))*130;i?x.lineTo(px,py):x.moveTo(px,py)}x.stroke()});
+   mesh(rbox(3,.3,2,.2),mat.pale,0,0,0,g);mesh(new THREE.CylinderGeometry(.1,.16,.55,16),mat.ink,0,.55,-.25,g);mesh(rbox(2.5,1.45,.14,.07),mat.ink,0,.78,-.25,g);
+   const s=new THREE.Mesh(new THREE.PlaneGeometry(2.32,1.3),new THREE.MeshBasicMaterial({map:sc.t}));s.position.set(0,1.5,-.13);g.add(s);
+   mesh(rbox(.6,1.1,.9,.1),mat.white,1.95,0,.1,g);const l=LED(0x2563EB);mesh(new THREE.BoxGeometry(.08,.08,.02),l,1.95,.9,.57,g);return {g,leds:[l],top:2.4}},
+  router(){const g=new THREE.Group();mesh(rbox(1.8,.46,1.2,.16),mat.white,0,0,0,g);const f=.64;mesh(new THREE.BoxGeometry(1.6,.05,.02),mat.blue,0,.36,f,g);
+   [-.65,.65].forEach(x=>{const a=mesh(new THREE.CylinderGeometry(.04,.05,1,12),mat.ink,x,.95,-.42,g);a.rotation.z=x>0?-.18:.18});
+   const leds=[];for(let i=0;i<4;i++){const m=LED(0x14B8A6);leds.push(m);mesh(new THREE.BoxGeometry(.12,.07,.02),m,-.5+i*.22,.2,f,g)}return {g,leds,top:1.7}},
+  switch(){const g=new THREE.Group();mesh(rbox(2.4,.36,1.1,.12),mat.slate,0,0,0,g);const leds=[],f=.59;
+   for(let i=0;i<8;i++){const x=-.95+i*.27;mesh(new THREE.BoxGeometry(.19,.13,.02),mat.ink,x,.15,f,g);const m=LED(0x14B8A6);leds.push(m);mesh(new THREE.BoxGeometry(.07,.04,.02),m,x,.28,f,g)}return {g,leds,top:1.05}},
+  server(){const g=new THREE.Group();mesh(rbox(1.05,2.3,1.15,.12),mat.white,0,0,0,g);const leds=[],f=.615;
+   for(let i=0;i<4;i++){const y=.35+i*.5;mesh(new THREE.BoxGeometry(.85,.38,.02),mat.pale,0,y,f,g);mesh(new THREE.BoxGeometry(.5,.05,.02),mat.ink,-.1,y,f+.012,g);const m=LED(i%2?0x2563EB:0x14B8A6);leds.push(m);mesh(new THREE.BoxGeometry(.07,.07,.02),m,.3,y,f+.012,g)}return {g,leds,top:2.95}},
+  printer(){const g=new THREE.Group();mesh(rbox(1.6,.78,1.2,.16),mat.white,0,0,0,g);const f=.64;mesh(new THREE.BoxGeometry(1.1,.08,.02),mat.ink,0,.45,f,g);
+   mesh(new THREE.BoxGeometry(1.1,.05,.6),mat.pale,0,.86,-.18,g).rotation.x=-.25;mesh(new THREE.BoxGeometry(.85,.02,.55),mat.white,0,.9,-.16,g).rotation.x=-.25;
+   const m=LED(0x14B8A6);mesh(new THREE.BoxGeometry(.1,.06,.02),m,.6,.62,f,g);mesh(new THREE.BoxGeometry(.3,.08,.02),mat.blue,.25,.62,f,g);return {g,leds:[m],top:1.55}},
+  laptop(){const g=new THREE.Group();mesh(rbox(1.6,.09,1.1,.1),mat.pale,0,0,0,g);mesh(new THREE.BoxGeometry(1.2,.01,.5),M(0xCBD5E1),0,.1,.12,g);
+   const hinge=new THREE.Group();hinge.position.set(0,.09,-.52);hinge.rotation.x=-.22;g.add(hinge);mesh(rbox(1.6,1.05,.06,.03),mat.pale,0,0,0,hinge);
+   const sm=LED(0x2563EB);const s=new THREE.Mesh(new THREE.PlaneGeometry(1.42,.86),sm);s.position.set(0,.53,.07);hinge.add(s);return {g,leds:[sm],top:1.6}}
+ };
+ function lights(sc,r){sc.add(new THREE.HemisphereLight(0xFFFFFF,0xC3D2EE,.9));const s=new THREE.DirectionalLight(0xFFFFFF,.72);s.position.set(7,14,9);s.castShadow=true;s.shadow.mapSize.set(2048,2048);
+  Object.assign(s.shadow.camera,{left:-r,right:r,top:r,bottom:-r,near:1,far:60});s.shadow.camera.updateProjectionMatrix();s.shadow.bias=-.0004;sc.add(s);const f=new THREE.DirectionalLight(0xDCE8FF,.35);f.position.set(-8,6,-6);sc.add(f)}
+ function floor(sc,r,y){const f=new THREE.Mesh(new THREE.CircleGeometry(r,80),new THREE.ShadowMaterial({opacity:.13}));f.rotation.x=-Math.PI/2;f.position.y=y||0;f.receiveShadow=true;sc.add(f);return f}
+ function glow(col,s){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:sprTex(),color:col,transparent:true,opacity:.6,depthWrite:false}));sp.scale.setScalar(s||1.2);return sp}
+ function packet(col,r){r=r||.17;const m=new THREE.Mesh(new THREE.SphereGeometry(r,20,14),new THREE.MeshBasicMaterial({color:col}));m.add(glow(col,r*7));return m}
+ function ring(col){const m=new THREE.Mesh(new THREE.RingGeometry(.95,1.1,64),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0,depthWrite:false}));m.rotation.x=-Math.PI/2;return m}
+ return {M,LED,mat,rbox,mesh,canvasTex,B,lights,floor,glow,packet,ring};
+}
+function lab3(S,html,cls,o,dy){const el=document.createElement('div');el.className='il '+(cls||'');el.innerHTML=html;S.L.appendChild(el);const l={el,o,dy:dy||0};S.labels.push(l);return l}
+const EASE=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+function runQ(S,dt){for(let i=S.q.length-1;i>=0;i--){const p=S.q[i];p.t+=dt/p.dur;if(p.t<0)continue;if(!p.m.visible){p.m.visible=true;if(!p.rev&&!p.quiet)SFX.send()}
+ p.m.position.copy(p.curve.getPoint(p.rev?1-EASE(Math.min(1,p.t)):EASE(Math.min(1,p.t))));
+ if(p.t>=1){p.m.parent.remove(p.m);p.m.geometry.dispose();p.m.material.dispose();p.m.children[0].material.dispose();S.q.splice(i,1);if(p.cb)p.cb()}}}
+function shoot(S,par,curve,col,rev,cb,delay,quiet){const m=S.K.packet(col);m.visible=false;par.add(m);S.q.push({m,curve,t:-(delay||0)/.9,dur:.9,rev,cb,quiet})}
+function bubble(S,o,dy,txt,cls,life){const l=lab3(S,txt,'il-bub '+(cls||''),o,dy);requestAnimationFrame(()=>l.el.classList.add('on'));
+ setTimeout(()=>{l.el.classList.remove('on');setTimeout(()=>{l.el.remove();const i=S.labels.indexOf(l);if(i>=0)S.labels.splice(i,1)},450)},life||2200)}
+function ping(el){if(!el)return;el.classList.remove('ping');void el.offsetWidth;el.classList.add('ping')}
+
+/* one WebGL renderer, moved into whichever slide is showing */
+const ILL=(()=>{let R=null,cv=null,K=null,cur=null,host=null,W=1,H=1,sk=1,last=-1,drag=null,moved=0,ray=null,V=null,userT=-1e9;const defs={},built={};
+ const visChain=o=>{for(;o;o=o.parent)if(!o.visible)return false;return true};
+ function init(){if(!window.THREE)return false;try{cv=document.createElement('canvas');cv.className='illcv';R=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true})}catch(e){R=null;return false}
+  R.setClearColor(0,0);R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;K=makeKit();ray=new THREE.Raycaster();V=new THREE.Vector3();
+  cv.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};moved=0;userT=performance.now();try{cv.setPointerCapture(e.pointerId)}catch(x){}});
+  cv.addEventListener('pointermove',e=>{if(!cur)return;if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved+=Math.abs(dx)+Math.abs(dy);drag={x:e.clientX,y:e.clientY};cur.uaz-=dx*.008;cur.uel=Math.max(-.4,Math.min(.5,cur.uel+dy*.004));userT=performance.now()}
+   else{const o=hit(e);if(o!==cur.hov){cur.hov=o;cv.style.cursor=o?'pointer':''}}});
+  cv.addEventListener('pointerup',e=>{if(drag&&moved<6&&cur){const o=hit(e);if(o&&cur.def.click){cur.def.click(o,cur);SFX.pop();ripple(e.clientX,e.clientY)}}drag=null});
+  cv.addEventListener('pointerleave',()=>{if(cur)cur.hov=null});return true}
+ function hit(e){if(!cur||!cur.pick.length)return null;const r=cv.getBoundingClientRect();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),cur.cam);
+  const h=ray.intersectObjects(cur.pick,true).find(x=>visChain(x.object));if(!h)return null;let o=h.object;while(o&&!o.userData.tag)o=o.parent;return o||null}
+ function build(n){const d=defs[n],c=d.cam,sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(c.fov||34,1,.1,300),L=document.createElement('div');L.className='ill-l';
+  const S={def:d,sc,cam,L,K,pick:[],labels:[],step:0,uaz:0,uel:0,hov:null,f:{x:0,y:c.ty||0,z:0,d:c.dist},ft:null,q:[]};K.lights(sc,c.r||12);d.build(S);return S}
+ function mount(slide){const el=slide&&slide.querySelector('.ill');if(cur&&cur.def.leave)cur.def.leave(cur);
+  if(!R||!el){cur=null;host=null;if(cv&&cv.parentNode)cv.remove();return}
+  const n=el.dataset.ill;if(!built[n])built[n]=build(n);cur=built[n];host=el;el.insertBefore(cv,el.firstChild);el.appendChild(cur.L);cur.uaz=0;cur.uel=0;cur.hov=null;last=-1;resize();if(cur.def.enter)cur.def.enter(cur);
+  const h=el.querySelector('.illhint');if(h){h.classList.remove('fade');clearTimeout(h._t);h._t=setTimeout(()=>h.classList.add('fade'),5000)}}
+ function resize(){if(!host)return;W=host.offsetWidth||1;H=host.offsetHeight||1;R.setPixelRatio(Math.min(2,sk*(devicePixelRatio||1)));R.setSize(W,H,false);cur.cam.aspect=W/H;cur.cam.updateProjectionMatrix()}
+ function step(n){if(!cur||n===last)return;last=n;cur.step=n;if(cur.def.step)cur.def.step(n,cur)}
+ function frame(dt,now){if(!cur)return;const t=now/1000,c=cur.def.cam,S=cur;if(!drag&&now-userT>6000){S.uaz*=.98;S.uel*=.98}
+  const tg=S.ft||{x:0,y:c.ty||0,z:0,d:c.dist},kk=Math.min(1,dt*2.2);S.f.x+=(tg.x-S.f.x)*kk;S.f.y+=(tg.y-S.f.y)*kk;S.f.z+=(tg.z-S.f.z)*kk;S.f.d+=(tg.d-S.f.d)*kk;
+  const az=c.az+S.uaz+(RM?0:Math.sin(t*.22)*(c.sway==null?.18:c.sway)),el=Math.max(.04,Math.min(1.3,c.el+S.uel));
+  S.cam.position.set(S.f.x+Math.sin(az)*Math.cos(el)*S.f.d,S.f.y+Math.sin(el)*S.f.d,S.f.z+Math.cos(az)*Math.cos(el)*S.f.d);S.cam.lookAt(S.f.x,S.f.y,S.f.z);
+  if(S.def.frame)S.def.frame(dt,t,S);runQ(S,dt);R.render(S.sc,S.cam);
+  S.labels.forEach(l=>{l.o.getWorldPosition(V);V.y+=l.dy;V.project(S.cam);l.el.style.transform=`translate(${((V.x+1)/2*W).toFixed(1)}px,${((1-V.y)/2*H).toFixed(1)}px) translate(-50%,-100%)`})}
+ return {init,reg:(n,d)=>{defs[n]=d},mount,step,frame,size(k){sk=k;if(cur)resize()}};
+})();
+
+/* scene: a network on a platform (title, summary, architecture) */
+function netScene(o){return {cam:{az:o.az,el:o.el,dist:o.dist,ty:o.ty,r:12,sway:.2},
+ build(S){const K=S.K,P=new THREE.Group();S.sc.add(P);S.P=P;K.floor(S.sc,14,-.41);const pw=o.pw||14,pd=o.pd||12;
+  K.mesh(K.rbox(pw,.4,pd,.7),K.mat.white,0,-.4,0,P);
+  const gp=[],hw=pw/2-.6,hd=pd/2-.6;for(let x=-hw;x<=hw+.01;x+=1.2)gp.push(x,.01,-hd,x,.01,hd);for(let z=-hd;z<=hd+.01;z+=1.2)gp.push(-hw,.01,z,hw,.01,z);
+  const gg=new THREE.BufferGeometry();gg.setAttribute('position',new THREE.Float32BufferAttribute(gp,3));P.add(new THREE.LineSegments(gg,new THREE.LineBasicMaterial({color:0x2563EB,transparent:true,opacity:.1})));
+  const mp=o.m||[0,0],m=K.B.manager();m.g.position.set(mp[0],0,mp[1]);P.add(m.g);m.g.userData.tag='mgr';S.pick.push(m.g);S.mgr=m;
+  const s0=new THREE.Vector3(mp[0],.55,mp[1]);
+  S.devs=o.devs.map(([kind,x,z],i)=>{const b=K.B[kind]();b.g.position.set(x,0,z);b.g.rotation.y=o.rot==null?.3:o.rot;P.add(b.g);b.g.userData.tag='dev';b.g.userData.i=i;S.pick.push(b.g);
+   const e0=new THREE.Vector3(x,.35,z),m0=s0.clone().add(e0).multiplyScalar(.5);m0.y=2.5;const curve=new THREE.QuadraticBezierCurve3(s0,m0,e0);
+   const tg=new THREE.TubeGeometry(curve,64,.05,8,false),tube=new THREE.Mesh(tg,new THREE.MeshBasicMaterial({color:0x2563EB,transparent:true,opacity:.35}));P.add(tube);
+   const pr=K.packet(0x2563EB),ps=K.packet(0x14B8A6);pr.visible=ps.visible=false;P.add(pr);P.add(ps);const rg=K.ring(0x2563EB);rg.position.set(x,.03,z);P.add(rg);
+   const d={b,g:b.g,curve,tube,n:tg.index.count,pr,ps,rg,ph:i/o.devs.length,bt:9,rt:9,lift:0,top:b.top};if(o.labels)d.lb=lab3(S,'Agent','il-blue',b.g,b.top+.3);return d});
+  if(o.labels)S.ml=lab3(S,'Manager (NMS)','il-dark',m.g,m.top+.35);S.lp=o.linkStep?0:1;S.lt=S.lp;S.flowOn=!o.flowStep},
+ step(n,S){S.lt=!o.linkStep||n>=o.linkStep?1:0;S.flowOn=!o.flowStep||n>=o.flowStep;if(o.labels){const on=n>=(o.linkStep||0);S.ml.el.classList.toggle('on',on);S.devs.forEach(d=>d.lb.el.classList.toggle('on',on))}},
+ click(obj,S){if(obj.userData.tag==='mgr'){bubble(S,S.mgr.g,S.mgr.top+1.1,'Polling every agent','il-dark',1500);
+   S.devs.forEach((d,i)=>shoot(S,S.P,d.curve,0x2563EB,false,()=>{d.rt=0;shoot(S,S.P,d.curve,0x14B8A6,true,i===S.devs.length-1?()=>{SFX.recv();bubble(S,S.mgr.g,S.mgr.top+1.1,'All agents answered','il-teal')}:null,0,true)},i*.12,i>0))}
+  else{const d=S.devs[obj.userData.i];d.bt=0;d.rt=0;bubble(S,d.g,d.top+1.1,'GET sysUpTime.0','',1600);
+   shoot(S,S.P,d.curve,0x2563EB,false,()=>shoot(S,S.P,d.curve,0x14B8A6,true,()=>{SFX.recv();bubble(S,d.g,d.top+1.1,'= 42d 06:13:22','il-teal')}))}},
+ frame(dt,t,S){S.lp+=(S.lt-S.lp)*Math.min(1,dt*1.6);
+  S.devs.forEach((d,i)=>{d.tube.geometry.setDrawRange(0,Math.floor(d.n*S.lp/6)*6);d.tube.visible=S.lp>.01;
+   d.lift+=((S.hov===d.g?.3:0)-d.lift)*.2;let k=0;if(d.bt<.7){d.bt+=dt;k=Math.sin(d.bt/.7*Math.PI)*(1-d.bt/.7)}d.g.position.y=d.lift;d.g.scale.set(1-.08*k,1+.22*k,1-.08*k);
+   if(d.rt<1.2){d.rt+=dt;d.rg.scale.setScalar(1+d.rt*2.2);d.rg.material.opacity=.6*(1-d.rt/1.2)}else d.rg.material.opacity=0;
+   d.b.leds.forEach(m=>m.emissiveIntensity=1+.35*Math.sin(t*3+m.userData.p));
+   if(S.flowOn&&S.lp>.97){d.ph=(d.ph+dt/(3.2+i*.3))%1;const ph=d.ph;d.pr.visible=ph<.45;if(d.pr.visible)d.pr.position.copy(d.curve.getPoint(EASE(ph/.45)));d.ps.visible=ph>.5&&ph<.95;if(d.ps.visible)d.ps.position.copy(d.curve.getPoint(1-EASE((ph-.5)/.45)))}
+   else d.pr.visible=d.ps.visible=false});
+  S.mgr.g.position.y+=((S.hov===S.mgr.g?.2:0)-S.mgr.g.position.y)*.2}}}
+ILL.reg('net',netScene({devs:[['server',-5,-3.6],['router',4.4,-3.6],['switch',4.8,2],['printer',2.2,4.3],['laptop',-3.4,4],['server',-5.4,.6]],az:.62,el:.6,dist:22,ty:.3}));
+ILL.reg('arch',netScene({m:[-4.2,.6],devs:[['router',-.2,-4.8],['server',2.4,-1.8],['switch',2.8,2.4],['printer',.2,5.1]],labels:true,linkStep:1,flowStep:2,az:.38,el:.62,dist:19.5,ty:.5}));
+
+/* scene: twenty servers, one fails */
+ILL.reg('grid',{cam:{az:.62,el:.58,dist:19,ty:.8,r:12,sway:.15},
+ build(S){const K=S.K;K.floor(S.sc,14);S.racks=[];
+  for(let r=0;r<4;r++)for(let c=0;c<5;c++){const b=K.B.server();b.g.scale.setScalar(.82);b.g.position.set((c-2)*2.1,0,(r-1.5)*2.5);S.sc.add(b.g);b.g.userData.tag='rack';b.g.userData.i=S.racks.length;S.pick.push(b.g);
+   S.racks.push({b,g:b.g,fail:r===1&&c===2,lift:0,bt:9,name:'srv-'+String(S.racks.length+1).padStart(2,'0')})}
+  S.bad=S.racks.find(x=>x.fail);const bea=K.packet(0xEF4444,.28);bea.position.set(0,3.2,0);S.bad.g.add(bea);S.bea=bea;
+  S.light=new THREE.PointLight(0xEF4444,0,9);S.light.position.set(0,2.6,.8);S.bad.g.add(S.light);
+  S.r1=K.ring(0xEF4444);S.r1.position.set(S.bad.g.position.x,.03,S.bad.g.position.z);S.sc.add(S.r1);
+  S.bang=lab3(S,'!','il-red il-bang',S.bad.g,3.7);S.tip=lab3(S,'','il-tip',S.racks[0].g,3.1)},
+ enter(S){S.at=0;S.alarm=false;S.rt=0;S.bad.b.leds.forEach(m=>{m.color.setHex(m.userData.c);m.emissive.setHex(m.userData.c)});S.bea.visible=false;S.bang.el.classList.remove('on');S.tip.el.classList.remove('on')},
+ step(n,S){S.zoom=n>=1},
+ click(o,S){const r=S.racks[o.userData.i],bad=r.fail&&S.alarm;r.bt=0;S.tip.o=r.g;S.tip.el.className='il il-tip on '+(bad?'il-red':'il-ok');S.tip.el.textContent=bad?`${r.name} · linkDown`:`${r.name} · OK`;
+  clearTimeout(S.tipT);S.tipT=setTimeout(()=>S.tip.el.classList.remove('on'),2200);if(bad)SFX.trap()},
+ frame(dt,t,S){S.at+=dt;if(!S.alarm&&S.at>1.5){S.alarm=true;S.bad.b.leds.forEach(m=>{m.color.setHex(0xEF4444);m.emissive.setHex(0xEF4444)});S.bea.visible=true;S.bang.el.classList.add('on');SFX.trap()}
+  S.racks.forEach(r=>{r.lift+=((S.hov===r.g?.3:0)-r.lift)*.2;let k=0;if(r.bt<.6){r.bt+=dt;k=Math.sin(r.bt/.6*Math.PI)*(1-r.bt/.6)}r.g.position.y=r.lift+k*.35;
+   r.b.leds.forEach(m=>m.emissiveIntensity=(r.fail&&S.alarm)?(Math.sin(t*14)>0?1.6:.2):.9+.5*Math.sin(t*3+m.userData.p+r.g.position.x))});
+  if(S.alarm){S.light.intensity=2.2+1.6*Math.sin(t*8);S.rt+=dt;if(S.rt>1.2)S.rt=0;S.r1.scale.setScalar(1+S.rt*2.4);S.r1.material.opacity=.7*(1-S.rt/1.2);S.bea.scale.setScalar(1+.25*Math.sin(t*8))}
+  else{S.light.intensity=0;S.r1.material.opacity=0}
+  S.ft=S.zoom?{x:S.bad.g.position.x*.6,y:1.6,z:S.bad.g.position.z*.6,d:14}:null}});
+
+/* scene: the protocol stack, built layer by layer, with encapsulation */
+ILL.reg('stack',{cam:{az:.55,el:.42,dist:13,ty:1.6,r:9,sway:.2},
+ build(S){const K=S.K;K.floor(S.sc,10);
+  const L=[['IP','Layer 3 · addresses',0x475569],['UDP','Layer 4 · ports 161 / 162',0x14B8A6],['SNMP','Layer 7 · the messages',0x2563EB]];
+  S.slabs=L.map((l,i)=>{const g=new THREE.Group();K.mesh(K.rbox(6,.8,3.6,.18),K.M(l[2],{roughness:.32}),0,0,0,g);
+   const tx=K.canvasTex(1024,128);tx.draw((c,w,h)=>{c.fillStyle='#FFFFFF';c.textBaseline='middle';c.font='800 86px Poppins, Inter, sans-serif';c.fillText(l[0],36,h/2+4);c.font='600 46px Inter, sans-serif';c.fillStyle='rgba(255,255,255,.88)';c.fillText(l[1],330,h/2+4)});
+   const pl=new THREE.Mesh(new THREE.PlaneGeometry(5.6,.7),new THREE.MeshBasicMaterial({map:tx.t,transparent:true}));pl.position.set(0,.4,1.85);g.add(pl);
+   g.userData.tag='slab';g.userData.i=i;S.pick.push(g);S.sc.add(g);g.visible=false;return {g,y:i*1.05,p:0,vis:0,bt:9,lift:0}});
+  const pk=new THREE.Group();K.mesh(K.rbox(.7,.45,.5,.08),K.M(0x2563EB,{emissive:0x1D4ED8,emissiveIntensity:.5}),0,0,0,pk);
+  const sh1=new THREE.Mesh(new THREE.BoxGeometry(1.05,.75,.8),new THREE.MeshStandardMaterial({color:0x14B8A6,transparent:true,opacity:.45,roughness:.3}));sh1.position.y=.225;pk.add(sh1);
+  const sh2=new THREE.Mesh(new THREE.BoxGeometry(1.4,1.05,1.1),new THREE.MeshStandardMaterial({color:0x475569,transparent:true,opacity:.35,roughness:.3}));sh2.position.y=.225;pk.add(sh2);
+  pk.position.set(4.3,4,0);pk.visible=false;S.sc.add(pk);S.pk={g:pk,sh1,sh2,t:0,stage:-1};S.pl=lab3(S,'SNMP message','il-blue',pk,1.25)},
+ step(n,S){S.slabs.forEach((s,i)=>s.vis=n>=i+1?1:0);S.pk.g.visible=n>=3;S.pl.el.classList.toggle('on',n>=3)},
+ click(o,S){const s=S.slabs[o.userData.i];s.bt=0;ping($$('.facts .fact')[o.userData.i])},
+ frame(dt,t,S){S.slabs.forEach(s=>{s.p+=(s.vis-s.p)*Math.min(1,dt*3.2);s.lift+=((S.hov===s.g?.25:0)-s.lift)*.2;let k=0;if(s.bt<.6){s.bt+=dt;k=Math.sin(s.bt/.6*Math.PI)*(1-s.bt/.6)}
+   s.g.visible=s.p>.02;s.g.position.y=s.y+(1-s.p)*(1-s.p)*6+s.lift+k*.5;s.g.scale.setScalar(.7+.3*s.p)});
+  const P=S.pk;if(P.g.visible){P.t=(P.t+dt/4.4)%1;const y=4.3-P.t*5;P.g.position.y=y;P.g.rotation.y=t*.8;const st=y<.85?2:y<1.9?1:0;P.sh1.visible=st>=1;P.sh2.visible=st>=2;
+   if(st!==P.stage){P.stage=st;S.pl.el.textContent=['SNMP message','+ UDP header · port 161','+ IP header · to 10.0.0.20'][st];S.pl.el.className='il on '+['il-blue','il-teal','il-dark'][st]}}}});
+
+/* scene: one SNMP message, opened field by field */
+const FIELDS=[
+ ['IP header','Carries the packet across the network, from the manager 10.0.0.10 to the agent 10.0.0.20.','src 10.0.0.10 → dst 10.0.0.20',1.7,0x475569,0],
+ ['UDP header','Picks the port: requests go to UDP 161 on the agent, traps go to UDP 162 on the manager.','dst port 161',1.6,0x14B8A6,0],
+ ['version','Which SNMP version: 0 = SNMPv1, 1 = SNMPv2c, 3 = SNMPv3.','1 (SNMPv2c)',1.3,0x2563EB,1],
+ ['community','A shared password sent in plain text, such as "public". SNMPv3 replaces it with user-based security (USM).','"public"',1.7,0x2563EB,1],
+ ['PDU type','What to do: GetRequest, GetNextRequest, GetBulkRequest, SetRequest, Response, Trap or InformRequest.','GetRequest',1.75,0xF97316,2],
+ ['request-id','A number that matches each Response to its request, so the manager can retry safely over UDP.','4021',1.5,0xEA580C,2],
+ ['error-status','0 means noError. Other values report problems such as tooBig, noSuchName or genErr.','0 (noError)',1.6,0xEA580C,2],
+ ['error-index','Which variable binding caused the error. It is 0 when there is no error.','0',1.5,0xEA580C,2],
+ ['varbinds','The OID = value pairs. A request sends the OID with an empty value; the Response fills it in.','sysUpTime.0 = NULL',2.4,0x8B5CF6,2]];
+const RESP={0:'src 10.0.0.20 → dst 10.0.0.10',1:'src port 161',4:'Response',8:'sysUpTime.0 = 42d 06:13:22'};
+const blkVal=(i,r)=>r&&RESP[i]?RESP[i]:FIELDS[i][2];
+function fitText(g,txt,x,y,maxW,size,weight,fam){let s=size;do{g.font=`${weight} ${s}px ${fam}`;s-=2}while(g.measureText(txt).width>maxW&&s>14);g.fillText(txt,x,y)}
+function drawBlk(b,i,r){b.tx.draw((g,w,h)=>{g.textAlign='center';g.textBaseline='middle';g.fillStyle='#FFFFFF';fitText(g,b.f[0],w/2,h*.36,w-28,66,800,'Poppins, Inter, sans-serif');g.fillStyle='rgba(255,255,255,.92)';fitText(g,blkVal(i,r),w/2,h*.74,w-24,42,600,'ui-monospace, Menlo, monospace')})}
+function mpanel(S){let a;if(S.si>=0){const f=FIELDS[S.si];a=[f[0],f[1],blkVal(S.si,S.resp),'#'+f[4].toString(16).padStart(6,'0')]}
+ else a=S.resp?['The agent’s Response','Same request-id, error-status 0, and the value is filled in. Click any block.','Response · sysUpTime.0 = 42d 06:13:22','#14B8A6']
+  :S.step>=1?['Three nested parts','Transport headers, then the SNMP header, then the PDU. Click any block.','GetRequest · sysUpTime.0','#2563EB']
+  :['A GetRequest from the manager','Next click opens the packet. Every block is one field of the message.','GetRequest · sysUpTime.0','#2563EB'];
+ $('#mpName').textContent=a[0];$('#mpDesc').textContent=a[1];$('#mpEx').textContent=a[2];$('#mpSw').style.background=a[3];ping($('.mpanel'))}
+ILL.reg('msg',{cam:{az:.04,el:.3,dist:12.6,ty:.9,fov:30,r:12,sway:.12},
+ build(S){const K=S.K;K.floor(S.sc,14);S.blocks=[];const TW=FIELDS.reduce((a,f)=>a+f[3],0)+.06*(FIELDS.length-1);let x=-TW/2;
+  FIELDS.forEach((f,i)=>{const g=new THREE.Group(),m=K.M(f[4],{roughness:.32,emissive:f[4],emissiveIntensity:0});K.mesh(K.rbox(f[3]-.06,1.1,1.3,.12),m,0,0,0,g);
+   const tx=K.canvasTex(Math.round(256*(f[3]-.22)/.9),256),pl=new THREE.Mesh(new THREE.PlaneGeometry(f[3]-.22,.9),new THREE.MeshBasicMaterial({map:tx.t,transparent:true}));pl.position.set(0,.55,.69);g.add(pl);
+   g.userData.tag='blk';g.userData.i=i;S.pick.push(g);S.sc.add(g);const a={x:x+f[3]/2,y:0};x+=f[3]+.06;S.blocks.push({g,m,tx,f,a,c:{x:a.x,y:0,z:0}})});
+  const gx=[-.9,0,.9],gy=[0,.8,1.6];S.blocks.forEach(b=>{b.e={x:b.a.x*1.06+gx[b.f[5]],y:gy[b.f[5]]}});{const lo=Math.min(...S.blocks.map(b=>b.e.x-b.f[3]/2)),hi=Math.max(...S.blocks.map(b=>b.e.x+b.f[3]/2)),mid=(lo+hi)/2;S.blocks.forEach(b=>b.e.x-=mid)}
+  S.grp=[['Transport','il-dark'],['SNMP header','il-blue'],['PDU','il-orange']].map((q,k)=>{const o=new THREE.Object3D(),bs=S.blocks.filter(b=>b.f[5]===k);o.position.set(bs.reduce((s,b)=>s+b.e.x,0)/bs.length,gy[k]+1.3,0);S.sc.add(o);return lab3(S,q[0],q[1],o,0)});
+  S.resp=false;S.si=-1;S.auto=2;S.userT=-1e9;S.blocks.forEach((b,i)=>drawBlk(b,i,false))},
+ enter(S){S.si=-1;S.userT=-1e9;S.auto=2},
+ step(n,S){const r=n>=2;if(r!==S.resp){S.resp=r;S.blocks.forEach((b,i)=>drawBlk(b,i,r))}if(n===0)S.si=-1;mpanel(S)},
+ click(o,S){S.si=o.userData.i;S.userT=performance.now();mpanel(S)},
+ frame(dt,t,S){const ex=S.step>=1;if(ex&&performance.now()-S.userT>9000){S.auto-=dt;if(S.auto<=0){S.auto=3;S.si=(S.si+1)%FIELDS.length;mpanel(S)}}
+  S.blocks.forEach((b,i)=>{const tg=ex?b.e:b.a,s=S.si===i,hv=S.hov===b.g,k1=Math.min(1,dt*4),k2=Math.min(1,dt*6);
+   b.c.x+=(tg.x-b.c.x)*k1;b.c.y+=((tg.y+(s?.3:0)+(hv?.15:0))-b.c.y)*k2;b.c.z+=((s?.7:0)-b.c.z)*k2;b.g.position.set(b.c.x,b.c.y,b.c.z);b.m.emissiveIntensity+=((s?.35:0)-b.m.emissiveIntensity)*.15});
+  S.grp.forEach(l=>l.el.classList.toggle('on',ex))}});
+
+/* scene: a shield that four best practices make solid */
+ILL.reg('shield',{cam:{az:0,el:.12,dist:14.5,ty:0,fov:34,r:8,sway:.3},
+ build(S){const K=S.K,sh=new THREE.Shape();sh.moveTo(0,2.4);sh.lineTo(1.8,1.76);sh.lineTo(1.8,.26);sh.bezierCurveTo(1.8,-1.04,.96,-1.96,0,-2.4);sh.bezierCurveTo(-.96,-1.96,-1.8,-1.04,-1.8,.26);sh.lineTo(-1.8,1.76);sh.closePath();
+  const geo=new THREE.ExtrudeGeometry(sh,{depth:.45,bevelEnabled:true,bevelThickness:.12,bevelSize:.1,bevelSegments:4,curveSegments:24});geo.center();
+  S.mat=new THREE.MeshStandardMaterial({color:0x2563EB,metalness:.35,roughness:.28,transparent:true,opacity:.22,emissive:0xEF4444,emissiveIntensity:0});
+  const G=new THREE.Group();S.G=G;const m=new THREE.Mesh(geo,S.mat);m.castShadow=true;G.add(m);S.edges=new THREE.LineSegments(new THREE.EdgesGeometry(geo,30),new THREE.LineBasicMaterial({color:0x2563EB,transparent:true,opacity:1}));G.add(S.edges);
+  const ck=new THREE.Shape();[[-1,.1],[-.35,-.55],[1.05,.85],[.8,1.1],[-.35,-.06],[-.75,.35]].forEach((p,i)=>i?ck.lineTo(p[0],p[1]):ck.moveTo(p[0],p[1]));ck.closePath();
+  const cg=new THREE.ExtrudeGeometry(ck,{depth:.22,bevelEnabled:true,bevelThickness:.05,bevelSize:.04,bevelSegments:2});cg.center();S.ck=new THREE.Mesh(cg,new THREE.MeshStandardMaterial({color:0xFFFFFF,roughness:.3}));S.ck.position.z=.42;S.ck.scale.setScalar(.001);G.add(S.ck);
+  G.userData.tag='shield';S.pick.push(G);S.sc.add(G);
+  S.rings=[0,1,2,3].map(i=>{const c=i?0x14B8A6:0xF97316,m2=new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:0,transparent:true,opacity:.12}),r=new THREE.Mesh(new THREE.TorusGeometry(2.7+i*.2,.05,12,120),m2);
+   r.rotation.set(Math.PI/2+(i-1.5)*.38,i*.7,0);S.sc.add(r);return {r,m:m2}});
+  S.att=[];S.spk=[];S.spawn=0;S.flash=0;S.lvl=0;S.wt=9;S.wave=new THREE.Mesh(new THREE.TorusGeometry(1,.06,10,96),new THREE.MeshBasicMaterial({color:0x14B8A6,transparent:true,opacity:0}));S.sc.add(S.wave)},
+ step(n,S){S.lvl=n},
+ click(o,S){S.wt=0;SFX.win();S.att.forEach(a=>{a.v.copy(a.m.position).normalize().multiplyScalar(10);a.dead=1})},
+ frame(dt,t,S){const K=S.K,full=S.lvl>=4;S.G.rotation.y=Math.sin(t*.7)*.45;S.G.position.y=Math.sin(t*1.2)*.12;
+  S.mat.opacity+=((full?1:.22)-S.mat.opacity)*.05;S.edges.material.opacity+=((full?.2:1)-S.edges.material.opacity)*.05;S.ck.scale.setScalar(Math.max(.001,S.ck.scale.x+((full?1:0)-S.ck.scale.x)*.08));
+  S.rings.forEach((r,i)=>{const on=S.lvl>=i+1;r.m.emissiveIntensity+=((on?1.1:0)-r.m.emissiveIntensity)*.08;r.m.opacity+=((on?1:.12)-r.m.opacity)*.08;r.r.rotation.z+=dt*(.25+i*.08)*(i%2?-1:1)});
+  if(S.flash>0){S.flash-=dt;S.mat.emissiveIntensity=S.flash*1.6}else S.mat.emissiveIntensity=0;
+  S.spawn-=dt;if(S.spawn<=0&&S.att.length<9&&!RM){S.spawn=.6;const a=K.packet(0xEF4444,.15),an=Math.random()*Math.PI*2,p=new THREE.Vector3(Math.cos(an)*9,(Math.random()-.5)*5,Math.sin(an)*4-1);a.position.copy(p);S.sc.add(a);
+   S.att.push({m:a,v:p.clone().negate().normalize().multiplyScalar(3.2),blk:Math.random()<S.lvl/4,dead:0})}
+  for(let i=S.att.length-1;i>=0;i--){const a=S.att[i];a.m.position.addScaledVector(a.v,dt);const d=a.m.position.length();
+   if(!a.dead&&a.blk&&d<3.3){a.v.reflect(a.m.position.clone().normalize()).multiplyScalar(1.3);a.dead=1;spark(S,a.m.position,0x14B8A6)}
+   else if(!a.dead&&!a.blk&&d<1.7){a.dead=2;S.flash=.5;spark(S,a.m.position,0xEF4444)}
+   if(a.dead===2||d>12){S.sc.remove(a.m);a.m.geometry.dispose();a.m.material.dispose();a.m.children[0].material.dispose();S.att.splice(i,1)}}
+  S.spk=S.spk.filter(s=>{s.l-=dt;s.g.position.addScaledVector(s.v,dt);s.g.material.opacity=Math.max(0,s.l/.6)*.8;if(s.l<=0){S.sc.remove(s.g);s.g.material.dispose();return false}return true});
+  if(S.wt<1.2){S.wt+=dt;S.wave.scale.setScalar(1+S.wt*6);S.wave.material.opacity=.8*(1-S.wt/1.2)}else S.wave.material.opacity=0}});
+function spark(S,p,col){for(let i=0;i<10;i++){const g=S.K.glow(col,.45);g.position.copy(p);S.sc.add(g);S.spk.push({g,v:new THREE.Vector3((Math.random()-.5)*6,(Math.random()-.5)*6,(Math.random()-.5)*6),l:.6})}}
+
+/* scene: a balance scale for strengths and limits */
+ILL.reg('scale',{cam:{az:0,el:.2,dist:18,ty:2.7,fov:34,r:8,sway:.3},
+ build(S){const K=S.K;K.floor(S.sc,7);K.mesh(new THREE.CylinderGeometry(1.3,1.5,.35,40),K.mat.ink,0,.17,0,S.sc);K.mesh(new THREE.CylinderGeometry(.13,.17,4.3,20),K.mat.slate,0,2.5,0,S.sc);
+  const beam=new THREE.Group();beam.position.y=4.7;S.sc.add(beam);S.beam=beam;K.mesh(new THREE.BoxGeometry(6.8,.16,.28),K.mat.ink,0,0,0,beam);K.mesh(new THREE.SphereGeometry(.26,24,16),K.M(0xF97316),0,0,0,beam);
+  S.v=new THREE.Vector3();S.pans=[-1,1].map((sd,k)=>{const hook=new THREE.Object3D();hook.position.x=sd*3.2;beam.add(hook);const pan=new THREE.Group();S.sc.add(pan);
+   K.mesh(new THREE.CylinderGeometry(1.3,1.0,.16,40),K.M(k?0xFED7AA:0x99F6E4,{roughness:.4}),0,0,0,pan);pan.userData.tag='pan';pan.userData.k=k;S.pick.push(pan);
+   const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.Float32BufferAttribute(new Array(18).fill(0),3));const str=new THREE.LineSegments(pg,new THREE.LineBasicMaterial({color:0x475569}));S.sc.add(str);
+   const cubes=[0,1,2,3].map(j=>{const c=K.mesh(K.rbox(.62,.62,.62,.1),K.M(k?0xF97316:0x14B8A6,{roughness:.3}),0,0,0,pan);c.userData.tag='cube';c.userData.k=k;c.userData.j=j;S.pick.push(c);c.visible=false;return {c,ox:j%2?.38:-.38,oz:j<2?-.33:.33,p:0,bt:9}});
+   return {hook,pan,str,cubes,k,vis:0,tt:0,lb:lab3(S,k?'Limits':'Strengths',k?'il-orange':'il-teal',pan,1.5)}});S.ang=0;S.av=0},
+ step(n,S){S.pans[0].vis=n>=1?1:0;S.pans[1].vis=n>=2?1:0;S.pans.forEach(p=>p.lb.el.classList.toggle('on',!!p.vis))},
+ click(o,S){if(o.userData.tag==='cube'){S.pans[o.userData.k].cubes[o.userData.j].bt=0;ping($$((o.userData.k?'.pl-r':'.pl-l')+' li')[o.userData.j])}else S.av+=o.userData.k?-1.4:1.4},
+ frame(dt,t,S){let wL=0,wR=0;
+  S.pans.forEach(p=>{p.tt=p.vis?p.tt+dt:0;p.cubes.forEach((c,j)=>{const on=p.vis&&p.tt>j*.2;c.p+=((on?1:0)-c.p)*Math.min(1,dt*3.5);c.c.visible=c.p>.02;let k=0;if(c.bt<.6){c.bt+=dt;k=Math.sin(c.bt/.6*Math.PI)*(1-c.bt/.6)}
+   c.c.position.set(c.ox,.09+(1-c.p)*(1-c.p)*4+k*.5,c.oz);if(c.p>.85){if(p.k)wR+=.75;else wL+=1}})});
+  const target=-(wR-wL)*.055;S.av+=((target-S.ang)*28-S.av*4.5)*dt;S.ang+=S.av*dt;S.beam.rotation.z=S.ang;
+  S.pans.forEach(p=>{p.hook.getWorldPosition(S.v);p.pan.position.set(S.v.x,S.v.y-2.3,S.v.z);const a=p.str.geometry.attributes.position;
+   for(let i=0;i<3;i++){const an=i*2.094;a.setXYZ(i*2,S.v.x,S.v.y,S.v.z);a.setXYZ(i*2+1,p.pan.position.x+Math.cos(an)*1.2,p.pan.position.y+.08,p.pan.position.z+Math.sin(an)*1.2)}a.needsUpdate=true})}});
+
+/* ---------- reactions: floating icons the room can send ---------- */
+const RX=[['like','#2563EB','<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>','Like',0],
+ ['love','#EF4444','<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>','Love',1],
+ ['fire','#F97316','<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>','Fire',1],
+ ['idea','#CA8A04','<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>','Got it',0],
+ ['wow','#8B5CF6','<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>','Wow',1],
+ ['ask','#0D9488','<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>','Question',0]];
+const rx=$('#react'),rhist={};const rsvg=(i,w)=>{const r=RX[i];return `<svg viewBox="0 0 24 24" fill="${r[4]?r[1]:'none'}" stroke="${r[1]}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${r[2]}</svg>`};
+RX.forEach((r,i)=>{const b=document.createElement('button');b.setAttribute('aria-label',`${r[3]} reaction, key ${i+1}`);b.title=`${r[3]} · ${i+1}`;b.innerHTML=rsvg(i,2.2);b.addEventListener('click',e=>{e.stopPropagation();react(i)});rx.appendChild(b)});
+function flyR(i,x,y,s,big){const el=document.createElement('div');el.className='rf';
+ el.style.cssText=`left:${x}px;top:${y}px;--s:${s}px;--dx:${((Math.random()-.5)*(big?320:240)).toFixed(0)}px;--dy:${(-(big?innerHeight*.75+Math.random()*innerHeight*.3:260+Math.random()*260)).toFixed(0)}px;--r:${((Math.random()-.5)*60).toFixed(0)}deg;--t:${(big?2.8:2+Math.random()*.8).toFixed(2)}s;border-color:${RX[i][1]}`;
+ el.innerHTML=rsvg(i,2.4);$('#rlayer').appendChild(el);el.addEventListener('animationend',()=>el.remove())}
+function react(i){aInit();const b=rx.children[i],r=b.getBoundingClientRect();b.animate([{transform:'scale(1.4)'},{transform:'scale(1)'}],{duration:320,easing:'ease-out'});
+ const n=RM?1:5;for(let j=0;j<n;j++)setTimeout(()=>flyR(i,r.left+r.width/2,r.top,46+Math.random()*24),j*70);blip(520+i*90,.26,.03,0,'triangle',null,(520+i*90)*1.5);
+ const now=performance.now();rhist[i]=(rhist[i]||[]).filter(x=>now-x<2500);rhist[i].push(now);
+ if(rhist[i].length>=6&&!RM){rhist[i]=[];for(let j=0;j<28;j++)setTimeout(()=>flyR(i,Math.random()*innerWidth,innerHeight+30,64+Math.random()*40,1),j*45);SFX.win()}
+ if(RX[i][0]==='ask'){const t=$('#rtoast');t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3200)}wake()}
+
+/* ---------- small reactions on the slides: tilt, ripple, quiz, terminal ---------- */
+const TILT='.trio .card,.fact,.op,.bl,.duo .card,.vr,.ck,.mcq,.pl li,.take div,.oidnote';
+let tiltEl=null,rings=[];
+function ripple(x,y,c){if(!RM)rings.push({x,y,r:6,l:1,c:c||'37,99,235'})}
+function drawRings(){const d=Math.min(2,devicePixelRatio||1);rings=rings.filter(r=>{r.r+=4.5;r.l-=.035;if(r.l<=0)return false;fc.strokeStyle=`rgba(${r.c},${(r.l*.6).toFixed(3)})`;fc.lineWidth=3*d;fc.beginPath();fc.arc(r.x*d,r.y*d,r.r*d,0,7);fc.stroke();return true})}
+addEventListener('pointermove',e=>{if(RM)return;const c=e.target.closest?e.target.closest(TILT):null;if(tiltEl&&tiltEl!==c){tiltEl.style.transform='';tiltEl.style.transition='';tiltEl=null}
+ if(!c||!c.closest('.slide.active')||+getComputedStyle(c).opacity<.9)return;const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+ c.style.transition='transform .12s ease-out';c.style.transform=`perspective(900px) rotateX(${(-y*8).toFixed(2)}deg) rotateY(${(x*10).toFixed(2)}deg) translateZ(10px)`;tiltEl=c});
+addEventListener('pointerdown',e=>{if(!started)return;const c=e.target.closest&&e.target.closest(TILT);if(c&&c.closest('.slide.active')&&!e.target.closest('button')){ripple(e.clientX,e.clientY);SFX.step()}});
+$$('.mcq').forEach(q=>$$('.opts button',q).forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();aInit();if(q.classList.contains('done')||b.disabled)return;const r=b.getBoundingClientRect();
+ if(b.hasAttribute('data-ok')){b.classList.add('ok');q.classList.add('done');SFX.win();confetti(r.left+r.width/2,r.top,70,.9,.8);ripple(e.clientX,e.clientY,'16,185,129')}
+ else{b.classList.remove('no');void b.offsetWidth;b.classList.add('no');b.disabled=true;SFX.miss();ripple(e.clientX,e.clientY,'239,68,68')}})));
+$$('.cmd').forEach(c=>{const n=c.textContent.length,tt=Math.min(1.8,n*.02);c.style.setProperty('--n',n);c.style.setProperty('--tt',tt+'s');$$('.out',c.parentNode).forEach((o,i)=>o.style.transitionDelay=(tt+.1+i*.08).toFixed(2)+'s')});
+{const term=$('#term'),fl=$$('.flags button');fl.forEach(b=>{const on=()=>{term.dataset.hl=b.dataset.f;fl.forEach(x=>x.classList.toggle('on',x===b))};
+ b.addEventListener('pointerenter',on);b.addEventListener('focus',on);b.addEventListener('click',e=>{e.stopPropagation();on();SFX.pop()})})}
+
 /* ---------- start-up, 3D boot and per-frame work ---------- */
 const PAR=['#s-title','#s-hook','#s-arch','#s-end','#shield','#s-stack'].map(x=>$(x));
 function boot3d(){if(!window.THREE){$('.nogl').hidden=false;return}
+ if(ILL.init())document.body.classList.add('has3d');
  try{GL.intro=Globe($('#g3d'),{input:$('#intro'),z0:17,layout:a=>a>1.15?{x:2.35,y:0,z:8.3}:{x:0,y:1.7,z:11.5}})}catch(e){console.warn(e)}
  try{GL.thx=Globe($('#thx3d'),{z0:12,max:12,layout:()=>({x:3.0,y:.05,z:8.6})})}catch(e){console.warn(e)}
  try{LAB=makeLab()}catch(e){console.warn(e);$('.nogl').hidden=false}}
 function frame3d(dt,now){if(introOn&&GL.intro)GL.intro.frame(dt,now);
- if(started){const h=slides[cur].dataset.hook;if(h==='lab'&&LAB)LAB.frame(dt,now);else if(h==='thx'&&GL.thx)GL.thx.frame(dt,now);}
+ if(started){const h=slides[cur].dataset.hook;if(h==='lab'&&LAB)LAB.frame(dt,now);else if(h==='thx'&&GL.thx)GL.thx.frame(dt,now);ILL.frame(dt,now)}
  fxFrame();if(!RM)PAR.forEach(el=>{if(el)el.style.translate=`${(-mx*18).toFixed(1)}px ${(-my*12).toFixed(1)}px`})}
 function startDeck(fs){if(started)return;started=true;aInit();if(S.ctx&&S.ctx.state==='suspended')S.ctx.resume();if(fs)full();
  if(GL.intro)GL.intro.zoom(2.3);$('#intro').classList.add('gone');setTimeout(()=>{introOn=false},1300);
@@ -1023,6 +1466,7 @@ const HOOK={
   IV(()=>{up++;$('#up').textContent=fmt(up)},1000)},
  prac(s){s.classList.remove('secure')},
  lab(){if(!LAB)return;LAB.enter();T(()=>LAB.demo(),900);IV(()=>LAB.demo(),3400)},
+ quiz(s){$$('.mcq',s).forEach(q=>{q.classList.remove('done');$$('button',q).forEach(b=>{b.classList.remove('ok','no');b.disabled=false})})},
  thx(){T(()=>{const q=toWin(470,380);confetti(q[0],q[1],170,1.3,1.1);SFX.win()},700)}
 };
 const STEP={dash(s,n){const r=$('#sw3');r.classList.toggle('down',n>=1);r.querySelector('span:last-child').textContent=n>=1?'down':'up'},prac(s,n){s.classList.toggle('secure',n>=4)}};
@@ -1034,9 +1478,9 @@ function render(entered){
  const s=slides[cur];if(STEP[s.dataset.hook])STEP[s.dataset.hook](s,step);
  const total=slides.reduce((n,x)=>n+maxStep(x)+1,0),done=slides.slice(0,cur).reduce((n,x)=>n+maxStep(x)+1,0)+step+1;
  $('#prog').style.width=(done/total*100)+'%';$('#count').textContent=`${cur+1} / ${slides.length}`;$('#notes').innerHTML=NOTES[cur]||'';
- document.body.classList.toggle('dk',!!slides[cur].dataset.dark);$('#foot').classList.toggle('hide',cur===0||!!slides[cur].dataset.dark);
+ document.body.classList.toggle('dk',!!slides[cur].dataset.dark);$('#foot').classList.toggle('hide',cur===0||!!slides[cur].dataset.dark);ILL.step(step);
 }
-function enter(){timers.forEach(clearTimeout);ivs.forEach(clearInterval);timers=[];ivs=[];SFX.slide();render(true);const s=slides[cur];if(HOOK[s.dataset.hook])HOOK[s.dataset.hook](s)}
+function enter(){timers.forEach(clearTimeout);ivs.forEach(clearInterval);timers=[];ivs=[];SFX.slide();ILL.mount(slides[cur]);render(true);const s=slides[cur];if(HOOK[s.dataset.hook])HOOK[s.dataset.hook](s)}
 function next(){const s=slides[cur];if(step<maxStep(s)){step++;$$('[data-at]',s).length?SFX.flip():SFX.step();$$('[data-at]',s).forEach(e=>e.classList.toggle('on',step>=+e.dataset.at));render()}else if(cur<slides.length-1){cur++;step=0;enter()}}
 function prev(){if(step>0){step--;SFX.step();$$('[data-at]',slides[cur]).forEach(e=>e.classList.toggle('on',step>=+e.dataset.at));render()}else if(cur>0){cur--;step=maxStep(slides[cur]);enter()}}
 function go(i){cur=Math.max(0,Math.min(slides.length-1,i));step=0;enter()}
@@ -1049,22 +1493,22 @@ addEventListener('keydown',e=>{if(!started){if(['Enter',' ','ArrowRight','PageDo
  if((e.key==='Enter'||e.key===' ')&&e.target.closest&&e.target.closest('button,.qc'))return;
  if(['ArrowRight','ArrowDown',' ','PageDown','Enter'].includes(e.key)){e.preventDefault();next()}
  else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(e.key)){e.preventDefault();prev()}
- else if(e.key==='n'||e.key==='N')toggleNotes();else if(e.key==='f'||e.key==='F')full();else if(e.key==='m'||e.key==='M'){aInit();setSound(!S.on)}else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);wake()});
+ else if(e.key==='n'||e.key==='N')toggleNotes();else if(e.key==='f'||e.key==='F')full();else if(e.key==='m'||e.key==='M'){aInit();setSound(!S.on)}else if(e.key.length===1&&e.key>='1'&&e.key<='6')react(+e.key-1);else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);wake()});
 $('#bNext').onclick=e=>{e.stopPropagation();next()};$('#bPrev').onclick=e=>{e.stopPropagation();prev()};
 $('#bSnd').onclick=e=>{e.stopPropagation();aInit();setSound(!S.on)};
 $('#bNotes').onclick=e=>{e.stopPropagation();toggleNotes()};$('#bFull').onclick=e=>{e.stopPropagation();full()};
 $$('.qc').forEach(c=>{c.addEventListener('click',e=>{e.stopPropagation();c.classList.toggle('on');if(c.classList.contains('on')){SFX.flip();const r=c.getBoundingClientRect();confetti(r.left+r.width/2,r.top+r.height*.35,45,.9,.75)}});c.addEventListener('keydown',e=>{if(e.key==='t'){c.classList.toggle('on')}})});
 let sx=null;
-addEventListener('pointerdown',e=>{if(!started||e.target.closest('#ui,#notes,.qc,.nonav'))return;sx=e.clientX});
+addEventListener('pointerdown',e=>{if(!started||e.target.closest('#ui,#notes,.qc,.nonav,#react,button,'+TILT))return;sx=e.clientX});
 addEventListener('pointerup',e=>{if(sx===null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>50){dx<0?next():prev()}else{e.clientX>innerWidth*.3?next():prev()}wake()});
-let idle;function wake(){ui.classList.remove('idle');clearTimeout(idle);idle=setTimeout(()=>ui.classList.add('idle'),2600)}
+let idle;function wake(){ui.classList.remove('idle');rx.classList.remove('idle');clearTimeout(idle);idle=setTimeout(()=>{ui.classList.add('idle');rx.classList.add('idle')},2600)}
 addEventListener('pointermove',wake);
 
 /* ---------- fit stage ---------- */
 const stage=$('#stage');
 function fit(){const k=Math.min(innerWidth/1600,innerHeight/900);stage.style.transform=`translate(-50%,-50%) scale(${k})`;size();
  const d=Math.min(2,devicePixelRatio||1);fx.width=innerWidth*d;fx.height=innerHeight*d;
- if(GL.intro)GL.intro.setSize(innerWidth,innerHeight,d);if(GL.thx)GL.thx.setSize(1600,900,Math.min(2,k*d));if(LAB)LAB.size(k)}
+ if(GL.intro)GL.intro.setSize(innerWidth,innerHeight,d);if(GL.thx)GL.thx.setSize(1600,900,Math.min(2,k*d));if(LAB)LAB.size(k);ILL.size(k)}
 
 /* ---------- living background ---------- */
 const cv=$('#bg'),cx=cv.getContext('2d');let W=0,H=0,dpr=1,nodes=[],pk=[],cam=0;
