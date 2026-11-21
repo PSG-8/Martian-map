@@ -70,7 +70,7 @@ function topbar(){
   return `<header class="topbar"><div class="wrap-w in">
     <button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>
     <a href="#/" class="brand">${brandInner(t('brand_sub'))}</a>
-    <nav class="nav"><a href="#/#how">${t('nav_how')}</a><a href="#/tests">${t('nav_tests')}</a><a href="#/install">${t('m_install')}</a><a href="#/contact">${t('m_contact')}</a><a href="#/about">${t('m_about')}</a></nav>
+    <nav class="nav"><a href="#/how">${t('nav_how')}</a><a href="#/tests">${t('nav_tests')}</a><a href="#/install">${t('m_install')}</a><a href="#/contact">${t('m_contact')}</a><a href="#/about">${t('m_about')}</a></nav>
     <div class="grow"></div>
     <button class="lang hide-sm" data-lang>${t('lang')}</button>
     <a class="icon-btn ${S.user ? '' : 'hide-sm'}" href="#/${S.user ? 'app/cart' : 'tests'}" aria-label="${t('m_cart')}">${ic('box')}${n ? `<span class="dot">${n}</span>` : ''}</a>
@@ -113,32 +113,15 @@ function cartBar(){
   const c = cartCalc();
   return `<div class="cart-bar"><div class="in">${ic('box',22)}<div class="grow"><b>${t('items_n',{n:c.items.length})} · ${omr(c.sub)} ${t('omr')}</b><div class="small" style="opacity:.8">+ ${omr(fee())} ${t('home_fee')}</div></div><button class="btn sm" data-go="${S.user ? 'app/cart' : 'register'}">${t('view_cart')} ${'<span class="flip">'+ic('arrow',18)+'</span>'}</button></div></div>`;
 }
-async function viewLanding(){
+async function viewHow(){
   await loadCatalog().catch(() => null);
   const C = S.catalog;
   let cat = 'all';
   const steps = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
   app.innerHTML = `${topbar()}
-  <section class="hero"><div class="wrap-w in">
-    <div><span class="chip" style="margin-bottom:16px">${ic('pin',14)} ${t('trust4')}</span>
-      <h1>${t('hero_t1')}<br><em>${t('hero_t2')}</em></h1>
-      <p class="lead">${t('hero_p')}</p>
-      <div class="cta"><a class="btn" href="#/${S.user ? 'app/tests' : 'register'}">${t('book_now')} ${'<span class="flip">'+ic('arrow',18)+'</span>'}</a><a class="btn ghost" href="#/#tests">${t('explore_tests')}</a></div><a class="ins-link" href="#/install">${ic('download',16)} ${t('ins_cta')}</a>
-      <div class="trust"><span>${ic('shield',18)} ${t('trust1')}</span><span>${ic('flask',18)} ${t('trust2')}</span><span>${ic('clock',18)} ${t('trust3')}</span></div>
-    </div>
-    <div class="hero-art">${A.hero}</div>
-  </div></section>
-
   <section class="section" id="how"><div class="wrap-w">
     <div class="section-h"><span class="eyebrow">${t('how_eyebrow')}</span><h2>${t('how_t')}</h2><p>${t('how_p')}</p></div>
     <div class="journey">${steps.map((s, i) => `<div class="jstep"><span class="n">${i+1}</span><div class="ic" style="color:var(--blue)">${ic(A.steps[i],30)}</div><h4>${t(s)}</h4><p>${t(s+'d')}</p></div>`).join('')}</div>
-  </div></section>
-
-  <section class="section alt" id="tests"><div class="wrap-w">
-    <div class="section-h"><span class="eyebrow">${t('tests_eyebrow')}</span><h2>${t('tests_t')}</h2><p>${t('tests_p',{fee:omr(fee())})}</p></div>
-    <div id="cat-block">${C ? catalogBlock(cat, 6) : '<div class="skel"></div>'}</div>
-    <div class="center" style="margin-top:22px"><a class="btn ghost" href="#/tests">${t('view_all_tests')}</a></div>
-    ${soonBlock()}
   </div></section>
 
   <section class="section" id="partners"><div class="wrap-w">
@@ -170,9 +153,6 @@ async function viewLanding(){
   <section class="wrap-w"><div class="welcome" style="padding:34px;text-align:center"><h2 style="font-size:1.8rem">${t('hero_t1')} ${t('hero_t2')}</h2><p style="opacity:.85">${t('hero_p')}</p>
     <div class="row wrap" style="justify-content:center;margin-top:16px"><a class="btn" style="background:#fff;color:var(--blue)" href="#/${S.user ? 'app/tests' : 'register'}">${t('book_now')}</a><a class="btn ghost" style="background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)" href="#/login">${t('try_demo').split('(')[0]}</a></div></div></section>
   ${footer()}${cartBar()}`;
-  const block = $('#cat-block');
-  const rer = c => { if (c) cat = c; block.innerHTML = catalogBlock(cat, 6); bindCatalog(block, rer); const cb = $('.cart-bar'); const nb = cartBar(); if (cb) cb.outerHTML = nb || '<span></span>'; else if (nb) app.insertAdjacentHTML('beforeend', nb); bindGo(); };
-  if (C) bindCatalog(block, rer);
   $('#wl').onsubmit = async e => { e.preventDefault(); const f = e.target; const b = $('button', f);
     await busy(b, () => API.waitlist(f.n.value, f.p.value, f.w.value)).then(() => { toast(t('joined')); f.reset(); }).catch(() => {}); };
   covMap(); partnersHtml().then(h => { const el = $('#netb'); if (el) el.innerHTML = h; });
@@ -349,13 +329,14 @@ async function viewPatientHome(){
   const active = list.filter(o => ACTIVE(o.status)); const done = list.filter(o => o.status === 'completed');
   const C = S.catalog;
   app.innerHTML = shell(t('m_home'), `<div class="stack-lg">
-    <div class="welcome"><div class="art">${A.welcomeArt}</div><h2>${t('hello',{n:esc(S.user.full_name.split(' ')[0])})}</h2><p style="opacity:.85;max-width:420px">${t('hello_sub_patient')}</p><a class="btn" style="background:#fff;color:var(--blue);margin-top:6px" href="#/app/tests">${ic('plus',18)} ${t('q_book')}</a></div>
-    <div class="qa"><a href="#/app/tests"><span style="color:var(--blue)">${ic('flask',34)}</span>${t('q_book')}</a><a href="#/app/tests?c=packages"><span style="color:var(--purple)">${ic('box',34)}</span>${t('q_packages')}</a><a href="#/app/orders"><span style="color:var(--teal)">${ic('pin',34)}</span>${t('q_track')}</a><a href="#/app/orders?r=1"><span style="color:var(--amber)">${ic('file',34)}</span>${t('q_reports')}</a></div>
+    ${heroHtml(true)}
+    <div><h3 class="hm-h">${t('hello',{n:esc(S.user.full_name.split(' ')[0])})} 👋 <span class="muted small" style="font-weight:500">${t('hm_quick')}</span></h3>${quickTiles()}</div>
     <div><div class="row between"><h3>${t('upcoming')}</h3>${list.length ? `<a href="#/app/orders" class="small b">${t('see_all')}</a>` : ''}</div>
       ${active.length ? `<div class="olist">${active.map(o => orderItem(o)).join('')}</div>` : emptyBox(t('none_orders'), `<a class="btn" href="#/app/tests">${t('book_now')}</a>`)}</div>
     ${done.length ? `<div><h3>${t('q_reports')}</h3><div class="olist">${done.slice(0, 3).map(o => orderItem(o)).join('')}</div></div>` : ''}
-    <div><h3>${t('cat_packages')}</h3><div class="grid g3" id="hp">${C.packages.slice(0, 3).map(p => pkgCard(p, S.cart.packages.includes(p.id))).join('')}</div></div>
+    <div><div class="row between"><h3>${t('hm_pk')}</h3><a href="#/app/tests?c=packages" class="small b">${t('see_all')}</a></div><div class="hscroll" id="hp">${C.packages.map(p => pkgCard(p, S.cart.packages.includes(p.id))).join('')}</div></div>
   </div>${cartBar()}`);
+  bindHero();
   $$('#hp [data-add]').forEach(b => b.onclick = () => { const [ty, id] = b.dataset.add.split(':'); toggleCart(ty, id); viewPatientHome(); });
 }
 async function viewAppTests(){
@@ -1062,7 +1043,7 @@ function menuItems(){
   h += it('contact', 'phone', t('m_contact'));
   h += it('support', 'chat', t('m_support'));
   h += it('about', 'users', t('m_about') + ' · ' + t('m_team'));
-  h += it('#how', 'globe', t('nav_how'));
+  h += it('how', 'globe', t('nav_how'));
   if (!u) h += it('register?partner=1', 'building', t('m_join'));
   h += '<hr class="sep">';
   h += `<button class="mi" data-lang>${ic('globe')}<span class="grow">${t('lang')}</span></button>`;
@@ -1501,6 +1482,7 @@ async function renderNow(){
     else if (seg[0] === 'contact') await viewContact();
     else if (seg[0] === 'support') await viewSupport();
     else if (seg[0] === 'about') await viewAbout();
+    else if (seg[0] === 'how') await viewHow();
     else if (seg[0] !== 'app') {
       if (seg[0] === 'login') { if (S.user) return go('app'); viewLogin(); }
       else if (seg[0] === 'register') { if (S.user) return go('app'); await loadCatalog().catch(() => {}); viewRegister(seg[1]); }
@@ -1530,7 +1512,7 @@ async function renderNow(){
     const c = $('.content') || app; c.insertAdjacentHTML('beforeend', `<div class="card empty" style="margin:20px">${A.emptyArt}<p>${errMsg(e)}</p><button class="btn" onclick="location.reload()">${t('retry')}</button></div>`);
   }
   bindGlobal(); botMount(); bindPush(); bindMail();
-  if (!location.hash.includes('#', 1)) window.scrollTo(0, 0);
+  if (!location.hash.includes('#', 1)) window.scrollTo(0, 0); else { const el = document.getElementById(location.hash.split('#')[2]); if (el) setTimeout(() => el.scrollIntoView({ behavior:'smooth', block:'start' }), 120); }
 }
 async function poll(){ if (!S.user || document.hidden) return; try { const r = await API.me(); const before = S.unread; S.user = r.user; S.unread = r.unread; if (r.unread !== before) { $$('[data-go="app/notifs"] .dot').forEach(d => d.textContent = r.unread); if (r.unread > before) { const b = $('[data-go="app/notifs"]'); if (b && !$('.dot', b)) b.insertAdjacentHTML('beforeend', `<span class="dot">${r.unread}</span>`); } } } catch(e) { if (e.code === 'AUTH_REQUIRED') { S.user = null; go('login'); } } }
 
@@ -1605,7 +1587,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 17;
+const APP_V = 18;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -1819,7 +1801,7 @@ function profileBanner(){ const u = S.user; return u && u.role === 'patient' && 
 /* --- coming soon --- */
 function soonBlock(){
   const S4 = [['syringe','soon_1'],['drop','soon_2'],['chat','soon_3'],['heart','soon_4']];
-  return `<div class="section-h" style="margin:40px auto 18px"><span class="eyebrow">${t('soon_t')}</span><h2>${t('soon_t')}</h2><p>${t('soon_p')}</p></div>
+  return `<div class="section-h" id="soon" style="margin:40px auto 18px;scroll-margin-top:80px"><span class="eyebrow">${t('soon_t')}</span><h2>${t('soon_t')}</h2><p>${t('soon_p')}</p></div>
     <div class="grid g4 soon">${S4.map(([i, k]) => `<div class="card soon-c"><span class="chip purple soon-chip">${t('soon_chip')}</span><span class="ic-round">${ic(i,24)}</span><b>${t(k)}</b><div class="small muted">${t(k+'d')}</div></div>`).join('')}</div>`;
 }
 
@@ -1867,6 +1849,110 @@ async function viewAdminKit(){
   $$('[data-refill]').forEach(b => b.onclick = async () => { try { await busy(b, () => API.adminKitFill(null, b.dataset.refill)); toast(t('saved')); viewAdminKit(); } catch(e) { toast(errMsg(e), true); } });
 }
 
+/* ================= v18: standalone home, 3D banner carousel, opening splash ================= */
+Object.assign(I18N.en, {
+  h3_e1:'Home sample collection', h3_t1:'Lab tests at your doorstep', h3_p1:'A licensed nurse comes to you, your sample travels in a 2–8 °C cold box, and the verified report reaches your phone.', h3_c1:'Book a test',
+  h3_e2:'Family packages', h3_t2:'A package for every member of the family', h3_p2:'Kids {k} OMR · Seniors 60+ {s} OMR · Blood pressure & sugar {b} OMR', h3_c2:'View packages',
+  h3_e3:'Clear results', h3_t3:'Your results, with what to do next', h3_p3:'Normal, needs review or urgent, with diet tips, a doctor’s advice and the nearest hospital.', h3_c3:'My results', h3_c3v:'How it works',
+  h3_e4:'Seniors 60+', h3_t4:'Check-ups for parents and grandparents at home', h3_p4:'Blood pressure, sugar, kidneys, heart and vitamins, with no trip to the hospital.', h3_c4:'Seniors package',
+  h3_e5:'Coming soon', h3_t5:'Vaccinations and treatment at home', h3_p5:'Vaccines, drips and doctor video consults are on the way.', h3_c5:'See what’s coming',
+  hm_quick:'What do you need today?', hm_pk:'Popular packages', hm_steps:'Three simple steps', hm_how_more:'How it works in detail', hm_st1:'Book in 2 minutes', hm_st1d:'Pick tests, a time and your location.', hm_st2:'Nurse at your door', hm_st2d:'A licensed nurse collects the sample at home.', hm_st3:'Results on your phone', hm_st3d:'Clear report with advice and a PDF.',
+  qt_book:'Book a test', qt_pk:'Packages', qt_kids:'Kids', qt_seniors:'Seniors 60+', qt_bp:'BP & sugar', qt_vit:'Vitamins', qt_results:'My results', qt_help:'Help',
+  hm_trust_t:'Trusted care, close to home', hm_app_t:'Lab@Home on your phone', hm_app_p:'Install the app in 10 seconds. It updates itself.', prev:'Previous', next_s:'Next', skip_intro:'Skip'
+});
+Object.assign(I18N.ar, {
+  h3_e1:'سحب العينات في البيت', h3_t1:'فحوصات المختبر عند باب بيتك', h3_p1:'ممرض مرخّص يجيك البيت، والعينة تنتقل في صندوق تبريد ٢–٨ °م، والتقرير الموثّق يوصلك على جوالك.', h3_c1:'احجز فحصك',
+  h3_e2:'باقات العائلة', h3_t2:'باقة لكل فرد في العائلة', h3_p2:'الأطفال {k} ر.ع · كبار السن +60 {s} ر.ع · الضغط والسكر {b} ر.ع', h3_c2:'تصفح الباقات',
+  h3_e3:'نتائج واضحة', h3_t3:'نتائجك… ومعها الخطوة التالية', h3_p3:'طبيعي أو يحتاج مراجعة أو عاجل، مع نصائح غذائية وتوصية الطبيب وأقرب مستشفى.', h3_c3:'نتائجي', h3_c3v:'كيف نشتغل',
+  h3_e4:'كبار السن +60', h3_t4:'فحص الوالدين والأجداد في البيت', h3_p4:'الضغط والسكر والكلى والقلب والفيتامينات، بدون مشوار للمستشفى.', h3_c4:'باقة كبار السن',
+  h3_e5:'قريباً', h3_t5:'التطعيمات والعلاج في البيت', h3_p5:'التطعيمات والمغذّيات واستشارة الطبيب بالفيديو قادمة قريباً.', h3_c5:'شوف الجديد',
+  hm_quick:'ويش تحتاج اليوم؟', hm_pk:'الباقات الأكثر طلباً', hm_steps:'ثلاث خطوات بسيطة', hm_how_more:'كيف نشتغل بالتفصيل', hm_st1:'احجز في دقيقتين', hm_st1d:'اختر الفحوصات والوقت وموقعك.', hm_st2:'الممرض عند بابك', hm_st2d:'ممرض مرخّص يسحب العينة في البيت.', hm_st3:'النتائج على جوالك', hm_st3d:'تقرير واضح مع نصائح وملف PDF.',
+  qt_book:'احجز فحص', qt_pk:'الباقات', qt_kids:'الأطفال', qt_seniors:'كبار السن', qt_bp:'الضغط والسكر', qt_vit:'الفيتامينات', qt_results:'نتائجي', qt_help:'المساعدة',
+  hm_trust_t:'رعاية موثوقة، قريبة من بيتك', hm_app_t:'لاب@هوم على جوالك', hm_app_p:'ثبّت البرنامج في 10 ثواني، ويتحدث تلقائياً.', prev:'السابق', next_s:'التالي', skip_intro:'تخطي'
+});
+function heroSlides(){
+  const P = (S.catalog && S.catalog.P) || {}; const pr = id => P[id] ? omr(P[id].price) : '—'; const u = !!S.user;
+  return [
+    { k:'van', tone:'dark', e:'h3_e1', t:'h3_t1', p:t('h3_p1'), c:['h3_c1', u ? 'app/tests' : 'register'], c2:['nav_how', 'how'] },
+    { k:'kit', tone:'light', e:'h3_e2', t:'h3_t2', p:t('h3_p2',{k:pr('kids'), s:pr('seniors'), b:pr('bp_sugar')}), c:['h3_c2', u ? 'app/tests?c=packages' : 'tests'] },
+    { k:'phone', tone:'light', e:'h3_e3', t:'h3_t3', p:t('h3_p3'), c: u ? ['h3_c3', 'app/orders?r=1'] : ['h3_c3v', 'how'] },
+    { k:'seniors', tone:'light', e:'h3_e4', t:'h3_t4', p:t('h3_p4'), c:['h3_c4', u ? 'app/tests?c=packages' : 'tests'] },
+    { k:'soon', tone:'light', e:'h3_e5', t:'h3_t5', p:t('h3_p5'), c:['h3_c5', u ? 'app/tests#soon' : 'tests#soon'] }
+  ];
+}
+function heroHtml(compact){
+  const sl = heroSlides();
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+    <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
+      <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
+    <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
+      <div class="h3-arr"><button data-pv aria-label="${t('prev')}"><span class="flip">${ic('back',18)}</span></button><button data-nx aria-label="${t('next_s')}"><span class="flip">${ic('arrow',18)}</span></button></div></div></section>`;
+}
+let H3MOD = null;
+function loadH3(){ if (!H3MOD) H3MOD = import('./hero3d.js?v=' + APP_V).catch(e => { H3MOD = null; throw e; }); return H3MOD; }
+function webglOk(){ try { const c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl'))); } catch(e) { return false; } }
+function bindHero(){
+  const root = $('#h3'); if (!root) return; const n = $$('.h3-s', root).length; let i = 0, timer = null, paused = false;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; const DUR = 6500;
+  let mod = null;
+  const go3 = k => { i = (k + n) % n; root.dataset.i = i; $$('.h3-s', root).forEach((s, j) => { s.classList.toggle('on', j === i); s.setAttribute('aria-hidden', j === i ? 'false' : 'true'); });
+    $$('.h3-dots button', root).forEach((d, j) => { d.classList.toggle('on', j === i); d.classList.remove('run'); if (j === i && !reduce && !paused) { void d.offsetWidth; d.classList.add('run'); } });
+    const cv = $('.h3-c', root); if (mod) { cv.classList.add('swap'); setTimeout(() => { mod.show(i); cv.classList.remove('swap'); }, 220); } };
+  const arm = () => { clearInterval(timer); if (reduce) return; timer = setInterval(() => { if (!paused && !document.hidden) go3(i + 1); }, DUR); S.timers.push(timer); };
+  $$('.h3-dots button', root).forEach(d => d.onclick = () => { go3(+d.dataset.d); arm(); });
+  $('[data-pv]', root).onclick = () => { go3(i - 1); arm(); }; $('[data-nx]', root).onclick = () => { go3(i + 1); arm(); };
+  root.addEventListener('mouseenter', () => { paused = true; $$('.h3-dots button.run', root).forEach(d => d.classList.add('hold')); });
+  root.addEventListener('mouseleave', () => { paused = false; $$('.h3-dots button', root).forEach(d => d.classList.remove('hold')); });
+  let x0 = null, y0 = null; root.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive:true });
+  root.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) { const fwd = S.lang === 'ar' ? dx > 0 : dx < 0; go3(i + (fwd ? 1 : -1)); arm(); } x0 = null; }, { passive:true });
+  go3(0);
+  SPLASH.then(() => { if (!root.isConnected) return; go3(0); arm();
+  if (!webglOk()) { root.classList.add('flat'); return; }
+  loadH3().then(m => m.init($('.h3-c', root)).then(() => { mod = m; m.show(i); root.classList.add('g3'); })).catch(e => { console.warn('3D off', e); root.classList.add('flat'); }); });
+}
+function quickTiles(){
+  const u = !!S.user; const T = u ? 'app/tests' : 'tests';
+  const tiles = [['flask','qt_book',T,'#1257d6','#eaf2ff'],['box','qt_pk',T + '?c=packages','#7a5af8','#efeaff'],['kid','qt_kids',T + '?c=kids','#f2a516','#fff4dc'],['heart','qt_seniors',T + '?c=packages','#e8466f','#fdeaf0'],
+    ['gauge','qt_bp',T + '?c=vitals','#0fae9b','#e3f7f4'],['sun','qt_vit',T + '?c=vitamins','#d97706','#fff4dc'],['file','qt_results',u ? 'app/orders?r=1' : 'login','#0d7c6c','#dff5ef'],['chat','qt_help','support','#0b2350','#e6ebf5']];
+  return `<div class="qtiles">${tiles.map(([i, k, h, c, b], n) => `<a class="qt" href="#/${h}" style="--d:${n * 40}ms"><span class="qi" style="color:${c};background:${b}">${ic(i, 26, 2)}</span><span>${t(k)}</span></a>`).join('')}</div>`;
+}
+async function viewLanding(){
+  await loadCatalog().catch(() => null); const C = S.catalog;
+  const steps = [['cal','hm_st1'],['syringe','hm_st2'],['file','hm_st3']];
+  app.innerHTML = `${topbar()}${heroHtml(false)}
+  <section class="hm-sec"><div class="wrap-w"><h2 class="hm-h">${t('hm_quick')}</h2>${quickTiles()}</div></section>
+  ${C ? `<section class="hm-sec alt"><div class="wrap-w"><div class="row between"><h2 class="hm-h">${t('hm_pk')}</h2><a class="b small" href="#/tests">${t('view_all_tests')}</a></div><div class="hscroll" id="lp">${C.packages.map(p => pkgCard(p, S.cart.packages.includes(p.id))).join('')}</div></div></section>` : ''}
+  <section class="hm-sec"><div class="wrap-w"><h2 class="hm-h">${t('hm_steps')}</h2><div class="steps3">${steps.map(([i, k], n) => `<div class="st3"><span class="n">${n + 1}</span><span class="qi" style="color:var(--blue);background:#eaf2ff">${ic(i, 26, 2)}</span><b>${t(k)}</b><span class="small muted">${t(k + 'd')}</span></div>`).join('')}</div>
+    <div class="center" style="margin-top:18px"><a class="btn ghost" href="#/how">${ic('globe',18)} ${t('hm_how_more')}</a></div></div></section>
+  <section class="hm-sec"><div class="wrap-w"><div class="band">
+      <div><b>48 h</b><span>${t('band1')}</span></div><div><b>${omr(fee())}</b><span>${t('band2')} (${t('omr')})</span></div>
+      <div><b>${C ? C.wilayats.length : 7}</b><span>${t('band3')}</span></div><div><b>${C ? C.tests.length + C.packages.length : 30}</b><span>${t('band4')}</span></div></div></div></section>
+  <section class="hm-sec alt"><div class="wrap-w">${soonBlock()}</div></section>
+  <section class="hm-sec"><div class="wrap-w"><div class="hm-app"><div class="grow"><h2>${t('hm_app_t')}</h2><p>${t('hm_app_p')}</p><div class="row wrap" style="gap:10px"><a class="btn" href="#/install">${ic('download',18)} ${t('ins_cta')}</a><a class="btn ghost" href="#/contact">${ic('phone',18)} ${t('m_contact')}</a></div></div><div class="hm-app-qr" id="hqr"></div></div></div></section>
+  ${footer()}${cartBar()}`;
+  bindHero();
+  const lp = $('#lp'); if (lp) { const rer = () => { lp.innerHTML = C.packages.map(p => pkgCard(p, S.cart.packages.includes(p.id))).join(''); bind(); refreshCartBadges(); const cb = $('.cart-bar'); const nb = cartBar(); if (cb) cb.outerHTML = nb || '<span></span>'; else if (nb) app.insertAdjacentHTML('beforeend', nb); bindGo(); };
+    const bind = () => $$('[data-add]', lp).forEach(b => b.onclick = () => { const [ty, id] = b.dataset.add.split(':'); const was = S.cart.packages.includes(id); toggleCart(ty, id); rer(); if (!was) toastCart(); }); bind(); }
+  try { if (window.LAHQR && $('#hqr')) $('#hqr').innerHTML = window.LAHQR.svg({ size: 132 }); } catch(e) {}
+  const hash = location.hash.split('#')[2]; if (hash) setTimeout(() => { const el = document.getElementById(hash); if (el) el.scrollIntoView({ behavior:'smooth' }); }, 80);
+}
+/* opening splash: the Lab@Home van drives in (once per session) */
+let SPLASH = Promise.resolve();
+async function splashIntro(){
+  const force = /splash=1/.test(location.search), hold = /splashhold/.test(location.search);
+  if (!force && (sessionStorage.getItem('lah_splash') || matchMedia('(prefers-reduced-motion: reduce)').matches || /^#\/(reset|verify)\//.test(location.hash) || navigator.webdriver)) return;
+  let release; SPLASH = new Promise(r => release = r);
+  sessionStorage.setItem('lah_splash', '1');
+  const el = document.createElement('div'); el.id = 'splash'; el.innerHTML = `<canvas></canvas><div class="sp-brand"><span class="sp-logo">${A.logo}</span><span class="sp-wm">${A.wordmark}</span><small>${t('brand_sub')}</small></div><button class="sp-skip">${t('skip_intro')}</button>`;
+  document.body.appendChild(el); document.body.classList.add('lock');
+  let done = false; const end = () => { if (done) return; done = true; el.classList.add('out'); document.body.classList.remove('lock'); setTimeout(() => { el.remove(); release(); }, 450); };
+  $('.sp-skip', el).onclick = end; el.addEventListener('click', e => { if (e.target === el) end(); });
+  setTimeout(() => el.classList.add('brand'), 1500); if (!hold) setTimeout(end, 3400);
+  if (!webglOk()) { el.classList.add('flat'); return; }
+  const race = Promise.race([loadH3(), new Promise((_, rj) => setTimeout(() => rj(new Error('slow')), 1800))]);
+  race.then(m => { if (!done) { el.classList.add('g3'); return m.splash($('canvas', el), hold ? 1e9 : 3200); } }).catch(() => el.classList.add('flat'));
+}
+
 async function boot(){
   setLang(S.lang);
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installEvt = e; if (location.hash.startsWith('#/install')) render(); });
@@ -1874,6 +1960,7 @@ async function boot(){
   if (API.hasToken()) { try { const r = await API.me(); S.user = r.user; S.unread = r.unread; } catch(e) { API.setToken(null); } }
   window.addEventListener('hashchange', render);
   appFeel();
+  splashIntro();
   render();
   setInterval(poll, 20000);
   if (S.user && 'Notification' in window && Notification.permission === 'granted' && localStorage.getItem('lah_push') === '1') setTimeout(() => pushEnable(true).catch(() => {}), 3000);
