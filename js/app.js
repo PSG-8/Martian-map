@@ -87,7 +87,7 @@ function testCard(x, inCart){
 function pkgCard(p, inCart){
   const full = pkgFull(p);
   return `<div class="pkg ${inCart ? 'on' : ''}">
-    ${p.badge ? `<span class="chip ${p.badge === 'best' ? 'purple' : 'amber'} tag">${t(p.badge === 'best' ? 'best' : 'popular')}</span>` : ''}
+    ${p.badge ? `<span class="chip ${p.badge === 'best' ? 'purple' : p.badge === 'kids' || p.badge === 'seniors' ? 'teal' : 'amber'} tag">${t(p.badge === 'best' ? 'best' : p.badge === 'kids' ? 'badge_kids' : p.badge === 'seniors' ? 'badge_seniors' : 'popular')}</span>` : ''}
     ${A.catIcon('packages')}<h3>${esc(LN(p,'name'))}</h3><p class="muted small" style="margin:0">${esc(LN(p,'desc'))}</p>
     <ul>${p.test_ids.map(id => `<li>${esc(LN(S.catalog.T[id],'name'))}</li>`).join('')}</ul>
     <div class="foot"><div><div class="price" style="font-size:1.3rem">${omr(p.price)} <small>${t('omr')}</small><span class="strike">${omr(full)}</span></div><span class="chip teal" style="margin-top:4px">${t('save',{x:omr(full - p.price)})}</span></div>
@@ -95,9 +95,9 @@ function pkgCard(p, inCart){
 }
 function catalogBlock(cat, limit){
   const C = S.catalog;
-  const cats = ['all','packages','vitamins','blood','diabetes','heart','thyroid','organs'];
+  const cats = ['all','packages','vitals','kids','vitamins','blood','diabetes','heart','thyroid','organs','men'];
   const tabs = `<div class="cats">${cats.map(c => `<button class="${c === cat ? 'on' : ''}" data-cat="${c}">${t('cat_'+c)}</button>`).join('')}</div>`;
-  const pk = (cat === 'all' || cat === 'packages') ? C.packages : [];
+  const pk = (cat === 'all' || cat === 'packages') ? C.packages : cat === 'kids' ? C.packages.filter(p => p.badge === 'kids') : [];
   let ts = cat === 'packages' ? [] : C.tests.filter(x => cat === 'all' || x.cat === cat);
   if (limit) ts = ts.slice(0, limit);
   return `${tabs}${pk.length ? `<div class="grid g3" style="margin:14px 0 22px">${pk.slice(0, limit ? 3 : 99).map(p => pkgCard(p, S.cart.packages.includes(p.id))).join('')}</div>` : ''}
@@ -138,6 +138,7 @@ async function viewLanding(){
     <div class="section-h"><span class="eyebrow">${t('tests_eyebrow')}</span><h2>${t('tests_t')}</h2><p>${t('tests_p',{fee:omr(fee())})}</p></div>
     <div id="cat-block">${C ? catalogBlock(cat, 6) : '<div class="skel"></div>'}</div>
     <div class="center" style="margin-top:22px"><a class="btn ghost" href="#/tests">${t('view_all_tests')}</a></div>
+    ${soonBlock()}
   </div></section>
 
   <section class="section" id="partners"><div class="wrap-w">
@@ -222,10 +223,10 @@ async function afterLogin(r){
 }
 function viewLogin(){
   const D = x => x + '@demo.labathome.om';
-  const demos = [['patient',D('patient'),''],['nurse',D('nurse'),t('female')],['nurse',D('mohammed.kindi'),t('male')],['courier',D('courier'),'Cold Chain'],['fleet',D('fleet.coldchain'),'Cold Chain'],['lab',D('lab'),'Ibra'],['lab',D('lab.sinaw'),'Sinaw'],['company',D('company'),''],['admin',D('admin'),'']];
+  const demos = [['patient',D('patient'),''],['nurse',D('nurse'),t('female')],['nurse',D('mohammed.kindi'),t('male')],['courier',D('courier'),'Cold Chain'],['fleet',D('fleet.coldchain'),'Cold Chain'],['lab',D('lab'),'Ibra'],['lab',D('lab.sinaw'),'Sinaw'],['doctor',D('doctor'),''],['company',D('company'),''],['admin',D('admin'),'']];
   app.innerHTML = authShell(`<h1>${t('welcome_back')}</h1><p class="muted">${t('login_sub')}</p>
     <form id="lf" class="stack" style="margin-top:18px"><label class="field"><span>${t('email_or_phone')}</span><input class="input ltr" name="login" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" required placeholder="name@email.com · 9XXXXXXX"></label>
-    ${pwField('password', t('password'))}<div class="err" id="le"></div><button class="btn block">${t('login')}</button></form>
+    ${pwField('password', t('password'))}<div class="row" style="justify-content:flex-end;margin-top:-4px"><a href="#/forgot" class="small b">${t('forgot')}</a></div><div class="err" id="le"></div><button class="btn block">${t('login')}</button></form><div id="gbox"></div>
     <p class="center muted" style="margin:16px 0">${t('no_account')} <a href="#/register" class="b">${t('signup')}</a></p>
     <div class="card flat" style="margin-top:8px"><div class="small b" style="margin-bottom:10px">${t('try_demo')}</div>
     <div class="demo-grid">${demos.map(([r, e, sub]) => `<button type="button" data-demo="${e}">${A.roleIcon(r === 'fleet' ? 'courier' : r, 34)}<span>${t('r_'+r)}${sub ? `<small>${esc(sub)}</small>` : ''}</span></button>`).join('')}</div></div>`);
@@ -233,6 +234,7 @@ function viewLogin(){
   $('#lf').onsubmit = async e => { e.preventDefault(); const f = e.target; $('#le').textContent = '';
     try { const r = await busy($('button.btn', f), () => API.login(f.login.value, f.password.value)); afterLogin(r); } catch(err) { $('#le').textContent = errMsg(err); } };
   $$('[data-demo]').forEach(b => b.onclick = async () => { try { const r = await busy(b, () => API.login(b.dataset.demo, 'Demo@2026')); afterLogin(r); } catch(e) {} });
+  mountGoogle();
 }
 function viewRegister(role){
   const C = S.catalog; const W = C ? C.wilayats : Object.keys(WILAYAT_AR);
@@ -272,7 +274,7 @@ function viewRegister(role){
         ${extra}
         <label class="check"><input type="checkbox" name="consent"> <span>${t('consent')}</span></label>
         ${r !== 'patient' ? `<div class="banner blue small">${ic('shield',20)}<span>${t('pending_p')}</span></div>` : ''}
-        <div class="err" id="re"></div><button class="btn block">${t('finish')}</button></form>
+        <div class="err" id="re"></div><button class="btn block">${t('finish')}</button></form>${st.role === 'patient' ? '<div id="gbox"></div>' : ''}
       <p class="center muted" style="margin-top:16px">${t('have_account')} <a href="#/login" class="b">${t('login')}</a></p>
       ${r === 'patient' ? `<div class="card flat center" style="margin-top:8px"><div class="small muted">${t('partner_q')}</div><button class="btn soft sm" data-partner style="margin-top:8px">${ic('building',16)} ${t('partner_link')}</button></div>` : ''}`);
     bindPw(app);
@@ -303,12 +305,13 @@ function viewRegister(role){
 function navFor(role){
   const m = {
     patient: [['app','home','m_home'],['app/tests','flask','m_tests'],['app/cart','cart','m_cart'],['app/orders','list','m_orders'],['app/profile','user','m_profile']],
-    nurse: [['app','home','m_home'],['app/orders','syringe','m_jobs'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
+    nurse: [['app','home','m_home'],['app/orders','syringe','m_jobs'],['app/kit','box','m_kit'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
+    doctor: [['app','steth','m_review'],['app/notifs','bell','m_notifs'],['support','chat','m_support'],['app/profile','user','m_profile']],
     courier: [['app','home','m_home'],['app/orders','van','m_pickups'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     lab: [['app','home','m_home'],['app/orders','flask','m_samples'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     company: [['app','home','m_programs'],['app/notifs','bell','m_notifs'],['support','chat','m_support'],['app/profile','user','m_profile']],
-    admin: [['app','chart','overview'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/tickets','chat','m_tickets'],['app/admin/payments','card','m_payments'],['app/admin/contracts','building','m_contracts'],['app/admin/catalog','flask','m_catalog'],['app/admin/settings','gear','m_settings'],['app/profile','user','m_profile']],
-    staff: [['app','chart','overview'],['app/admin/tickets','chat','m_tickets'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/contracts','building','m_contracts'],['app/admin/settings','gear','m_settings'],['app/profile','user','m_profile']]
+    admin: [['app','chart','overview'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/tickets','chat','m_tickets'],['app/admin/payments','card','m_payments'],['app/admin/contracts','building','m_contracts'],['app/admin/catalog','flask','m_catalog'],['app/admin/kit','box','m_kits'],['app/admin/settings','gear','m_settings'],['app/profile','user','m_profile']],
+    staff: [['app','chart','overview'],['app/admin/tickets','chat','m_tickets'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/contracts','building','m_contracts'],['app/admin/kit','box','m_kits'],['app/admin/settings','gear','m_settings'],['app/profile','user','m_profile']]
   };
   return m[role] || m.patient;
 }
@@ -325,7 +328,7 @@ function shell(title, body, opts){
     <div class="me"><span class="avatar">${esc(initials(u.full_name))}</span><div class="grow"><div class="b small" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(u.full_name)}</div><button class="link small" data-logout>${t('logout')}</button></div></div></aside>
   <main class="main-area"><div class="app-top">${opts && opts.back ? `<button class="icon-btn" data-goback aria-label="${t('back')}"><span class="flip">${ic('back')}</span></button>` : `<button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>`}<h1 class="grow">${title}</h1>
     <button class="icon-btn" data-go="app/notifs" aria-label="${t('m_notifs')}">${ic('bell')}${S.unread ? `<span class="dot">${S.unread}</span>` : ''}</button>${opts && opts.back ? `<button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>` : ''}</div>
-  <div class="content">${emailBanner()}${pushBanner()}${u.status === 'pending' ? `<div class="banner amber" style="margin-bottom:16px">${ic('clock',22)}<div><b>${t('pending_t')}</b><div class="small">${t('pending_p')}</div></div></div>` : ''}${body}</div></main></div>
+  <div class="content">${profileBanner()}${emailBanner()}${pushBanner()}${u.status === 'pending' ? `<div class="banner amber" style="margin-bottom:16px">${ic('clock',22)}<div><b>${t('pending_t')}</b><div class="small">${t('pending_p')}</div></div></div>` : ''}${body}</div></main></div>
   <nav class="tabbar">${items.slice(0, 4).map(([h, i, k]) => `<a href="#/${h}" class="${isOn(h) ? 'on' : ''}">${ic(i)}${h === 'app/cart' && n ? `<span class="dot">${n}</span>` : ''}<span>${t(k)}</span></a>`).join('')}<a href="#" data-menu>${ic('menu')}<span>${t('menu')}</span></a></nav>`;
 }
 function loading(title){ app.innerHTML = shell(title || '', `<div class="loading"><span class="spin"></span></div>`); }
@@ -358,7 +361,7 @@ async function viewPatientHome(){
 async function viewAppTests(){
   await loadCatalog();
   let cat = new URLSearchParams(location.hash.split('?')[1] || '').get('c') || 'all';
-  app.innerHTML = shell(t('m_tests'), `<p class="muted">${t('tests_p',{fee:omr(fee())})}</p><div id="cb"></div><div id="cbar"></div>`);
+  app.innerHTML = shell(t('m_tests'), `<p class="muted">${t('tests_p',{fee:omr(fee())})}</p><div id="cb"></div>${soonBlock()}<div id="cbar"></div>`);
   const rer = c => { if (c) cat = c; $('#cb').innerHTML = catalogBlock(cat); bindCatalog($('#cb'), rer); $('#cbar').innerHTML = cartBar(); bindGo(); };
   rer();
 }
@@ -628,10 +631,10 @@ function drawOrder(o){
     <div class="row between xs muted" style="margin-top:8px"><span>${ic('clock',13)} ${totalTxt}</span><span>${t('step_x',{a:Math.max(1, idx + 1), b:STATUS.length})}</span></div>${tools}</div>`;
   const map = o.lat && (r === 'nurse' || r === 'admin') ? `<div class="card" style="padding:0;overflow:hidden"><div class="mapbox" id="omap" style="border-radius:0;height:220px"></div>${o.address ? `<div style="padding:12px"><a class="btn soft sm" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${o.lat},${o.lng}">${ic('pin',16)} ${t('open_maps')}</a></div>` : ''}</div>` : '';
   app.innerHTML = shell(esc(o.code), `<div class="grid" id="og" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;align-items:start">
-    <div class="stack">${head}${acts}${eta}${prep}${o.status === 'completed' && r === 'patient' ? rateBox(o) : ''}${map}${team}${details}${tests}</div>
+    <div class="stack">${head}${acts}${careBlock(o)}${eta}${prep}${o.status === 'completed' && r === 'patient' ? rateBox(o) : ''}${map}${team}${details}${tests}</div>
     <div class="stack"><div class="card"><h3>${t('q_track')}</h3>${tl}</div></div></div>`, { back: true });
   if (innerWidth < 900) $('#og').style.gridTemplateColumns = '1fr';
-  bindActions(o);
+  bindActions(o); bindCare(o, drawOrder);
   $$('[data-party]').forEach(b => b.onclick = () => partyModal(b.dataset.party, o));
   if ($('[data-ics]')) $('[data-ics]').onclick = () => { icsDownload(o); toast(t('cal_ok')); };
   if ($('[data-copy]')) $('[data-copy]').onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(o.code) : Promise.reject()).then(() => toast(t('copied'))).catch(() => toast(o.code)); };
@@ -727,7 +730,7 @@ async function viewReport(id){
       const lo = a.lo != null ? a.lo : (a.hi != null ? 0 : null), hi = a.hi != null ? a.hi : (a.lo != null ? a.lo * 2.5 : null); let pos = 50;
       if (lo != null && hi != null && r.v != null) { const span = hi - lo; pos = Math.max(3, Math.min(97, 20 + (r.v - lo) / span * 60)); }
       return `<tr><td>${esc(S.lang === 'ar' ? a.na : a.n)}</td><td class="num b" style="color:${r.f === 'N' ? 'inherit' : r.f === 'H' ? 'var(--red)' : '#9a6400'}">${r.v ?? '—'} <span class="xs muted" style="font-weight:500">${esc(a.u)}</span></td><td class="small muted num">${rangeTxt(a)}</td><td class="rb-col" style="width:120px"><div class="rangebar"><i style="left:${pos}%"></i></div></td><td>${r.f ? `<span class="flag ${r.f}">${t('f_'+r.f)}</span>` : ''}</td></tr>`; }).join('')).join('');
-  const ce = (o.events || []).find(e => e.status === 'collected');
+  const ce = (o.events || []).find(e => e.status === 'collected'); const LVL = orderLevel(o).level;
   app.innerHTML = shell(t('report_t'), `<div class="row no-print rep-actions"><button class="btn grow" id="pr">${ic('download',18)} ${t('download_pdf')}</button>${navigator.share ? `<button class="btn ghost grow" id="sh">${ic('share',18)} ${t('share_pdf')}</button>` : ''}<button class="btn ghost hide-sm" id="pp" aria-label="${t('print')}">${ic('file',18)} ${t('print')}</button></div>
   <div class="report"><div class="rh"><div class="row">${A.logo.replace('<svg','<svg width="46" height="46"')}<div><div class="wm-inline">${A.wordmark}</div><div class="small" style="opacity:.8">${t('report_t')}</div></div></div>
     <div class="small" style="text-align:end"><b>${esc(o.lab ? o.lab.name : '')}</b><br>${o.lab && o.lab.license ? t('licence') + ': ' + esc(o.lab.license) : ''}</div></div>
@@ -735,18 +738,20 @@ async function viewReport(id){
     <div><div class="xs muted">${t('patient')}</div><b>${esc(p.name)}</b></div><div><div class="xs muted">${t('age')} / ${t('sex')}</div><b>${p.dob ? age(p.dob) : '—'} / ${p.gender ? t(p.gender) : '—'}</b></div>
     <div><div class="xs muted">${t('request')}</div><b>${esc(o.code)}</b></div><div><div class="xs muted">${t('collected_at')}</div><b>${ce ? fmtDT(ce.at) : '—'}</b></div>
     <div><div class="xs muted">${t('reported_at')}</div><b>${fmtDT(o.published_at)}</b></div><div><div class="xs muted">${t('verified_by')}</div><b>${esc(o.verified_by || '')}</b></div></div>
-  <div class="banner ${flags ? 'amber' : 'teal'}" style="margin-bottom:16px">${ic(flags ? 'clock' : 'check',22)}<b>${flags ? t('some_flags',{n:flags}) : t('all_normal')}</b></div>
+  <div class="banner ${LVL === 'urgent' ? 'red' : flags ? 'amber' : 'teal'}" style="margin-bottom:16px">${ic(LVL === 'urgent' ? 'phone' : flags ? 'clock' : 'check',22)}<div><b>${t('lv_'+LVL+'_t')}</b><div class="small">${flags ? t('some_flags',{n:flags}) : t('all_normal')}</div></div></div>
   <div class="scroll-x"><table class="rtable"><thead><tr><th>${t('analyte')}</th><th>${t('result')}</th><th>${t('ref_range')}</th><th class="rb-col"></th><th>${t('flag')}</th></tr></thead><tbody>${rows}</tbody></table></div>
   ${notes.length ? `<div class="card flat" style="margin-top:18px"><h4>${t('insight_t')}</h4><ul class="small" style="margin:0;padding-inline-start:18px">${notes.join('')}</ul></div>` : ''}
-  <p class="xs muted" style="margin-top:18px">${t('report_disclaimer')}</p></div></div>`, { back: true });
+  ${o.doctor_note ? `<div class="card flat" style="margin-top:18px"><h4>${t('doc_note_t')} · ${esc(o.doctor_note.name || '')}</h4><p class="small" style="white-space:pre-wrap;margin:0">${esc(o.doctor_note.note)}</p></div>` : ''}
+  <p class="xs muted" style="margin-top:18px">${t('report_disclaimer')}</p></div></div><div class="stack no-print" style="margin-top:18px">${careBlock(o)}</div>`, { back: true });
+  bindCare(o, () => viewReport(id));
   /* real PDF file, made on the phone; prepared in advance so the tap opens the save/share sheet at once */
   const ar = S.lang === 'ar';
   const pdfData = { lang: S.lang, logo: A.logo, contact: `WhatsApp / Call ${CONTACT.phone}  ·  ${CONTACT.email}`, code: o.code, lab: o.lab ? o.lab.name : '', licence: o.lab && o.lab.license ? t('licence') + ': ' + o.lab.license : '', flags,
     title: `Lab@Home ${o.code}`,
-    t: { title: t('report_t'), analyte: t('analyte'), result: t('result'), range: t('ref_range'), flag: t('flag'), insight: t('insight_t'), disclaimer: t('report_disclaimer'), summary: flags ? t('some_flags',{n:flags}) : t('all_normal') },
+    t: { title: t('report_t'), analyte: t('analyte'), result: t('result'), range: t('ref_range'), flag: t('flag'), insight: t('insight_t'), disclaimer: t('report_disclaimer'), summary: t('lv_'+LVL+'_t') + ' · ' + (flags ? t('some_flags',{n:flags}) : t('all_normal')) },
     info: [[t('patient'), p.name || '—'], [t('age') + ' / ' + t('sex'), `${p.dob ? age(p.dob) : '—'} / ${p.gender ? t(p.gender) : '—'}`], [t('request'), o.code], [t('collected_at'), ce ? fmtDT(ce.at) : '—'], [t('reported_at'), fmtDT(o.published_at)], [t('verified_by'), o.verified_by || '—']],
     groups: (o.tests || []).map(x => ({ name: LN(x,'name'), rows: x.analytes.map(a => { const r = res[a.c] || {}; return { name: ar ? a.na : a.n, v: r.v ?? '—', u: a.u || '', range: rangeTxt(a), f: r.f || '', fl: r.f ? t('f_' + r.f) : '' }; }) })),
-    notes: (o.tests || []).flatMap(x => x.analytes.map(a => { const r = res[a.c] || {}; const n = r.f && r.f !== 'N' && INSIGHT[a.c] && INSIGHT[a.c][r.f]; return n ? `${ar ? a.na : a.n}: ${n[ar ? 1 : 0]}` : null; })).filter(Boolean) };
+    notes: (o.doctor_note ? [t('doc_note_t') + ' (' + (o.doctor_note.name || '') + '): ' + o.doctor_note.note] : []).concat(LVL === 'urgent' ? [t('lv_urgent_p')] : []).concat((o.tests || []).flatMap(x => x.analytes.map(a => { const r = res[a.c] || {}; const n = r.f && r.f !== 'N' && INSIGHT[a.c] && INSIGHT[a.c][r.f]; return n ? `${ar ? a.na : a.n}: ${n[ar ? 1 : 0]}` : null; })).filter(Boolean)) };
   const fname = `LabAtHome-${o.code}.pdf`; let pdfP = null, pdfBlob = null;
   const make = () => { if (!window.LAHPDF) return Promise.reject(new Error('pdf module missing'));
     return pdfP || (pdfP = Promise.race([window.LAHPDF.build(pdfData), new Promise((_, rj) => setTimeout(() => rj(new Error('timeout')), 25000))]).then(b => (pdfBlob = b)).catch(e => { pdfP = null; throw e; })); };
@@ -883,10 +888,11 @@ function userAddModal(){
     courier: `<label class="field"><span>${t('logistics_co')}</span><input class="input" name="company"></label><div class="grid g2"><label class="field"><span>${t('vehicle')}</span><input class="input" name="vehicle"></label><label class="field"><span>${t('plate')}</span><input class="input" name="plate"></label></div><label class="field"><span>${t('civil_id')}</span><input class="input" name="civil_id" inputmode="numeric"></label><div class="field"><span>${t('coverage')}</span>${wChecks('cov', ['Ibra'])}</div><label class="check"><input type="checkbox" name="fleet_admin"> <span>${t('r_fleet')}</span></label>`,
     lab: `<label class="field"><span>${t('lab_name')}</span><input class="input" name="lab_name"></label><div class="grid g2"><label class="field"><span>${t('lab_license')}</span><input class="input" name="license"></label><label class="field"><span>${t('accreditation')}</span><input class="input" name="accreditation"></label></div><div class="grid g2"><label class="field"><span>${t('director')}</span><input class="input" name="director"></label><label class="field"><span>${t('hours')}</span><input class="input" name="hours" placeholder="07:00–20:00"></label></div>`,
     company: `<label class="field"><span>${t('company_name')}</span><input class="input" name="company_name"></label><div class="grid g2"><label class="field"><span>${t('cr')}</span><input class="input" name="cr"></label><label class="field"><span>${t('employees')}</span><input class="input" type="number" name="employees"></label></div>`,
+    doctor: `<div class="grid g2"><label class="field"><span>${t('license')}</span><input class="input" name="license" placeholder="OMSB-MD-…"></label><label class="field"><span>${t('gender')}</span><select class="input" name="gender"><option value="female">${t('female')}</option><option value="male">${t('male')}</option></select></label></div><label class="field"><span>Specialty</span><input class="input" name="specialty" placeholder="Family Medicine"></label>`,
     staff: `<label class="field"><span>${t('job_title')}</span><input class="input" name="title" placeholder="${t('r_staff')}"></label><div class="banner blue small">${ic('eye',18)}<span>${t('staff_note')}</span></div>`,
     patient: `<label class="field"><span>${t('civil_id')}</span><input class="input" name="civil_id" inputmode="numeric"></label><label class="field"><span>${t('gender')}</span><select class="input" name="gender"><option value="male">${t('male')}</option><option value="female">${t('female')}</option></select></label>`
   })[r];
-  modal(`<h3>${t('add_user')}</h3><div class="cats" style="margin:10px 0" id="arole">${['nurse','courier','lab','company','staff','patient'].map(r => `<button type="button" data-ar="${r}" class="${r === role ? 'on' : ''}">${t('r_'+r)}</button>`).join('')}</div>
+  modal(`<h3>${t('add_user')}</h3><div class="cats" style="margin:10px 0" id="arole">${['nurse','doctor','courier','lab','company','staff','patient'].map(r => `<button type="button" data-ar="${r}" class="${r === role ? 'on' : ''}">${t('r_'+r)}</button>`).join('')}</div>
     <form class="stack" id="uaf"><label class="field"><span>${t('full_name')}</span><input class="input" name="full_name" required></label>
     <div class="grid g2"><label class="field"><span>${t('email')}</span><input class="input ltr" type="email" name="email"></label><label class="field"><span>${t('phone')}</span><input class="input ltr" name="phone" inputmode="tel"></label></div>
     <label class="field"><span>${t('wilayat')}</span><select class="input" name="wilayat">${W.map(w => `<option value="${esc(w)}">${esc(wN(w))}</option>`).join('')}</select></label>
@@ -896,7 +902,7 @@ function userAddModal(){
     $('[data-x]', el).onclick = close; $('[data-gp]', el).onclick = () => { $('[name=password]', el).value = genPass(); };
     $$('[data-ar]', el).forEach(b => b.onclick = () => { role = b.dataset.ar; $$('[data-ar]', el).forEach(x => x.classList.toggle('on', x === b)); $('#uax', el).innerHTML = extra(role); });
     $('#uaf', el).onsubmit = async e => { e.preventDefault(); const f = e.target; const g = n => f[n] ? (f[n].type === 'checkbox' ? f[n].checked : String(f[n].value || '').trim()) : undefined;
-      const meta = {}; ['gender','license','years','company','vehicle','plate','lab_name','accreditation','director','hours','company_name','cr','employees','title'].forEach(k => { const v = g(k); if (v) meta[k] = v; });
+      const meta = {}; ['gender','license','years','company','vehicle','plate','lab_name','accreditation','director','hours','company_name','cr','employees','title','specialty'].forEach(k => { const v = g(k); if (v) meta[k] = v; });
       if (f.manual) meta.manual = f.manual.checked; if (f.fleet_admin) meta.fleet_admin = f.fleet_admin.checked; if ($$('[name=cov]', f).length) meta.coverage = $$('[name=cov]:checked', f).map(x => x.value);
       if (role === 'nurse') { meta.languages = ['Arabic','English']; }
       const ll = WILAYAT_LL[g('wilayat')] || [];
@@ -981,8 +987,9 @@ async function viewAdminSettings(){
     <div class="card stack"><h3>${ic('card',20)} ${t('fees_t')}</h3>
       <div class="grid g2"><label class="field"><span>${t('home_fee')} (${t('omr')})</span><input class="input num" id="hf" inputmode="decimal" value="${v('home_fee')}" ${own ? '' : 'disabled'}></label><label class="field"><span>${t('nurse_fee')} (${t('omr')})</span><input class="input num" id="nf" inputmode="decimal" value="${v('nurse_fee')}" ${own ? '' : 'disabled'}></label></div>
       <label class="field"><span>${t('fast_last')}</span><select class="input" id="fl" ${own ? '' : 'disabled'}>${['08:00','09:00','10:00','11:00'].map(x => `<option ${v('fasting_last_slot') === x ? 'selected' : ''}>${x}</option>`).join('')}</select></label></div>
+    <div class="card stack"><h3>${ic('file',20)} ${t('demo_res_l')}</h3><p class="muted small" style="margin:0">${t('demo_res_p')}</p><select class="input" id="dr" ${own ? '' : 'disabled'}>${['mixed','normal','review','urgent'].map(x => `<option value="${x}" ${(v('demo_results') || 'mixed') === x ? 'selected' : ''}>${t('dr_'+x)}</option>`).join('')}</select></div>
     ${own ? `<div><button class="btn" id="sts">${t('save_changes')}</button></div>` : `<div class="banner blue small">${ic('eye',18)}<span>${t('readonly_note')}</span></div>`}</div>`);
-  if ($('#sts')) $('#sts').onclick = async () => { const b = $('#sts'); const sets = [['auto_mode', $('#am').checked], ['auto_step_minutes', +$('#as').value || 2], ['auto_accept_minutes', +$('#aa').value || 0], ['home_fee', +$('#hf').value], ['nurse_fee', +$('#nf').value], ['fasting_last_slot', $('#fl').value]];
+  if ($('#sts')) $('#sts').onclick = async () => { const b = $('#sts'); const sets = [['auto_mode', $('#am').checked], ['auto_step_minutes', +$('#as').value || 2], ['auto_accept_minutes', +$('#aa').value || 0], ['home_fee', +$('#hf').value], ['nurse_fee', +$('#nf').value], ['fasting_last_slot', $('#fl').value], ['demo_results', $('#dr').value]];
     try { await busy(b, () => Promise.all(sets.map(([k, x]) => API.adminSetting(k, x)))); S.catalog = null; toast(t('saved')); } catch(e) {} };
 }
 
@@ -1176,9 +1183,9 @@ async function viewAbout(){
   const goals = [['timer','g1'],['users','g2'],['thermo','g3'],['globe','g4']];
   const body = `<div class="stack-lg">
     <div class="about-hero"><div><span class="chip" style="background:rgba(255,255,255,.15);color:#fff">${t('m_about')}</span><h1>${t('about_t')}</h1><p>${t('about_p')}</p></div><div class="ah-art">${A.hero}</div></div>
+    <div class="grid g2 collapse"><div class="card pad-lg vm dark"><div class="ic-round">${ic('eye',26)}</div><span class="eyebrow">${t('vision')}</span><p class="big">${t('vision_p')}</p></div><div class="card pad-lg vm"><div class="ic-round">${ic('target',26)}</div><span class="eyebrow">${t('mission')}</span><p class="big">${t('mission_p')}</p></div></div>
     <div class="card pad-lg story"><div class="story-l"><span class="eyebrow">${t('story_eyebrow')}</span><h2>${t('story_t')}</h2><p class="muted">${t('about_story_p')}</p><p class="muted">${t('about_sol_p')}</p></div>
       <div class="story-r">${[1,2,3,4].map(i => `<div class="ps"><div class="ps-p"><span class="xs b">${t('problem')}</span>${t('pb'+i)}</div><span class="ps-arrow">${ic('arrow',18)}</span><div class="ps-s"><span class="xs b">${t('our_answer')}</span>${t('sl'+i)}</div></div>`).join('')}</div></div>
-    <div class="grid g2 collapse"><div class="card pad-lg vm dark"><div class="ic-round">${ic('eye',26)}</div><span class="eyebrow">${t('vision')}</span><p class="big">${t('vision_p')}</p></div><div class="card pad-lg vm"><div class="ic-round">${ic('target',26)}</div><span class="eyebrow">${t('mission')}</span><p class="big">${t('mission_p')}</p></div></div>
     <div><div class="section-h" style="margin-bottom:20px"><span class="eyebrow">${t('values_eyebrow')}</span><h2>${t('values_t')}</h2></div>
       <div class="grid g3 values">${values.map(([i, k]) => `<div class="card val"><span class="ic-round">${ic(i,24)}</span><div><b>${t(k)}</b><div class="small muted">${t(k+'_d')}</div></div></div>`).join('')}</div></div>
     <div><div class="section-h" style="margin-bottom:20px"><span class="eyebrow">${t('goals_eyebrow')}</span><h2>${t('goals_t')}</h2></div>
@@ -1487,6 +1494,8 @@ async function renderNow(){
   try {
     if (seg[0] === 'start') { viewStart(); return; }
     if (seg[0] === 'verify' && seg[1]) { await viewVerify(seg[1]); return; }
+    if (seg[0] === 'reset' && seg[1]) { viewReset(seg[1]); return; }
+    if (seg[0] === 'forgot') { if (S.user) return go('app'); viewForgot(); return; }
     if (seg[0] === '' && !S.user && !localStorage.getItem('lah_seen') && (innerWidth < 760 || standalone)) { location.replace('#/start'); return; }
     if (seg[0] === 'install') await viewInstall();
     else if (seg[0] === 'contact') await viewContact();
@@ -1500,7 +1509,8 @@ async function renderNow(){
     } else {
       if (!S.user) { sessionStorage.setItem('lah_after', path); return go('login'); }
       const r = S.user.role; const sub = seg[1] || '';
-      if (sub === '') await ({ patient: viewPatientHome, nurse: viewNurseHome, courier: (S.user.meta || {}).fleet_admin ? viewFleetHome : viewCourierHome, lab: viewLabHome, company: viewCompanyHome, admin: viewAdminHome, staff: viewAdminHome }[r])();
+      if (sub === '') await ({ patient: viewPatientHome, nurse: viewNurseHome, courier: (S.user.meta || {}).fleet_admin ? viewFleetHome : viewCourierHome, lab: viewLabHome, company: viewCompanyHome, admin: viewAdminHome, staff: viewAdminHome, doctor: viewDoctorHome }[r] || viewPatientHome)();
+      else if (sub === 'kit' && r === 'nurse') await viewNurseKit();
       else if (sub === 'tests') await viewAppTests();
       else if (sub === 'cart') await viewCart();
       else if (sub === 'book') await viewBook();
@@ -1510,7 +1520,7 @@ async function renderNow(){
       else if (sub === 'profile') await viewProfile();
       else if (sub === 'notifs') await viewNotifs();
       else if (sub === 'programs') await viewCompanyHome();
-      else if (sub === 'admin' && (r === 'admin' || r === 'staff')) await ((r === 'admin' ? { users: viewAdminUsers, catalog: viewAdminCatalog, tickets: viewAdminTickets, payments: viewAdminPayments, contracts: viewAdminContracts, settings: viewAdminSettings } : { users: viewAdminUsers, tickets: viewAdminTickets, contracts: viewAdminContracts, settings: viewAdminSettings })[seg[2]] || viewAdminHome)();
+      else if (sub === 'admin' && (r === 'admin' || r === 'staff')) await ((r === 'admin' ? { users: viewAdminUsers, catalog: viewAdminCatalog, tickets: viewAdminTickets, payments: viewAdminPayments, contracts: viewAdminContracts, settings: viewAdminSettings, kit: viewAdminKit } : { users: viewAdminUsers, tickets: viewAdminTickets, contracts: viewAdminContracts, settings: viewAdminSettings, kit: viewAdminKit })[seg[2]] || viewAdminHome)();
       else go('app');
     }
   } catch(e) {
@@ -1617,6 +1627,247 @@ function appFeel(){
   /* always run the newest version: an app left open on the phone checks for updates when it comes back */
   checkUpdate(); document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkUpdate(); navigator.serviceWorker && navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {}); } }); window.addEventListener('focus', checkUpdate); setInterval(checkUpdate, 5 * 60000);
 }
+/* ================= v17: results care, hospitals, doctor, password reset, Google, kit ================= */
+Object.assign(I18N.en, {
+  r_doctor:'Doctor', r_doctor_d:'Reviews results that need attention and writes advice for the patient.',
+  lv_normal_t:'All results are in the normal range', lv_normal_p:'Keep up your healthy habits. A yearly check-up is a good routine.',
+  lv_review_t:'Some results need a doctor’s review soon', lv_review_p:'This is not an emergency. Please see a doctor within 1–2 weeks. Until then, follow the advice below.',
+  lv_urgent_t:'One result needs urgent medical care today', lv_urgent_p:'Please contact a doctor today. If you feel very unwell (chest pain, fainting, trouble breathing, confusion), call 9999 or go to the nearest emergency now.',
+  call_999:'Call 9999', g_eat:'Eat more', g_avoid:'Avoid', g_do:'What to do now', g_see:'Get help at once if', g_crit:'Critical', g_until:'Until your doctor’s advice', g_general:'Drink water, sleep well, stay active and keep your follow-up appointment.',
+  g_note:'General guidance only. It is not a diagnosis and does not replace your doctor.',
+  doc_wait_t:'A doctor is reviewing your results', doc_wait_p:'Dr. {n} usually replies within 24 hours. You will get a notification.',
+  doc_note_t:'Doctor’s advice', doc_plan_t:'My commitments', doc_plan_p:'Tick each one when done. Saved on this phone.', doc_retest:'Add retest reminder',
+  hosp_t:'Nearest hospitals & health centres', hosp_p:'North Al Sharqiyah. Distances are straight-line.', hosp_open24:'Emergency open 24 h', hosp_hc:'Health centre · usually Sun–Thu 7:30–14:30', hosp_check:'Call before going', hosp_dir:'Directions', hosp_near:'Use my location', hosp_km:'{n} km',
+  hosp_open_now:'Likely open now', hosp_closed_now:'Likely closed now',
+  m_review:'Results to review', m_reviewed:'Reviewed', doc_home_t:'Results waiting for review', doc_empty:'No results waiting. Good work!', doc_write:'Write advice for the patient', doc_note_ph:'Explain the result in simple words and what the patient should do…',
+  doc_plan_l:'Commitments for the patient', doc_send:'Send advice', doc_sent:'Advice sent to the patient', doc_by:'By {n}', doc_pending:'Waiting', doc_done:'Reviewed', doc_urgent:'Urgent',
+  dp_retest2w:'Repeat the test in 2 weeks', dp_retest3m:'Repeat the test in 3 months', dp_visit:'Visit your health centre this week', dp_er:'Go to the emergency department today', dp_diet:'Follow the diet advice above', dp_walk:'Walk 30 minutes, 5 days a week', dp_meds:'Take your medicines as prescribed', dp_water:'Drink 8 glasses of water a day', dp_bp:'Check blood pressure at home every day',
+  forgot:'Forgot your password?', forgot_t:'Reset your password', forgot_p:'Enter your email or phone. We will email you a link to set a new password.', forgot_send:'Send reset link', forgot_ok:'If an account exists, a reset link is on its way to the email on file. Check your inbox and spam folder.',
+  reset_t:'Set a new password', reset_save:'Save password', reset_ok:'Password changed. You are signed in.', e_LINK_EXPIRED:'This link has expired or was already used. Ask for a new one.', e_NO_MAIL:'Email is not set up yet. Please contact us on WhatsApp.',
+  or_with:'or', g_btn:'Continue with Google', needs_profile:'Complete your profile (phone, gender, date of birth, civil ID) before booking.', complete_now:'Complete now',
+  cat_vitals:'Vital signs', cat_kids:'Children', cat_men:'Men', badge_kids:'For kids', badge_seniors:'60+',
+  soon_t:'Coming soon', soon_p:'New home services we are preparing.', soon_1:'Vaccinations at home', soon_1d:'Children and adult vaccines given by a licensed nurse.', soon_2:'Home IV & treatment', soon_2d:'Drips, injections and dressings at home with a prescription.', soon_3:'Doctor video consult', soon_3d:'Talk to a doctor about your results from home.', soon_4:'ECG at home', soon_4d:'Heart tracing recorded at home and read by a doctor.', soon_chip:'Soon',
+  m_kit:'My kit', kit_t:'My Lab@Home kit', kit_p:'The navy Lab@Home bag issued to every nurse. Items go down automatically after each collection.', kit_low:'Low', kit_ok:'OK', kit_req:'Request restock', kit_req_ok:'Restock request sent to operations.', kit_hist:'Recent requests', kit_pending:'Pending', kit_done:'Ready', kit_from_t:'Where does the kit come from?', kit_from_p:'Lab@Home gives each nurse a branded navy kit (bag, tubes, needles, gloves, cold box, BP monitor) at onboarding. Refills are collected from the operations office or the partner lab. The branded coat with performance stars comes next.',
+  stars_t:'My level', lvl_1:'Starter', lvl_2:'Silver', lvl_3:'Gold', lvl_4:'Platinum', lvl_next:'Next level: {v} visits and ★ {r}', lvl_top:'Top level reached. Thank you!',
+  m_kits:'Nurse kits', kit_admin_t:'Nurse kits & restock', kit_fill:'Mark ready', kit_refill:'Refill full kit', kit_requests:'Restock requests', kit_nurses:'Stock by nurse', kit_items_low:'{n} low',
+  demo_res_l:'Demo results', demo_res_p:'Which results demo and automatic requests produce.', dr_mixed:'Mixed (random)', dr_normal:'Always normal', dr_review:'Needs review', dr_urgent:'Urgent'
+});
+Object.assign(I18N.ar, {
+  r_doctor:'طبيب', r_doctor_d:'يراجع النتائج اللي تحتاج متابعة ويكتب التوصيات للمريض.',
+  lv_normal_t:'كل النتائج ضمن المعدل الطبيعي', lv_normal_p:'استمر على عاداتك الصحية. الفحص السنوي روتين ممتاز.',
+  lv_review_t:'بعض النتائج تحتاج مراجعة الطبيب قريباً', lv_review_p:'هذي ليست حالة طارئة. راجع الطبيب خلال أسبوع إلى أسبوعين، وإلى ذلك الحين اتبع النصائح التالية.',
+  lv_urgent_t:'نتيجة تحتاج رعاية طبية عاجلة اليوم', lv_urgent_p:'تواصل مع طبيب اليوم. إذا تشعر بتعب شديد (ألم في الصدر، إغماء، ضيق تنفس، تشوّش) اتصل بـ 9999 أو توجّه لأقرب طوارئ فوراً.',
+  call_999:'اتصل 9999', g_eat:'كُل أكثر', g_avoid:'تجنّب', g_do:'ماذا تفعل الآن', g_see:'اطلب المساعدة فوراً إذا', g_crit:'حرجة', g_until:'إلى أن تصلك توصية الطبيب', g_general:'اشرب ماء، نم جيداً، تحرّك، والتزم بموعد المتابعة.',
+  g_note:'إرشادات عامة فقط، وليست تشخيصاً ولا تغني عن الطبيب.',
+  doc_wait_t:'طبيب يراجع نتائجك الآن', doc_wait_p:'عادةً ترد {n} خلال 24 ساعة، وبيوصلك إشعار.',
+  doc_note_t:'توصية الطبيب', doc_plan_t:'التزاماتي', doc_plan_p:'علّم على كل التزام بعد ما تنجزه. يُحفظ على هذا الجهاز.', doc_retest:'أضف تذكير إعادة الفحص',
+  hosp_t:'أقرب المستشفيات والمراكز الصحية', hosp_p:'محافظة شمال الشرقية. المسافات خط مستقيم.', hosp_open24:'الطوارئ مفتوحة 24 ساعة', hosp_hc:'مركز صحي · عادةً الأحد–الخميس 7:30–2:30', hosp_check:'اتصل قبل الذهاب', hosp_dir:'الاتجاهات', hosp_near:'استخدم موقعي', hosp_km:'{n} كم',
+  hosp_open_now:'غالباً مفتوح الآن', hosp_closed_now:'غالباً مغلق الآن',
+  m_review:'نتائج للمراجعة', m_reviewed:'تمت المراجعة', doc_home_t:'نتائج تنتظر المراجعة', doc_empty:'لا توجد نتائج تنتظر. عمل ممتاز!', doc_write:'اكتب توصية للمريض', doc_note_ph:'اشرح النتيجة بكلمات بسيطة وماذا يجب على المريض أن يفعل…',
+  doc_plan_l:'التزامات المريض', doc_send:'إرسال التوصية', doc_sent:'تم إرسال التوصية للمريض', doc_by:'بواسطة {n}', doc_pending:'بانتظار المراجعة', doc_done:'تمت المراجعة', doc_urgent:'عاجل',
+  dp_retest2w:'أعد الفحص بعد أسبوعين', dp_retest3m:'أعد الفحص بعد 3 أشهر', dp_visit:'راجع المركز الصحي هذا الأسبوع', dp_er:'توجّه لقسم الطوارئ اليوم', dp_diet:'اتبع النصائح الغذائية أعلاه', dp_walk:'امشِ 30 دقيقة، 5 أيام في الأسبوع', dp_meds:'خذ أدويتك كما وصفها الطبيب', dp_water:'اشرب 8 أكواب ماء يومياً', dp_bp:'قِس الضغط في البيت كل يوم',
+  forgot:'نسيت كلمة المرور؟', forgot_t:'استعادة كلمة المرور', forgot_p:'اكتب بريدك أو رقم هاتفك، وبنرسل لك رابطاً على الإيميل لتعيين كلمة مرور جديدة.', forgot_send:'إرسال الرابط', forgot_ok:'إذا كان الحساب موجوداً، فرابط الاستعادة في الطريق إلى بريده. تفقّد البريد الوارد والرسائل غير المرغوبة.',
+  reset_t:'تعيين كلمة مرور جديدة', reset_save:'حفظ كلمة المرور', reset_ok:'تم تغيير كلمة المرور وتسجيل دخولك.', e_LINK_EXPIRED:'الرابط منتهي أو مستخدم من قبل. اطلب رابطاً جديداً.', e_NO_MAIL:'البريد غير مفعّل بعد. تواصل معنا على واتساب.',
+  or_with:'أو', g_btn:'المتابعة بحساب Google', needs_profile:'أكمل ملفك (الهاتف، الجنس، تاريخ الميلاد، الرقم المدني) قبل الحجز.', complete_now:'أكمل الآن',
+  cat_vitals:'العلامات الحيوية', cat_kids:'الأطفال', cat_men:'الرجال', badge_kids:'للأطفال', badge_seniors:'+60',
+  soon_t:'قريباً', soon_p:'خدمات منزلية جديدة نجهّزها.', soon_1:'التطعيمات في البيت', soon_1d:'تطعيمات الأطفال والكبار على يد ممرض مرخّص.', soon_2:'المغذّي والعلاج في البيت', soon_2d:'مغذّيات وإبر وغيار جروح في البيت بوصفة طبية.', soon_3:'استشارة طبيب بالفيديو', soon_3d:'كلّم طبيباً عن نتائجك من البيت.', soon_4:'تخطيط القلب في البيت', soon_4d:'تخطيط قلب يُسجَّل في البيت ويقرأه طبيب.', soon_chip:'قريباً',
+  m_kit:'حقيبتي', kit_t:'حقيبة لاب@هوم', kit_p:'الحقيبة الكحلية اللي تُسلَّم لكل ممرض. تنقص المستلزمات تلقائياً بعد كل سحب.', kit_low:'ناقص', kit_ok:'متوفر', kit_req:'طلب تعبئة', kit_req_ok:'تم إرسال طلب التعبئة للعمليات.', kit_hist:'آخر الطلبات', kit_pending:'قيد التجهيز', kit_done:'جاهز', kit_from_t:'من وين يجيب الممرض الحقيبة؟', kit_from_p:'لاب@هوم تسلّم كل ممرض حقيبة كحلية بالشعار (الحقيبة، الأنابيب، الإبر، القفازات، صندوق التبريد، جهاز الضغط) عند الانضمام، والتعبئة تُستلم من مكتب العمليات أو المختبر الشريك. والمعطف الطبي بالشعار ونجوم الأداء قريباً.',
+  stars_t:'مستواي', lvl_1:'مبتدئ', lvl_2:'فضي', lvl_3:'ذهبي', lvl_4:'بلاتيني', lvl_next:'المستوى التالي: {v} زيارة وتقييم ★ {r}', lvl_top:'وصلت أعلى مستوى. شكراً لك!',
+  m_kits:'حقائب الممرضين', kit_admin_t:'حقائب الممرضين والتعبئة', kit_fill:'تم التجهيز', kit_refill:'تعبئة كاملة', kit_requests:'طلبات التعبئة', kit_nurses:'المخزون لكل ممرض', kit_items_low:'{n} ناقص',
+  demo_res_l:'نتائج التجربة', demo_res_p:'نوع النتائج اللي تطلع في الطلبات التجريبية والتلقائية.', dr_mixed:'متنوعة (عشوائي)', dr_normal:'طبيعية دائماً', dr_review:'تحتاج مراجعة', dr_urgent:'عاجلة'
+});
+
+/* --- hospitals of North Al Sharqiyah (MOH list, coordinates from OpenStreetMap) --- */
+const HOSP = [
+  { en:'Ibra Hospital', ar:'مستشفى إبراء', ll:[22.6632,58.59119], h:1, ref:1 },
+  { en:'Sinaw Hospital', ar:'مستشفى سناو', ll:[22.49879,58.02886], h:1 },
+  { en:'Bidiya Hospital', ar:'مستشفى بدية', ll:[22.45207,58.80244], h:1 },
+  { en:'Wadi Bani Khalid Hospital', ar:'مستشفى وادي بني خالد', ll:[22.57947,59.09523], h:1 },
+  { en:'Dima W’Attayeen Hospital (Mahlah)', ar:'مستشفى دماء والطائيين (محلاه)', ll:[23.03956,58.59459], h:1 },
+  { en:'Samad Al Shan Hospital', ar:'مستشفى سمد الشأن', ll:[22.82095,58.16024], h:1, q:'Samad Al Shan Hospital Oman' },
+  { en:'Ibra Health Centre', ar:'مركز إبراء الصحي', ll:[22.6921,58.54615] },
+  { en:'New Ibra Health Centre', ar:'مركز إبراء الجديد الصحي', ll:[22.66644,58.59222] },
+  { en:'Al Qabil Health Centre', ar:'مركز القابل الصحي', ll:[22.57874,58.69285] },
+  { en:'Wadi Nam Health Centre', ar:'مركز وادي نام الصحي', ll:[22.72793,58.63969] },
+  { en:'Dima Health Centre', ar:'مركز دماء الصحي', ll:[22.98453,58.50298] },
+  { en:'Al Mudhaibi Health Centre', ar:'مركز المضيبي الصحي', ll:[22.56965,58.11502], q:'Al Mudhaibi Health Center Oman' }
+];
+function kmBetween(a, b){ const R = 6371, r = x => x * Math.PI / 180; const dLa = r(b[0]-a[0]), dLo = r(b[1]-a[1]); const s = Math.sin(dLa/2)**2 + Math.cos(r(a[0])) * Math.cos(r(b[0])) * Math.sin(dLo/2)**2; return 2 * R * Math.asin(Math.sqrt(s)); }
+function hcOpenNow(){ const p = new Intl.DateTimeFormat('en-GB',{ timeZone:'Asia/Muscat', weekday:'short', hour:'2-digit', minute:'2-digit', hour12:false }).formatToParts(new Date()); const g = k => (p.find(x => x.type === k) || {}).value; const wd = g('weekday'); const m = (+g('hour') % 24) * 60 + (+g('minute')); return ['Sun','Mon','Tue','Wed','Thu'].includes(wd) && m >= 450 && m < 870; }
+function hospList(from, urgent){
+  let L = HOSP.map(x => Object.assign({ km: from ? kmBetween(from, x.ll) : null }, x));
+  if (urgent) L = L.filter(x => x.h);
+  L.sort((a, b) => from ? a.km - b.km : (b.ref || 0) - (a.ref || 0));
+  const open = hcOpenNow();
+  return L.slice(0, urgent ? 3 : 4).map(x => { const dest = x.q ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(x.q)}` : `https://www.google.com/maps/dir/?api=1&destination=${x.ll[0]},${x.ll[1]}`;
+    const st = x.h ? `<span class="chip teal">${ic('check',12,2.6)} ${t('hosp_open24')}</span>` : `<span class="chip ${open ? 'teal' : 'gray'}">${t(open ? 'hosp_open_now' : 'hosp_closed_now')}</span> <span class="xs muted">${t('hosp_hc')} · ${t('hosp_check')}</span>`;
+    return `<div class="hosp"><span class="hi">${ic(x.h ? 'hosp' : 'plus', 20, 2.2)}</span><div class="grow"><b>${esc(S.lang === 'ar' ? x.ar : x.en)}</b>${x.km != null ? ` <span class="chip gray num">${t('hosp_km',{n:x.km < 10 ? x.km.toFixed(1) : Math.round(x.km)})}</span>` : ''}<div class="row wrap" style="gap:6px;margin-top:4px">${st}</div></div>
+      <a class="btn soft sm" target="_blank" rel="noopener" href="${dest}">${ic('pin',15)} ${t('hosp_dir')}</a></div>`; }).join('');
+}
+function hospCard(o, urgent){
+  const from = o && o.lat && o.address ? [o.lat, o.lng] : (S.user && S.user.lat ? [S.user.lat, S.user.lng] : (o && WILAYAT_LL[o.wilayat]) || null);
+  return `<div class="card" id="hospc"><div class="row between wrap" style="gap:8px"><div><h3 style="margin:0">${ic('hosp',20)} ${t('hosp_t')}</h3><div class="xs muted">${t('hosp_p')}</div></div><button class="btn ghost sm" data-near>${ic('target',15)} ${t('hosp_near')}</button></div>
+    <div class="stack" style="--g:8px;margin-top:12px" id="hospl" data-u="${urgent ? 1 : 0}">${hospList(from, urgent)}</div>
+    <a class="btn red block" style="margin-top:12px" href="tel:9999">${ic('phone',18)} ${t('call_999')}</a></div>`;
+}
+function bindHosp(){
+  const b = $('[data-near]'); if (!b) return;
+  b.onclick = () => { if (!navigator.geolocation) return; b.disabled = true;
+    navigator.geolocation.getCurrentPosition(p => { const l = $('#hospl'); if (l) l.innerHTML = hospList([p.coords.latitude, p.coords.longitude], l.dataset.u === '1'); b.disabled = false; }, () => { b.disabled = false; toast(t('e_GENERIC'), true); }, { enableHighAccuracy:false, timeout:10000, maximumAge:300000 }); };
+}
+
+/* --- result level + guidance + doctor advice --- */
+const PLAN_KEYS = ['dp_retest2w','dp_retest3m','dp_visit','dp_er','dp_diet','dp_walk','dp_meds','dp_water','dp_bp'];
+function orderLevel(o){ const g = window.LAHGUIDE ? LAHGUIDE.assess(o.tests, o.results) : { level:'normal', flagged:[] }; if (o.severity && ['normal','review','urgent'].includes(o.severity)) g.level = o.severity === 'urgent' || g.level === 'urgent' ? 'urgent' : o.severity === 'review' || g.level === 'review' ? 'review' : 'normal'; return g; }
+function guideHtml(flagged){
+  const ar = S.lang === 'ar'; const seen = new Set();
+  return flagged.map(({ a, r, crit }) => { const code = a.c === 'GLUR' ? 'GLU' : a.c; const dir = r.f === 'L' ? 'L' : 'H'; if (seen.has(code + dir)) return ''; seen.add(code + dir);
+    const g = LAHGUIDE.forAnalyte(code, dir, S.lang);
+    const sec = (k, arr, cls) => arr && arr.length ? `<div class="gsec ${cls}"><b>${t(k)}</b><ul>${arr.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '';
+    return `<details class="gcard ${crit ? 'crit' : ''}" ${crit || flagged.length < 3 ? 'open' : ''}><summary><span class="flag ${r.f || 'H'}">${t('f_' + (r.f || 'H'))}</span><b class="grow">${esc(ar ? a.na : a.n)}</b><span class="num b">${esc(r.v)} <small class="muted">${esc(a.u || '')}</small></span>${crit ? `<span class="chip red">${t('g_crit')}</span>` : ''}</summary>
+      ${g ? `<div class="ggrid">${sec('g_eat', g.eat, 'eat')}${sec('g_avoid', g.avoid, 'avoid')}${sec('g_do', g.do, 'do')}${sec('g_see', g.see, 'see')}</div>` : `<p class="small muted" style="margin:8px 0 0">${t('g_general')}</p>`}</details>`; }).join('');
+}
+function planStore(id){ try { return JSON.parse(localStorage.getItem('lah_plan_' + id) || '{}'); } catch(e) { return {}; } }
+function retestIcs(o, days){
+  const d = new Date(Date.now() + days * 86400000); const ymd = d.toISOString().slice(0,10).replace(/-/g,'');
+  const ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LabAtHome//EN','BEGIN:VEVENT','UID:retest-' + o.id + '@labathome','DTSTAMP:' + new Date().toISOString().replace(/[-:]/g,'').slice(0,15) + 'Z','DTSTART;VALUE=DATE:' + ymd,'SUMMARY:Lab@Home – ' + (S.lang === 'ar' ? 'موعد إعادة الفحص' : 'Retest reminder') + ' (' + o.code + ')','DESCRIPTION:https://labathome-oman.vercel.app/#/app/tests','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type:'text/calendar' })); a.download = 'LabAtHome-retest.ics'; document.body.appendChild(a); a.click(); setTimeout(() => a.remove(), 500);
+}
+function careBlock(o){
+  if (o.status !== 'completed' || !o.results) return '';
+  const r = S.user.role; const g = orderLevel(o); const lv = g.level; const dn = o.doctor_note;
+  const icn = { normal:'check', review:'clock', urgent:'phone' }[lv];
+  let h = `<div class="card care lv-${lv}"><div class="row" style="align-items:flex-start;gap:12px"><span class="lv-ic">${ic(icn, 24, 2.4)}</span><div class="grow"><b class="lv-t">${t('lv_'+lv+'_t')}</b><div class="small">${t('lv_'+lv+'_p')}</div></div></div>
+    ${lv === 'urgent' ? `<div class="row wrap" style="margin-top:12px;gap:8px"><a class="btn red" href="tel:9999">${ic('phone',18)} ${t('call_999')}</a><a class="btn ghost" href="#hospc" data-jump>${ic('hosp',18)} ${t('hosp_t')}</a></div>` : ''}</div>`;
+  if (dn) {
+    const done = planStore(o.id); const plan = Array.isArray(dn.plan) ? dn.plan : [];
+    h += `<div class="card docnote"><div class="row" style="gap:12px">${A.roleIcon('doctor', 46)}<div class="grow"><div class="xs muted">${t('doc_note_t')}</div><b>${esc(dn.name || '')}</b><div class="xs muted">${fmtDT(dn.at)}</div></div><span class="chip teal">${ic('check',12,2.6)} ${t('doc_done')}</span></div>
+      <p style="white-space:pre-wrap;margin:12px 0 0">${esc(dn.note)}</p>
+      ${plan.length ? `<h4 style="margin:16px 0 2px">${t('doc_plan_t')}</h4><div class="xs muted" style="margin-bottom:8px">${r === 'patient' ? t('doc_plan_p') : ''}</div><div class="stack" style="--g:6px">${plan.map((k, i) => `<label class="check plan"><input type="checkbox" data-plan="${i}" ${done[i] ? 'checked' : ''} ${r === 'patient' ? '' : 'disabled'}> <span>${esc(PLAN_KEYS.includes(k) ? t(k) : k)}</span></label>`).join('')}</div>` : ''}
+      ${r === 'patient' && plan.some(k => /retest/.test(k)) ? `<button class="btn soft sm" style="margin-top:12px" data-retest="${plan.includes('dp_retest2w') ? 14 : 90}">${ic('cal',16)} ${t('doc_retest')}</button>` : ''}</div>`;
+  } else if (lv !== 'normal' && r === 'patient') {
+    h += `<div class="card row" style="gap:12px">${A.roleIcon('doctor', 46)}<div class="grow"><b>${t('doc_wait_t')}</b><div class="small muted">${t('doc_wait_p',{n: S.lang === 'ar' ? 'د. عائشة البلوشية' : 'Dr. Aisha Al Balushi'})}</div></div><span class="live"><i></i>${t('doc_pending')}</span></div>`;
+  }
+  if (g.flagged.length) h += `<div class="card"><h3 style="margin-bottom:4px">${t('g_until')}</h3><div class="xs muted" style="margin-bottom:10px">${t('g_note')}</div><div class="stack" style="--g:8px">${guideHtml(g.flagged)}</div></div>`;
+  if (r === 'doctor') h += doctorForm(o, g);
+  if (lv !== 'normal' && r !== 'doctor') h += hospCard(o, lv === 'urgent');
+  return h;
+}
+function doctorForm(o, g){
+  const dn = o.doctor_note || {}; const sel = new Set(dn.plan || (g.level === 'urgent' ? ['dp_er','dp_visit'] : ['dp_visit','dp_diet','dp_retest3m']));
+  return `<div class="card" id="docf"><h3>${ic('steth',20)} ${t('doc_write')}</h3>
+    <textarea class="input" id="dnote" rows="5" placeholder="${t('doc_note_ph')}">${esc(dn.note || '')}</textarea>
+    <div class="b small" style="margin:12px 0 6px">${t('doc_plan_l')}</div><div class="row wrap" style="gap:6px">${PLAN_KEYS.map(k => `<label class="chip gray" style="cursor:pointer;padding:7px 10px"><input type="checkbox" name="dplan" value="${k}" ${sel.has(k) ? 'checked' : ''}> ${t(k)}</label>`).join('')}</div>
+    <div class="err" id="dfe"></div><button class="btn teal block" style="margin-top:12px" id="dsend">${ic('send',18)} ${t('doc_send')}</button></div>`;
+}
+function bindCare(o, redraw){
+  bindHosp();
+  $$('[data-jump]').forEach(a => a.onclick = e => { e.preventDefault(); const el = $('#hospc'); if (el) el.scrollIntoView({ behavior:'smooth', block:'start' }); });
+  $$('[data-plan]').forEach(c => c.onchange = () => { const s = planStore(o.id); s[c.dataset.plan] = c.checked; localStorage.setItem('lah_plan_' + o.id, JSON.stringify(s)); });
+  $$('[data-retest]').forEach(b => b.onclick = () => { retestIcs(o, +b.dataset.retest); toast(t('cal_ok')); });
+  if ($('#dsend')) $('#dsend').onclick = async () => { const note = $('#dnote').value.trim(); if (!note) { $('#dfe').textContent = t('doc_note_ph'); return; }
+    const plan = $$('input[name=dplan]:checked').map(x => x.value);
+    try { const n = await busy($('#dsend'), () => API.doctorNote(o.id, note, plan)); toast(t('doc_sent')); redraw(n); } catch(e) { $('#dfe').textContent = errMsg(e); } };
+}
+
+/* --- doctor home --- */
+function sevChip(o){ const s = o.severity; if (!s) return ''; return `<span class="chip ${s === 'urgent' ? 'red' : s === 'review' ? 'amber' : 'teal'}">${t(s === 'urgent' ? 'doc_urgent' : s === 'review' ? 'lv_review_t' : 'lv_normal_t').split(/[·,]/)[0]}</span>`; }
+async function viewDoctorHome(){
+  loading(t('m_review'));
+  const L = await API.orders('mine'); const u = S.user;
+  const pend = L.filter(o => !o.reviewed), done = L.filter(o => o.reviewed);
+  const urg = pend.filter(o => o.severity === 'urgent').length;
+  const item = o => orderItem(o, `<div class="row wrap" style="gap:6px;margin-top:8px"><span class="chip ${o.severity === 'urgent' ? 'red' : 'amber'}">${o.severity === 'urgent' ? '🔴 ' + t('doc_urgent') : '🟡 ' + t('m_review')}</span>${o.reviewed ? `<span class="chip teal">${ic('check',12,2.6)} ${t('doc_done')}</span>` : ''}</div>`);
+  app.innerHTML = shell(t('hello',{n:esc(u.full_name.replace(/^Dr\.?\s*/,'').split(' ')[0])}), `<div class="stack-lg">
+    <div class="card row" style="gap:14px">${A.roleIcon('doctor', 56)}<div class="grow"><b style="font-size:1.1rem">${esc(u.full_name)}</b><div class="small muted">${esc(S.lang === 'ar' ? ((u.meta||{}).specialty_ar || t('r_doctor')) : ((u.meta||{}).specialty || t('r_doctor')))}${(u.meta||{}).license ? ' · ' + esc(u.meta.license) : ''}</div></div></div>
+    <div class="grid g3"><div class="kpi" style="${urg ? 'background:#fdecec' : ''}"><span>🔴 ${t('doc_urgent')}</span><b>${urg}</b></div><div class="kpi"><span>🟡 ${t('doc_pending')}</span><b>${pend.length - urg}</b></div><div class="kpi blue"><span>${t('m_reviewed')}</span><b>${done.length}</b></div></div>
+    <div><h3>${t('doc_home_t')} <span class="chip">${pend.length}</span></h3>${pend.length ? `<div class="olist">${pend.map(item).join('')}</div>` : emptyBox(t('doc_empty'))}</div>
+    ${done.length ? `<div><h3>${t('m_reviewed')}</h3><div class="olist">${done.slice(0, 20).map(item).join('')}</div></div>` : ''}</div>`);
+}
+
+/* --- forgot / reset password --- */
+function viewForgot(){
+  app.innerHTML = authShell(`<h1>${t('forgot_t')}</h1><p class="muted">${t('forgot_p')}</p>
+    <form id="ff" class="stack" style="margin-top:18px"><label class="field"><span>${t('email_or_phone')}</span><input class="input ltr" name="login" autocomplete="username" autocapitalize="off" required placeholder="name@email.com · 9XXXXXXX"></label><div class="err" id="fe"></div><button class="btn block">${t('forgot_send')}</button></form>
+    <div id="fok"></div><p class="center muted" style="margin:16px 0"><a href="#/login" class="b">${t('login')}</a></p>`);
+  $('#ff').onsubmit = async e => { e.preventDefault(); const f = e.target; $('#fe').textContent = '';
+    try { await busy($('button', f), () => API.resetRequest(f.login.value.trim())); f.style.display = 'none'; $('#fok').innerHTML = `<div class="banner teal">${ic('mail',22)}<span>${t('forgot_ok')}</span></div>`; } catch(err) { $('#fe').textContent = errMsg(err); } };
+}
+function viewReset(code){
+  app.innerHTML = authShell(`<h1>${t('reset_t')}</h1><form id="rf" class="stack" style="margin-top:18px">${pwField('new1', t('new_pw'), t('pass_rule'))}<div class="err" id="re"></div><button class="btn block">${t('reset_save')}</button></form>
+    <p class="center muted" style="margin:16px 0"><a href="#/forgot" class="b">${t('forgot')}</a></p>`);
+  bindPw(app);
+  $('#rf').onsubmit = async e => { e.preventDefault(); const f = e.target; $('#re').textContent = '';
+    try { const r = await busy($('button', f), () => API.resetConfirm(code, f.new1.value)); toast(t('reset_ok')); history.replaceState(null, '', '#/app'); afterLogin(r); } catch(err) { $('#re').textContent = errMsg(err); } };
+}
+
+/* --- Google sign-in (shown only once a Google client ID is set on the server) --- */
+let GCFG = null;
+async function googleCfg(){ if (GCFG) return GCFG; try { const r = await fetch('api/google', { cache:'no-store' }); GCFG = r.ok ? await r.json() : {}; } catch(e) { GCFG = {}; } return GCFG; }
+async function mountGoogle(){
+  const box = $('#gbox'); if (!box) return; const c = await googleCfg(); if (!c.client_id || !$('#gbox')) return;
+  box.innerHTML = `<div class="orline"><span>${t('or_with')}</span></div><div id="gbtn" style="display:flex;justify-content:center;min-height:44px"></div><div class="err center" id="ge"></div>`;
+  const init = () => { if (!window.google || !google.accounts) return setTimeout(init, 200);
+    google.accounts.id.initialize({ client_id: c.client_id, callback: async resp => { $('#ge').textContent = '';
+      try { const r = await fetch('api/google', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ credential: resp.credential }) }); const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new API.ApiError(j.error || 'GENERIC'); afterLogin(j); } catch(e) { $('#ge').textContent = errMsg(e); } }, ux_mode:'popup', locale: S.lang });
+    google.accounts.id.renderButton($('#gbtn'), { theme:'outline', size:'large', shape:'pill', text:'continue_with', width: Math.min(360, ($('#gbtn').clientWidth || 320)), locale: S.lang }); };
+  if (!document.getElementById('gsi')) { const s = document.createElement('script'); s.id = 'gsi'; s.src = 'https://accounts.google.com/gsi/client'; s.async = true; document.head.appendChild(s); }
+  init();
+}
+function profileBanner(){ const u = S.user; return u && u.role === 'patient' && (u.meta || {}).needs_profile && !(u.phone && (u.meta || {}).gender && (u.meta || {}).dob) ? `<div class="banner amber" style="margin-bottom:16px">${ic('user',22)}<div class="grow small">${t('needs_profile')}</div><a class="btn sm" href="#/app/profile">${t('complete_now')}</a></div>` : ''; }
+
+/* --- coming soon --- */
+function soonBlock(){
+  const S4 = [['syringe','soon_1'],['drop','soon_2'],['chat','soon_3'],['heart','soon_4']];
+  return `<div class="section-h" style="margin:40px auto 18px"><span class="eyebrow">${t('soon_t')}</span><h2>${t('soon_t')}</h2><p>${t('soon_p')}</p></div>
+    <div class="grid g4 soon">${S4.map(([i, k]) => `<div class="card soon-c"><span class="chip purple soon-chip">${t('soon_chip')}</span><span class="ic-round">${ic(i,24)}</span><b>${t(k)}</b><div class="small muted">${t(k+'d')}</div></div>`).join('')}</div>`;
+}
+
+/* --- nurse kit --- */
+const KIT_ART = `<svg viewBox="0 0 220 150" class="kit-art" aria-hidden="true"><defs><linearGradient id="kg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d2f57"/><stop offset="1" stop-color="#0d1628"/></linearGradient></defs>
+  <ellipse cx="110" cy="140" rx="86" ry="7" fill="#0d1628" opacity=".12"/><path d="M80 40c0-14 60-14 60 0" fill="none" stroke="#0d1628" stroke-width="8" stroke-linecap="round"/>
+  <rect x="34" y="40" width="152" height="96" rx="18" fill="url(#kg)"/><rect x="34" y="62" width="152" height="6" fill="#2f7bff" opacity=".8"/>
+  <circle cx="110" cy="100" r="22" fill="#fff"/><path d="M110 88v24M98 100h24" stroke="#e2474f" stroke-width="6" stroke-linecap="round"/>
+  <text x="110" y="56" text-anchor="middle" font-family="Inter,Arial" font-weight="800" font-size="13" fill="#fff">Lab<tspan fill="#60a5fa">@</tspan>Home</text></svg>`;
+function nurseLevel(visits, rating){
+  const L = [[0,0],[50,4.5],[150,4.7],[300,4.8]]; let lv = 1;
+  for (let i = 1; i < L.length; i++) if (visits >= L[i][0] && rating >= L[i][1]) lv = i + 1;
+  return { lv, next: L[lv] || null };
+}
+function starsHtml(n){ return `<span class="lvl-stars">${'★'.repeat(n)}<span style="opacity:.25">${'★'.repeat(4 - n)}</span></span>`; }
+async function viewNurseKit(){
+  loading(t('m_kit'));
+  const k = await API.kitMine(); const m = S.user.meta || {};
+  const visits = (k.visits || 0) + (+m.visits_seed || 0); const rating = k.rating ? +k.rating : (+m.rating_seed || 0);
+  const L = nurseLevel(visits, rating);
+  app.innerHTML = shell(t('m_kit'), `<div class="grid g2 collapse" style="align-items:start"><div class="stack">
+    <div class="card kit-hero"><div class="grow"><h3 style="margin:0">${t('kit_t')}</h3><p class="small muted" style="margin:6px 0 0">${t('kit_p')}</p></div>${KIT_ART}</div>
+    <div class="card"><div class="row between"><h3 style="margin:0">${t('stars_t')}</h3>${starsHtml(L.lv)}</div><div class="row" style="gap:14px;margin-top:10px"><b style="font-size:1.4rem">${t('lvl_'+L.lv)}</b><span class="chip gray">${visits} ${t('collected_n')}</span><span class="chip amber">★ ${rating || '—'}</span></div>
+      <div class="small muted" style="margin-top:8px">${L.next ? t('lvl_next',{v:L.next[0], r:L.next[1]}) : t('lvl_top')}</div></div>
+    <div class="card"><h4>${t('kit_from_t')}</h4><p class="small muted" style="margin:0">${t('kit_from_p')}</p></div></div>
+  <div class="stack"><form class="card" id="kf"><h3>${t('kit_t')}</h3><div class="stack" style="--g:8px">${k.items.map(x => { const full = Math.max(x.min * 3, 1); const pct = Math.min(100, Math.round(x.qty / full * 100));
+      return `<div class="kit-row"><div class="grow"><div class="row between"><b class="small">${esc(LN(x,'name'))}</b><span class="chip ${x.low ? 'red' : 'teal'}">${x.qty} · ${t(x.low ? 'kit_low' : 'kit_ok')}</span></div><div class="progress" style="margin-top:6px;height:6px"><i style="width:${pct}%;${x.low ? 'background:var(--red)' : ''}"></i></div></div>
+        <input class="input num" style="width:72px;min-height:40px" type="number" min="0" max="500" inputmode="numeric" name="${esc(x.id)}" value="${x.low ? Math.max(0, full - x.qty) : 0}"></div>`; }).join('')}</div>
+    <div class="err" id="ke"></div><button class="btn block" style="margin-top:12px">${ic('box',18)} ${t('kit_req')}</button></form>
+    ${k.requests.length ? `<div class="card"><h4>${t('kit_hist')}</h4>${k.requests.map(r => `<div class="vline"><span class="small">${fmtDT(r.created_at)}</span><span class="chip ${r.status === 'done' ? 'teal' : 'amber'}">${t(r.status === 'done' ? 'kit_done' : 'kit_pending')}</span></div>`).join('')}</div>` : ''}</div></div>`);
+  $('#kf').onsubmit = async e => { e.preventDefault(); const items = {}; $$('#kf input[type=number]').forEach(i => { const v = parseInt(i.value, 10); if (v > 0) items[i.name] = v; });
+    if (!Object.keys(items).length) { $('#ke').textContent = t('e_BAD_INPUT') !== 'e_BAD_INPUT' ? t('e_BAD_INPUT') : t('e_GENERIC'); return; }
+    try { await busy($('button', e.target), () => API.kitRequest(items)); toast(t('kit_req_ok')); viewNurseKit(); } catch(err) { $('#ke').textContent = errMsg(err); } };
+}
+async function viewAdminKit(){
+  loading(t('m_kits'));
+  const k = await API.adminKit();
+  app.innerHTML = shell(t('kit_admin_t'), `<div class="stack-lg">
+    <div class="card kit-hero"><div class="grow"><h3 style="margin:0">${t('kit_admin_t')}</h3><p class="small muted" style="margin:6px 0 0">${t('kit_from_p')}</p></div>${KIT_ART}</div>
+    <div><h3>${t('kit_requests')} <span class="chip">${k.requests.length}</span></h3>${k.requests.length ? `<div class="stack">${k.requests.map(r => `<div class="card row between wrap" style="gap:10px"><div><b>${esc(r.nurse)}</b><div class="xs muted">${fmtDT(r.created_at)}</div><div class="row wrap" style="gap:6px;margin-top:6px">${Object.entries(r.items).map(([id, q]) => `<span class="chip gray">${esc(id)} × ${q}</span>`).join('')}</div></div><button class="btn teal sm" data-fill="${r.id}">${ic('check',16)} ${t('kit_fill')}</button></div>`).join('')}</div>` : emptyBox(t('none_yet'))}</div>
+    <div><h3>${t('kit_nurses')}</h3><div class="scroll-x"><table class="table"><thead><tr><th>${t('r_nurse')}</th><th>${t('wilayat')}</th><th>${t('kit_low')}</th><th></th></tr></thead><tbody>
+      ${k.nurses.map(n => `<tr><td class="b">${esc(n.name)}</td><td>${esc(wN(n.wilayat))}</td><td>${n.low ? `<span class="chip red">${t('kit_items_low',{n:n.low})}</span>` : `<span class="chip teal">${t('kit_ok')}</span>`}</td><td><button class="btn soft sm" data-refill="${n.id}">${t('kit_refill')}</button></td></tr>`).join('')}</tbody></table></div></div></div>`);
+  labelTables(app);
+  $$('[data-fill]').forEach(b => b.onclick = async () => { try { await busy(b, () => API.adminKitFill(+b.dataset.fill, null)); toast(t('saved')); viewAdminKit(); } catch(e) { toast(errMsg(e), true); } });
+  $$('[data-refill]').forEach(b => b.onclick = async () => { try { await busy(b, () => API.adminKitFill(null, b.dataset.refill)); toast(t('saved')); viewAdminKit(); } catch(e) { toast(errMsg(e), true); } });
+}
+
 async function boot(){
   setLang(S.lang);
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installEvt = e; if (location.hash.startsWith('#/install')) render(); });

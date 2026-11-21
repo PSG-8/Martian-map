@@ -66,6 +66,13 @@ window.API = {
   emailSet: (e) => rpc('email_set', { p_token: tok(), p_email: e }),
   emailConfirm: (c) => rpc('email_verify_confirm', { p_code: c }),
   emailSendVerify: async () => { let r; try { r = await fetch('api/mail', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ action:'verify', token: tok() }) }); } catch(e) { throw new ApiError('NETWORK'); } const j = await r.json().catch(() => ({})); if (!r.ok) throw new ApiError(j.error || 'GENERIC'); return j; },
+  doctorNote: (id, note, plan) => rpc('doctor_note_save', { p_token: tok(), p_id:id, p_note:note, p_plan:plan||[] }),
+  kitMine: () => rpc('kit_mine', { p_token: tok() }),
+  kitRequest: (items, note) => rpc('kit_request', { p_token: tok(), p_items:items, p_note:note||null }),
+  adminKit: () => rpc('admin_kit', { p_token: tok() }),
+  adminKitFill: (req, nurse) => rpc('admin_kit_fill', { p_token: tok(), p_request:req, p_nurse:nurse }),
+  resetConfirm: (c, pw) => rpc('password_reset_confirm', { p_code:c, p_new:pw }),
+  resetRequest: async (login) => { let r; try { r = await fetch('api/mail', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ action:'reset', login }) }); } catch(e) { throw new ApiError('NETWORK'); } const j = await r.json().catch(() => ({})); if (!r.ok) throw new ApiError(j.error || 'GENERIC'); return j; },
   demoAdvance: (id) => rpc('demo_advance', { p_token: tok(), p_id:id }),
   setToken: (t) => t ? localStorage.setItem('lah_token', t) : localStorage.removeItem('lah_token'),
   hasToken: () => !!tok()
