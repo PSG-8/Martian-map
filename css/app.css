@@ -812,11 +812,7 @@ button.link{min-height:44px;display:inline-flex;align-items:center;gap:6px}
 #splash.flat{background:#3a5596 url(../img/hero/h0d.jpg) 70% 50%/cover no-repeat}
 @media (max-width:760px){#splash.flat{background-image:url(../img/hero/h0m.jpg);background-position:50% 100%}}
 .vid-card .vid{width:100%;border-radius:16px;background:#0b1426;aspect-ratio:16/9;display:block}
-/* special: platform developer */
-.team .dev-card{position:relative;background:linear-gradient(160deg,#0b2350,#2563eb);color:#fff;box-shadow:0 18px 40px rgba(37,99,235,.35)}
-.team .dev-card h4{color:#fff}.team .dev-card .avatar{box-shadow:0 0 0 4px rgba(255,255,255,.35),0 0 0 8px rgba(255,214,102,.5)}
-.team .dev-star{position:absolute;top:12px;inset-inline-end:12px;width:34px;height:34px;border-radius:50%;background:#ffd666;color:#0b2350;display:grid;place-items:center;box-shadow:0 6px 16px rgba(255,214,102,.5)}
-.team .dev-chip{background:#ffd666;color:#0b2350;font-weight:800}
+.team .dev-s{color:#f5b300}
 /* v25: topbar never squeezes the brand */
 .topbar .brand{flex:none;min-width:max-content;overflow:visible}
 .topbar .brand .wm,.topbar .brand small{white-space:nowrap}

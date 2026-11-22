@@ -134,10 +134,7 @@ body.lang-ar .eb{letter-spacing:0}
 .tm{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:22px;color:#fff;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
 .tm .av{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font:800 22px Poppins;color:#fff}
 .tm b{font:700 23px/1.28 Poppins;letter-spacing:-.01em}
-.tm.dev{background:linear-gradient(160deg,#1d4ed8,#2563eb 60%,#3b82f6);border:2px solid #ffd666;box-shadow:0 18px 50px rgba(37,99,235,.45);position:relative}
-.tm.dev .av{background:#ffd666!important;color:#0b2350;box-shadow:0 0 0 4px rgba(255,214,102,.35)}
-.tm .dv{display:inline-flex;align-items:center;gap:6px;background:#ffd666;color:#0b2350;font:800 17px Poppins;padding:6px 12px;border-radius:999px}
-.tm .st{position:absolute;top:16px;right:16px;color:#ffd666;font-size:30px;line-height:1}
+.tm .st{color:#F5B300;margin-left:6px}
 .adv{margin-top:22px;display:inline-flex;align-items:center;gap:14px;background:#0F766E;color:#fff;border-radius:16px;padding:14px 26px;font:700 25px Inter,"IBM Plex Sans Arabic"}
 .qrs{position:absolute;right:90px;top:120px;display:flex;flex-direction:column;gap:22px}
 .qr{background:#fff;border-radius:26px;padding:16px;display:flex;gap:16px;align-items:center;width:440px;color:var(--navy);text-decoration:none}
@@ -436,7 +433,7 @@ function drawCols(){
 /* ---------- slide 8: team ---------- */
 const TEAM = [['BILARAB SUWAILAM ALMUSALLAMI', '#2563EB'], ['Jokha Suliaman Hamid Al Rawahi', '#E8466F'], ['Ansam Ibrahim Zaher Alnoumani', '#7A5AF8'], ['TASNIM SALIM HAMED AL HASANI', '#14B8A6']];
 const ini = n => n.split(/\s+/).filter(w => w.length > 2 || /^Al/i.test(w)).map(w => w[0]).filter(Boolean).slice(0, 1).join('') + n.split(/\s+/).slice(-1)[0].replace(/^Al-?/i, '')[0];
-$('#team').innerHTML = TEAM.map(([n, c], i) => `<div class="tm${i ? '' : ' dev'}">${i ? '' : '<span class="st">★</span>'}<span class="av" style="background:${c}">${ini(n).toUpperCase()}</span><b>${n.split(' ').map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ').replace(/ Al /g, ' Al ').replace(/Almusallami/, 'Almusallami')}</b>${i ? '' : '<span class="dv">★ Platform developer</span>'}</div>`).join('');
+$('#team').innerHTML = TEAM.map(([n, c], i) => `<div class="tm"><span class="av" style="background:${c}">${ini(n).toUpperCase()}</span><b>${n.split(' ').map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ').replace(/ Al /g, ' Al ').replace(/Almusallami/, 'Almusallami')}${i ? '' : '<span class="st">★</span>'}</b></div>`).join('');
 /* ---------- notes ---------- */
 const NOTES = [
   '<b>[0:00–0:40] Cover.</b> Good morning. We are the iLab@home team. Our idea is a home healthcare testing platform for Oman, starting in North Al Sharqiyah. The van you see is our symbol: the lab comes to the patient, not the other way round. The app is live at labathome-oman.vercel.app and on Instagram as @ilabathome.',
