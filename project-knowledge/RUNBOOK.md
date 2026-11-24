@@ -17,3 +17,8 @@ Local test harness with a mocked API: branch `project-tools` → `tools/test/har
 
 ## Known limits of the old chat environment (not an issue in Claude Code)
 No internet from the shell (only GitHub), so rendering was done through GitHub Actions.
+
+## v28 notes
+- Banners: `project-tools/tools/hero-banners` renders both sizes; v28 used sizes `m` 780×1200 (ox −0.1, oy 0.14, fov 48) and `d` 1920×760 (ox 0.2, oy 0, fov 30), then WebP copies (quality 72/76) next to the JPGs.
+- Story film: see VIDEOS.md. Kokoro model files come from Hugging Face (`fastrtc/kokoro-onnx`); the cloud environment "Martian-map" allows the Hugging Face hosts.
+- Local tests: a mock API plus a live mode against the real Supabase with demo accounts; checks every screen as every role on phone and desktop for JS errors and sideways overflow.

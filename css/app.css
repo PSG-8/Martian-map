@@ -910,3 +910,10 @@ input[type=range]{width:100%;accent-color:var(--blue);height:28px}
 @keyframes cloud{from{transform:translateX(0)}to{transform:translateX(-120vw)}}
 @keyframes msgIn{to{opacity:1;transform:translate(-50%,0)}}
 @media (prefers-reduced-motion:reduce){.vs-van{animation:none;left:calc(100% - 230px)}.vs-van svg,.vs-road i,.vs-puff,.vs-sky .cloud{animation:none}.vs-msg{animation:none;opacity:1;transform:translate(-50%,0)}}
+.cs-cta{flex-wrap:wrap}.cs-cta .grow{min-width:200px}
+@media(max-width:600px){.cs-cta .btn{width:100%;justify-content:center}}
+/* v28: sections below the screen are not drawn until you scroll near them (faster first paint on phones) */
+.hm-sec,footer.site{content-visibility:auto;contain-intrinsic-size:auto 640px}
+/* v28: wide tables scroll inside their card instead of stretching the page (lab results form on phones) */
+.stack>*,.stack-lg>*{min-width:0}
+.scroll-x{max-width:100%;overflow-x:auto}

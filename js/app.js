@@ -52,20 +52,19 @@ function modal(html, mount){
 function confirmBox(msg, yes, no){ return new Promise(r => modal(`<h3>${esc(msg)}</h3><div class="row" style="margin-top:18px"><button class="btn ghost grow" data-n>${esc(no||t('cancel'))}</button><button class="btn red grow" data-y>${esc(yes||t('confirm'))}</button></div>`, (el, close) => { $('[data-y]', el).onclick = () => { close(); r(true); }; $('[data-n]', el).onclick = () => { close(); r(false); }; })); }
 function setLang(l){ S.lang = l; localStorage.setItem('lah_lang', l); document.documentElement.lang = l; document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr'; document.title = 'iLab@home · ' + t('brand_sub'); }
 /* catalog: shown at once from the copy saved on this device, then refreshed from the server in the background */
-let CATP = null; const CAT_KEY = 'lah_cat_v2';
+let CATF = null; const CAT_KEY = 'lah_cat_v2';
 function setCatalog(c){ c.T = {}; c.tests.forEach(x => c.T[x.id] = x); c.P = {}; c.packages.forEach(x => c.P[x.id] = x); S.catalog = c;
   /* drop cart items that no longer exist (an old item made the cart look full but open empty) */
   const pk = S.cart.packages.filter(id => c.P[id]), ts = S.cart.tests.filter(id => c.T[id]);
   if (pk.length !== S.cart.packages.length || ts.length !== S.cart.tests.length) { S.cart = { packages: pk, tests: ts }; saveCart(); } }
-async function loadCatalog(){
+function fetchCatalog(){ if (!CATF) CATF = API.catalog().then(c => { try { localStorage.setItem(CAT_KEY, JSON.stringify(c)); } catch(e) {} setCatalog(c); return S.catalog; }).finally(() => { CATF = null; }); return CATF; }
+let CAT_FRESH = false;
+async function loadCatalog(force){
+  if (force) { try { localStorage.removeItem(CAT_KEY); } catch(e) {} S.catalog = null; return fetchCatalog(); }
   if (S.catalog) return S.catalog;
-  if (!CATP) {
-    let cached = null; try { cached = JSON.parse(localStorage.getItem(CAT_KEY) || 'null'); } catch(e) {}
-    const fresh = API.catalog().then(c => { try { localStorage.setItem(CAT_KEY, JSON.stringify(c)); } catch(e) {} setCatalog(c); return S.catalog; });
-    if (cached && Array.isArray(cached.tests)) { setCatalog(cached); fresh.catch(() => {}); CATP = Promise.resolve(S.catalog); }
-    else CATP = fresh.catch(e => { CATP = null; throw e; });
-  }
-  return CATP;
+  let cached = null; try { cached = JSON.parse(localStorage.getItem(CAT_KEY) || 'null'); } catch(e) {}
+  if (cached && Array.isArray(cached.tests)) { setCatalog(cached); if (!CAT_FRESH) { CAT_FRESH = true; fetchCatalog().catch(() => {}); } return S.catalog; }
+  return fetchCatalog();
 }
 const fee = () => S.catalog ? Number(S.catalog.home_fee) : 5;
 function pkgFull(p){ return p.test_ids.reduce((s, id) => s + Number((S.catalog.T[id]||{}).price || 0), 0); }
@@ -449,7 +448,7 @@ async function viewBook(){
   const next = b.step < 5 ? `<button class="btn" id="nx">${t('next')} ${'<span class="flip">'+ic('arrow',18)+'</span>'}</button>` : `<button class="btn teal" id="pay">${b.program ? t('confirm_book') : t('confirm_pay',{x:omr(total)})}</button>`;
   app.innerHTML = shell(t('q_book'), `${head}<div class="grid" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px" id="bkg">
     <div class="stack">${body}<div class="err" id="be"></div><div class="row">${b.step > 1 ? `<button class="btn ghost" id="pv">${t('back')}</button>` : `<a class="btn ghost" href="#/app/cart">${t('m_cart')}</a>`}<div class="grow"></div>${next}</div></div><div>${summary}</div></div>`, { back: true });
-  if (innerWidth < 900) $('#bkg').style.gridTemplateColumns = '1fr';
+  if (innerWidth < 900) $('#bkg').style.gridTemplateColumns = 'minmax(0,1fr)';
   const err = m => $('#be').textContent = m;
   $$('[data-who]').forEach(x => x.onclick = () => { b.who = x.dataset.who; b.nurse = null; viewBook(); });
   $$('[data-pg]').forEach(x => x.onclick = () => { b.person.name = $('#pn').value; b.person.gender = x.dataset.pg; b.nurse = null; viewBook(); });
@@ -635,7 +634,7 @@ function drawOrder(o){
   app.innerHTML = shell(esc(o.code), `<div class="grid" id="og" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;align-items:start">
     <div class="stack">${head}${acts}${careBlock(o)}${eta}${prep}${o.status === 'completed' && r === 'patient' ? rateBox(o) : ''}${map}${team}${details}${tests}</div>
     <div class="stack"><div class="card"><h3>${t('q_track')}</h3>${tl}</div></div></div>`, { back: true });
-  if (innerWidth < 900) $('#og').style.gridTemplateColumns = '1fr';
+  if (innerWidth < 900) $('#og').style.gridTemplateColumns = 'minmax(0,1fr)';
   bindActions(o); bindCare(o, drawOrder);
   $$('[data-party]').forEach(b => b.onclick = () => partyModal(b.dataset.party, o));
   if ($('[data-ics]')) $('[data-ics]').onclick = () => { icsDownload(o); toast(t('cal_ok')); };
@@ -1004,10 +1003,10 @@ async function viewAdminSettings(){
 }
 
 async function viewAdminCatalog(){
-  S.catalog = null; await loadCatalog();
+  await loadCatalog(true);
   app.innerHTML = shell(t('m_catalog'), `<div class="card"><div class="scroll-x"><table class="table"><thead><tr><th>${t('analyte')}</th><th>${t('tube')}</th><th>${t('price')} (${t('omr')})</th><th></th></tr></thead><tbody>
     ${S.catalog.tests.map(x => `<tr><td><b>${esc(LN(x,'name'))}</b><div class="xs muted">${x.analytes.length} · ${x.fasting_hours ? t('fasting',{h:x.fasting_hours}) : t('no_fasting')}</div></td><td class="small">${esc(x.tube)}</td><td><input class="input num" style="width:110px;min-height:38px;padding:6px 10px" inputmode="decimal" value="${omr(x.price)}" data-price="${x.id}"></td><td><button class="btn sm soft" data-sv="${x.id}">${t('save_changes')}</button></td></tr>`).join('')}</tbody></table></div></div>`);
-  $$('[data-sv]').forEach(b => b.onclick = async () => { const v = parseFloat($(`[data-price="${b.dataset.sv}"]`).value); try { await busy(b, () => API.adminTest(b.dataset.sv, v, true)); toast(t('saved')); S.catalog = null; } catch(e) {} });
+  $$('[data-sv]').forEach(b => b.onclick = async () => { const v = parseFloat($(`[data-price="${b.dataset.sv}"]`).value); try { await busy(b, () => API.adminTest(b.dataset.sv, v, true)); toast(t('saved')); loadCatalog(true).catch(() => {}); } catch(e) {} });
 }
 
 /* ---------- profile & notifications ---------- */
@@ -1153,7 +1152,7 @@ async function viewCart(){
     <div class="card summary"><h3>${t('summary')}</h3><div class="line"><span>${t('lab_tests')}</span><span class="num">${omr(c.sub)}</span></div><div class="line"><span>${t('home_fee')}</span><span class="num">${omr(fee())}</span></div>
       <div class="line total"><span>${t('total')}</span><span class="num">${omr(c.sub + fee())} ${t('omr')}</span></div>
       <button class="btn block teal" style="margin-top:14px" data-go="app/book">${ic('syringe',18)} ${t('checkout')}</button></div></div>`);
-  if (innerWidth < 900) $('#cg').style.gridTemplateColumns = '1fr';
+  if (innerWidth < 900) $('#cg').style.gridTemplateColumns = 'minmax(0,1fr)';
   $$('[data-rm]').forEach(x => x.onclick = () => { const it = c.items[+x.dataset.rm]; toggleCart(it.type, it.id); viewCart(); });
 }
 
@@ -1637,7 +1636,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 27;
+const APP_V = 28;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -2032,8 +2031,8 @@ Object.assign(I18N.ar, { ig_follow:'تابعنا على إنستغرام', ig_sc
   nw17e:'نسيت كلمة المرور', nw17ed:'استعد كلمة المرور عبر رابط يوصلك على الإيميل.' });
 const MEDIA = 'https://ufykiqxsegyuyablrjsq.supabase.co/storage/v1/object/public/media/';
 const HOW_READY = true;
-const NEWS = [['phone','nw25','v25'],['users','nw25b','v25'],['spark','nw18','v18'],['check','nw17a','v17'],['steth','nw17b','v17'],['hosp','nw17c','v17'],['flask','nw17d','v17'],['lock','nw17e','v17']];
-const VIDS = { how: ['media/iLabAtHome_HowItWorks.mp4', 'media/how_poster.jpg', 'new_vid', 'new_sub', '1:04'], cast: ['media/iLabAtHome_Characters.mp4', 'media/cast_poster.jpg', 'new_vid2', 'new_sub2', '0:55'] };
+const NEWS = [['steth','nw28a','v28'],['flask','nw28b','v28'],['ring','nw28c','v28'],['spark','nw28d','v28'],['phone','nw25','v25'],['users','nw25b','v25'],['spark','nw18','v18'],['check','nw17a','v17'],['steth','nw17b','v17'],['hosp','nw17c','v17'],['flask','nw17d','v17'],['lock','nw17e','v17']];
+const VIDS = { how: ['media/iLabAtHome_HowItWorks.mp4', 'media/how_poster.jpg', 'new_vid', 'new_sub', '1:04'], cast: ['media/iLabAtHome_Story.mp4', 'media/story_poster.jpg', 'new_vid2', 'new_sub2', '0:56'] };
 function vidCard(k){ const [src, poster, tt, st, dur] = VIDS[k]; return `<div class="card pad-lg vid-card"><div class="row between wrap" style="gap:8px;margin-bottom:12px"><div><h3 style="margin:0">${t(tt)}</h3><div class="small muted">${t(st)}</div></div><span class="chip teal">${ic('play',14)} ${dur}</span></div>
   <video class="vid" controls playsinline preload="none" poster="${poster}"><source src="${src}" type="video/mp4"></video></div>`; }
 function newBlock(short){
@@ -2162,6 +2161,16 @@ Object.assign(I18N.ar, { soon_dna1:'فحص الجينات للمقبلين عل�
   soon_dna3:'الجينات والأدوية', soon_dna3d:'كيف تتعامل جيناتك مع الأدوية الشائعة (مميعات الدم، المسكنات، مضادات الاكتئاب).',
   soon_dna4:'فحوصات وراثية للمواليد والعائلة', soon_dna4d:'تأكيد جينات الثلاسيميا أو المنجلية في العائلة بفحص DNA يُرسل لمختبر مرجعي معتمد.',
   soon_dent:'تنظيف الأسنان في البيت', soon_dentd:'تنظيف وتلميع على يد أخصائي صحة فم بأجهزة متنقلة.' });
+Object.assign(I18N.en, { new_vid2:'iLab@home in one minute', new_sub2:'English narration · Arabic subtitles',
+  nw28a:'Doctor & dentist consultations', nw28ad:'Video or voice calls with a male or female doctor before your tests or after your results, plus online and home dentists.',
+  nw28b:'Results read like a real lab', nw28bd:'Separate ranges for women and children, “slightly outside” values stay normal with tips, and only true emergencies are marked urgent.',
+  nw28c:'Premarital screening', nw28cd:'The Ministry of Health premarital tests at home, fully confidential. DNA tests are coming soon.',
+  nw28d:'New logo, faster everywhere', nw28dd:'A new iLab@home logo, a smoother site on phones and computers, and the van that drives in when you sign up.' });
+Object.assign(I18N.ar, { new_vid2:'آي لاب@هوم في دقيقة', new_sub2:'تعليق بالإنجليزي · ترجمة عربية',
+  nw28a:'استشارات الأطباء وأطباء الأسنان', nw28ad:'مكالمة فيديو أو صوت مع طبيب أو طبيبة قبل الفحص أو بعد النتائج، وطبيب أسنان أونلاين وفي البيت.',
+  nw28b:'قراءة نتائج مثل المختبر الحقيقي', nw28bd:'معدلات خاصة للنساء والأطفال، والقيم الخارجة بشكل بسيط تبقى طبيعية مع نصائح، وما يُعتبر عاجلاً إلا الطوارئ الحقيقية.',
+  nw28c:'فحص ما قبل الزواج', nw28cd:'فحوصات برنامج وزارة الصحة لما قبل الزواج في بيتك وبسرية تامة. وفحوصات الجينات قريباً.',
+  nw28d:'شعار جديد وسرعة أكثر', nw28dd:'شعار آي لاب@هوم الجديد، وموقع أسلس على الجوال والكمبيوتر، والفان اللي يدخل لما تسجّل.' });
 /* money rules (fallbacks match the database settings) */
 let BIZ = null;
 const BIZ0 = { home_fee:5, nurse_fee:3, courier_fee:1, kit_cost:0.5, lab_share:0.65, pay_fee_pct:0.025, nurse_bonus:[0,0.25,0.5,0.75], consult_fee:4, consult_post_fee:3, consult_doctor_share:0.75, dental_home_fee:12, dental_home_share:0.65,

@@ -164,19 +164,19 @@ end $$;
 create or replace function public.my_stats(p_token text) returns jsonb
 language plpgsql security definer set search_path to 'public', 'extensions' as $$
 declare v public.app_users := public._uid(p_token); fee numeric := (select (value#>>'{}')::numeric from public.settings where key='nurse_fee');
-  n int; seed int; rating numeric; lv int; bonus numeric;
+  n int; seed int; v_rating numeric; lv int; bonus numeric;
 begin
   if v.role='nurse' then
     n := (select count(*) from public.orders where nurse_id=v.id and status in ('collected','in_transit','at_lab','processing','completed'));
     seed := coalesce((v.meta->>'visits_seed')::int,0);
-    rating := coalesce((select round(avg(rating),1) from public.orders where nurse_id=v.id and rating is not null),(v.meta->>'rating_seed')::numeric, 0);
-    lv := public._nurse_level(n + seed, rating);
+    v_rating := coalesce((select round(avg(rating),1) from public.orders where nurse_id=v.id and rating is not null),(v.meta->>'rating_seed')::numeric, 0);
+    lv := public._nurse_level(n + seed, v_rating);
     bonus := coalesce(((select value from public.settings where key='nurse_bonus')->>(lv-1))::numeric, 0);
     return jsonb_build_object(
       'active',(select count(*) from public.orders where nurse_id=v.id and status in ('assigned','on_the_way','arrived')),
       'collected', n + seed,
       'month',(select count(*) from public.orders where nurse_id=v.id and status in ('collected','in_transit','at_lab','processing','completed') and updated_at >= date_trunc('month',now())),
-      'earnings',(fee + bonus) * n, 'fee', fee + bonus, 'base', fee, 'bonus', bonus, 'level', lv, 'rating', rating,
+      'earnings',(fee + bonus) * n, 'fee', fee + bonus, 'base', fee, 'bonus', bonus, 'level', lv, 'rating', v_rating,
       'today', v.available and (v.available_on = public._today() or v.is_demo),
       'available',(select count(*) from public.orders o where o.nurse_id is null and public._can_see(o, v)));
   elsif v.role='courier' then
@@ -245,3 +245,6 @@ $$;
 
 grant execute on function public.doctors_list(text), public.consult_create(text, jsonb), public.consult_list(text), public.consult_get(text, uuid),
   public.consult_action(text, uuid, text, jsonb), public.business_public() to anon, authenticated;
+
+-- lock internal helpers (applied as v28_lock_internal_helpers)
+revoke execute on function public._consult_json(public.consults, public.app_users) from public, anon, authenticated;

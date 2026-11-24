@@ -7,3 +7,8 @@
 - **Character art: Figma AI image generation (gpt-image)**, motion via HeyGen image-to-video (free plan: 3 clips). Cut-out parallax was removed because it looked like doubled characters.
 - **Team highlight is subtle** — only a star (user found the blue card "too much").
 - **Questions page is framed as asking nurses/experts**, not as answers.
+- **Results follow lab practice (v28)** — a value just outside the range is "slightly high/low" and stays *normal with tips*; only clearly abnormal values ask for a doctor; *urgent* only above true critical limits. Women and children have their own ranges.
+- **Money split (v28, planning figures)** — visit fee 5.000: nurse 3.000 (+ level bonus), courier 1.000, kit 0.500, platform 0.500; labs get 65% of test prices; consult 4.000 (doctor 75%); home dental 12.000 (dentist 65%). The previous setting paid the whole visit fee to the nurse, leaving the company nothing.
+- **Video consults use meet.jit.si links** — free, no accounts; chat consults use WhatsApp.
+- **Videos (v28)** — no AI-generated people. Motion graphics from the site's own drawings; English narration (Kokoro, open model) with Arabic subtitles, at the owner's request.
+- **New logo (v28)** — roof + blood drop + cross + orange dot, bold enough for small sizes and merchandise; brand spelled iLab@home.

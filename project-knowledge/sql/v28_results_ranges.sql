@@ -210,3 +210,5 @@ end $$;
 
 -- re-read every existing result with the new rules (values are not changed)
 update public.orders set results = results where results is not null and results <> '{}'::jsonb;
+
+revoke execute on function public._demo_results(public.orders), public._flag2(jsonb, numeric, text, integer), public._gen_results(text[], text, text, integer), public._order_age(jsonb), public._rng(jsonb, text, integer) from public, anon, authenticated;
