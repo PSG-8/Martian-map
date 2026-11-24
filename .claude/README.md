@@ -21,7 +21,7 @@ Not duplicated on purpose: code review → `/code-review` and Superpowers; debug
 ## Hooks (`settings.json`, scripts in `hooks/`)
 | When | What | Effect |
 |---|---|---|
-| Before Edit/Write | `secret-scan.js` | blocks text that looks like an API key, token, private key, DB URL with password or a team password |
+| Before Edit/Write | `secret-scan.js` | blocks text that looks like an API key, token, private key, DB URL with password or a hard-coded password literal |
 | Before `git commit` | `secret-scan.js` | scans the staged diff, blocks the commit on a finding |
 | After Edit/Write of `.js` | `check-js.js` | `node --check`; reports syntax errors back (never reformats) |
 

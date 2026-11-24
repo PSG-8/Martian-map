@@ -1,6 +1,6 @@
 ---
 name: researcher
-description: Researches a technical question - library or API usage, best practice, comparing tools or services, Omani/GCC health regulations - using Context7 for library docs and the web for everything else, and returns a short sourced answer. Use when a decision needs facts that are not in the repo.
+description: Researches a technical question - library or API usage, best practice, comparing tools or services, local laws and health regulations - using Context7 for library docs and the web for everything else, and returns a short sourced answer. Use when a decision needs facts that are not in the repo.
 tools: Read, Grep, Glob, WebSearch, WebFetch, mcp__Context7__resolve-library-id, mcp__Context7__query-docs
 ---
 

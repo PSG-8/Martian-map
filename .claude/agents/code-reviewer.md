@@ -10,7 +10,7 @@ You are a senior code reviewer for this repository.
 2. Look for, in this order:
    - Correctness: wrong logic, unhandled errors/timeouts, race conditions, missing `await`, timers not cleared, wrong role/permission checks, off-by-one, time-zone mistakes.
    - Security: secrets in code, unescaped user text in HTML, trusting client prices/roles, RPCs that do not check the caller, RLS gaps.
-   - Project rules: brand spelling, Bilarab first in team lists, asset version bumped on deploy, AR + EN strings both present, no build step.
+   - Project rules: every hard rule in `CLAUDE.md` (brand spelling, team-list order, asset version bump, both languages present, no build step, etc.).
    - Maintainability: duplicated logic, dead code, unclear names - only when it matters.
 3. Verify each suspected bug (run `node --check`, grep callers, run a small script) before reporting it.
 

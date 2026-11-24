@@ -1,14 +1,16 @@
 ---
 name: web-testing
-description: Use when verifying a website or web app works - after any UI change, before saying something works, before and after a deploy. Drives the pre-installed Playwright on phone and desktop viewports, checks JS errors, overflow, key flows and takes screenshots. Pairs with Superpowers test-driven-development for unit-level work.
+description: Use when you need to actually run a website in a browser to prove a change works - scripting Playwright on phone and desktop viewports, checking JS errors, overflow and key user flows, taking screenshots. This is the how-to for running tests; for a full quality audit use web-quality-review, for releases use site-deploy-check, for unit-level work use Superpowers test-driven-development.
 ---
 
 # Web testing with Playwright
 
 Rule: never say "it works" without running it. Test locally, then live after deploy.
 
-## Setup (cloud container)
-- Playwright + Chromium are pre-installed: `require('playwright')` works; run scripts with `NODE_PATH=$(npm root -g) node file.js`. Do not run `playwright install`.
+## Setup
+- **Claude Code cloud container:** Playwright + Chromium are pre-installed: `require('playwright')` works; run scripts with `NODE_PATH=$(npm root -g) node file.js`. Do not run `playwright install`.
+- **Local machine / other sandbox:** use the project's Playwright if present; otherwise `npm i -D playwright && npx playwright install chromium` (ask first - it downloads browsers).
+- **No browser available (e.g. plain chat):** do not guess. Give the user the exact checklist below to run, and report the screen as untested.
 - Serve a static site: `npx -y serve -l 5055 .` from the repo root (run in background).
 - Keep test scripts in the session scratchpad unless the project asks to commit them.
 
@@ -23,6 +25,7 @@ For each changed screen, in **iPhone 13** (`devices['iPhone 13']`) and **1440×9
 Script the real path (open → fill → submit → see result). Use roles/test accounts, never real users. When a flow writes to a live database, clean up afterwards (cancel/delete the test record) and say so.
 
 ## Live check after deploy
+(Release steps - version bump, push, approval, deploy - belong to `site-deploy-check` if available; this is only the browser part.)
 - Confirm the new version is served (asset version / service-worker cache name).
 - Repeat the minimum check on the production URL for phone + desktop.
 - Use `waitUntil: 'domcontentloaded'` plus explicit waits; pages with video or long-polling may never reach `load`/`networkidle`.

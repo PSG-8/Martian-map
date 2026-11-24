@@ -4,6 +4,7 @@
 //  - PreToolUse Bash: when the command is a `git commit`, scans the staged diff and blocks the commit if a secret is found.
 //  - Manual: `node .claude/hooks/secret-scan.js --scan-tree` scans all tracked files.
 // It prints only the TYPE and location of a finding, never the value. Exit 2 = blocked (message goes to Claude).
+// Fails open: if git or the input cannot be read, it allows the action rather than blocking all work.
 const { execSync } = require('child_process');
 const RULES = [
   ['Supabase secret key', /sb_secret_[A-Za-z0-9_-]{10,}/],
@@ -17,7 +18,7 @@ const RULES = [
   ['Stripe secret key', /\b(?:sk|rk)_live_[A-Za-z0-9]{20,}/],
   ['Vercel token', /\bvercel_[A-Za-z0-9]{24,}/],
   ['Postgres URL with password', /postgres(?:ql)?:\/\/[^:\s'"]+:[^@\s'"]{6,}@/],
-  ['Team account password (iLab-…)', /\biLab-[A-Za-z0-9]{10}\b/],
+  ['Hard-coded password', /\b(?:password|passwd|pwd|pass)\s*[:=]\s*['"](?=[^'"\s]*\d)(?=[^'"\s]*[A-Za-z])[^'"\s]{8,}['"]/i],
 ];
 const scan = text => { const hits = []; for (const [name, re] of RULES) if (re.test(text)) hits.push(name); return hits; };
 const block = (where, hits) => { process.stderr.write(`Blocked: possible secret (${hits.join(', ')}) in ${where}. This repo is public - keep secrets in Vercel/Supabase env vars and refer to them by name.\n`); process.exit(2); };
