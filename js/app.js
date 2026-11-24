@@ -85,7 +85,7 @@ function topbar(){
   return `<header class="topbar"><div class="wrap-w in">
     <button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>
     <a href="#/" class="brand">${brandInner(t('brand_sub'))}</a>
-    <nav class="nav"><a href="#/how">${t('nav_how')}</a><a href="#/tests">${t('nav_tests')}</a><a href="#/install">${t('m_install')}</a><a href="#/contact">${t('m_contact')}</a><a href="#/about">${t('m_about')}</a><a href="#/new">${t('m_new')}</a></nav>
+    <nav class="nav"><a href="#/how">${t('nav_how')}</a><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/business">${t('m_business')}</a><a href="#/install">${t('m_install')}</a><a href="#/contact">${t('m_contact')}</a><a href="#/about">${t('m_about')}</a><a href="#/new">${t('m_new')}</a></nav>
     <div class="grow"></div>
     <button class="lang hide-sm" data-lang>${t('lang')}</button>
     <a class="icon-btn ${S.user ? '' : 'hide-sm'}" href="#/${S.user ? 'app/cart' : 'tests'}" aria-label="${t('m_cart')}">${ic('box')}${n ? `<span class="dot">${n}</span>` : ''}</a>
@@ -102,17 +102,17 @@ function testCard(x, inCart){
 function pkgCard(p, inCart){
   const full = pkgFull(p);
   return `<div class="pkg ${inCart ? 'on' : ''}">
-    ${p.badge ? `<span class="chip ${p.badge === 'best' ? 'purple' : p.badge === 'kids' || p.badge === 'seniors' ? 'teal' : 'amber'} tag">${t(p.badge === 'best' ? 'best' : p.badge === 'kids' ? 'badge_kids' : p.badge === 'seniors' ? 'badge_seniors' : 'popular')}</span>` : ''}
+    ${p.badge ? `<span class="chip ${p.badge === 'best' ? 'purple' : p.badge === 'kids' || p.badge === 'seniors' || p.badge === 'new' ? 'teal' : 'amber'} tag">${t(p.badge === 'best' ? 'best' : p.badge === 'kids' ? 'badge_kids' : p.badge === 'seniors' ? 'badge_seniors' : p.badge === 'new' ? 'badge_new' : 'popular')}</span>` : ''}
     ${A.catIcon('packages')}<h3>${esc(LN(p,'name'))}</h3><p class="muted small" style="margin:0">${esc(LN(p,'desc'))}</p>
-    <ul>${p.test_ids.map(id => `<li>${esc(LN(S.catalog.T[id],'name'))}</li>`).join('')}</ul>
+    <ul>${p.test_ids.filter(id => S.catalog.T[id]).map(id => `<li>${esc(LN(S.catalog.T[id],'name'))}</li>`).join('')}</ul>
     <div class="foot"><div><div class="price" style="font-size:1.3rem">${omr(p.price)} <small>${t('omr')}</small><span class="strike">${omr(full)}</span></div><span class="chip teal" style="margin-top:4px">${t('save',{x:omr(full - p.price)})}</span></div>
     <button class="btn ${inCart ? 'teal' : ''} sm" data-add="package:${p.id}">${inCart ? ic('check',18,2.4) + ' ' + t('in_cart') : ic('plus',18,2.4) + ' ' + t('add_cart')}</button></div></div>`;
 }
 function catalogBlock(cat, limit){
   const C = S.catalog;
-  const cats = ['all','packages','vitals','kids','vitamins','blood','diabetes','heart','thyroid','organs','men'];
+  const cats = ['all','packages','premarital','vitals','kids','vitamins','blood','diabetes','heart','thyroid','organs','men'];
   const tabs = `<div class="cats">${cats.map(c => `<button class="${c === cat ? 'on' : ''}" data-cat="${c}">${t('cat_'+c)}</button>`).join('')}</div>`;
-  const pk = (cat === 'all' || cat === 'packages') ? C.packages : cat === 'kids' ? C.packages.filter(p => p.badge === 'kids') : [];
+  const pk = (cat === 'all' || cat === 'packages') ? C.packages : cat === 'kids' ? C.packages.filter(p => p.badge === 'kids') : cat === 'premarital' ? C.packages.filter(p => p.id === 'premarital') : [];
   let ts = cat === 'packages' ? [] : C.tests.filter(x => cat === 'all' || x.cat === cat);
   if (limit) ts = ts.slice(0, limit);
   return `${tabs}${pk.length ? `<div class="grid g3" style="margin:14px 0 22px">${pk.slice(0, limit ? 3 : 99).map(p => pkgCard(p, S.cart.packages.includes(p.id))).join('')}</div>` : ''}
@@ -176,7 +176,7 @@ async function viewHow(){
 function footer(){
   return `<footer class="site"><div class="wrap-w"><div class="row wrap between" style="gap:20px;align-items:flex-start">
     <div style="max-width:520px"><div class="brand">${brandInner()}</div><p class="small" style="margin-top:12px">${t('foot_note')}</p><p class="xs" style="opacity:.75">${t('foot_team')}</p></div>
-    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
+    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/dental">${t('m_dental')}</a><a href="#/business">${t('m_business')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
     <p class="xs" style="opacity:.6;margin-top:24px">© 2026 iLab@Home · Oman</p></div></footer>`;
 }
 /* map library: loaded only when a screen shows a map (it used to load on every page) */
@@ -304,9 +304,9 @@ function viewRegister(role){
 /* ---------- app shell ---------- */
 function navFor(role){
   const m = {
-    patient: [['app','home','m_home'],['app/tests','flask','m_tests'],['app/cart','cart','m_cart'],['app/orders','list','m_orders'],['app/profile','user','m_profile']],
+    patient: [['app','home','m_home'],['app/tests','flask','m_tests'],['app/cart','cart','m_cart'],['app/orders','list','m_orders'],['app/consult','steth','m_consult'],['dental','tooth','m_dental'],['app/profile','user','m_profile']],
     nurse: [['app','home','m_home'],['app/orders','syringe','m_jobs'],['app/kit','box','m_kit'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
-    doctor: [['app','steth','m_review'],['app/notifs','bell','m_notifs'],['support','chat','m_support'],['app/profile','user','m_profile']],
+    doctor: [['app','steth','m_review'],['app/consult','video','m_consults'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     courier: [['app','home','m_home'],['app/orders','van','m_pickups'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     lab: [['app','home','m_home'],['app/orders','flask','m_samples'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     company: [['app','home','m_programs'],['app/notifs','bell','m_notifs'],['support','chat','m_support'],['app/profile','user','m_profile']],
@@ -676,11 +676,17 @@ function resultsForm(o){
   const res = o.results || {};
   return `<div class="card" id="results-form"><h3>${t('enter_results')}</h3><div class="scroll-x"><table class="rtable"><thead><tr><th>${t('analyte')}</th><th>${t('result')}</th><th>${t('ref_range')}</th><th></th></tr></thead><tbody>
     ${(o.tests || []).map(x => `<tr class="grp"><td colspan="4">${esc(LN(x,'name'))}</td></tr>` + x.analytes.map(a => `<tr><td>${esc(S.lang === 'ar' ? a.na : a.n)}</td>
-      <td><div class="row" style="gap:6px"><input class="input num" style="width:110px;min-height:40px;padding:8px 10px" inputmode="decimal" data-an="${a.c}" data-lo="${a.lo ?? ''}" data-hi="${a.hi ?? ''}" value="${res[a.c] ? res[a.c].v : ''}"><span class="xs muted">${esc(a.u)}</span></div></td>
-      <td class="small muted num">${rangeTxt(a)}</td><td><span class="flag" data-fl="${a.c}"></span></td></tr>`).join('')).join('')}</tbody></table></div>
+      <td><div class="row" style="gap:6px"><input class="input num" style="width:110px;min-height:40px;padding:8px 10px" inputmode="decimal" data-an="${a.c}" data-a='${esc(JSON.stringify(prA(a, o.patient)))}' value="${res[a.c] ? res[a.c].v : ''}"><span class="xs muted">${esc(a.u)}</span></div></td>
+      <td class="small muted num">${rangeTxt(prA(a, o.patient))}</td><td><span class="flag" data-fl="${a.c}"></span></td></tr>`).join('')).join('')}</tbody></table></div>
     <label class="field" style="margin-top:12px"><span>${t('verifier')}</span><input class="input" id="vf" value="${esc(S.user.meta && S.user.meta.director || '')}" placeholder="Dr. … , Lab Director"></label>
     <div class="row" style="margin-top:12px"><button class="btn ghost" data-act="save">${t('save_draft')}</button><button class="btn teal grow" data-act="publish">${ic('shield',18)} ${t('publish')}</button></div></div>`;
 }
+/* the normal range for this person: adult women and children under 16 have their own ranges where it matters */
+function prA(a, person){ const pp = person || {}; const ag = pp.dob ? age(pp.dob) : null; const k = ag != null && ag !== '' && +ag < 16 && a.k ? a.k : pp.gender === 'female' && a.f ? a.f : null; return k ? Object.assign({}, a, k) : a; }
+/* flag for a value: L/H/N plus "slightly" when it sits in the small band next to the normal range */
+function flagFor(a, v){ if (v == null || isNaN(v)) return { f:'' }; if (a.lo != null && v < a.lo) return { f:'L', m: a.rlo != null && v >= a.rlo }; if (a.hi != null && v > a.hi) return { f:'H', m: a.rhi != null && v <= a.rhi }; return { f:'N' }; }
+function resFlag(a, r){ if (!r || r.v == null) return { f: r && r.f || '' }; if (r.m != null || !r.f || r.f === 'N') return { f: r.f, m: !!r.m, c: !!r.c }; const x = flagFor(a, +r.v); return { f: r.f, m: !!x.m, c: !!r.c }; }
+function flagLbl(x){ return !x.f ? '' : x.f === 'N' ? t('f_N') : x.m ? t('f_s' + x.f) : t('f_' + x.f); }
 function rangeTxt(a){ return a.lo != null && a.hi != null ? `${a.lo} – ${a.hi}` : a.lo != null ? `≥ ${a.lo}` : a.hi != null ? `≤ ${a.hi}` : '—'; }
 function bindActions(o){
   const run = async (btn, a, p, msg) => { try { const n = await busy(btn, () => API.action(o.id, a, p)); if (msg) toast(msg); drawOrder(n); } catch(e) {} };
@@ -705,7 +711,7 @@ function bindActions(o){
     if (a === 'assign') { const ns = await API.adminNurses(o.wilayat, o.patient_gender || (o.patient && o.patient.gender)); return modal(`<h3>${t('assign')}</h3><div class="stack" style="margin-top:12px">${ns.length ? ns.map(n => `<button class="btn ghost block" data-n="${n.id}">${esc(n.name)} · ${esc(wN(n.wilayat))}${n.today ? ' · ✓' : ''}</button>`).join('') : `<p class="muted">${t('none_yet')}</p>`}</div>`, (el, close) => { $$('[data-n]', el).forEach(x => x.onclick = () => { close(); run(null, 'assign_nurse', { nurse_id: x.dataset.n }); }); }); }
     if (a === 'admincancel') { if (await confirmBox(t('cancel_q'), t('yes_cancel'), t('keep'))) run(b, 'cancel'); }
   });
-  $$('[data-an]').forEach(i => { const upd = () => { const v = parseFloat(i.value.replace(',', '.')); const lo = i.dataset.lo === '' ? null : +i.dataset.lo, hi = i.dataset.hi === '' ? null : +i.dataset.hi; const f = isNaN(v) ? '' : lo != null && v < lo ? 'L' : hi != null && v > hi ? 'H' : 'N'; const el = $(`[data-fl="${i.dataset.an}"]`); el.className = 'flag ' + f; el.textContent = f ? t('f_'+f) : ''; }; i.addEventListener('input', upd); upd(); });
+  $$('[data-an]').forEach(i => { let a = {}; try { a = JSON.parse(i.dataset.a); } catch(e) {} const upd = () => { const v = parseFloat(i.value.replace(',', '.')); const x = flagFor(a, v); const crit = !isNaN(v) && ((a.clo != null && v < a.clo) || (a.chi != null && v > a.chi)); const el = $(`[data-fl="${i.dataset.an}"]`); el.className = 'flag ' + x.f + (x.m ? ' mild' : '') + (crit ? ' crit' : ''); el.textContent = crit ? t('g_crit') : flagLbl(x); }; i.addEventListener('input', upd); upd(); });
   let star = 0; $$('[data-star]').forEach(s => s.onclick = () => { star = +s.dataset.star; $$('[data-star]').forEach(x => x.style.color = +x.dataset.star <= star ? 'var(--amber)' : '#d3dbea'); });
   if ($('#rs')) $('#rs').onclick = async () => { if (!star) return; try { const n = await busy($('#rs'), () => API.action(o.id, 'rate', { rating: star, review: $('#rv').value })); toast(t('thanks_rating')); drawOrder(n); } catch(e) {} };
 }
@@ -727,11 +733,11 @@ async function viewReport(id){
   let o; try { o = await API.order(id); } catch(e) { app.innerHTML = shell('', emptyBox(errMsg(e))); return; }
   if (o.status !== 'completed') return go('app/order/' + id);
   const res = o.results || {}; const p = o.patient || {};
-  let flags = 0; const notes = [];
-  const rows = (o.tests || []).map(x => `<tr class="grp"><td colspan="5">${esc(LN(x,'name'))}</td></tr>` + x.analytes.map(a => { const r = res[a.c] || {}; if (r.f && r.f !== 'N') { flags++; const n = INSIGHT[a.c] && INSIGHT[a.c][r.f]; if (n) notes.push(`<li><b>${esc(S.lang === 'ar' ? a.na : a.n)}:</b> ${esc(n[S.lang === 'ar' ? 1 : 0])}</li>`); }
+  let flags = 0; const notes = []; const r0 = a => prA(a, p);
+  const rows = (o.tests || []).map(x => `<tr class="grp"><td colspan="5">${esc(LN(x,'name'))}</td></tr>` + x.analytes.map(a0 => { const a = r0(a0); const r = res[a.c] || {}; const fx = resFlag(a, r); if (r.f && r.f !== 'N') { flags++; const n = INSIGHT[a.c] && INSIGHT[a.c][r.f]; if (n) notes.push(`<li><b>${esc(S.lang === 'ar' ? a.na : a.n)}:</b> ${esc(n[S.lang === 'ar' ? 1 : 0])}</li>`); }
       const lo = a.lo != null ? a.lo : (a.hi != null ? 0 : null), hi = a.hi != null ? a.hi : (a.lo != null ? a.lo * 2.5 : null); let pos = 50;
       if (lo != null && hi != null && r.v != null) { const span = hi - lo; pos = Math.max(3, Math.min(97, 20 + (r.v - lo) / span * 60)); }
-      return `<tr><td>${esc(S.lang === 'ar' ? a.na : a.n)}</td><td class="num b" style="color:${r.f === 'N' ? 'inherit' : r.f === 'H' ? 'var(--red)' : '#9a6400'}">${r.v ?? '—'} <span class="xs muted" style="font-weight:500">${esc(a.u)}</span></td><td class="small muted num">${rangeTxt(a)}</td><td class="rb-col" style="width:120px"><div class="rangebar"><i style="left:${pos}%"></i></div></td><td>${r.f ? `<span class="flag ${r.f}">${t('f_'+r.f)}</span>` : ''}</td></tr>`; }).join('')).join('');
+      return `<tr><td>${esc(S.lang === 'ar' ? a.na : a.n)}</td><td class="num b" style="color:${!r.f || r.f === 'N' ? 'inherit' : fx.m ? '#9a6400' : 'var(--red)'}">${r.v ?? '—'} <span class="xs muted" style="font-weight:500">${esc(a.u)}</span></td><td class="small muted num">${rangeTxt(a)}</td><td class="rb-col" style="width:120px"><div class="rangebar"><i style="left:${pos}%"></i></div></td><td>${r.f ? `<span class="flag ${r.f}${fx.m ? ' mild' : ''}${fx.c ? ' crit' : ''}">${fx.c ? t('g_crit') : flagLbl(fx)}</span>` : ''}</td></tr>`; }).join('')).join('');
   const ce = (o.events || []).find(e => e.status === 'collected'); const LVL = orderLevel(o).level;
   app.innerHTML = shell(t('report_t'), `<div class="row no-print rep-actions"><button class="btn grow" id="pr">${ic('download',18)} ${t('download_pdf')}</button>${navigator.share ? `<button class="btn ghost grow" id="sh">${ic('share',18)} ${t('share_pdf')}</button>` : ''}<button class="btn ghost hide-sm" id="pp" aria-label="${t('print')}">${ic('file',18)} ${t('print')}</button></div>
   <div class="report"><div class="rh"><div class="row">${A.logo.replace('<svg','<svg width="46" height="46"')}<div><div class="wm-inline">${A.wordmark}</div><div class="small" style="opacity:.8">${t('report_t')}</div></div></div>
@@ -752,7 +758,7 @@ async function viewReport(id){
     title: `iLab@Home ${o.code}`,
     t: { title: t('report_t'), analyte: t('analyte'), result: t('result'), range: t('ref_range'), flag: t('flag'), insight: t('insight_t'), disclaimer: t('report_disclaimer'), summary: t('lv_'+LVL+'_t') + ' · ' + (flags ? t('some_flags',{n:flags}) : t('all_normal')) },
     info: [[t('patient'), p.name || '—'], [t('age') + ' / ' + t('sex'), `${p.dob ? age(p.dob) : '—'} / ${p.gender ? t(p.gender) : '—'}`], [t('request'), o.code], [t('collected_at'), ce ? fmtDT(ce.at) : '—'], [t('reported_at'), fmtDT(o.published_at)], [t('verified_by'), o.verified_by || '—']],
-    groups: (o.tests || []).map(x => ({ name: LN(x,'name'), rows: x.analytes.map(a => { const r = res[a.c] || {}; return { name: ar ? a.na : a.n, v: r.v ?? '—', u: a.u || '', range: rangeTxt(a), f: r.f || '', fl: r.f ? t('f_' + r.f) : '' }; }) })),
+    groups: (o.tests || []).map(x => ({ name: LN(x,'name'), rows: x.analytes.map(a0 => { const a = prA(a0, p); const r = res[a.c] || {}; const fx = resFlag(a, r); return { name: ar ? a.na : a.n, v: r.v ?? '—', u: a.u || '', range: rangeTxt(a), f: r.f ? (fx.m ? 'L' : r.f) : '', fl: r.f ? (fx.c ? t('g_crit') : flagLbl(fx)) : '' }; }) })),
     notes: (o.doctor_note ? [t('doc_note_t') + ' (' + (o.doctor_note.name || '') + '): ' + o.doctor_note.note] : []).concat(LVL === 'urgent' ? [t('lv_urgent_p')] : []).concat((o.tests || []).flatMap(x => x.analytes.map(a => { const r = res[a.c] || {}; const n = r.f && r.f !== 'N' && INSIGHT[a.c] && INSIGHT[a.c][r.f]; return n ? `${ar ? a.na : a.n}: ${n[ar ? 1 : 0]}` : null; })).filter(Boolean)) };
   const fname = `LabAtHome-${o.code}.pdf`; let pdfP = null, pdfBlob = null;
   const make = () => { if (!window.LAHPDF) return Promise.reject(new Error('pdf module missing'));
@@ -1055,6 +1061,8 @@ function menuItems(){
     h += it(u ? 'app' : '', 'home', t('m_home'));
     h += it(u ? 'app/tests' : 'tests', 'flask', t('q_book'));
     h += it(u ? 'app/cart' : 'tests', 'box', t('m_cart'), n ? `<span class="chip red">${n}</span>` : '');
+    h += it(u ? 'app/consult' : 'consult', 'steth', t('m_consult'));
+    h += it('dental', 'tooth', t('m_dental'));
     if (u) { h += it('app/orders', 'list', t('m_orders')); h += it('app/orders?r=1', 'file', t('m_reports_all')); h += it('app/notifs', 'bell', t('m_notifs'), S.unread ? `<span class="chip red">${S.unread}</span>` : ''); }
   } else {
     navFor(r).forEach(([h2, i, k]) => { h += it(h2, i, t(k)); });
@@ -1067,6 +1075,7 @@ function menuItems(){
   h += it('support', 'chat', t('m_support'));
   h += it('about', 'users', t('m_about') + ' · ' + t('m_team'));
   h += it('how', 'globe', t('nav_how'));
+  h += it('business', 'chart', t('m_business'));
   if (!u) h += it('register?partner=1', 'building', t('m_join'));
   h += '<hr class="sep">';
   h += `<button class="mi" data-lang>${ic('globe')}<span class="grow">${t('lang')}</span></button>`;
@@ -1511,6 +1520,9 @@ async function renderNow(){
     else if (seg[0] === 'about') await viewAbout();
     else if (seg[0] === 'how') await viewHow();
     else if (seg[0] === 'new') await viewNew();
+    else if (seg[0] === 'consult') await viewConsultPublic(false);
+    else if (seg[0] === 'dental') await viewConsultPublic(true);
+    else if (seg[0] === 'business') await viewBusiness();
     else if (seg[0] !== 'app') {
       if (seg[0] === 'login') { if (S.user) return go('app'); viewLogin(); }
       else if (seg[0] === 'register') { if (S.user) return go('app'); await loadCatalog().catch(() => {}); viewRegister(seg[1]); }
@@ -1523,6 +1535,9 @@ async function renderNow(){
       else if (sub === 'kit' && r === 'nurse') await viewNurseKit();
       else if (sub === 'tests') await viewAppTests();
       else if (sub === 'cart') await viewCart();
+      else if (sub === 'consult' && seg[2] === 'new' && r === 'patient') await viewConsultNew();
+      else if (sub === 'consult' && seg[2]) await viewConsult(seg[2]);
+      else if (sub === 'consult') await viewConsults();
       else if (sub === 'book') await viewBook();
       else if (sub === 'orders') await viewOrders();
       else if (sub === 'order') await viewOrder(seg[2]);
@@ -1749,8 +1764,8 @@ function retestIcs(o, days){
 function careBlock(o){
   if (o.status !== 'completed' || !o.results) return '';
   const r = S.user.role; const g = orderLevel(o); const lv = g.level; const dn = o.doctor_note;
-  const icn = { normal:'check', review:'clock', urgent:'phone' }[lv];
-  let h = `<div class="card care lv-${lv}"><div class="row" style="align-items:flex-start;gap:12px"><span class="lv-ic">${ic(icn, 24, 2.4)}</span><div class="grow"><b class="lv-t">${t('lv_'+lv+'_t')}</b><div class="small">${t('lv_'+lv+'_p')}</div></div></div>
+  const icn = { normal:'check', review:'clock', urgent:'phone' }[lv]; const lk = lv === 'normal' && g.mild ? 'lv_mild' : 'lv_' + lv;
+  let h = `<div class="card care lv-${lv}"><div class="row" style="align-items:flex-start;gap:12px"><span class="lv-ic">${ic(icn, 24, 2.4)}</span><div class="grow"><b class="lv-t">${t(lk+'_t')}</b><div class="small">${t(lk+'_p')}</div></div></div>
     ${lv === 'urgent' ? `<div class="row wrap" style="margin-top:12px;gap:8px"><a class="btn red" href="tel:9999">${ic('phone',18)} ${t('call_999')}</a><a class="btn ghost" href="#hospc" data-jump>${ic('hosp',18)} ${t('hosp_t')}</a></div>` : ''}</div>`;
   if (dn) {
     const done = planStore(o.id); const plan = Array.isArray(dn.plan) ? dn.plan : [];
@@ -1761,8 +1776,9 @@ function careBlock(o){
   } else if (lv !== 'normal' && r === 'patient') {
     h += `<div class="card row" style="gap:12px;align-items:flex-start">${A.roleIcon('doctor', 46)}<div class="grow"><b>${t('doc_wait_t')}</b><div class="small muted">${t('doc_wait_p',{n: S.lang === 'ar' ? 'د. عائشة البلوشية' : 'Dr. Aisha Al Balushi'})}</div><span class="live" style="margin-top:8px"><i></i>${t('doc_pending')}</span></div></div>`;
   }
-  if (g.flagged.length) h += `<div class="card"><h3 style="margin-bottom:4px">${t('g_until')}</h3><div class="xs muted" style="margin-bottom:10px">${t('g_note')}</div><div class="stack" style="--g:8px">${guideHtml(g.flagged)}</div></div>`;
+  if (g.flagged.length) h += `<div class="card"><h3 style="margin-bottom:4px">${t(lv === 'normal' ? 'g_tips' : 'g_until')}</h3><div class="xs muted" style="margin-bottom:10px">${t('g_note')}</div><div class="stack" style="--g:8px">${guideHtml(g.flagged)}</div></div>`;
   if (r === 'doctor') h += doctorForm(o, g);
+  if (r === 'patient') h += csPostCta(o);
   if (lv !== 'normal' && r !== 'doctor') h += hospCard(o, lv === 'urgent');
   return h;
 }
@@ -2031,6 +2047,307 @@ async function viewNew(){
   const body = newBlock(false);
   app.innerHTML = S.user ? shell(t('m_new'), body) : `${topbar()}<section class="section" style="padding-top:28px"><div class="wrap-w" style="max-width:900px"><h1 style="margin-bottom:18px">${t('m_new')}</h1>${body}</div></section>${footer()}`;
   if (!S.user) bindGlobal();
+}
+
+/* ================= v28: doctor & dentist consultations, business model page ================= */
+Object.assign(I18N.en, {
+  e_TIMEOUT:'The connection is slow. Please try again.', e_SLOT_TAKEN:'That time was just taken. Please pick another.', e_BAD_DOCTOR:'Please choose a doctor.', e_NEED_NOTE:'Please write your advice first.',
+  f_sL:'Slightly low', f_sH:'Slightly high', lv_mild_t:'Mostly normal', lv_mild_p:'One or more values are only slightly outside the normal range. This is common and not a disease. Follow the tips below and recheck at your next yearly check-up.',
+  g_tips:'Simple tips', badge_new:'New', cat_premarital:'Premarital', cat_dental:'Dental',
+  m_consult:'Doctor consult', m_consults:'Consultations', m_business:'Our business', m_dental:'Dental care',
+  cs_t:'Talk to a doctor', cs_p:'A licensed doctor from home, before you book tests or after your results arrive. Choose a male or female doctor.',
+  cs_pre:'Before testing', cs_pre_d:'Not sure which tests you need? A 15-minute call with a family doctor. The doctor adds the right tests to your cart.',
+  cs_post:'After your results', cs_post_d:'Go through your report with a doctor. Free when your results need attention.',
+  cs_dental:'Dentist online', cs_dental_d:'Tooth pain, a child’s teeth, braces questions. Show the dentist with your camera.',
+  cs_dental_home:'Dental check at home', cs_dental_home_d:'A dentist visits: full check-up, cleaning advice and fluoride for children. Treatment is booked at a partner clinic if needed.',
+  cs_free:'Free', cs_book:'Book', cs_book_t:'Book a consultation', cs_doctors:'Our doctors', cs_dentists:'Our dentists', cs_any:'Any', cs_female_dr:'Female doctor', cs_male_dr:'Male doctor',
+  cs_s1:'Doctor', cs_s2:'How', cs_s3:'Time', cs_s4:'Details', cs_s5:'Confirm',
+  cs_video:'Video call', cs_voice:'Voice call', cs_chat:'Chat (WhatsApp)', cs_home:'Home visit', cs_mode_d_video:'See the doctor face to face', cs_mode_d_voice:'Phone-style call, no camera', cs_mode_d_chat:'Write and send photos',
+  cs_date:'Day', cs_time:'Time', cs_no_times:'No free times on this day. Try another day.', cs_reason:'What would you like to ask?', cs_reason_ph:'For example: always tired, want to check vitamins; or: my 6-year-old has a tooth ache…',
+  cs_order:'Which results?', cs_pick_order:'Choose the report to discuss', cs_no_orders:'You have no completed reports yet.',
+  cs_address:'Address for the home visit', cs_fee:'Consultation fee', cs_pay:'Pay {x} OMR & book', cs_confirm_free:'Book (free)',
+  cs_booked_t:'Consultation booked', cs_booked_p:'{d} · {t}. You will get a reminder. Join from this page at the time.',
+  cs_mine:'My consultations', cs_upcoming:'Upcoming', cs_past:'Past', cs_none:'No consultations yet.', cs_join:'Join the call', cs_join_soon:'The join button opens 10 minutes before', cs_wa:'Open WhatsApp chat',
+  cs_st_booked:'Booked', cs_st_live:'Doctor is ready', cs_st_done:'Completed', cs_st_cancelled:'Cancelled', cs_cancel:'Cancel consultation', cs_cancel_q:'Cancel this consultation?',
+  cs_advice:'Doctor’s advice', cs_suggested:'Suggested tests', cs_add_suggested:'Add suggested tests to cart', cs_added:'Added to your cart',
+  cs_rate:'How was your consultation?', cs_q:'Consultation queue', cs_today:'Today', cs_start:'Start & join', cs_finish:'Finish & send advice', cs_note_ph:'Advice for the patient in simple words…',
+  cs_pick_tests:'Suggest tests (optional)', cs_patient:'Patient', cs_reason_l:'Reason', cs_linked:'Linked report', cs_earn:'Earnings',
+  cs_post_cta_t:'Questions about these results?', cs_post_cta_p:'Talk them through with a doctor by video or phone.', cs_post_cta:'Talk to a doctor',
+  cs_free_note:'Free for you: your results need a doctor’s attention.', cs_privacy:'Private and confidential. Licensed doctors registered with OMSB (demo profiles).',
+  cs_years:'{n} years', cs_reviews:'{n} consultations',
+  dn_t:'Dental care at home', dn_p:'Online dentist advice and home dental check-ups for the whole family.', dn_note:'Fillings, root canals and extractions are done at a partner dental clinic; your home visit report goes with you.',
+  bz_t:'iLab@home as a company', bz_p:'The idea, our goals, and exactly how every partner earns from each order. All money figures are planning numbers for the business plan.',
+  bz_idea:'The idea', bz_idea_p:'People in North Al Sharqiyah drive 30–90 minutes and wait for hours for a simple blood test. iLab@home brings a licensed nurse to the home, a cold-chain courier carries the sample to an accredited partner lab, and the verified report arrives on the phone with clear advice and a doctor when needed.',
+  bz_goals:'Our goals', bz_g1:'Year 1: 7 wilayats, 25 nurses, 400 home visits a month, break even by month 9.', bz_g2:'Year 2: all of Al Sharqiyah (North & South), 1,200 visits a month, 20 companies on wellness plans.', bz_g3:'Year 3: Muscat and Ad Dakhiliyah, home dental and vaccination services, 3,500 visits a month.', bz_g4:'Always: results in 24–48 h, 4.8★ rating, zero lost samples (2–8 °C cold chain).',
+  bz_flow:'Where each rial goes', bz_flow_p:'Example order. Move the sliders to see the split.', bz_basket:'Tests in the order', bz_visit:'Home visit fee',
+  bz_lab:'Partner laboratory', bz_lab_d:'65% of the test price (wholesale rate; the lab gets new patients without marketing).',
+  bz_nurse:'Nurse', bz_nurse_d:'3.000 OMR per visit + level bonus up to 0.750 (Silver 0.250 · Gold 0.500 · Platinum 0.750).',
+  bz_courier:'Logistics company', bz_courier_d:'1.000 OMR per sample delivered at 2–8 °C (batched routes).',
+  bz_kit:'Kit & consumables', bz_kit_d:'Tubes, needles, labels and cold packs: about 0.500 OMR per visit.',
+  bz_card:'Card fees', bz_card_d:'About 2.5% of the payment to the bank / payment gateway.',
+  bz_us:'iLab@home', bz_us_d:'What stays with the company to pay salaries, the app, marketing and growth.',
+  bz_doctor:'Doctors', bz_doctor_d:'75% of each 4.000 OMR consultation (3.000). Free results reviews are paid 2.000 by iLab@home.',
+  bz_dentist:'Dentists', bz_dentist_d:'65% of the 12.000 OMR home dental check (7.800).',
+  bz_company:'Companies (wellness)', bz_company_d:'Pay a package price per employee; nurses visit the workplace in one trip.',
+  bz_month:'One month at this volume', bz_orders_day:'Home visits per day', bz_revenue:'Money collected', bz_partners:'Paid to partners', bz_gross:'iLab@home gross margin',
+  bz_fixed:'Fixed monthly costs', bz_fixed_d:'Team (ops + customer service) 1,800 · App, SMS & hosting 150 · Marketing 600 · Insurance & licences 250 · Office & car 300',
+  bz_profit:'Monthly profit', bz_loss:'Monthly loss', bz_breakeven:'Break-even: about {n} visits a month ({d} a day).',
+  bz_nurse_calc:'A nurse’s month', bz_visits_day:'Visits per day', bz_days:'Working days', bz_level:'Level', bz_nurse_month:'Monthly income',
+  bz_why:'Why partners join', bz_w_lab:'Labs: more samples with no extra staff; we deliver ready-labelled, cold samples.', bz_w_nurse:'Nurses: flexible extra income near home; choose your hours and wilayats.', bz_w_courier:'Logistics: steady daily routes with predictable volumes.', bz_w_doc:'Doctors: paid video consultations from home in the evening.',
+  bz_rules:'Rules we follow', bz_r1:'Ministry of Health licensing for home health services and partner labs (ISO 15189 / CAP).', bz_r2:'Nurses and doctors registered with OMSB; nurse of the same gender as the patient.', bz_r3:'Personal Data Protection Law (Royal Decree 6/2022): data kept in secure servers, shared only with the people treating you.', bz_r4:'Cold chain 2–8 °C with temperature recorded at pickup; samples rejected and recollected free if out of range.',
+  bz_note:'Planning figures for the business plan. Real contracts may differ.', bz_cta:'Become a partner'
+});
+Object.assign(I18N.ar, {
+  e_TIMEOUT:'الاتصال بطيء. حاول مرة ثانية.', e_SLOT_TAKEN:'هذا الوقت انحجز الحين. اختر وقتاً ثانياً.', e_BAD_DOCTOR:'اختر الطبيب أولاً.', e_NEED_NOTE:'اكتب التوصية أولاً.',
+  f_sL:'منخفض قليلاً', f_sH:'مرتفع قليلاً', lv_mild_t:'النتائج طبيعية في الغالب', lv_mild_p:'قيمة أو أكثر خارج المعدل الطبيعي بشكل بسيط فقط. هذا شائع وليس مرضاً. اتبع النصائح تحت وأعد الفحص في فحصك السنوي القادم.',
+  g_tips:'نصائح بسيطة', badge_new:'جديد', cat_premarital:'ما قبل الزواج', cat_dental:'الأسنان',
+  m_consult:'استشارة طبيب', m_consults:'الاستشارات', m_business:'نموذج الشركة', m_dental:'رعاية الأسنان',
+  cs_t:'كلّم طبيب', cs_p:'طبيب مرخّص وأنت في بيتك، قبل ما تحجز الفحوصات أو بعد ما توصلك النتائج. تقدر تختار طبيب أو طبيبة.',
+  cs_pre:'قبل الفحص', cs_pre_d:'مو متأكد أي فحوصات تحتاج؟ مكالمة 15 دقيقة مع طبيب أسرة، والطبيب يضيف الفحوصات المناسبة لسلتك.',
+  cs_post:'بعد النتائج', cs_post_d:'راجع تقريرك مع طبيب. مجاناً إذا كانت نتائجك تحتاج متابعة.',
+  cs_dental:'طبيب أسنان أونلاين', cs_dental_d:'ألم أسنان، أسنان الأطفال، أسئلة التقويم. وريه للطبيب بالكاميرا.',
+  cs_dental_home:'فحص الأسنان في البيت', cs_dental_home_d:'طبيب أسنان يزورك: فحص كامل ونصائح التنظيف وفلورايد للأطفال. والعلاج يُحجز في عيادة شريكة إذا احتجت.',
+  cs_free:'مجاناً', cs_book:'احجز', cs_book_t:'حجز استشارة', cs_doctors:'أطباؤنا', cs_dentists:'أطباء الأسنان', cs_any:'الكل', cs_female_dr:'طبيبة', cs_male_dr:'طبيب',
+  cs_s1:'الطبيب', cs_s2:'الطريقة', cs_s3:'الوقت', cs_s4:'التفاصيل', cs_s5:'التأكيد',
+  cs_video:'مكالمة فيديو', cs_voice:'مكالمة صوتية', cs_chat:'محادثة (واتساب)', cs_home:'زيارة منزلية', cs_mode_d_video:'شوف الطبيب وجهاً لوجه', cs_mode_d_voice:'مكالمة مثل الهاتف بدون كاميرا', cs_mode_d_chat:'اكتب وأرسل صور',
+  cs_date:'اليوم', cs_time:'الوقت', cs_no_times:'ما في أوقات متاحة في هذا اليوم. جرّب يوماً ثانياً.', cs_reason:'وش تحب تسأل؟', cs_reason_ph:'مثلاً: تعبان دائماً وأبي أفحص الفيتامينات؛ أو: ولدي عمره 6 سنوات عنده ألم في ضرسه…',
+  cs_order:'أي نتائج؟', cs_pick_order:'اختر التقرير اللي تبي تناقشه', cs_no_orders:'ما عندك تقارير مكتملة إلى الآن.',
+  cs_address:'العنوان للزيارة المنزلية', cs_fee:'رسوم الاستشارة', cs_pay:'ادفع {x} ر.ع واحجز', cs_confirm_free:'احجز (مجاناً)',
+  cs_booked_t:'تم حجز الاستشارة', cs_booked_p:'{d} · {t}. بيوصلك تذكير، وادخل للمكالمة من هذي الصفحة في الموعد.',
+  cs_mine:'استشاراتي', cs_upcoming:'القادمة', cs_past:'السابقة', cs_none:'ما عندك استشارات إلى الآن.', cs_join:'ادخل المكالمة', cs_join_soon:'زر الدخول يفتح قبل الموعد بـ 10 دقائق', cs_wa:'افتح محادثة واتساب',
+  cs_st_booked:'محجوزة', cs_st_live:'الطبيب جاهز', cs_st_done:'مكتملة', cs_st_cancelled:'ملغاة', cs_cancel:'إلغاء الاستشارة', cs_cancel_q:'تبي تلغي هذي الاستشارة؟',
+  cs_advice:'توصية الطبيب', cs_suggested:'الفحوصات المقترحة', cs_add_suggested:'أضف الفحوصات المقترحة للسلة', cs_added:'انضافت لسلتك',
+  cs_rate:'كيف كانت الاستشارة؟', cs_q:'قائمة الاستشارات', cs_today:'اليوم', cs_start:'ابدأ وادخل', cs_finish:'إنهاء وإرسال التوصية', cs_note_ph:'توصية للمريض بكلام بسيط…',
+  cs_pick_tests:'اقترح فحوصات (اختياري)', cs_patient:'المريض', cs_reason_l:'السبب', cs_linked:'التقرير المرتبط', cs_earn:'الأرباح',
+  cs_post_cta_t:'عندك أسئلة عن النتائج؟', cs_post_cta_p:'ناقشها مع طبيب بالفيديو أو الهاتف.', cs_post_cta:'كلّم طبيب',
+  cs_free_note:'مجاناً لك: نتائجك تحتاج متابعة طبيب.', cs_privacy:'خاصة وسرية. أطباء مرخّصون ومسجلون في المجلس الطبي العماني (ملفات تجريبية).',
+  cs_years:'{n} سنة خبرة', cs_reviews:'{n} استشارة',
+  dn_t:'رعاية الأسنان في البيت', dn_p:'استشارة طبيب أسنان أونلاين وفحص أسنان منزلي لكل العائلة.', dn_note:'الحشوات وعلاج العصب والخلع تتم في عيادة أسنان شريكة، وتقرير الزيارة المنزلية يروح معك.',
+  bz_t:'آي لاب@هوم كشركة', bz_p:'الفكرة وأهدافنا، وبالضبط كم يربح كل شريك من كل طلب. كل الأرقام المالية أرقام تخطيطية لخطة العمل.',
+  bz_idea:'الفكرة', bz_idea_p:'أهل شمال الشرقية يسوقون 30–90 دقيقة وينتظرون ساعات عشان فحص دم بسيط. آي لاب@هوم يوصّل ممرض مرخّص للبيت، وشركة نقل مبرّد توصل العينة لمختبر شريك معتمد، والتقرير المعتمد يوصل على الجوال مع نصائح واضحة وطبيب عند الحاجة.',
+  bz_goals:'أهدافنا', bz_g1:'السنة الأولى: 7 ولايات، 25 ممرض، 400 زيارة منزلية بالشهر، ونغطي التكاليف بحلول الشهر التاسع.', bz_g2:'السنة الثانية: كل محافظتي الشرقية (شمال وجنوب)، 1,200 زيارة بالشهر، و20 شركة في برامج صحة الموظفين.', bz_g3:'السنة الثالثة: مسقط والداخلية، وخدمات الأسنان والتطعيمات في البيت، 3,500 زيارة بالشهر.', bz_g4:'دائماً: النتائج خلال 24–48 ساعة، تقييم 4.8★، وصفر عينات ضايعة (تبريد 2–8 درجات).',
+  bz_flow:'وين يروح كل ريال', bz_flow_p:'طلب كمثال. حرّك المؤشرات وشوف التقسيم.', bz_basket:'قيمة الفحوصات في الطلب', bz_visit:'رسوم الزيارة المنزلية',
+  bz_lab:'المختبر الشريك', bz_lab_d:'65% من سعر الفحص (سعر الجملة؛ المختبر يحصل مرضى جدد بدون تسويق).',
+  bz_nurse:'الممرض', bz_nurse_d:'3.000 ر.ع لكل زيارة + مكافأة مستوى لين 0.750 (فضي 0.250 · ذهبي 0.500 · بلاتيني 0.750).',
+  bz_courier:'شركة النقل', bz_courier_d:'1.000 ر.ع لكل عينة توصل بتبريد 2–8 درجات (مسارات مجمّعة).',
+  bz_kit:'الحقيبة والمستلزمات', bz_kit_d:'أنابيب وإبر وملصقات وأكياس تبريد: حوالي 0.500 ر.ع للزيارة.',
+  bz_card:'رسوم البطاقة', bz_card_d:'حوالي 2.5% من المبلغ للبنك / بوابة الدفع.',
+  bz_us:'آي لاب@هوم', bz_us_d:'اللي يبقى للشركة عشان الرواتب والتطبيق والتسويق والتوسع.',
+  bz_doctor:'الأطباء', bz_doctor_d:'75% من كل استشارة بـ 4.000 ر.ع (3.000). ومراجعة النتائج المجانية يدفع للطبيب عنها آي لاب@هوم 2.000.',
+  bz_dentist:'أطباء الأسنان', bz_dentist_d:'65% من فحص الأسنان المنزلي بـ 12.000 ر.ع (7.800).',
+  bz_company:'الشركات (صحة الموظفين)', bz_company_d:'تدفع سعر باقة لكل موظف، والممرضين يزورون مقر العمل في رحلة وحدة.',
+  bz_month:'شهر كامل بهذا الحجم', bz_orders_day:'زيارات منزلية باليوم', bz_revenue:'المبالغ المحصّلة', bz_partners:'المدفوع للشركاء', bz_gross:'هامش آي لاب@هوم الإجمالي',
+  bz_fixed:'التكاليف الثابتة بالشهر', bz_fixed_d:'الفريق (العمليات + خدمة العملاء) 1,800 · التطبيق والرسائل والاستضافة 150 · التسويق 600 · التأمين والتراخيص 250 · المكتب والسيارة 300',
+  bz_profit:'الربح الشهري', bz_loss:'الخسارة الشهرية', bz_breakeven:'نقطة التعادل: حوالي {n} زيارة بالشهر ({d} باليوم).',
+  bz_nurse_calc:'شهر الممرض', bz_visits_day:'زيارات باليوم', bz_days:'أيام العمل', bz_level:'المستوى', bz_nurse_month:'الدخل الشهري',
+  bz_why:'ليش ينضم الشركاء', bz_w_lab:'المختبرات: عينات أكثر بدون موظفين إضافيين؛ نوصلها مبردة وجاهزة بالملصقات.', bz_w_nurse:'الممرضين: دخل إضافي مرن قريب من البيت؛ اختار ساعاتك وولاياتك.', bz_w_courier:'شركات النقل: مسارات يومية ثابتة وكميات متوقعة.', bz_w_doc:'الأطباء: استشارات فيديو مدفوعة من البيت في المساء.',
+  bz_rules:'القوانين اللي نلتزم فيها', bz_r1:'ترخيص وزارة الصحة لخدمات الرعاية المنزلية والمختبرات الشريكة (ISO 15189 / CAP).', bz_r2:'الممرضين والأطباء مسجلين في المجلس الطبي العماني؛ والممرض من نفس جنس المريض.', bz_r3:'قانون حماية البيانات الشخصية (المرسوم السلطاني 6/2022): البيانات في خوادم آمنة ولا تُشارك إلا مع اللي يعالجونك.', bz_r4:'سلسلة تبريد 2–8 درجات مع تسجيل الحرارة عند الاستلام؛ والعينة تُرفض وتُعاد مجاناً إذا خرجت عن المدى.',
+  bz_note:'أرقام تخطيطية لخطة العمل، والعقود الفعلية قد تختلف.', bz_cta:'انضم كشريك'
+});
+
+/* money rules (fallbacks match the database settings) */
+let BIZ = null;
+const BIZ0 = { home_fee:5, nurse_fee:3, courier_fee:1, kit_cost:0.5, lab_share:0.65, pay_fee_pct:0.025, nurse_bonus:[0,0.25,0.5,0.75], consult_fee:4, consult_post_fee:3, consult_doctor_share:0.75, dental_home_fee:12, dental_home_share:0.65,
+  consult_slots:['16:00','16:20','16:40','17:00','17:20','17:40','18:00','18:20','18:40','19:00','19:20','19:40','20:00','20:20','20:40'] };
+async function bizLoad(){ if (BIZ) return BIZ; try { const r = await API.business(); BIZ = Object.assign({}, BIZ0); for (const k in r || {}) BIZ[k] = typeof BIZ0[k] === 'number' ? Number(r[k]) : r[k]; } catch(e) { BIZ = Object.assign({}, BIZ0); } return BIZ; }
+function splitOrder(basket, B){ const total = basket + B.home_fee; const lab = basket * B.lab_share, nurse = B.nurse_fee, courier = B.courier_fee, kit = B.kit_cost, card = total * B.pay_fee_pct;
+  return { total, lab, nurse, courier, kit, card, us: total - lab - nurse - courier - kit - card }; }
+
+/* doctor portrait (drawn, no photos) */
+function docArt(g, size){ const s = size || 64; const f = g === 'female';
+  return `<svg viewBox="0 0 64 64" width="${s}" height="${s}" aria-hidden="true" class="doc-art"><circle cx="32" cy="32" r="32" fill="${f ? '#fdeaf3' : '#e6efff'}"/>
+  <path d="M10 64c2-14 11-20 22-20s20 6 22 20z" fill="#fff"/><path d="M26 44l6 10 6-10" fill="${f ? '#db2777' : '#2563eb'}" opacity=".85"/>
+  <path d="M20 47c-3 4-3 9 1 11M44 47c3 4 3 9-1 11" stroke="#0d1628" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="43" cy="58" r="2.4" fill="#0d1628"/>
+  ${f ? '<path d="M15 34c0-12 8-20 17-20s17 8 17 20c0 6-2 10-5 12H20c-3-2-5-6-5-12z" fill="#0d1628"/>' : ''}
+  <circle cx="32" cy="30" r="11" fill="#e8b48f"/>${f ? '<path d="M21 28c1-8 6-12 11-12s10 4 11 12c-4-3-7-6-11-6s-7 3-11 6z" fill="#0d1628"/>' : '<path d="M21 27c0-7 5-11 11-11s11 4 11 11c-3-3-6-4-11-4s-8 1-11 4z" fill="#3a2a20"/>'}
+  <circle cx="28" cy="31" r="1.3" fill="#0d1628"/><circle cx="36" cy="31" r="1.3" fill="#0d1628"/><path d="M29 36c2 1.5 4 1.5 6 0" stroke="#a0522d" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>`; }
+function docCard(d, sel){ const ar = S.lang === 'ar';
+  return `<button type="button" class="doc-card ${sel ? 'on' : ''}" data-doc="${d.id}">${docArt(d.gender, 58)}<span class="grow" style="text-align:start"><b>${esc(d.name)}</b>
+    <span class="xs muted" style="display:block">${esc(ar ? (d.specialty_ar || d.specialty) : d.specialty)} · ${t('cs_years',{n:d.years || '—'})}</span>
+    <span class="small" style="display:block;margin-top:4px">${esc(ar ? (d.bio_ar || d.bio || '') : (d.bio || ''))}</span>
+    <span class="row wrap" style="gap:6px;margin-top:6px"><span class="chip ${d.gender === 'female' ? 'red' : ''}">${t(d.gender === 'female' ? 'cs_female_dr' : 'cs_male_dr')}</span><span class="chip amber">★ ${d.rating || '—'}</span>${d.license ? `<span class="chip gray ltr">${esc(d.license)}</span>` : ''}</span></span>${sel ? `<span class="doc-tick">${ic('check',18,2.6)}</span>` : ''}</button>`; }
+function csKinds(){ return [['pre','steth','cs_pre','consult_fee'],['post','file','cs_post','consult_post_fee'],['dental','tooth','cs_dental','consult_fee'],['dental_home','home','cs_dental_home','dental_home_fee']]; }
+function csFee(kind, order, B){ if (kind === 'post' && order && ['review','urgent'].includes(order.severity)) return 0; return Number(B[{ pre:'consult_fee', post:'consult_post_fee', dental:'consult_fee', dental_home:'dental_home_fee' }[kind]]); }
+function csGoBook(kind, orderId){ const h = 'app/consult/new?kind=' + kind + (orderId ? '&order=' + orderId : ''); if (S.user && S.user.role === 'patient') go(h); else if (S.user) toast(t('e_ONLY_PATIENTS')); else { sessionStorage.setItem('lah_after', h); go('register'); } }
+function csStatus(c){ const m = { booked:'blue', live:'teal', done:'teal', cancelled:'gray' }; return `<span class="chip ${m[c.status] || ''}">${t('cs_st_' + c.status)}</span>`; }
+function csWhen(c){ return `${fmtDate(c.slot_date)} · ${esc(c.slot_time)}`; }
+function csJoinOpen(c){ const now = muscatNow(); if (c.status === 'live') return true; if (c.slot_date !== now.date) return false; const [h, m] = c.slot_time.split(':').map(Number); return now.mins >= h * 60 + m - 10 && now.mins <= h * 60 + m + 60; }
+
+/* public page: consultations & dental (#/consult, #/dental) */
+async function viewConsultPublic(dental){
+  const B = await bizLoad(); let docs = [], dents = [];
+  try { [docs, dents] = await Promise.all([API.doctors('pre'), API.doctors('dental')]); } catch(e) {}
+  const kinds = csKinds().filter(k => dental ? /dental/.test(k[0]) : true);
+  const body = `<div class="stack-lg">
+    <div class="cs-hero ${dental ? 'dental' : ''}"><div class="grow"><span class="chip" style="background:rgba(255,255,255,.16);color:#fff">${ic(dental ? 'tooth' : 'video',14)} ${t(dental ? 'm_dental' : 'm_consult')}</span><h1>${t(dental ? 'dn_t' : 'cs_t')}</h1><p>${t(dental ? 'dn_p' : 'cs_p')}</p><div class="xs" style="opacity:.8">${t('cs_privacy')}</div></div><div class="cs-hero-art">${docArt('female', 96)}${docArt('male', 96)}</div></div>
+    <div class="grid g${kinds.length === 4 ? 4 : 2} cs-kinds">${kinds.map(([k, i, lk, fk]) => `<div class="card cs-kind"><span class="ic-round">${ic(i,24)}</span><b>${t(lk)}</b><div class="small muted grow">${t(lk + '_d')}</div>
+      <div class="row between" style="margin-top:10px"><b class="num">${k === 'post' ? `${omr(B[fk])} <small class="muted">/ ${t('cs_free')}*</small>` : omr(B[fk])} <small>${t('omr')}</small></b><button class="btn sm" data-cs="${k}">${t('cs_book')}</button></div></div>`).join('')}</div>
+    ${!dental ? `<p class="xs muted" style="margin-top:-10px">* ${t('cs_free_note')}</p>` : `<div class="banner blue small">${ic('tooth',18)}<span>${t('dn_note')}</span></div>`}
+    ${!dental && docs.length ? `<div><h2 class="hm-h">${t('cs_doctors')}</h2><div class="grid g2 collapse">${docs.map(d => docCard(d)).join('')}</div></div>` : ''}
+    ${dents.length ? `<div><h2 class="hm-h">${t('cs_dentists')}</h2><div class="grid g2 collapse">${dents.map(d => docCard(d)).join('')}</div></div>` : ''}</div>`;
+  app.innerHTML = S.user ? shell(t(dental ? 'm_dental' : 'm_consult'), body) : `${topbar()}<section class="section" style="padding-top:24px"><div class="wrap-w">${body}</div></section>${footer()}`;
+  if (!S.user) bindGlobal();
+  $$('[data-cs]').forEach(b => b.onclick = () => csGoBook(b.dataset.cs));
+  $$('[data-doc]').forEach(b => b.onclick = () => csGoBook(dents.some(d => d.id === b.dataset.doc) ? 'dental' : 'pre'));
+}
+
+/* booking wizard (#/app/consult/new?kind=pre&order=…) */
+async function viewConsultNew(){
+  const q = new URLSearchParams((location.hash.split('?')[1] || ''));
+  const kind = ['pre','post','dental','dental_home'].includes(q.get('kind')) ? q.get('kind') : 'pre';
+  if (!S.cb || S.cb.kind !== kind) S.cb = { kind, step: 1, doctor: null, gf: 'any', mode: kind === 'dental_home' ? 'home' : 'video', date: null, time: null, reason: '', order: q.get('order') || null, pay: 'card', address: (S.user && S.user.address) || '' };
+  const b = S.cb; const B = await bizLoad();
+  if (!b.docs) { loading(t('cs_book_t')); try { b.docs = await API.doctors(/dental/.test(kind) ? 'dental' : 'pre'); } catch(e) { app.innerHTML = shell(t('cs_book_t'), emptyBox(errMsg(e))); return; } }
+  if (kind === 'post' && !b.orders) { try { b.orders = (await API.orders('mine')).filter(o => o.status === 'completed'); } catch(e) { b.orders = []; } }
+  const order = kind === 'post' && b.orders ? b.orders.find(o => o.id === b.order) : null;
+  const fee = csFee(kind, order, B); const steps = ['cs_s1','cs_s2','cs_s3','cs_s4','cs_s5'];
+  const now = muscatNow(); const days = Array.from({ length: 7 }, (_, i) => addDays(now.date, i));
+  if (!b.date) b.date = days[0];
+  const doc = b.docs.find(d => d.id === b.doctor);
+  const taken = new Set((doc && doc.taken) || []);
+  const times = (B.consult_slots || []).filter(x => { const [h, m] = x.split(':').map(Number); return !taken.has(b.date + ' ' + x) && !(b.date === now.date && h * 60 + m <= now.mins + 30); });
+  let inner = '';
+  if (b.step === 1) {
+    const list = b.docs.filter(d => b.gf === 'any' || d.gender === b.gf);
+    inner = `<div class="card stack"><h3>${t('cs_s1')}</h3><div class="cats" style="margin:0">${[['any','cs_any'],['female','cs_female_dr'],['male','cs_male_dr']].map(([v, k]) => `<button class="${b.gf === v ? 'on' : ''}" data-gf="${v}">${t(k)}</button>`).join('')}</div>
+      <div class="stack" style="--g:10px">${list.map(d => docCard(d, d.id === b.doctor)).join('')}</div></div>`;
+  } else if (b.step === 2) {
+    inner = kind === 'dental_home' ? `<div class="card stack"><h3>${t('cs_home')}</h3><label class="field"><span>${t('cs_address')}</span><textarea class="input" id="csa" rows="2">${esc(b.address)}</textarea></label><div class="banner blue small">${ic('tooth',18)}<span>${t('dn_note')}</span></div></div>`
+      : `<div class="card stack"><h3>${t('cs_s2')}</h3><div class="paym">${[['video','video'],['voice','phone'],['chat','chat']].map(([v, i]) => `<label class="${b.mode === v ? 'on' : ''}"><input type="radio" name="csm" value="${v}" ${b.mode === v ? 'checked' : ''}> ${ic(i)} <span class="grow"><b>${t('cs_' + v)}</b><span class="xs muted" style="display:block">${t('cs_mode_d_' + v)}</span></span></label>`).join('')}</div></div>`;
+  } else if (b.step === 3) {
+    inner = `<div class="card stack"><h3>${t('cs_date')}</h3><div class="cal">${days.map(d => `<button class="${d === b.date ? 'on' : ''}" data-day="${d}"><div class="xs" style="opacity:.75">${fmtDate(d, { weekday:'short' })}</div>${fmtDate(d, { day:'numeric' })}</button>`).join('')}</div>
+      <h3 style="margin-top:6px">${t('cs_time')}</h3>${times.length ? `<div class="slots">${times.map(x => `<button class="slot ${x === b.time ? 'on' : ''}" data-tm="${x}">${x}</button>`).join('')}</div>` : `<p class="muted">${t('cs_no_times')}</p>`}</div>`;
+  } else if (b.step === 4) {
+    inner = `<div class="card stack">${kind === 'post' ? `<h3>${t('cs_order')}</h3>${b.orders && b.orders.length ? `<div class="stack" style="--g:8px">${b.orders.map(o => `<label class="check ${o.id === b.order ? 'on' : ''}"><input type="radio" name="cso" value="${o.id}" ${o.id === b.order ? 'checked' : ''}><span class="grow"><b class="ltr">${esc(o.code)}</b> · ${fmtDate(o.slot_date)}${o.severity && o.severity !== 'normal' ? ` <span class="chip ${o.severity === 'urgent' ? 'red' : 'amber'}">${t(o.severity === 'urgent' ? 'doc_urgent' : 'm_review')}</span>` : ''}</span></label>`).join('')}</div>` : `<p class="muted">${t('cs_no_orders')}</p>`}` : ''}
+      <label class="field"><span>${t('cs_reason')}</span><textarea class="input" id="csr" rows="4" placeholder="${t('cs_reason_ph')}">${esc(b.reason)}</textarea></label></div>`;
+  } else {
+    inner = `<div class="card stack"><h3>${t('cs_s5')}</h3>
+      <div class="vline"><span class="muted">${t('cs_s1')}</span><b>${esc(doc ? doc.name : '')}</b></div><div class="vline"><span class="muted">${t('cs_s2')}</span><b>${t('cs_' + b.mode)}</b></div>
+      <div class="vline"><span class="muted">${t('appointment')}</span><b>${fmtDate(b.date)} · ${b.time}</b></div><div class="vline" style="border:0"><span class="muted">${t('cs_fee')}</span><b class="num">${fee ? omr(fee) + ' ' + t('omr') : t('cs_free')}</b></div>
+      ${fee ? `<div class="paym">${[['card','card','pay_card'],['applepay','phone','pay_apple']].map(([v, i, k]) => `<label class="${b.pay === v ? 'on' : ''}"><input type="radio" name="pay" value="${v}" ${b.pay === v ? 'checked' : ''}> ${ic(i)} <span class="grow b">${t(k)}</span></label>`).join('')}</div>
+      ${b.pay === 'card' ? `<div class="grid g3"><label class="field" style="grid-column:1/-1"><span>${t('card_no')}</span><input class="input ltr" id="cn" inputmode="numeric" maxlength="23" placeholder="4242 4242 4242 4242" autocomplete="cc-number"></label><label class="field"><span>${t('exp')}</span><input class="input ltr" id="ce" inputmode="numeric" maxlength="5" placeholder="12/28"></label><label class="field"><span>${t('cvv')}</span><input class="input ltr" id="cv" inputmode="numeric" maxlength="4" placeholder="123"></label></div>` : ''}
+      <div class="banner blue small">${ic('shield',20)}<span>${t('epay_only')} ${t('test_mode')}</span></div>` : `<div class="banner teal small">${ic('check',18)}<span>${t('cs_free_note')}</span></div>`}<div class="err" id="cse"></div></div>`;
+  }
+  const head = `<div class="stepper">${steps.map((k, i) => `<i class="${i < b.step ? 'on' : ''}"></i>`).join('')}</div><div class="steplabels">${steps.map((k, i) => `<span class="${i + 1 === b.step ? 'on' : ''}">${i + 1}. ${t(k)}</span>`).join('')}</div>`;
+  const kindCard = `<div class="card row" style="gap:12px">${ic(csKinds().find(k => k[0] === kind)[1], 26)}<div class="grow"><b>${t('cs_' + kind)}</b><div class="xs muted">${t('cs_' + kind + '_d')}</div></div><b class="num">${fee ? omr(fee) : t('cs_free')}</b></div>`;
+  app.innerHTML = shell(t('cs_book_t'), `${head}<div class="stack">${kindCard}${inner}
+    <div class="row">${b.step > 1 ? `<button class="btn ghost" id="cpv">${t('back')}</button>` : `<a class="btn ghost" href="#/app/consult">${t('back')}</a>`}<div class="grow"></div>
+    ${b.step < 5 ? `<button class="btn" id="cnx">${t('next')} <span class="flip">${ic('arrow',18)}</span></button>` : `<button class="btn teal" id="cpay">${fee ? t('cs_pay',{x:omr(fee)}) : t('cs_confirm_free')}</button>`}</div></div>`, { back: true });
+  const err = m => { const e = $('#cse'); if (e) e.textContent = m; else toast(m, true); };
+  $$('[data-gf]').forEach(x => x.onclick = () => { b.gf = x.dataset.gf; viewConsultNew(); });
+  $$('[data-doc]').forEach(x => x.onclick = () => { b.doctor = x.dataset.doc; b.time = null; viewConsultNew(); });
+  $$('input[name=csm]').forEach(x => x.onchange = () => { b.mode = x.value; viewConsultNew(); });
+  $$('[data-day]').forEach(x => x.onclick = () => { b.date = x.dataset.day; b.time = null; viewConsultNew(); });
+  $$('[data-tm]').forEach(x => x.onclick = () => { b.time = x.dataset.tm; $$('[data-tm]').forEach(y => y.classList.toggle('on', y === x)); });
+  $$('input[name=cso]').forEach(x => x.onchange = () => { b.order = x.value; viewConsultNew(); });
+  $$('input[name=pay]').forEach(x => x.onchange = () => { b.pay = x.value; viewConsultNew(); });
+  if ($('#cn')) { $('#cn').oninput = e => { const d = e.target.value.replace(/\D/g, '').slice(0, 19); e.target.value = d.replace(/(\d{4})(?=\d)/g, '$1 '); }; $('#ce').oninput = e => { let d = e.target.value.replace(/\D/g, '').slice(0, 4); if (d.length >= 3) d = d.slice(0, 2) + '/' + d.slice(2); e.target.value = d; }; $('#cv').oninput = e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4); }; }
+  const keep = () => { if ($('#csr')) b.reason = $('#csr').value; if ($('#csa')) b.address = $('#csa').value; };
+  if ($('#cpv')) $('#cpv').onclick = () => { keep(); b.step--; viewConsultNew(); window.scrollTo(0, 0); };
+  if ($('#cnx')) $('#cnx').onclick = () => { keep();
+    if (b.step === 1 && !b.doctor) return toast(t('e_BAD_DOCTOR'), true);
+    if (b.step === 2 && kind === 'dental_home' && !b.address.trim()) return toast(t('e_NEED_ADDRESS'), true);
+    if (b.step === 3 && !b.time) return toast(t('cs_time'), true);
+    if (b.step === 4 && kind === 'post' && !b.order) return toast(t('cs_pick_order'), true);
+    b.step++; viewConsultNew(); window.scrollTo(0, 0); };
+  if ($('#cpay')) $('#cpay').onclick = async () => {
+    if (fee && b.pay === 'card') { const n = ($('#cn').value || '').replace(/\D/g, ''); const ex = ($('#ce').value || '').trim(); const cv = ($('#cv').value || '').trim(); if (!luhn(n) || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(ex) || !/^\d{3,4}$/.test(cv)) return err(t('e_CARD')); }
+    try { const c = await busy($('#cpay'), () => API.consultCreate({ doctor_id: b.doctor, kind, mode: b.mode, slot_date: b.date, slot_time: b.time, reason: b.reason, order_id: b.order, payment_method: b.pay, address: b.address }));
+      S.cb = null; toast(t('cs_booked_t')); go('app/consult/' + c.id); }
+    catch(e) { if (e.code === 'SLOT_TAKEN') { b.docs = null; b.step = 3; b.time = null; } err(errMsg(e)); if (e.code === 'SLOT_TAKEN') setTimeout(viewConsultNew, 1200); }
+  };
+}
+
+/* list (#/app/consult): patient = mine, doctor = queue */
+async function viewConsults(){
+  loading(t(S.user.role === 'doctor' ? 'cs_q' : 'cs_mine'));
+  const L = await API.consults(); const u = S.user; const doc = u.role === 'doctor';
+  const up = L.filter(c => ['booked','live'].includes(c.status)), past = L.filter(c => !['booked','live'].includes(c.status));
+  const row = c => `<a class="card row cs-row" href="#/app/consult/${c.id}" style="gap:12px">${doc ? `<span class="avatar">${esc(initials(c.patient && c.patient.name))}</span>` : docArt(c.doctor && c.doctor.gender, 46)}
+    <div class="grow"><b>${esc(doc ? (c.patient && c.patient.name) : (c.doctor && c.doctor.name))}</b><div class="xs muted">${t('cs_' + c.kind)} · ${t('cs_' + c.mode)}</div><div class="small">${csWhen(c)}</div></div>${csStatus(c)}</a>`;
+  let st = null; if (doc) { try { st = await API.stats(); } catch(e) {} }
+  app.innerHTML = shell(t(doc ? 'cs_q' : 'cs_mine'), `<div class="stack-lg">
+    ${doc && st ? `<div class="grid g3"><div class="kpi blue"><span>${t('cs_today')}</span><b>${st.consults_today || 0}</b></div><div class="kpi"><span>${t('cs_st_done')}</span><b>${st.consults_done || 0}</b></div><div class="kpi"><span>${t('cs_earn')}</span><b>${omr(st.earnings)} <small style="font-size:.8rem">${t('omr')}</small></b></div></div>` : ''}
+    ${!doc ? `<div class="grid g4 cs-kinds">${csKinds().map(([k, i, lk]) => `<button class="card cs-kind sm" data-cs="${k}"><span class="ic-round sm">${ic(i,20)}</span><b>${t(lk)}</b></button>`).join('')}</div>` : ''}
+    <div><h3>${t('cs_upcoming')} <span class="chip">${up.length}</span></h3>${up.length ? `<div class="stack" style="--g:10px">${up.map(row).join('')}</div>` : emptyBox(t('cs_none'))}</div>
+    ${past.length ? `<div><h3>${t('cs_past')}</h3><div class="stack" style="--g:10px">${past.slice(0, 30).map(row).join('')}</div></div>` : ''}</div>`);
+  $$('[data-cs]').forEach(b => b.onclick = () => csGoBook(b.dataset.cs));
+}
+
+/* one consultation (#/app/consult/<id>) */
+async function viewConsult(id){
+  let c; try { c = await API.consult(id); } catch(e) { app.innerHTML = shell('', emptyBox(errMsg(e))); return; }
+  const u = S.user; const doc = u.role === 'doctor' && c.doctor && c.doctor.id === u.id; const n = c.note;
+  if (doc) await loadCatalog().catch(() => {});
+  const join = c.join && csJoinOpen(c);
+  const wa = `https://wa.me/${CONTACT.wa}?text=${encodeURIComponent((S.lang === 'ar' ? 'استشارة ' : 'Consultation ') + c.code)}`;
+  const sug = n ? [...(n.packages || []).map(x => ['package', x]), ...(n.tests || []).map(x => ['test', x])] : [];
+  const body = `<div class="stack-lg">
+    <div class="card"><div class="row between wrap"><div><div class="small muted">${t('cs_' + c.kind)} · ${t('cs_' + c.mode)}</div><h2 class="ltr" style="margin:0">${esc(c.code)}</h2></div>${csStatus(c)}</div>
+      <div class="row" style="gap:12px;margin-top:14px">${doc ? `<span class="avatar xl">${esc(initials(c.patient && c.patient.name))}</span>` : docArt(c.doctor && c.doctor.gender, 64)}<div class="grow"><b>${esc(doc ? (c.patient && c.patient.name) : (c.doctor && c.doctor.name))}</b>
+        <div class="small muted">${doc ? `${c.patient && c.patient.gender ? t(c.patient.gender) : ''}${c.patient && c.patient.dob ? ' · ' + age(c.patient.dob) : ''}` : esc(S.lang === 'ar' ? (c.doctor.specialty_ar || '') : (c.doctor.specialty || ''))}</div><div class="small b">${csWhen(c)}</div></div></div>
+      ${['booked','live'].includes(c.status) ? `<div class="row wrap" style="gap:8px;margin-top:14px">${c.mode === 'chat' ? `<a class="btn" href="${wa}" target="_blank" rel="noopener">${ic('wa',18)} ${t('cs_wa')}</a>` : c.mode === 'home' ? '' : join || doc ? `<a class="btn" href="${esc(c.join)}" target="_blank" rel="noopener" ${doc && c.status === 'booked' ? 'data-start' : ''}>${ic('video',18)} ${t(doc && c.status === 'booked' ? 'cs_start' : 'cs_join')}</a>` : `<button class="btn" disabled>${ic('video',18)} ${t('cs_join')}</button><span class="xs muted" style="align-self:center">${t('cs_join_soon')}</span>`}
+        ${!doc && c.status === 'booked' ? `<button class="btn ghost" data-ccancel>${t('cs_cancel')}</button>` : ''}</div>` : ''}</div>
+    ${c.reason || c.order || c.address ? `<div class="card">${c.reason ? `<div class="vline"><span class="muted">${t('cs_reason_l')}</span><b style="white-space:pre-wrap;text-align:end">${esc(c.reason)}</b></div>` : ''}${c.order ? `<div class="vline"><span class="muted">${t('cs_linked')}</span><a class="b ltr" href="#/app/${doc ? 'order' : 'report'}/${c.order.id}">${esc(c.order.code)}</a></div>` : ''}${c.address ? `<div class="vline" style="border:0"><span class="muted">${t('location')}</span><b>${esc(c.address)}</b></div>` : ''}</div>` : ''}
+    ${n ? `<div class="card docnote"><div class="row" style="gap:12px">${docArt(c.doctor && c.doctor.gender, 46)}<div class="grow"><div class="xs muted">${t('cs_advice')}</div><b>${esc(n.by || '')}</b><div class="xs muted">${fmtDT(n.at)}</div></div></div><p style="white-space:pre-wrap;margin:12px 0 0">${esc(n.note)}</p>
+      ${sug.length ? `<h4 style="margin:14px 0 6px">${t('cs_suggested')}</h4><div class="row wrap" style="gap:6px">${sug.map(([ty, x]) => `<span class="chip">${esc(S.catalog ? LN(ty === 'package' ? S.catalog.P[x] : S.catalog.T[x], 'name') || x : x)}</span>`).join('')}</div>${!doc ? `<button class="btn teal" style="margin-top:12px" data-addsug>${ic('cart',18)} ${t('cs_add_suggested')}</button>` : ''}` : ''}</div>` : ''}
+    ${!doc && c.status === 'done' && !c.rating ? `<div class="card"><b>${t('cs_rate')}</b><div class="row" style="gap:4px;margin-top:8px;color:#f2a516">${[1,2,3,4,5].map(i => `<button class="link" data-cstar="${i}" style="font-size:2rem;color:inherit">★</button>`).join('')}</div></div>` : ''}
+    ${doc && ['booked','live'].includes(c.status) ? `<div class="card stack"><h3>${t('cs_finish')}</h3><textarea class="input" id="cnote" rows="5" placeholder="${t('cs_note_ph')}"></textarea>
+      ${S.catalog ? `<div><div class="small b" style="margin-bottom:6px">${t('cs_pick_tests')}</div><div class="pick-tests">${S.catalog.packages.map(p => `<label class="check"><input type="checkbox" data-sp="${p.id}"> <span>${esc(LN(p,'name'))}</span></label>`).join('')}${S.catalog.tests.map(x => `<label class="check"><input type="checkbox" data-st="${x.id}"> <span>${esc(LN(x,'name'))}</span></label>`).join('')}</div></div>` : ''}
+      <button class="btn teal" data-cfinish>${ic('send',18)} ${t('cs_finish')}</button></div>` : ''}
+    <p class="xs muted center">${t('cs_privacy')}</p></div>`;
+  app.innerHTML = shell(esc(c.code), body, { back: true });
+  if (!S.catalog && n && sug.length) loadCatalog().then(() => { if (location.hash.includes(id)) viewConsult(id); }).catch(() => {});
+  const act = async (btn, a, p) => { try { const r = await busy(btn, () => API.consultAction(c.id, a, p)); return r; } catch(e) { toast(errMsg(e), true); return null; } };
+  if ($('[data-start]')) $('[data-start]').addEventListener('click', () => { API.consultAction(c.id, 'start').then(() => setTimeout(() => viewConsult(id), 600)).catch(() => {}); });
+  if ($('[data-ccancel]')) $('[data-ccancel]').onclick = async e => { if (!await confirmBox(t('cs_cancel_q'), t('yes_cancel'), t('keep'))) return; if (await act(e.target, 'cancel')) viewConsult(id); };
+  if ($('[data-cfinish]')) $('[data-cfinish]').onclick = async e => { const note = $('#cnote').value.trim(); if (!note) return toast(t('e_NEED_NOTE'), true);
+    const tests = $$('[data-st]:checked').map(x => x.dataset.st), packages = $$('[data-sp]:checked').map(x => x.dataset.sp);
+    if (await act(e.target, 'finish', { note, tests, packages })) { toast(t('doc_sent')); viewConsult(id); } };
+  if ($('[data-addsug]')) $('[data-addsug]').onclick = async () => { await loadCatalog().catch(() => {}); sug.forEach(([ty, x]) => { const k = ty === 'package' ? 'packages' : 'tests'; if (!S.cart[k].includes(x) && S.catalog && (ty === 'package' ? S.catalog.P[x] : S.catalog.T[x])) S.cart[k].push(x); }); saveCart(); toast(t('cs_added')); go('app/cart'); };
+  $$('[data-cstar]').forEach(s => s.onclick = async () => { if (await act(null, 'rate', { rating: +s.dataset.cstar })) { toast(t('thanks_rating')); viewConsult(id); } });
+}
+function csPostCta(o){ return S.user && S.user.role === 'patient' ? `<div class="card row cs-cta" style="gap:12px;align-items:center">${docArt('female', 48)}<div class="grow"><b>${t('cs_post_cta_t')}</b><div class="small muted">${t('cs_post_cta_p')}${['review','urgent'].includes(o.severity) ? ' <b class="teal-t">' + t('cs_free') + '</b>' : ''}</div></div><button class="btn sm" data-cspost="${o.id}">${ic('video',16)} ${t('cs_post_cta')}</button></div>` : ''; }
+
+/* business page (#/business) */
+async function viewBusiness(){
+  const B = await bizLoad();
+  const st = { basket: 25, perDay: 14, vd: 6, wd: 22, lv: 2 };
+  const FIXED = 3100;
+  const bar = (x, tot, c) => `<i style="width:${Math.max(1, x / tot * 100).toFixed(1)}%;background:${c}"></i>`;
+  const COL = { lab:'#2563eb', nurse:'#14b8a6', courier:'#f97316', kit:'#94a3b8', card:'#cbd5e1', us:'#0d1628' };
+  const draw = () => {
+    const s = splitOrder(st.basket, B); const per = s.us; const month = st.perDay * 30;
+    const rev = s.total * month, partners = (s.lab + s.nurse + s.courier) * month, other = (s.kit + s.card) * month, gross = per * month, profit = gross - FIXED;
+    const be = Math.ceil(FIXED / per);
+    const nb = (B.nurse_bonus || [0, .25, .5, .75])[st.lv - 1] || 0; const nurseM = (B.nurse_fee + nb) * st.vd * st.wd;
+    $('#bz-split').innerHTML = `<div class="split-bar">${['lab','nurse','courier','kit','card','us'].map(k => bar(s[k], s.total, COL[k])).join('')}</div>
+      <div class="split-rows">${[['lab','bz_lab'],['nurse','bz_nurse'],['courier','bz_courier'],['kit','bz_kit'],['card','bz_card'],['us','bz_us']].map(([k, lk]) => `<div class="sr"><span class="sw" style="background:${COL[k]}"></span><div class="grow"><b>${t(lk)}</b><div class="xs muted">${t(lk + '_d')}</div></div><b class="num">${omr(s[k])}</b><span class="xs muted num" style="width:44px;text-align:end">${Math.round(s[k] / s.total * 100)}%</span></div>`).join('')}
+      <div class="sr tot"><span class="sw" style="background:transparent"></span><div class="grow"><b>${t('total')}</b></div><b class="num">${omr(s.total)} ${t('omr')}</b><span style="width:44px"></span></div></div>`;
+    $('#bz-month').innerHTML = `<div class="grid g4"><div class="kpi"><span>${t('bz_revenue')}</span><b>${Math.round(rev).toLocaleString()}</b></div><div class="kpi"><span>${t('bz_partners')}</span><b>${Math.round(partners).toLocaleString()}</b></div><div class="kpi blue"><span>${t('bz_gross')}</span><b>${Math.round(gross).toLocaleString()}</b></div>
+      <div class="kpi" style="background:${profit >= 0 ? '#e3f7f4' : '#fdecec'}"><span>${t(profit >= 0 ? 'bz_profit' : 'bz_loss')}</span><b>${Math.round(Math.abs(profit)).toLocaleString()}</b></div></div>
+      <p class="small muted" style="margin:10px 0 0">${t('bz_fixed')}: <b>${FIXED.toLocaleString()} ${t('omr')}</b> — ${t('bz_fixed_d')}. ${t('bz_breakeven',{n:be, d:Math.ceil(be / 30)})}</p>`;
+    $('#bz-nurse').innerHTML = `<div class="row between"><span>${t('bz_nurse_month')}</span><b class="num" style="font-size:1.4rem">${omr(nurseM)} ${t('omr')}</b></div><div class="xs muted">${st.vd} × ${st.wd} × (${omr(B.nurse_fee)} + ${omr(nb)})</div>`;
+    $$('[data-out]').forEach(o => o.textContent = o.dataset.out === 'basket' ? omr(st.basket) : st[o.dataset.out]);
+  };
+  const sl = (k, min, max, step, lbl) => `<label class="field"><span class="row between">${t(lbl)} <b data-out="${k}"></b></span><input type="range" min="${min}" max="${max}" step="${step}" value="${st[k]}" data-sl="${k}"></label>`;
+  const body = `<div class="stack-lg">
+    <div class="about-hero"><div><span class="chip" style="background:rgba(255,255,255,.15);color:#fff">${t('m_business')}</span><h1>${t('bz_t')}</h1><p>${t('bz_p')}</p></div><div class="ah-art">${A.hero}</div></div>
+    <div class="card pad-lg"><span class="eyebrow">${t('bz_idea')}</span><p class="big" style="margin:.4em 0 0">${t('bz_idea_p')}</p></div>
+    <div><div class="section-h" style="margin-bottom:16px"><span class="eyebrow">${t('bz_goals')}</span><h2>${t('bz_goals')}</h2></div><div class="grid g4 goals">${['bz_g1','bz_g2','bz_g3','bz_g4'].map((k, i) => `<div class="card goal"><span class="gn">0${i + 1}</span><span class="gi">${ic(['target','chart','globe','award'][i], 26)}</span><div class="small">${t(k)}</div></div>`).join('')}</div></div>
+    <div class="card pad-lg"><h2 style="margin:0">${t('bz_flow')}</h2><p class="muted small">${t('bz_flow_p')}</p>${sl('basket', 5, 60, 1, 'bz_basket')}<div class="small muted">${t('bz_visit')}: <b>${omr(B.home_fee)} ${t('omr')}</b></div><div id="bz-split" style="margin-top:14px"></div></div>
+    <div class="card pad-lg"><h2 style="margin:0">${t('bz_month')}</h2>${sl('perDay', 2, 80, 1, 'bz_orders_day')}<div id="bz-month" style="margin-top:12px"></div></div>
+    <div class="grid g2 collapse"><div class="card pad-lg"><h3 style="margin-top:0">${t('bz_nurse_calc')}</h3>${sl('vd', 1, 12, 1, 'bz_visits_day')}${sl('wd', 4, 26, 1, 'bz_days')}
+      <div class="cats" style="margin:4px 0 10px">${[1,2,3,4].map(i => `<button data-lv="${i}" class="${st.lv === i ? 'on' : ''}">${t('lvl_' + i)}</button>`).join('')}</div><div id="bz-nurse"></div></div>
+      <div class="card pad-lg"><h3 style="margin-top:0">${t('bz_why')}</h3>${[['flask','bz_w_lab'],['syringe','bz_w_nurse'],['van','bz_w_courier'],['steth','bz_w_doc']].map(([i, k]) => `<div class="row" style="gap:10px;align-items:flex-start;margin:8px 0"><span class="ic-round sm">${ic(i,18)}</span><span class="small">${t(k)}</span></div>`).join('')}</div></div>
+    <div class="grid g3">${[['steth','bz_doctor'],['tooth','bz_dentist'],['building','bz_company']].map(([i, k]) => `<div class="card"><span class="ic-round">${ic(i,22)}</span><b style="display:block;margin-top:8px">${t(k)}</b><div class="small muted">${t(k + '_d')}</div></div>`).join('')}</div>
+    <div class="card pad-lg"><h3 style="margin-top:0">${t('bz_rules')}</h3>${['bz_r1','bz_r2','bz_r3','bz_r4'].map(k => `<div class="row" style="gap:10px;align-items:flex-start;margin:8px 0"><span class="ic-round sm">${ic('shield',18)}</span><span class="small">${t(k)}</span></div>`).join('')}</div>
+    <div class="welcome center" style="padding:28px"><h2>${t('bz_cta')}</h2><p class="xs" style="opacity:.8">${t('bz_note')}</p><div class="row wrap" style="justify-content:center"><a class="btn" style="background:#fff;color:var(--blue)" href="#/register?partner=1">${ic('hands',18)} ${t('bz_cta')}</a><a class="btn ghost" style="background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)" href="#/contact">${t('m_contact')}</a></div></div></div>`;
+  app.innerHTML = S.user ? shell(t('m_business'), body) : `${topbar()}<section class="section" style="padding-top:24px"><div class="wrap-w">${body}</div></section>${footer()}`;
+  if (!S.user) bindGlobal();
+  $$('[data-sl]').forEach(r => r.oninput = () => { st[r.dataset.sl] = +r.value; draw(); });
+  $$('[data-lv]').forEach(b => b.onclick = () => { st.lv = +b.dataset.lv; $$('[data-lv]').forEach(x => x.classList.toggle('on', x === b)); draw(); });
+  draw();
 }
 
 async function boot(){

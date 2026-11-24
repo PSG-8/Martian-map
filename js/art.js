@@ -1,6 +1,14 @@
 /* iLab@Home – original illustrations and icons (hand-made SVG) */
 (function(){
 const P = {
+  dna:'<path d="M7 3c0 6 10 6 10 12s-10 6-10 6"/><path d="M17 3c0 6-10 6-10 12s10 6 10 6"/><path d="M8.5 7h7M8.5 17h7M10 12h4"/>',
+  tooth:'<path d="M7.5 3.5c-2.6 0-4 2.2-3.5 5 .4 2.3 1.3 3.3 1.7 6.2.4 2.8.9 5.8 2.4 5.8 1.7 0 1.6-4.5 3.9-4.5s2.2 4.5 3.9 4.5c1.5 0 2-3 2.4-5.8.4-2.9 1.3-3.9 1.7-6.2.5-2.8-.9-5-3.5-5-1.8 0-2.6 1-4.5 1s-2.7-1-4.5-1z"/>',
+  video:'<rect x="3" y="6" width="13" height="12" rx="3"/><path d="M16 10.5l5-3v9l-5-3"/>',
+  ring:'<circle cx="12" cy="14.5" r="6.5"/><path d="M9 4h6l-1.5 3.5h-3z"/>',
+  coin:'<circle cx="12" cy="12" r="9"/><path d="M14.8 9.2c-.5-.9-1.6-1.4-2.8-1.4-1.6 0-2.8.8-2.8 2.1 0 2.9 5.8 1.4 5.8 4.3 0 1.3-1.3 2.1-3 2.1-1.3 0-2.5-.6-3-1.5M12 6v1.8M12 16.3V18"/>',
+  hands:'<path d="M2 12l4-4 4 2 3-2 4 1 5 3"/><path d="M6 8l-3 7 4 3 3-2 2 2 3-1 2 1 4-4"/><path d="M10 16l2-2M13 17l1.5-1.5"/>',
+  shirt:'<path d="M8 3l-5 3 2 5 2-1v11h10V10l2 1 2-5-5-3c-.5 1.5-2 2.5-4 2.5S8.5 4.5 8 3z"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
   home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
   flask:'<path d="M9 3h6"/><path d="M10 3v6L4.5 18.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.5L14 9V3"/><path d="M7.5 15h9"/>',
   list:'<rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/>',
@@ -147,7 +155,7 @@ const hero = `<svg viewBox="0 0 620 540" style="direction:ltr" role="img" aria-l
 <g transform="translate(470 360)" filter="url(#hsh)"><rect width="120" height="58" rx="16" fill="#0b2350"/><text x="16" y="25" font-family="Inter,Arial" font-size="9" fill="#9fb6e6">Sample box</text><text x="16" y="44" font-family="Inter,Arial" font-size="15" font-weight="800" fill="#fff">4.2 °C</text><circle cx="98" cy="30" r="9" fill="#0fae9b"/></g>
 </svg>`;
 
-const cats = { vitamins:['sun','#f2a516','#fff4dc'], blood:['drop','#e2474f','#fdecec'], diabetes:['glucose','#7a5af8','#efeaff'], heart:['heart','#e8466f','#fdeaf0'], thyroid:['butterfly','#0fae9b','#e3f7f4'], organs:['organs','#1257d6','#eaf2ff'], packages:['box','#1257d6','#eaf2ff'], vitals:['gauge','#0fae9b','#e3f7f4'], kids:['kid','#f2a516','#fff4dc'], men:['male','#1257d6','#eaf2ff'] };
+const cats = { premarital:['ring','#db2777','#fdeaf3'], dental:['tooth','#0ea5e9','#e0f4fd'], dna:['dna','#7a5af8','#efeaff'], vitamins:['sun','#f2a516','#fff4dc'], blood:['drop','#e2474f','#fdecec'], diabetes:['glucose','#7a5af8','#efeaff'], heart:['heart','#e8466f','#fdeaf0'], thyroid:['butterfly','#0fae9b','#e3f7f4'], organs:['organs','#1257d6','#eaf2ff'], packages:['box','#1257d6','#eaf2ff'], vitals:['gauge','#0fae9b','#e3f7f4'], kids:['kid','#f2a516','#fff4dc'], men:['male','#1257d6','#eaf2ff'] };
 function catIcon(c, size){ const x = cats[c]||cats.organs; return `<span class="ti" style="background:${x[2]};color:${x[1]}">${icon(x[0], size||26, 2)}</span>`; }
 
 const roleArt = {

@@ -836,3 +836,41 @@ button.link{min-height:44px;display:inline-flex;align-items:center;gap:6px}
 #navbar.on{opacity:1;animation:navgo 1.6s cubic-bezier(.2,.7,.2,1) forwards}
 [dir=rtl] #navbar{transform-origin:100% 50%}
 @keyframes navgo{from{transform:scaleX(.05)}to{transform:scaleX(.85)}}
+/* v28: slightly-outside values are amber, critical values stand out */
+.flag.mild,.flag.H.mild,.flag.L.mild{background:var(--amber-bg);color:#9a6400}
+.flag.crit{background:#d0323b;color:#fff}
+
+/* v28: consultations */
+.doc-card{display:flex;gap:14px;align-items:flex-start;width:100%;border:0;background:#fff;border-radius:18px;padding:14px;box-shadow:inset 0 0 0 1.5px var(--line);cursor:pointer;text-align:start;position:relative;font:inherit;color:inherit;transition:box-shadow .15s,transform .15s}
+.doc-card:hover{box-shadow:inset 0 0 0 1.5px #b9cdf0,0 6px 18px rgba(16,40,90,.06)}
+.doc-card.on{box-shadow:inset 0 0 0 2px var(--blue),0 8px 22px rgba(37,99,235,.12)}
+.doc-card .doc-art{flex:none;border-radius:50%}
+.doc-tick{position:absolute;top:12px;inset-inline-end:12px;width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center}
+.cs-hero{display:flex;gap:20px;align-items:center;border-radius:24px;padding:28px;color:#fff;background:linear-gradient(120deg,#0d1628,#1e3a8a 60%,#2563eb)}
+.cs-hero.dental{background:linear-gradient(120deg,#0b2a3f,#0e7490 60%,#0ea5e9)}
+.cs-hero h1{color:#fff;margin:10px 0 6px;font-size:clamp(1.6rem,4vw,2.4rem)}.cs-hero p{opacity:.9;margin:0 0 8px;max-width:560px}
+.cs-hero-art{display:flex;gap:10px;flex:none}.cs-hero-art svg{filter:drop-shadow(0 8px 18px rgba(0,0,0,.25))}
+@media(max-width:760px){.cs-hero{flex-direction:column;align-items:flex-start;padding:22px}.cs-hero-art svg{width:64px;height:64px}}
+.cs-kind{display:flex;flex-direction:column;gap:6px;text-align:start}
+button.cs-kind{border:0;font:inherit;color:inherit;cursor:pointer;align-items:flex-start}
+button.cs-kind:hover{box-shadow:inset 0 0 0 1.5px #b9cdf0}
+.cs-kind.sm{flex-direction:row;align-items:center;gap:10px;padding:12px}
+.cs-row{color:inherit;text-decoration:none}.cs-row:hover{box-shadow:inset 0 0 0 1.5px #b9cdf0}
+.cs-cta{background:linear-gradient(120deg,#eef4ff,#fff)}
+.teal-t{color:#0a7d70}
+.pick-tests{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px;max-height:260px;overflow:auto;padding:4px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--line)}
+/* v28: business page */
+.split-bar{display:flex;height:18px;border-radius:9px;overflow:hidden;gap:2px;background:#eef2f8}
+.split-bar i{display:block;height:100%;transition:width .35s ease}
+.split-rows{margin-top:12px}.split-rows .sr{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.split-rows .sr.tot{border:0;font-size:1.05rem}
+.split-rows .sw{width:12px;height:12px;border-radius:4px;flex:none}
+input[type=range]{width:100%;accent-color:var(--blue);height:28px}
+/* v28: the top menu never pushes the page wider than the screen */
+.topbar .nav{min-width:0;overflow:hidden;flex-wrap:nowrap}
+.topbar .nav a{white-space:nowrap}
+@media (max-width:1640px){.topbar .nav a[href="#/new"]{display:none}}
+@media (max-width:1520px){.topbar .nav a[href="#/install"]{display:none}}
+@media (max-width:1400px){.topbar .nav a[href="#/business"]{display:none}}
+@media (max-width:1240px){.topbar .nav a[href="#/contact"]{display:none}}
+@media (max-width:1120px){.topbar .nav a[href="#/about"]{display:none}}

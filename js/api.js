@@ -5,7 +5,7 @@ const KEY = 'sb_publishable_rVQ1jmPovakb-FMIgB1pUQ_BAoJlXMv';
 class ApiError extends Error { constructor(code){ super(code); this.code = code; } }
 /* reads are safe to repeat: they get one quick retry. Every call has a time limit, so a weak phone signal
    can never leave a screen waiting for ever (that used to block every tap after it). */
-const READS = /^(catalog|auth_me|order_get|orders_list|my_stats|programs_mine|program_lookup|notif_list|partners_public|nurse_profile|fleet_overview|admin_[a-z_]*s|admin_overview|admin_settings|kit_mine|nurses_today|support_mine|consult_[a-z]*list|consult_get|doctors_list)$/;
+const READS = /^(catalog|auth_me|order_get|orders_list|my_stats|programs_mine|program_lookup|notif_list|partners_public|nurse_profile|fleet_overview|admin_[a-z_]*s|admin_overview|admin_settings|kit_mine|nurses_today|support_mine|consult_list|consult_get|doctors_list|business_public)$/;
 async function send(fn, args, ms){
   const ctl = typeof AbortController === 'function' ? new AbortController() : null;
   const timer = ctl ? setTimeout(() => ctl.abort(), ms) : null;
@@ -85,6 +85,12 @@ window.API = {
   resetConfirm: (c, pw) => rpc('password_reset_confirm', { p_code:c, p_new:pw }),
   resetRequest: async (login) => { let r; try { r = await fetch('api/mail', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ action:'reset', login }) }); } catch(e) { throw new ApiError('NETWORK'); } const j = await r.json().catch(() => ({})); if (!r.ok) throw new ApiError(j.error || 'GENERIC'); return j; },
   demoAdvance: (id) => rpc('demo_advance', { p_token: tok(), p_id:id }),
+  business: () => rpc('business_public'),
+  doctors: (k) => rpc('doctors_list', { p_kind: k || 'pre' }),
+  consultCreate: (p) => rpc('consult_create', { p_token: tok(), p }),
+  consults: () => rpc('consult_list', { p_token: tok() }),
+  consult: (id) => rpc('consult_get', { p_token: tok(), p_id: id }),
+  consultAction: (id, a, p) => rpc('consult_action', { p_token: tok(), p_id: id, p_action: a, p: p || {} }),
   setToken: (t) => t ? localStorage.setItem('lah_token', t) : localStorage.removeItem('lah_token'),
   hasToken: () => !!tok()
 };
