@@ -1,7 +1,8 @@
 # Videos
 
-## Story film (v28) — `media/iLabAtHome_Story.mp4`
-Flat motion graphics drawn from the site's own illustrations; every frame is computed from time `t` in an HTML page and captured with Playwright at 30 fps, then encoded with ffmpeg.
+## Story film (v29) — `media/iLabAtHome_Story.mp4`
+v29: each scene is a Pixar-style picture (Figma AI) with a slow camera move, headline card, info chips and the hologram logo; light music composed in code (piano-style arpeggios + pad, C–Am–F–G, 92 bpm) under the narration.
+v28 (replaced): flat motion graphics drawn from the site's own illustrations; every frame is computed from time `t` in an HTML page and captured with Playwright at 30 fps, then encoded with ffmpeg.
 - Voice: Kokoro (open model, `kokoro-onnx`, files from Hugging Face `fastrtc/kokoro-onnx`), voice `am_michael`, speed 0.96, one clip per sentence, 0.55 s gaps.
 - Clarity check: faster-whisper `small.en` transcribed the narration back almost word for word.
 - Music: soft synthesized pad, −16 LUFS overall loudness.

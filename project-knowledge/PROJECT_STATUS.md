@@ -1,5 +1,14 @@
 # Project status — last updated 2026-11-24
 
+## v29 (pushed to `lab-at-home`, not deployed yet)
+- Logo: back to the **approved hexagon + flask** everywhere (header, app icons, link image, explainer). On the site it is a **hologram**: colour sweep along the lines, bubbles rising in the flask, twinkling spark; large version (splash) floats in 3D with a scan line.
+- Pictures: Pixar/Disney-style art generated with Figma AI (file "iLab@home v29 art"): 5 banners × phone/desktop, the van (real logo on its side), 4 consult doctors, film scenes. Rules: women in a full, loosely draped Gulf shayla hijab; men in uniforms (nurse, dentist, courier) bare-headed — never a kumma with scrubs/coat.
+- Home banners: no 3D any more; pictures on every device with a slow camera move (transform only), so phones move again.
+- Sign-in/sign-up and splash: the real van (cut-out picture) drives in.
+- Team: Rahaf Al Wardi and Alzahraa Al Busaidi (nurses) added on the About page, footer and presentation. Each member has an emoji-style animated job icon (developer, cybersecurity, HR, nurse; the advisor has a golden halo).
+- Brand & merch page removed from the site. Exhibition mockups (graphics only, no people) are in `project-knowledge/merch/`.
+- Story film rebuilt from the Pixar-style scenes with camera moves, info chips, the hologram logo and light music under the same English narration and Arabic subtitles. Dental doctors in the film and site are Dr. Rahma and Dr. Talal; Dr. Hilal is family medicine only.
+
 ## v28 (branch `lab-at-home`, pushed; production deploy waits for the owner's OK)
 - **Speed & stability**: every API call has a time limit (reads retry once) so a weak signal never freezes the app; the app opens at once from the saved profile and catalog; a weak signal no longer signs people out; thin progress line on every tap; cart badge on the phone tab bar; stale cart items are dropped.
 - **Maps**: always under the bars/buttons (own layer), fixed height, booking map is tap-to-pin on phones (page scroll works), no wheel-zoom hijack on desktop; Leaflet loads only on map screens; Google Fonts no longer block loading.

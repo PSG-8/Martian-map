@@ -10,5 +10,6 @@
 - **Results follow lab practice (v28)** — a value just outside the range is "slightly high/low" and stays *normal with tips*; only clearly abnormal values ask for a doctor; *urgent* only above true critical limits. Women and children have their own ranges.
 - **Money split (v28, planning figures)** — visit fee 5.000: nurse 3.000 (+ level bonus), courier 1.000, kit 0.500, platform 0.500; labs get 65% of test prices; consult 4.000 (doctor 75%); home dental 12.000 (dentist 65%). The previous setting paid the whole visit fee to the nurse, leaving the company nothing.
 - **Video consults use meet.jit.si links** — free, no accounts; chat consults use WhatsApp.
-- **Videos (v28)** — no AI-generated people. Motion graphics from the site's own drawings; English narration (Kokoro, open model) with Arabic subtitles, at the owner's request.
-- **New logo (v28)** — roof + blood drop + cross + orange dot, bold enough for small sizes and merchandise; brand spelled iLab@home.
+- **Videos & pictures (v29)** — Pixar/Disney style, realistic lighting; still pictures with camera moves (no AI video, so no animation glitches); English narration (Kokoro) + Arabic subtitles + light music.
+- **Modesty rules for all art** — full Gulf-style hijab for women; no kumma with medical uniforms; no people printed on merchandise.
+- **Logo (v29)** — the approved hexagon + flask is the only logo (the v28 roof/drop logo was dropped). Animated as a hologram on the site.

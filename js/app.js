@@ -1633,7 +1633,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 28;
+const APP_V = 29;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -2158,12 +2158,12 @@ Object.assign(I18N.en, { new_vid2:'iLab@home in one minute', new_sub2:'English n
   nw28a:'Doctor & dentist consultations', nw28ad:'Video or voice calls with a male or female doctor before your tests or after your results, plus online and home dentists.',
   nw28b:'Results read like a real lab', nw28bd:'Separate ranges for women and children, “slightly outside” values stay normal with tips, and only true emergencies are marked urgent.',
   nw28c:'Premarital screening', nw28cd:'The Ministry of Health premarital tests at home, fully confidential. DNA tests are coming soon.',
-  nw28d:'New logo, faster everywhere', nw28dd:'A new iLab@home logo, a smoother site on phones and computers, and the van that drives in when you sign up.' });
+  nw28d:'Pixar-style pictures & hologram logo', nw28dd:'New pictures of our nurses, families and van, a moving hologram logo, banners that move on phones, and the van that drives in when you sign up.' });
 Object.assign(I18N.ar, { new_vid2:'آي لاب@هوم في دقيقة', new_sub2:'تعليق بالإنجليزي · ترجمة عربية',
   nw28a:'استشارات الأطباء وأطباء الأسنان', nw28ad:'مكالمة فيديو أو صوت مع طبيب أو طبيبة قبل الفحص أو بعد النتائج، وطبيب أسنان أونلاين وفي البيت.',
   nw28b:'قراءة نتائج مثل المختبر الحقيقي', nw28bd:'معدلات خاصة للنساء والأطفال، والقيم الخارجة بشكل بسيط تبقى طبيعية مع نصائح، وما يُعتبر عاجلاً إلا الطوارئ الحقيقية.',
   nw28c:'فحص ما قبل الزواج', nw28cd:'فحوصات برنامج وزارة الصحة لما قبل الزواج في بيتك وبسرية تامة. وفحوصات الجينات قريباً.',
-  nw28d:'شعار جديد وسرعة أكثر', nw28dd:'شعار آي لاب@هوم الجديد، وموقع أسلس على الجوال والكمبيوتر، والفان اللي يدخل لما تسجّل.' });
+  nw28d:'صور بأسلوب بيكسار وشعار هولوغرام', nw28dd:'صور جديدة للممرضين والعائلات والفان، وشعار هولوغرام متحرك، وبنرات تتحرك على الجوال، والفان اللي يدخل لما تسجّل.' });
 /* money rules (fallbacks match the database settings) */
 let BIZ = null;
 const BIZ0 = { home_fee:5, nurse_fee:3, courier_fee:1, kit_cost:0.5, lab_share:0.65, pay_fee_pct:0.025, nurse_bonus:[0,0.25,0.5,0.75], consult_fee:4, consult_post_fee:3, consult_doctor_share:0.75, dental_home_fee:12, dental_home_share:0.65,
