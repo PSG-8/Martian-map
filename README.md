@@ -1,4 +1,4 @@
-# Lab@Home
+# iLab@home
 
 Home laboratory testing platform for Oman (student business concept).
 Patients book tests, licensed nurses collect samples at home, couriers move them to partner labs, labs publish verified reports.
@@ -10,5 +10,5 @@ Patients book tests, licensed nurses collect samples at home, couriers move them
 
 Demo accounts (password `Demo@2026`): patient@, nurse@, courier@, lab@, company@, admin@ `demo.labathome.om`.
 
-Concept by Ansam Al Noumani, Jokha Al Rawahi and Bilarab Al Musallami, supervised by Dr. Salim Al-Rashdi.
+Concept by Bilarab Al Musallami (platform developer), Jokha Al Rawahi, Ansam Al Noumani and Tasnim Al Hasani, supervised by Dr. Salim Al-Rashdi.
 Prices, partners and demo data are illustrative. The platform coordinates home sample collection and does not provide medical diagnosis.
