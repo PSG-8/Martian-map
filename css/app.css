@@ -733,7 +733,7 @@ button.link{min-height:44px;display:inline-flex;align-items:center;gap:6px}
 .h3-s.dark .btn.ghost{background:rgba(255,255,255,.12);color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)}
 .h3-cta{display:flex;gap:10px;flex-wrap:wrap}
 .h3-s.on .h3-e{animation:h3up .6s .05s both}.h3-s.on h2{animation:h3up .7s .12s both}.h3-s.on p{animation:h3up .7s .22s both}.h3-s.on .h3-cta{animation:h3up .7s .32s both}
-@keyframes h3up{from{opacity:0;transform:translateY(22px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+@keyframes h3up{from{opacity:0;transform:translate3d(0,18px,0)}to{opacity:1;transform:none}}
 .h3-nav{position:absolute;inset-inline:0;bottom:22px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
 .h3.compact .h3-nav{padding:0 30px}
 .h3-dots{display:flex;gap:8px;pointer-events:auto}
@@ -819,3 +819,20 @@ button.link{min-height:44px;display:inline-flex;align-items:center;gap:6px}
 @media (max-width:1380px){.topbar .brand small{display:none}}
 @media (max-width:1200px){.topbar .nav a[href="#/install"]{display:none}}
 @media (max-width:1060px){.topbar .nav a[href="#/new"]{display:none}}
+/* v28: maps live in their own layer — they can never draw over the top bar, tab bar, buttons or pop-ups */
+.leaflet-container{position:relative;z-index:0;isolation:isolate;contain:layout paint}
+.mapbox,#bmap,#omap,#cmap{position:relative;z-index:0;isolation:isolate;overflow:hidden}
+#omap{height:220px!important;min-height:220px}
+@media(min-width:901px){#omap{height:280px!important}}
+.leaflet-control-container .leaflet-top,.leaflet-control-container .leaflet-bottom{z-index:5}
+/* phones: the booking map no longer swallows the scroll — one finger scrolls the page, a tap moves the pin, pinch zooms */
+.map-tap.leaflet-container{touch-action:pan-x pan-y}
+@media(max-width:900px){.mapbox{height:230px}}
+/* v28: lighter banner — no zoom animation on phones/tablets, pictures fade only */
+@media (max-width:1024px),(pointer:coarse){.h3-im.on img{animation:none;transform:none}.h3-im img{transform:none}}
+.h3-im{will-change:opacity}
+/* v28: tap feedback line while the next screen loads */
+#navbar{position:fixed;top:0;left:0;right:0;height:3px;z-index:9999;pointer-events:none;background:linear-gradient(90deg,#2563eb,#14b8a6);transform:scaleX(0);transform-origin:0 50%;opacity:0;transition:opacity .2s}
+#navbar.on{opacity:1;animation:navgo 1.6s cubic-bezier(.2,.7,.2,1) forwards}
+[dir=rtl] #navbar{transform-origin:100% 50%}
+@keyframes navgo{from{transform:scaleX(.05)}to{transform:scaleX(.85)}}

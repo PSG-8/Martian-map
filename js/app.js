@@ -51,7 +51,22 @@ function modal(html, mount){
 }
 function confirmBox(msg, yes, no){ return new Promise(r => modal(`<h3>${esc(msg)}</h3><div class="row" style="margin-top:18px"><button class="btn ghost grow" data-n>${esc(no||t('cancel'))}</button><button class="btn red grow" data-y>${esc(yes||t('confirm'))}</button></div>`, (el, close) => { $('[data-y]', el).onclick = () => { close(); r(true); }; $('[data-n]', el).onclick = () => { close(); r(false); }; })); }
 function setLang(l){ S.lang = l; localStorage.setItem('lah_lang', l); document.documentElement.lang = l; document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr'; document.title = 'iLab@Home · ' + t('brand_sub'); }
-async function loadCatalog(){ if (!S.catalog) { S.catalog = await API.catalog(); S.catalog.T = {}; S.catalog.tests.forEach(x => S.catalog.T[x.id] = x); S.catalog.P = {}; S.catalog.packages.forEach(x => S.catalog.P[x.id] = x); } return S.catalog; }
+/* catalog: shown at once from the copy saved on this device, then refreshed from the server in the background */
+let CATP = null; const CAT_KEY = 'lah_cat_v2';
+function setCatalog(c){ c.T = {}; c.tests.forEach(x => c.T[x.id] = x); c.P = {}; c.packages.forEach(x => c.P[x.id] = x); S.catalog = c;
+  /* drop cart items that no longer exist (an old item made the cart look full but open empty) */
+  const pk = S.cart.packages.filter(id => c.P[id]), ts = S.cart.tests.filter(id => c.T[id]);
+  if (pk.length !== S.cart.packages.length || ts.length !== S.cart.tests.length) { S.cart = { packages: pk, tests: ts }; saveCart(); } }
+async function loadCatalog(){
+  if (S.catalog) return S.catalog;
+  if (!CATP) {
+    let cached = null; try { cached = JSON.parse(localStorage.getItem(CAT_KEY) || 'null'); } catch(e) {}
+    const fresh = API.catalog().then(c => { try { localStorage.setItem(CAT_KEY, JSON.stringify(c)); } catch(e) {} setCatalog(c); return S.catalog; });
+    if (cached && Array.isArray(cached.tests)) { setCatalog(cached); fresh.catch(() => {}); CATP = Promise.resolve(S.catalog); }
+    else CATP = fresh.catch(e => { CATP = null; throw e; });
+  }
+  return CATP;
+}
 const fee = () => S.catalog ? Number(S.catalog.home_fee) : 5;
 function pkgFull(p){ return p.test_ids.reduce((s, id) => s + Number((S.catalog.T[id]||{}).price || 0), 0); }
 function cartCalc(){
@@ -164,9 +179,14 @@ function footer(){
     <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
     <p class="xs" style="opacity:.6;margin-top:24px">© 2026 iLab@Home · Oman</p></div></footer>`;
 }
+/* map library: loaded only when a screen shows a map (it used to load on every page) */
+let LREQ = false;
+function needL(){ if (window.L || LREQ) return; LREQ = true;
+  const c = document.createElement('link'); c.rel = 'stylesheet'; c.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; c.crossOrigin = ''; document.head.appendChild(c);
+  const j = document.createElement('script'); j.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; j.crossOrigin = ''; j.async = true; j.onerror = () => { LREQ = false; }; document.head.appendChild(j); }
 function covMap(){
   const el = $('#cov-map'); if (!el) return;
-  const draw = () => { if (!window.L || !S.catalog) return setTimeout(draw, 200);
+  const draw = () => { if (!(needL(), window.L) || !S.catalog) return setTimeout(draw, 200);
     const touch = matchMedia('(pointer:coarse)').matches; const m = L.map(el, { scrollWheelZoom:false, attributionControl:true, dragging:!touch, touchZoom:!touch, doubleClickZoom:!touch, tap:false }).setView([22.72, 58.55], 9);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:18, attribution:'© OpenStreetMap' }).addTo(m);
     S.catalog.wilayats.forEach(w => { const ll = WILAYAT_LL[w]; if (!ll) return;
@@ -477,9 +497,9 @@ function bookMap(b){
       () => { b.gps = 'denied'; updBanner(); }, { enableHighAccuracy:true, timeout:10000, maximumAge:60000 }); };
   const updBanner = () => { const bn = $('#gpsb'); if (!bn) return; bn.className = 'banner ' + (b.gps === 'ok' ? 'teal' : b.gps === 'denied' || b.gps === 'far' ? 'amber' : 'blue');
     $('b', bn).textContent = b.gps === 'ok' ? t('gps_ok') : t('gps_ask_t'); $('.small', bn).textContent = b.gps === 'denied' ? t('gps_denied') : b.gps === 'far' ? t('gps_far',{w:wN(b.wilayat)}) : t('gps_ask_p'); };
-  const draw = () => { if (!document.body.contains(el)) return; if (!window.L) { if (!b.gps) { b.gps = 'asked'; askGps(null); } $('#gps').onclick = () => askGps(null); return setTimeout(draw, 300); }
+  const draw = () => { if (!document.body.contains(el)) return; if (!(needL(), window.L)) { if (!b.gps) { b.gps = 'asked'; askGps(null); } $('#gps').onclick = () => askGps(null); return setTimeout(draw, 300); }
     const ll = b.lat && b.lng ? [b.lat, b.lng] : (WILAYAT_LL[b.wilayat] || WILAYAT_LL.Ibra);
-    const m = L.map(el, { zoomControl:true, tap:false }).setView(ll, b.lat ? 16 : 13); el.classList.add('map-touch');
+    const touch = matchMedia('(pointer:coarse)').matches; const m = L.map(el, { zoomControl:true, tap:false, dragging:!touch, scrollWheelZoom:false, touchZoom:'center', bounceAtZoomLimits:false }).setView(ll, b.lat ? 16 : 13); if (touch) el.classList.add('map-tap');
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(m);
     const mk = L.marker(ll, { draggable:true }).addTo(m);
     const set = p => { b.lat = +p.lat.toFixed(6); b.lng = +p.lng.toFixed(6); };
@@ -504,7 +524,7 @@ async function viewOrder(id){
   let o;
   try { o = await API.order(id); } catch(e) { app.innerHTML = shell('', emptyBox(errMsg(e))); return; }
   drawOrder(o);
-  if (ACTIVE(o.status)) S.timers.push(setInterval(async () => { if (!location.hash.includes('/order/' + id) || document.hidden) return; try { const n = await API.order(id); if (n.updated_at !== o.updated_at && !$('.modal-bg') && !$('#results-form')) { o = n; drawOrder(o); } } catch(e) {} }, 8000));
+  if (ACTIVE(o.status)) S.timers.push(setInterval(async () => { if (!location.hash.includes('/order/' + id) || document.hidden) return; const ae = document.activeElement; if (ae && ae.matches && ae.matches('input,textarea,select')) return; try { const n = await API.order(id); if (n.updated_at !== o.updated_at && !$('.modal-bg') && !$('#results-form')) { o = n; const y = window.scrollY; drawOrder(o); window.scrollTo(0, y); } } catch(e) {} }, 8000));
 }
 const STEP_IC = { booked:'cal', assigned:'check', on_the_way:'truck', arrived:'pin', collected:'syringe', in_transit:'van', at_lab:'flask', processing:'gear', completed:'file' };
 const STEP_ROLE = { booked:'patient', assigned:'nurse', on_the_way:'nurse', arrived:'nurse', collected:'nurse', in_transit:'courier', at_lab:'courier', processing:'lab', completed:'lab' };
@@ -621,7 +641,7 @@ function drawOrder(o){
   if ($('[data-ics]')) $('[data-ics]').onclick = () => { icsDownload(o); toast(t('cal_ok')); };
   if ($('[data-copy]')) $('[data-copy]').onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(o.code) : Promise.reject()).then(() => toast(t('copied'))).catch(() => toast(o.code)); };
   if ($('[data-again]')) $('[data-again]').onclick = async () => { await loadCatalog(); const ids = (o.tests || []).map(x => x.id).filter(id => S.catalog.T[id]); S.cart = { packages: [], tests: ids }; saveCart(); toast(t('again_ok')); go('app/cart'); };
-  if ($('#omap')) { const draw = () => { if (!window.L) return setTimeout(draw, 200); const touch = matchMedia('(pointer:coarse)').matches; const m = L.map('omap', { scrollWheelZoom:false, dragging:!touch, tap:false }).setView([o.lat, o.lng], o.address ? 15 : 12); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(m); if (o.address) L.marker([o.lat, o.lng]).addTo(m); else L.circle([o.lat, o.lng], { radius:1500, color:'#2563eb' }).addTo(m); }; draw(); }
+  if ($('#omap')) { const draw = () => { if (!(needL(), window.L)) return setTimeout(draw, 200); const touch = matchMedia('(pointer:coarse)').matches; const m = L.map('omap', { scrollWheelZoom:false, dragging:!touch, tap:false }).setView([o.lat, o.lng], o.address ? 15 : 12); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(m); if (o.address) L.marker([o.lat, o.lng]).addTo(m); else L.circle([o.lat, o.lng], { radius:1500, color:'#2563eb' }).addTo(m); }; draw(); }
 }
 
 function rateBox(o){
@@ -1023,7 +1043,8 @@ function toastCart(){
 
 function refreshCartBadges(){
   const n = cartCount();
-  $$('a[aria-label="' + t('m_cart') + '"]').forEach(a => { const d = $('.dot', a); if (n) { if (d) d.textContent = n; else a.insertAdjacentHTML('beforeend', `<span class="dot">${n}</span>`); } else if (d) d.remove(); });
+  $$('a[aria-label="' + t('m_cart') + '"], .tabbar a[href="#/app/cart"]').forEach(a => { const d = $('.dot', a); if (n) { if (d) d.textContent = n; else a.insertAdjacentHTML('afterbegin', `<span class="dot">${n}</span>`); } else if (d) d.remove(); });
+  $$('.side a[href="#/app/cart"], .drawer a[href="#/app/cart"], nav a[href="#/app/cart"]').forEach(a => { if (a.closest('.tabbar')) return; const c = $('.chip.red', a); if (n) { if (c) c.textContent = n; else a.insertAdjacentHTML('beforeend', `<span class="chip red">${n}</span>`); } else if (c) c.remove(); });
 }
 
 function menuItems(){
@@ -1462,14 +1483,17 @@ function bindGlobal(){
   bindGo();
 }
 let rendering = false, rerender = false, lastRoute = null;
+function saveUser(){ try { if (S.user) localStorage.setItem('lah_user', JSON.stringify(S.user)); else localStorage.removeItem('lah_user'); } catch(e) {} }
+/* thin progress line at the top: shows at once that a tap was received while the next screen loads */
+function navBar(on){ let b = document.getElementById('navbar'); if (!b) { b = document.createElement('div'); b.id = 'navbar'; document.body.appendChild(b); } clearTimeout(b._t); if (on) { b._t = setTimeout(() => b.classList.add('on'), 120); } else { b.classList.remove('on'); } }
 async function render(){
-  if (rendering) { rerender = true; return; }
-  rendering = true; rerender = false;
+  if (rendering) { rerender = true; navBar(true); return; }
+  rendering = true; rerender = false; navBar(true);
   try { await renderNow(); } finally { rendering = false; }
-  if (rerender) render();
+  if (rerender) render(); else navBar(false);
 }
 async function renderNow(){
-  clearTimers();
+  clearTimers(); saveUser();
   const route = location.hash.split('?')[0];
   if (route !== lastRoute) { lastRoute = route; app.classList.remove('pg'); void app.offsetWidth; app.classList.add('pg'); $$('#modal-root .modal-bg, #modal-root .drawer-bg').forEach(m => m._close ? m._close() : m.remove()); document.body.classList.remove('lock', 'kb'); }
   const h = (location.hash.slice(2) || '').split('#')[0];
@@ -1889,7 +1913,7 @@ function heroSlides(){
 }
 function heroHtml(compact){
   const sl = heroSlides();
-  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => `<picture class="h3-im ${i ? '' : 'on'}"><source media="(max-width:760px)" srcset="img/hero/h${i}m.jpg"><img src="img/hero/h${i}d.jpg" alt="" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async"></picture>`).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : ''; return `<picture class="h3-im ${i ? '' : 'on'}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${i}m.webp" type="image/webp"><source ${a}srcset="img/hero/h${i}d.webp" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${i}m.jpg"><img ${a}src="img/hero/h${i}d.jpg" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
     <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
       <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
     <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
@@ -1903,8 +1927,13 @@ function bindHero(){
   const root = $('#h3'); if (!root) return; const n = $$('.h3-s', root).length; let i = 0, timer = null, paused = false;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; const DUR = 6500;
   let mod = null;
+  /* banner pictures after the first are fetched only when needed (the next one a slide ahead) */
+  const wake = k => { const pic = $$('.h3-im', root)[(k + n) % n]; if (!pic || pic._w) return; pic._w = true; $$('[data-srcset]', pic).forEach(x => { x.srcset = x.dataset.srcset; delete x.dataset.srcset; }); const im = $('img[data-src]', pic); if (im) { im.src = im.dataset.src; delete im.dataset.src; } };
   const go3 = k => { i = (k + n) % n; root.dataset.i = i; $$('.h3-s', root).forEach((s, j) => { s.classList.toggle('on', j === i); s.setAttribute('aria-hidden', j === i ? 'false' : 'true'); });
-    $$('.h3-dots button', root).forEach((d, j) => { d.classList.toggle('on', j === i); d.classList.remove('run'); if (j === i && !reduce && !paused) { void d.offsetWidth; d.classList.add('run'); } });
+    $$('.h3-dots button', root).forEach((d, j) => { d.classList.toggle('on', j === i); d.classList.remove('run'); });
+    /* restart the progress bar on the next frames instead of forcing a full-page layout (that caused a stutter at every slide change) */
+    const dot = $$('.h3-dots button', root)[i]; if (dot && !reduce && !paused) requestAnimationFrame(() => requestAnimationFrame(() => dot.classList.add('run')));
+    wake(i); wake(i + 1);
     $$('.h3-im', root).forEach((m, j) => m.classList.toggle('on', j === i));
     const cv = $('.h3-c', root); if (mod) { cv.classList.add('swap'); setTimeout(() => { mod.show(i); cv.classList.remove('swap'); }, 220); } };
   const arm = () => { clearInterval(timer); if (reduce) return; timer = setInterval(() => { if (!paused && !document.hidden) go3(i + 1); }, DUR); S.timers.push(timer); };
@@ -2008,7 +2037,14 @@ async function boot(){
   setLang(S.lang);
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installEvt = e; if (location.hash.startsWith('#/install')) render(); });
   window.addEventListener('appinstalled', () => { S.installEvt = null; if (location.hash.startsWith('#/install')) render(); });
-  if (API.hasToken()) { try { const r = await API.me(); S.user = r.user; S.unread = r.unread; } catch(e) { API.setToken(null); } }
+  /* signed in before: open at once with the saved profile and check it with the server in the background.
+     Only a real "session ended" answer signs the person out; a weak signal no longer does. */
+  if (API.hasToken()) {
+    let cu = null; try { cu = JSON.parse(localStorage.getItem('lah_user') || 'null'); } catch(e) {}
+    const check = API.me().then(r => { S.user = r.user; S.unread = r.unread; saveUser(); return true; }).catch(e => { if (e.code === 'AUTH_REQUIRED') { S.user = null; saveUser(); return false; } return null; });
+    if (cu && cu.id) { S.user = cu; check.then(ok => { if (ok === false && location.hash.startsWith('#/app')) go('login'); }); }
+    else await check;
+  }
   window.addEventListener('hashchange', render);
   appFeel();
   splashIntro();

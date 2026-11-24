@@ -3,11 +3,22 @@
 const URL = 'https://ufykiqxsegyuyablrjsq.supabase.co/rest/v1/rpc/';
 const KEY = 'sb_publishable_rVQ1jmPovakb-FMIgB1pUQ_BAoJlXMv';
 class ApiError extends Error { constructor(code){ super(code); this.code = code; } }
+/* reads are safe to repeat: they get one quick retry. Every call has a time limit, so a weak phone signal
+   can never leave a screen waiting for ever (that used to block every tap after it). */
+const READS = /^(catalog|auth_me|order_get|orders_list|my_stats|programs_mine|program_lookup|notif_list|partners_public|nurse_profile|fleet_overview|admin_[a-z_]*s|admin_overview|admin_settings|kit_mine|nurses_today|support_mine|consult_[a-z]*list|consult_get|doctors_list)$/;
+async function send(fn, args, ms){
+  const ctl = typeof AbortController === 'function' ? new AbortController() : null;
+  const timer = ctl ? setTimeout(() => ctl.abort(), ms) : null;
+  try { return await fetch(URL + fn, { method:'POST', headers:{ 'apikey':KEY, 'Authorization':'Bearer '+KEY, 'Content-Type':'application/json', 'Accept':'application/json' }, body: JSON.stringify(args||{}), signal: ctl ? ctl.signal : undefined }); }
+  finally { if (timer) clearTimeout(timer); }
+}
 async function rpc(fn, args){
-  let res;
-  try {
-    res = await fetch(URL + fn, { method:'POST', headers:{ 'apikey':KEY, 'Authorization':'Bearer '+KEY, 'Content-Type':'application/json', 'Accept':'application/json' }, body: JSON.stringify(args||{}) });
-  } catch(e){ throw new ApiError('NETWORK'); }
+  let res; const read = READS.test(fn);
+  try { res = await send(fn, args, read ? 9000 : 20000); }
+  catch(e){
+    if (!read) throw new ApiError(e && e.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK');
+    try { await new Promise(r => setTimeout(r, 600)); res = await send(fn, args, 12000); } catch(e2){ throw new ApiError(e2 && e2.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK'); }
+  }
   const txt = await res.text();
   let data = null; try { data = txt ? JSON.parse(txt) : null; } catch(e){ data = txt; }
   if (!res.ok) {
