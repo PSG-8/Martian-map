@@ -74,12 +74,22 @@ const P = {
 function icon(name, size, sw){ return `<svg viewBox="0 0 24 24" width="${size||22}" height="${size||22}" fill="none" stroke="currentColor" stroke-width="${sw||1.9}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name]||''}</svg>`; }
 
 let _lg=0;
-/* v28 logo: a home roof over a blood drop with a medical cross, and an orange "at home" dot. Bold enough for an app icon, a pen or a cap. */
-const MARK_IN = (c) => `<path d="M14.5 30.5 32 15.5l17.5 15" stroke="${c.fg}" stroke-width="6.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 25.5c-5.6 6.4-10.4 12.3-10.4 17.6a10.4 10.4 0 0 0 20.8 0c0-5.3-4.8-11.2-10.4-17.6z" fill="${c.fg}"/><path d="M32 38.2v9.6M27.2 43h9.6" stroke="${c.cross}" stroke-width="3.2" stroke-linecap="round"/><circle cx="48.6" cy="15.8" r="4.4" fill="${c.dot}"/>`;
+/* the approved iLab@home logo: hexagon + lab flask. v29: hologram — a colour sweep runs along the lines,
+   bubbles rise in the flask and the spark twinkles (SVG animation, tiny and cheap). */
 let MARK_N = 0;
-function markSvg(o){ const c = Object.assign({ bg:'grad', fg:'#fff', cross:'#2563eb', dot:'#f97316', r:16 }, o || {}); const id = 'lg' + (c.id || '') + '_' + (++MARK_N);
-  const bg = c.bg === 'none' ? '' : c.bg === 'grad' ? `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset=".55" stop-color="#2563eb"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient></defs><rect width="64" height="64" rx="${c.r}" fill="url(#${id})"/>` : `<rect width="64" height="64" rx="${c.r}" fill="${c.bg}"/>`;
-  return `<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"${c.size ? ` width="${c.size}" height="${c.size}"` : ''}>${bg}${MARK_IN(c)}</svg>`; }
+function markSvg(o){ const c = Object.assign({ fg: null, still: false, size: 0 }, o || {}); const n = ++MARK_N, g = 'hg' + n;
+  const st = c.fg || `url(#${g})`;
+  const anim = c.still ? '' : `<animateTransform attributeName="gradientTransform" type="translate" from="-1 -1" to="1 1" dur="3.2s" repeatCount="indefinite"/>`;
+  const bub = (cx, cy, r, d, b) => c.still ? `<circle cx="${cx}" cy="${cy}" r="${r}" stroke="${st}" stroke-width="1.4"/>` : `<circle cx="${cx}" cy="${cy}" r="${r}" stroke="${st}" stroke-width="1.4"><animate attributeName="cy" values="${cy};${cy - 7};${cy}" dur="${d}s" begin="${b}s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.25;1" dur="${d}s" begin="${b}s" repeatCount="indefinite"/></circle>`;
+  return `<svg class="mark holo-mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round"${c.size ? ` width="${c.size}" height="${c.size}"` : ''}>
+  ${c.fg ? '' : `<defs><linearGradient id="${g}" x1="0" y1="0" x2="1" y2="1" spreadMethod="reflect"><stop offset="0" stop-color="#3b82f6"/><stop offset=".35" stop-color="#22d3ee"/><stop offset=".55" stop-color="#60a5fa"/><stop offset=".75" stop-color="#a78bfa"/><stop offset="1" stop-color="#3b82f6"/>${anim}</linearGradient></defs>`}
+  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="${st}" stroke-width="3.2"/>
+  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="${st}" stroke-width="1.6" opacity=".9"/>
+  <g transform="rotate(-32 32 34)" stroke="${st}" stroke-width="2.2"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/>${bub(29.6, 40.4, 1.6, 2.6, 0)}${bub(34.6, 39.4, 1, 2.1, .7)}</g>
+  ${bub(20.6, 20.2, 1.3, 3, .3)}<circle cx="17.6" cy="15.6" r=".9" stroke="${st}" stroke-width="1.2"/>
+  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="${st}" stroke-width="1.3">${c.still ? '' : '<animate attributeName="opacity" values="1;.2;1" dur="1.8s" repeatCount="indefinite"/>'}</path></svg>`; }
+/* large hologram version: glass disc, light sweep and scan lines around the animated logo */
+function holo(size){ return `<span class="holo" style="--s:${size || 160}px">${markSvg()}<i class="holo-scan"></i></span>`; }
 function logoFn(){ return markSvg(); }
 const WORDMARK = `<span class="wm" dir="ltr" role="img" aria-label="iLab@home"><i>i</i>Lab<i>@</i>home</span>`;
 
@@ -188,5 +198,5 @@ const welcomeArt = `<svg viewBox="0 0 220 180" aria-hidden="true"><circle cx="13
 
 const steps = ['user','search','cal','card','pin','syringe','van','flask','check','file'];
 
-window.ART = { icon, get logo(){ return logoFn(); }, markSvg, wordmark: WORDMARK, hero, catIcon, roleIcon, emptyArt, welcomeArt, steps };
+window.ART = { icon, get logo(){ return logoFn(); }, markSvg, holo, wordmark: WORDMARK, hero, catIcon, roleIcon, emptyArt, welcomeArt, steps };
 })();

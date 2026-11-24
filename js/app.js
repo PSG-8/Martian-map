@@ -175,7 +175,7 @@ async function viewHow(){
 function footer(){
   return `<footer class="site"><div class="wrap-w"><div class="row wrap between" style="gap:20px;align-items:flex-start">
     <div style="max-width:520px"><div class="brand">${brandInner()}</div><p class="small" style="margin-top:12px">${t('foot_note')}</p><p class="xs" style="opacity:.75">${t('foot_team')}</p></div>
-    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/dental">${t('m_dental')}</a><a href="#/business">${t('m_business')}</a><a href="#/brand">${t('m_brand')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
+    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/dental">${t('m_dental')}</a><a href="#/business">${t('m_business')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
     <p class="xs" style="opacity:.6;margin-top:24px">© 2026 iLab@home · Oman</p></div></footer>`;
 }
 /* map library: loaded only when a screen shows a map (it used to load on every page) */
@@ -753,7 +753,7 @@ async function viewReport(id){
   bindCare(o, () => viewReport(id));
   /* real PDF file, made on the phone; prepared in advance so the tap opens the save/share sheet at once */
   const ar = S.lang === 'ar';
-  const pdfData = { lang: S.lang, logo: A.logo, contact: `WhatsApp / Call ${CONTACT.phone}  ·  ${CONTACT.email}`, code: o.code, lab: o.lab ? o.lab.name : '', licence: o.lab && o.lab.license ? t('licence') + ': ' + o.lab.license : '', flags,
+  const pdfData = { lang: S.lang, logo: A.markSvg({ fg:'#ffffff', still:true }), contact: `WhatsApp / Call ${CONTACT.phone}  ·  ${CONTACT.email}`, code: o.code, lab: o.lab ? o.lab.name : '', licence: o.lab && o.lab.license ? t('licence') + ': ' + o.lab.license : '', flags,
     title: `iLab@home ${o.code}`,
     t: { title: t('report_t'), analyte: t('analyte'), result: t('result'), range: t('ref_range'), flag: t('flag'), insight: t('insight_t'), disclaimer: t('report_disclaimer'), summary: t('lv_'+LVL+'_t') + ' · ' + (flags ? t('some_flags',{n:flags}) : t('all_normal')) },
     info: [[t('patient'), p.name || '—'], [t('age') + ' / ' + t('sex'), `${p.dob ? age(p.dob) : '—'} / ${p.gender ? t(p.gender) : '—'}`], [t('request'), o.code], [t('collected_at'), ce ? fmtDT(ce.at) : '—'], [t('reported_at'), fmtDT(o.published_at)], [t('verified_by'), o.verified_by || '—']],
@@ -1077,7 +1077,6 @@ function menuItems(){
   h += it('about', 'users', t('m_about') + ' · ' + t('m_team'));
   h += it('how', 'globe', t('nav_how'));
   h += it('business', 'chart', t('m_business'));
-  h += it('brand', 'shirt', t('m_brand'));
   if (!u) h += it('register?partner=1', 'building', t('m_join'));
   h += '<hr class="sep">';
   h += `<button class="mi" data-lang>${ic('globe')}<span class="grow">${t('lang')}</span></button>`;
@@ -1194,7 +1193,6 @@ async function viewSupport(){
 const STAR = '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z" fill="currentColor"/></svg>';
 async function viewAbout(){
   await loadCatalog().catch(() => {});
-  const team = [['Bilarab bin Suwailam Al Musallami','بلعرب بن سويلم المسلمي','dev','#2563eb'],['Jokha Al Rawahi','جوخة الرواحي','member','#e8466f'],['Ansam Al Noumani','أنسام النعماني','member','#7a5af8'],['Tasnim Al Hasani','تسنيم الحسني','member','#14b8a6'],['Dr. Salim Al Rashdi','د. سالم الراشدي','supervisor','#0fae9b']];
   const values = [['heart','v_care'],['shield','v_trust'],['pin','v_access'],['award','v_quality'],['eye','v_transp'],['spark','v_innov']];
   const goals = [['timer','g1'],['users','g2'],['thermo','g3'],['globe','g4']];
   const body = `<div class="stack-lg">
@@ -1210,7 +1208,7 @@ async function viewAbout(){
     <div><div class="section-h" style="margin-bottom:20px"><span class="eyebrow">${t('roles_eyebrow')}</span><h2>${t('roles_t')}</h2></div><div class="roles">${['patient','nurse','courier','lab','company'].map(r => `<div class="role" style="cursor:default">${A.roleIcon(r)}<h4>${t('r_'+r)}</h4><p>${t('r_'+r+'_d')}</p></div>`).join('')}</div></div>
     <div class="card pad-lg"><h3>${t('app_t')}</h3><div class="grid g3" style="margin-top:10px">${[['globe','app_f1'],['users','app_f2'],['pin','app_f3'],['file','app_f4'],['download','app_f5'],['shield','app_f6'],['bot','app_f7'],['idcard','app_f8'],['route','app_f9']].map(([i, k]) => `<div class="row" style="align-items:flex-start"><span class="ic-round sm">${ic(i,20)}</span><span class="b small" style="padding-top:8px">${t(k)}</span></div>`).join('')}</div></div>
     <div><div class="section-h" style="margin-bottom:20px"><span class="eyebrow">${t('m_team')}</span><h2>${t('team_t')}</h2><p>${t('team_p')}</p></div>
-      <div class="grid g4 team">${team.map(([en, ar, role, c]) => role === 'dev' ? `<div class="card center pad-lg"><span class="avatar xl" style="background:${c}">${esc(initials(en))}</span><h4 style="margin-top:12px">${esc(S.lang === 'ar' ? ar : en)} <span class="dev-s">★</span></h4><span class="chip">${t('dev_star')}</span></div>` : `<div class="card center pad-lg"><span class="avatar xl" style="background:${c}">${esc(initials(en.replace('Dr. ', '')))}</span><h4 style="margin-top:12px">${esc(S.lang === 'ar' ? ar : en)}</h4><span class="chip ${role === 'supervisor' ? 'teal' : ''}">${t(role)}</span></div>`).join('')}</div></div>
+      <div class="grid g4 team">${TEAM.map(teamCard).join('')}</div></div>
     <div class="card pad-lg"><h3>${t('roadmap')}</h3>${['ph1','ph2','ph3'].map((p, i) => `<div class="phase"><span class="badge-n" style="${i ? 'background:#c4d4f2' : ''}">${i+1}</span><div><b>${t(p)}</b><div class="muted small">${t(p+'d')}</div></div></div>`).join('')}</div>
     <div class="welcome center" style="padding:30px"><h2>${t('contact_us')}</h2><p style="opacity:.85">${t('sup_p')}</p><div class="row wrap" style="justify-content:center"><a class="btn" style="background:#fff;color:var(--blue)" href="#/support">${ic('chat',18)} ${t('m_support')}</a><a class="btn ghost" style="background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)" href="#/${S.user ? 'app/tests' : 'register'}">${t('book_now')}</a></div></div>
     <p class="xs muted center">${t('foot_note')}</p></div>`;
@@ -1525,7 +1523,6 @@ async function renderNow(){
     else if (seg[0] === 'consult') await viewConsultPublic(false);
     else if (seg[0] === 'dental') await viewConsultPublic(true);
     else if (seg[0] === 'business') await viewBusiness();
-    else if (seg[0] === 'brand') await viewBrand();
     else if (seg[0] !== 'app') {
       if (seg[0] === 'login') { if (S.user) return go('app'); viewLogin(); }
       else if (seg[0] === 'register') { if (S.user) return go('app'); await loadCatalog().catch(() => {}); viewRegister(seg[1]); }
@@ -1965,8 +1962,7 @@ function bindHero(){
   root.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) { const fwd = S.lang === 'ar' ? dx > 0 : dx < 0; go3(i + (fwd ? 1 : -1)); arm(); } x0 = null; }, { passive:true });
   go3(0);
   SPLASH.then(() => { if (!root.isConnected) return; go3(0); arm();
-  if (liteMode() || !webglOk()) { root.classList.add('flat'); return; }
-  loadH3().then(m => m.init($('.h3-c', root)).then(() => { mod = m; m.show(i); root.classList.add('g3'); })).catch(e => { console.warn('3D off', e); root.classList.add('flat'); }); });
+  root.classList.add('flat'); });
 }
 function quickTiles(){
   const u = !!S.user; const T = u ? 'app/tests' : 'tests';
@@ -2003,15 +1999,12 @@ async function splashIntro(){
   if (!force && (sessionStorage.getItem('lah_splash') || matchMedia('(prefers-reduced-motion: reduce)').matches || /^#\/(reset|verify)\//.test(location.hash) || navigator.webdriver)) return;
   let release; SPLASH = new Promise(r => release = r);
   sessionStorage.setItem('lah_splash', '1');
-  const el = document.createElement('div'); el.id = 'splash'; el.innerHTML = `<canvas></canvas><div class="sp-brand"><span class="sp-logo">${A.logo}</span><span class="sp-wm">${A.wordmark}</span><small>${t('brand_sub')}</small></div><button class="sp-skip">${t('skip_intro')}</button>`;
+  const el = document.createElement('div'); el.id = 'splash'; el.className = 'flat';
+  el.innerHTML = `<div class="sp-road"><i></i></div><img class="sp-van" src="img/art/van-side.webp" alt="" decoding="async"><div class="sp-brand"><span class="sp-logo">${A.holo(84)}</span><span class="sp-wm">${A.wordmark}</span><small>${t('brand_sub')}</small></div><button class="sp-skip">${t('skip_intro')}</button>`;
   document.body.appendChild(el); document.body.classList.add('lock');
   let done = false; const end = () => { if (done) return; done = true; el.classList.add('out'); document.body.classList.remove('lock'); setTimeout(() => { el.remove(); release(); }, 450); };
   $('.sp-skip', el).onclick = end; el.addEventListener('click', e => { if (e.target === el) end(); });
-  const lite = liteMode() || !webglOk();
-  setTimeout(() => el.classList.add('brand'), lite ? 150 : 1500); if (!hold) setTimeout(end, lite ? 1500 : 3400);
-  if (lite) { el.classList.add('flat'); return; }
-  const race = Promise.race([loadH3(), new Promise((_, rj) => setTimeout(() => rj(new Error('slow')), 1800))]);
-  race.then(m => { if (!done) { el.classList.add('g3'); return m.splash($('canvas', el), hold ? 1e9 : 3200); } }).catch(() => el.classList.add('flat'));
+  setTimeout(() => el.classList.add('brand'), 900); if (!hold) setTimeout(end, 2600);
 }
 
 /* ================= v19: What's new (explainer video + changelog) ================= */
@@ -2188,7 +2181,7 @@ function docArt(g, size){ const s = size || 64; const f = g === 'female';
   <circle cx="32" cy="30" r="11" fill="#e8b48f"/>${f ? '<path d="M21 28c1-8 6-12 11-12s10 4 11 12c-4-3-7-6-11-6s-7 3-11 6z" fill="#0d1628"/>' : '<path d="M21 27c0-7 5-11 11-11s11 4 11 11c-3-3-6-4-11-4s-8 1-11 4z" fill="#3a2a20"/>'}
   <circle cx="28" cy="31" r="1.3" fill="#0d1628"/><circle cx="36" cy="31" r="1.3" fill="#0d1628"/><path d="M29 36c2 1.5 4 1.5 6 0" stroke="#a0522d" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>`; }
 function docCard(d, sel){ const ar = S.lang === 'ar';
-  return `<button type="button" class="doc-card ${sel ? 'on' : ''}" data-doc="${d.id}">${docArt(d.gender, 58)}<span class="grow" style="text-align:start"><b>${esc(d.name)}</b>
+  return `<button type="button" class="doc-card ${sel ? 'on' : ''}" data-doc="${d.id}">${docPic(d.name, d.gender, 64)}<span class="grow" style="text-align:start"><b>${esc(d.name)}</b>
     <span class="xs muted" style="display:block">${esc(ar ? (d.specialty_ar || d.specialty) : d.specialty)} · ${t('cs_years',{n:d.years || '—'})}</span>
     <span class="small" style="display:block;margin-top:4px">${esc(ar ? (d.bio_ar || d.bio || '') : (d.bio || ''))}</span>
     <span class="row wrap" style="gap:6px;margin-top:6px"><span class="chip ${d.gender === 'female' ? 'red' : ''}">${t(d.gender === 'female' ? 'cs_female_dr' : 'cs_male_dr')}</span><span class="chip amber">★ ${d.rating || '—'}</span>${d.license ? `<span class="chip gray ltr">${esc(d.license)}</span>` : ''}</span></span>${sel ? `<span class="doc-tick">${ic('check',18,2.6)}</span>` : ''}</button>`; }
@@ -2205,7 +2198,7 @@ async function viewConsultPublic(dental){
   try { [docs, dents] = await Promise.all([API.doctors('pre'), API.doctors('dental')]); } catch(e) {}
   const kinds = csKinds().filter(k => dental ? /dental/.test(k[0]) : true);
   const body = `<div class="stack-lg">
-    <div class="cs-hero ${dental ? 'dental' : ''}"><div class="grow"><span class="chip" style="background:rgba(255,255,255,.16);color:#fff">${ic(dental ? 'tooth' : 'video',14)} ${t(dental ? 'm_dental' : 'm_consult')}</span><h1>${t(dental ? 'dn_t' : 'cs_t')}</h1><p>${t(dental ? 'dn_p' : 'cs_p')}</p><div class="xs" style="opacity:.8">${t('cs_privacy')}</div></div><div class="cs-hero-art">${docArt('female', 96)}${docArt('male', 96)}</div></div>
+    <div class="cs-hero ${dental ? 'dental' : ''}"><div class="grow"><span class="chip" style="background:rgba(255,255,255,.16);color:#fff">${ic(dental ? 'tooth' : 'video',14)} ${t(dental ? 'm_dental' : 'm_consult')}</span><h1>${t(dental ? 'dn_t' : 'cs_t')}</h1><p>${t(dental ? 'dn_p' : 'cs_p')}</p><div class="xs" style="opacity:.8">${t('cs_privacy')}</div></div><div class="cs-hero-art">${dental ? docPic('Dr. Rahma Al Shukaili', 'female', 104) + docPic('Dr. Talal Al Riyami', 'male', 104) : docPic('Dr. Aisha Al Balushi', 'female', 104) + docPic('Dr. Hilal Al Harthy', 'male', 104)}</div></div>
     <div class="grid g${kinds.length === 4 ? 4 : 2} cs-kinds">${kinds.map(([k, i, lk, fk]) => `<div class="card cs-kind"><span class="ic-round">${ic(i,24)}</span><b>${t(lk)}</b><div class="small muted grow">${t(lk + '_d')}</div>
       <div class="row between" style="margin-top:10px"><b class="num">${k === 'post' ? `${omr(B[fk])} <small class="muted">/ ${t('cs_free')}*</small>` : omr(B[fk])} <small>${t('omr')}</small></b><button class="btn sm" data-cs="${k}">${t('cs_book')}</button></div></div>`).join('')}</div>
     ${!dental ? `<p class="xs muted" style="margin-top:-10px">* ${t('cs_free_note')}</p>` : `<div class="banner blue small">${ic('tooth',18)}<span>${t('dn_note')}</span></div>`}
@@ -2289,7 +2282,7 @@ async function viewConsults(){
   loading(t(S.user.role === 'doctor' ? 'cs_q' : 'cs_mine'));
   const L = await API.consults(); const u = S.user; const doc = u.role === 'doctor';
   const up = L.filter(c => ['booked','live'].includes(c.status)), past = L.filter(c => !['booked','live'].includes(c.status));
-  const row = c => `<a class="card row cs-row" href="#/app/consult/${c.id}" style="gap:12px">${doc ? `<span class="avatar">${esc(initials(c.patient && c.patient.name))}</span>` : docArt(c.doctor && c.doctor.gender, 46)}
+  const row = c => `<a class="card row cs-row" href="#/app/consult/${c.id}" style="gap:12px">${doc ? `<span class="avatar">${esc(initials(c.patient && c.patient.name))}</span>` : docPic(c.doctor && c.doctor.name, c.doctor && c.doctor.gender, 46)}
     <div class="grow"><b>${esc(doc ? (c.patient && c.patient.name) : (c.doctor && c.doctor.name))}</b><div class="xs muted">${t('cs_' + c.kind)} · ${t('cs_' + c.mode)}</div><div class="small">${csWhen(c)}</div></div>${csStatus(c)}</a>`;
   let st = null; if (doc) { try { st = await API.stats(); } catch(e) {} }
   app.innerHTML = shell(t(doc ? 'cs_q' : 'cs_mine'), `<div class="stack-lg">
@@ -2310,12 +2303,12 @@ async function viewConsult(id){
   const sug = n ? [...(n.packages || []).map(x => ['package', x]), ...(n.tests || []).map(x => ['test', x])] : [];
   const body = `<div class="stack-lg">
     <div class="card"><div class="row between wrap"><div><div class="small muted">${t('cs_' + c.kind)} · ${t('cs_' + c.mode)}</div><h2 class="ltr" style="margin:0">${esc(c.code)}</h2></div>${csStatus(c)}</div>
-      <div class="row" style="gap:12px;margin-top:14px">${doc ? `<span class="avatar xl">${esc(initials(c.patient && c.patient.name))}</span>` : docArt(c.doctor && c.doctor.gender, 64)}<div class="grow"><b>${esc(doc ? (c.patient && c.patient.name) : (c.doctor && c.doctor.name))}</b>
+      <div class="row" style="gap:12px;margin-top:14px">${doc ? `<span class="avatar xl">${esc(initials(c.patient && c.patient.name))}</span>` : docPic(c.doctor && c.doctor.name, c.doctor && c.doctor.gender, 64)}<div class="grow"><b>${esc(doc ? (c.patient && c.patient.name) : (c.doctor && c.doctor.name))}</b>
         <div class="small muted">${doc ? `${c.patient && c.patient.gender ? t(c.patient.gender) : ''}${c.patient && c.patient.dob ? ' · ' + age(c.patient.dob) : ''}` : esc(S.lang === 'ar' ? (c.doctor.specialty_ar || '') : (c.doctor.specialty || ''))}</div><div class="small b">${csWhen(c)}</div></div></div>
       ${['booked','live'].includes(c.status) ? `<div class="row wrap" style="gap:8px;margin-top:14px">${c.mode === 'chat' ? `<a class="btn" href="${wa}" target="_blank" rel="noopener">${ic('wa',18)} ${t('cs_wa')}</a>` : c.mode === 'home' ? '' : join || doc ? `<a class="btn" href="${esc(c.join)}" target="_blank" rel="noopener" ${doc && c.status === 'booked' ? 'data-start' : ''}>${ic('video',18)} ${t(doc && c.status === 'booked' ? 'cs_start' : 'cs_join')}</a>` : `<button class="btn" disabled>${ic('video',18)} ${t('cs_join')}</button><span class="xs muted" style="align-self:center">${t('cs_join_soon')}</span>`}
         ${!doc && c.status === 'booked' ? `<button class="btn ghost" data-ccancel>${t('cs_cancel')}</button>` : ''}</div>` : ''}</div>
     ${c.reason || c.order || c.address ? `<div class="card">${c.reason ? `<div class="vline"><span class="muted">${t('cs_reason_l')}</span><b style="white-space:pre-wrap;text-align:end">${esc(c.reason)}</b></div>` : ''}${c.order ? `<div class="vline"><span class="muted">${t('cs_linked')}</span><a class="b ltr" href="#/app/${doc ? 'order' : 'report'}/${c.order.id}">${esc(c.order.code)}</a></div>` : ''}${c.address ? `<div class="vline" style="border:0"><span class="muted">${t('location')}</span><b>${esc(c.address)}</b></div>` : ''}</div>` : ''}
-    ${n ? `<div class="card docnote"><div class="row" style="gap:12px">${docArt(c.doctor && c.doctor.gender, 46)}<div class="grow"><div class="xs muted">${t('cs_advice')}</div><b>${esc(n.by || '')}</b><div class="xs muted">${fmtDT(n.at)}</div></div></div><p style="white-space:pre-wrap;margin:12px 0 0">${esc(n.note)}</p>
+    ${n ? `<div class="card docnote"><div class="row" style="gap:12px">${docPic(c.doctor && c.doctor.name, c.doctor && c.doctor.gender, 46)}<div class="grow"><div class="xs muted">${t('cs_advice')}</div><b>${esc(n.by || '')}</b><div class="xs muted">${fmtDT(n.at)}</div></div></div><p style="white-space:pre-wrap;margin:12px 0 0">${esc(n.note)}</p>
       ${sug.length ? `<h4 style="margin:14px 0 6px">${t('cs_suggested')}</h4><div class="row wrap" style="gap:6px">${sug.map(([ty, x]) => `<span class="chip">${esc(S.catalog ? LN(ty === 'package' ? S.catalog.P[x] : S.catalog.T[x], 'name') || x : x)}</span>`).join('')}</div>${!doc ? `<button class="btn teal" style="margin-top:12px" data-addsug>${ic('cart',18)} ${t('cs_add_suggested')}</button>` : ''}` : ''}</div>` : ''}
     ${!doc && c.status === 'done' && !c.rating ? `<div class="card"><b>${t('cs_rate')}</b><div class="row" style="gap:4px;margin-top:8px;color:#f2a516">${[1,2,3,4,5].map(i => `<button class="link" data-cstar="${i}" style="font-size:2rem;color:inherit">★</button>`).join('')}</div></div>` : ''}
     ${doc && ['booked','live'].includes(c.status) ? `<div class="card stack"><h3>${t('cs_finish')}</h3><textarea class="input" id="cnote" rows="5" placeholder="${t('cs_note_ph')}"></textarea>
@@ -2333,7 +2326,7 @@ async function viewConsult(id){
   if ($('[data-addsug]')) $('[data-addsug]').onclick = async () => { await loadCatalog().catch(() => {}); sug.forEach(([ty, x]) => { const k = ty === 'package' ? 'packages' : 'tests'; if (!S.cart[k].includes(x) && S.catalog && (ty === 'package' ? S.catalog.P[x] : S.catalog.T[x])) S.cart[k].push(x); }); saveCart(); toast(t('cs_added')); go('app/cart'); };
   $$('[data-cstar]').forEach(s => s.onclick = async () => { if (await act(null, 'rate', { rating: +s.dataset.cstar })) { toast(t('thanks_rating')); viewConsult(id); } });
 }
-function csPostCta(o){ return S.user && S.user.role === 'patient' ? `<div class="card row cs-cta" style="gap:12px;align-items:center">${docArt('female', 48)}<div class="grow"><b>${t('cs_post_cta_t')}</b><div class="small muted">${t('cs_post_cta_p')}${['review','urgent'].includes(o.severity) ? ' <b class="teal-t">' + t('cs_free') + '</b>' : ''}</div></div><button class="btn sm" data-cspost="${o.id}">${ic('video',16)} ${t('cs_post_cta')}</button></div>` : ''; }
+function csPostCta(o){ return S.user && S.user.role === 'patient' ? `<div class="card row cs-cta" style="gap:12px;align-items:center">${docPic('Dr. Aisha Al Balushi', 'female', 52)}<div class="grow"><b>${t('cs_post_cta_t')}</b><div class="small muted">${t('cs_post_cta_p')}${['review','urgent'].includes(o.severity) ? ' <b class="teal-t">' + t('cs_free') + '</b>' : ''}</div></div><button class="btn sm" data-cspost="${o.id}">${ic('video',16)} ${t('cs_post_cta')}</button></div>` : ''; }
 
 /* business page (#/business) */
 async function viewBusiness(){
@@ -2376,69 +2369,30 @@ async function viewBusiness(){
   draw();
 }
 
-/* ================= v28: brand page (logo + display mockups) and the moving van on sign-up ================= */
-Object.assign(I18N.en, { m_brand:'Brand & merch', br_t:'The iLab@home brand', br_p:'Our logo is a home roof over a blood drop with a medical cross. The orange dot is the light that says “we are at your door”.',
-  br_logo:'Logo versions', br_on_light:'On light', br_on_dark:'On dark', br_mono:'One colour', br_icon:'App icon', br_ar:'Arabic', br_stack:'Stacked',
-  br_colors:'Colours', br_type:'Typography', br_merch:'Merchandise (display mockups)', br_merch_p:'Showcase items for events, the team and partners. Mockups for presentation.', br_dl:'Download logo (SVG)',
-  mx_tee:'T-shirt', mx_polo:'Nurse polo', mx_cap:'Cap', mx_mug:'Mug', mx_pen:'Pen', mx_wallet:'Wallet', mx_tote:'Tote bag', mx_badge:'ID badge & lanyard', mx_bag:'Nurse kit bag', mx_van:'Van', mx_case:'Phone case', mx_note:'Notebook', mx_sticker:'Stickers', mx_bottle:'Water bottle', mx_umbrella:'Umbrella', mx_box:'Sample cold box',
-  van_hi:'Your nurse is on the way' });
-Object.assign(I18N.ar, { m_brand:'الهوية والمنتجات', br_t:'هوية آي لاب@هوم', br_p:'شعارنا سقف بيت فوق قطرة دم فيها علامة طبية. والنقطة البرتقالية هي النور اللي يقول «إحنا عند بابك».',
-  br_logo:'نسخ الشعار', br_on_light:'على خلفية فاتحة', br_on_dark:'على خلفية داكنة', br_mono:'لون واحد', br_icon:'أيقونة التطبيق', br_ar:'بالعربي', br_stack:'عمودي',
-  br_colors:'الألوان', br_type:'الخطوط', br_merch:'المنتجات (نماذج للعرض)', br_merch_p:'منتجات للعرض في الفعاليات وللفريق والشركاء. نماذج تصميم للعرض فقط.', br_dl:'تحميل الشعار (SVG)',
-  mx_tee:'تيشيرت', mx_polo:'بولو الممرضين', mx_cap:'كاب', mx_mug:'كوب', mx_pen:'قلم', mx_wallet:'محفظة', mx_tote:'شنطة قماش', mx_badge:'بطاقة تعريف وحبل', mx_bag:'حقيبة الممرض', mx_van:'الفان', mx_case:'غطاء جوال', mx_note:'دفتر', mx_sticker:'ستيكرات', mx_bottle:'مطارة ماء', mx_umbrella:'مظلة', mx_box:'صندوق العينات المبرّد',
-  van_hi:'ممرضك في الطريق' });
-
-/* logo placed inside a drawing */
-function mk(x, y, s, o){ return A.markSvg(Object.assign({ id: 'm' + Math.round(x) + '_' + Math.round(y) + '_' + s }, o || {})).replace('<svg class="mark"', `<svg x="${x}" y="${y}" width="${s}" height="${s}"`); }
-const WMT = (x, y, size, fill, anchor, blue) => `<text x="${x}" y="${y}" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="${size}" fill="${fill}" text-anchor="${anchor || 'middle'}" letter-spacing="-.5" direction="ltr"><tspan fill="${blue || '#60a5fa'}">i</tspan>Lab<tspan fill="${blue || '#60a5fa'}">@</tspan>home</text>`;
-const ARW = (x, y, size, fill) => `<text x="${x}" y="${y}" font-family="'IBM Plex Sans Arabic',Arial" font-weight="700" font-size="${size}" fill="${fill}" text-anchor="middle" direction="rtl">آي لاب@هوم</text>`;
-const SH = '<ellipse cx="120" cy="222" rx="78" ry="7" fill="#0d1628" opacity=".10"/>';
-function merch(){
-  return [
-  ['tee', `${SH}<path d="M78 34l-44 20 14 34 20-8v122h104V80l20 8 14-34-44-20c-4 12-18 20-42 20s-38-8-42-20z" fill="#0d1628"/><path d="M78 34c4 12 18 20 42 20s38-8 42-20" fill="none" stroke="#1e3a8a" stroke-width="5"/>${mk(96, 82, 48)}${WMT(120, 150, 15, '#fff')}`],
-  ['polo', `${SH}<path d="M80 36l-44 18 14 34 20-8v120h100V80l20 8 14-34-44-18-16 8h-48z" fill="#fff" stroke="#dbe5f5" stroke-width="2"/><path d="M96 44l24 26 24-26" fill="#2563eb"/><path d="M120 70v38" stroke="#2563eb" stroke-width="3"/><circle cx="120" cy="82" r="2.4" fill="#2563eb"/><circle cx="120" cy="96" r="2.4" fill="#2563eb"/>${mk(142, 92, 26)}<rect x="36" y="78" width="30" height="8" rx="3" fill="#2563eb" transform="rotate(-24 50 82)"/><rect x="174" y="78" width="30" height="8" rx="3" fill="#2563eb" transform="rotate(24 190 82)"/><text x="120" y="190" font-family="Inter,Arial" font-weight="800" font-size="12" fill="#2563eb" text-anchor="middle" letter-spacing="2">NURSE · ممرض</text>`],
-  ['cap', `${SH}<path d="M48 138c0-52 32-82 72-82s72 30 72 82z" fill="#2563eb"/><path d="M120 56v82" stroke="#1d4ed8" stroke-width="2"/><path d="M84 66c-12 18-16 44-16 72M156 66c12 18 16 44 16 72" stroke="#1d4ed8" stroke-width="2" fill="none"/><circle cx="120" cy="56" r="5" fill="#1e3a8a"/><path d="M40 138h160c10 0 16 8 10 14-30 18-150 18-180 0-6-6 0-14 10-14z" fill="#1e40af"/>${mk(98, 82, 44, { bg:'#fff', fg:'#2563eb', cross:'#fff' })}`],
-  ['mug', `${SH}<path d="M62 60h104v128c0 14-10 24-24 24H86c-14 0-24-10-24-24z" fill="#fff" stroke="#dbe5f5" stroke-width="2"/><path d="M166 88h14c16 0 24 12 24 28s-8 30-24 30h-14" fill="none" stroke="#dbe5f5" stroke-width="12"/><ellipse cx="114" cy="60" rx="52" ry="8" fill="#eef2f8" stroke="#dbe5f5" stroke-width="2"/>${mk(88, 92, 52)}${WMT(114, 168, 16, '#0d1628', 'middle', '#2563eb')}<path d="M62 196h104" stroke="#2563eb" stroke-width="6"/>`],
-  ['pen', `${SH}<g transform="rotate(-35 120 120)"><rect x="20" y="108" width="200" height="24" rx="12" fill="#2563eb"/><rect x="20" y="108" width="40" height="24" rx="12" fill="#1e3a8a"/><path d="M220 112l18 8-18 8z" fill="#cbd5e1"/><rect x="52" y="100" width="70" height="8" rx="4" fill="#cbd5e1"/>${WMT(140, 125, 13, '#fff', 'middle', '#fdba74')}</g>`],
-  ['wallet', `${SH}<rect x="44" y="62" width="152" height="118" rx="16" fill="#0d1628"/><rect x="52" y="70" width="136" height="102" rx="12" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="5 5"/><path d="M196 96h-36a14 14 0 0 0 0 28h36z" fill="#1e293b"/><circle cx="162" cy="110" r="5" fill="#94a3b8"/>${mk(80, 92, 46, { bg:'#1e293b', fg:'#94a3b8', cross:'#1e293b', dot:'#b45309' })}`],
-  ['tote', `${SH}<path d="M88 70c0-30 64-30 64 0" fill="none" stroke="#d6c7a8" stroke-width="8"/><path d="M50 70h140l-10 146H60z" fill="#f3ead8"/>${mk(90, 98, 60)}${WMT(120, 186, 18, '#0d1628', 'middle', '#2563eb')}${ARW(120, 206, 13, '#475569')}`],
-  ['badge', `${SH}<path d="M96 10l14 66M144 10l-14 66" stroke="#2563eb" stroke-width="10"/><rect x="112" y="70" width="16" height="16" rx="3" fill="#94a3b8"/><rect x="70" y="80" width="100" height="136" rx="12" fill="#fff" stroke="#dbe5f5" stroke-width="2"/><rect x="70" y="80" width="100" height="34" rx="12" fill="#2563eb"/><rect x="70" y="102" width="100" height="12" fill="#2563eb"/>${mk(78, 86, 22)}${WMT(132, 102, 11, '#fff', 'middle', '#bfdbfe')}<circle cx="120" cy="140" r="18" fill="#fdeaf3"/><path d="M106 160c2-10 26-10 28 0" fill="#db2777" opacity=".5"/><text x="120" y="182" font-family="Inter,Arial" font-weight="700" font-size="11" fill="#0d1628" text-anchor="middle">Fatima A.</text><text x="120" y="197" font-family="Inter,Arial" font-size="9" fill="#64748b" text-anchor="middle">Licensed nurse · OMSB</text><rect x="92" y="203" width="56" height="6" rx="3" fill="#14b8a6"/>`],
-  ['bag', `${SH}<path d="M92 66c0-22 56-22 56 0" fill="none" stroke="#0d1628" stroke-width="9" stroke-linecap="round"/><rect x="40" y="66" width="160" height="140" rx="22" fill="#0d1628"/><rect x="40" y="96" width="160" height="7" fill="#2563eb"/>${mk(96, 120, 48)}${WMT(120, 192, 14, '#fff')}<rect x="52" y="76" width="30" height="12" rx="4" fill="#14b8a6"/>`],
-  ['van', `<ellipse cx="120" cy="196" rx="104" ry="6" fill="#0d1628" opacity=".12"/><path d="M14 168V96c0-10 8-18 18-18h118c8 0 15 4 19 10l26 34 22 8c6 2 9 7 9 13v25z" fill="#fff" stroke="#dbe5f5" stroke-width="2"/><path d="M152 86h12l24 34h-36z" fill="#bfdbfe"/><rect x="14" y="138" width="214" height="12" fill="#2563eb"/><rect x="14" y="150" width="214" height="5" fill="#f97316"/>${mk(30, 92, 38)}${WMT(108, 120, 18, '#0d1628', 'middle', '#2563eb')}<text x="108" y="132" font-family="Inter,Arial" font-weight="600" font-size="8" fill="#64748b" text-anchor="middle">+968 9434 2557 · @ilabathome</text><circle cx="58" cy="170" r="17" fill="#0d1628"/><circle cx="58" cy="170" r="7" fill="#cbd5e1"/><circle cx="184" cy="170" r="17" fill="#0d1628"/><circle cx="184" cy="170" r="7" fill="#cbd5e1"/>`],
-  ['case', `${SH}<rect x="72" y="20" width="96" height="196" rx="22" fill="url(#cg)"/><defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient></defs><rect x="82" y="30" width="40" height="40" rx="12" fill="#0d1628" opacity=".85"/><circle cx="96" cy="44" r="7" fill="#334155"/><circle cx="110" cy="58" r="5" fill="#334155"/>${mk(94, 104, 52, { bg:'none' })}${WMT(120, 190, 13, '#fff', 'middle', '#fdba74')}`],
-  ['note', `${SH}<rect x="58" y="28" width="124" height="180" rx="10" fill="#0d1628"/><rect x="58" y="28" width="14" height="180" fill="#1e293b"/><rect x="160" y="28" width="7" height="180" fill="#f97316"/>${mk(92, 82, 54)}${WMT(119, 166, 15, '#fff')}`],
-  ['sticker', `<rect x="22" y="22" width="196" height="196" rx="18" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>${mk(40, 40, 64)}<rect x="116" y="46" width="88" height="36" rx="18" fill="#0d1628"/>${WMT(160, 70, 13, '#fff')}<circle cx="72" cy="160" r="38" fill="#14b8a6"/><text x="72" y="156" font-family="Inter,Arial" font-weight="800" font-size="11" fill="#fff" text-anchor="middle">TESTED</text><text x="72" y="171" font-family="Inter,Arial" font-weight="800" font-size="11" fill="#fff" text-anchor="middle">AT HOME ✓</text><rect x="118" y="132" width="88" height="56" rx="14" fill="#fff4e6" stroke="#fdba74" stroke-width="2"/>${ARW(162, 166, 13, '#c2410c')}<circle cx="190" cy="104" r="14" fill="#f97316"/>`],
-  ['bottle', `${SH}<rect x="102" y="18" width="36" height="22" rx="6" fill="#0d1628"/><path d="M98 40h44v14c14 10 20 22 20 40v104c0 12-8 20-20 20H98c-12 0-20-8-20-20V94c0-18 6-30 20-40z" fill="#fff" stroke="#dbe5f5" stroke-width="2"/><path d="M78 150h84v48c0 12-8 20-20 20H98c-12 0-20-8-20-20z" fill="#2563eb"/>${mk(98, 92, 44)}<text x="120" y="182" font-family="Inter,Arial" font-weight="800" font-size="9" fill="#fff" text-anchor="middle">STAY HYDRATED</text>`],
-  ['box', `${SH}<rect x="40" y="86" width="160" height="116" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/><rect x="34" y="70" width="172" height="26" rx="10" fill="#2563eb"/><rect x="104" y="60" width="32" height="14" rx="5" fill="#1e3a8a"/>${mk(60, 112, 44)}${WMT(150, 132, 13, '#0d1628', 'middle', '#2563eb')}<rect x="112" y="146" width="76" height="30" rx="8" fill="#0d1628"/><text x="150" y="166" font-family="Inter,Arial" font-weight="800" font-size="13" fill="#5eead4" text-anchor="middle">4.2 °C</text>`],
-  ['umbrella', `${SH}<path d="M20 110c0-56 44-90 100-90s100 34 100 90c-12-10-24-10-34 0-10-10-24-10-33 0-10-10-23-10-33 0-10-10-23-10-33 0-10-10-24-10-33 0-12-10-24-10-34 0z" fill="#2563eb"/><path d="M120 20c-24 20-34 54-34 90M120 20c24 20 34 54 34 90" stroke="#1e3a8a" stroke-width="2" fill="none"/><path d="M120 110v84c0 14-22 14-22 0" stroke="#0d1628" stroke-width="6" fill="none" stroke-linecap="round"/>${mk(100, 44, 40, { bg:'none' })}`]
-  ];
-}
-function logoLockup(dark, stacked){ return `<div class="lockup ${dark ? 'dark' : ''} ${stacked ? 'stacked' : ''}">${A.markSvg({ id: 'lk' + (dark ? 'd' : 'l') + (stacked ? 's' : '') })}<span class="wm" dir="ltr"><i>i</i>Lab<i>@</i>home</span></div>`; }
-async function viewBrand(){
-  const items = merch();
-  const body = `<div class="stack-lg">
-    <div class="brand-hero"><div class="bh-mark">${A.markSvg({ id:'bh' })}</div><div><h1><span class="wm" dir="ltr"><i>i</i>Lab<i>@</i>home</span></h1><div class="ar-wm">آي لاب@هوم</div><p>${t('br_p')}</p><button class="btn" data-dl>${ic('download',18)} ${t('br_dl')}</button></div></div>
-    <div><h2 class="hm-h">${t('br_logo')}</h2><div class="grid g3 logo-grid">
-      <div class="card lg-tile"><div class="lg-show">${logoLockup(false)}</div><span class="xs muted">${t('br_on_light')}</span></div>
-      <div class="card lg-tile dark"><div class="lg-show">${logoLockup(true)}</div><span class="xs">${t('br_on_dark')}</span></div>
-      <div class="card lg-tile"><div class="lg-show">${logoLockup(false, true)}</div><span class="xs muted">${t('br_stack')}</span></div>
-      <div class="card lg-tile"><div class="lg-show">${A.markSvg({ id:'mono', bg:'#0d1628', cross:'#0d1628', dot:'#fff' })}${A.markSvg({ id:'mono2', bg:'none', fg:'#0d1628', cross:'#fff', dot:'#0d1628' })}</div><span class="xs muted">${t('br_mono')}</span></div>
-      <div class="card lg-tile"><div class="lg-show"><div class="app-ic">${A.markSvg({ id:'ai', r:14 })}</div><div class="app-ic sm">${A.markSvg({ id:'ai2', r:14 })}</div></div><span class="xs muted">${t('br_icon')}</span></div>
-      <div class="card lg-tile"><div class="lg-show"><div class="lockup">${A.markSvg({ id:'arl' })}<span class="wm-ar">آي لاب@هوم</span></div></div><span class="xs muted">${t('br_ar')}</span></div></div></div>
-    <div class="grid g2 collapse"><div class="card pad-lg"><h3 style="margin-top:0">${t('br_colors')}</h3><div class="swatches">${[['#2563EB','Royal blue'],['#0D1628','Navy'],['#14B8A6','Teal'],['#F97316','Orange'],['#F5F8FD','Light'],['#EF4444','Urgent only']].map(([c, n]) => `<div class="sw-c"><i style="background:${c}"></i><b>${n}</b><span class="xs muted ltr">${c}</span></div>`).join('')}</div></div>
-      <div class="card pad-lg"><h3 style="margin-top:0">${t('br_type')}</h3><div style="font:800 2rem Inter,sans-serif;letter-spacing:-.02em">Inter ExtraBold</div><div style="font:500 1.1rem Inter,sans-serif" class="muted">Inter Regular · body text 16px</div><div style="font:700 1.8rem 'IBM Plex Sans Arabic',sans-serif;margin-top:10px">آي بي إم بلكس عربي</div><div class="muted" style="font:500 1.05rem 'IBM Plex Sans Arabic',sans-serif">للنصوص العربية</div></div></div>
-    <div><h2 class="hm-h">${t('br_merch')}</h2><p class="muted small" style="margin-top:-6px">${t('br_merch_p')}</p><div class="grid g4 merch">${items.map(([k, svg]) => `<figure class="card mx"><svg viewBox="0 0 240 240" role="img" aria-label="${esc(t('mx_' + k))}">${svg}</svg><figcaption>${t('mx_' + k)}</figcaption></figure>`).join('')}</div></div></div>`;
-  app.innerHTML = S.user ? shell(t('m_brand'), body) : `${topbar()}<section class="section" style="padding-top:24px"><div class="wrap-w">${body}</div></section>${footer()}`;
-  if (!S.user) bindGlobal();
-  $('[data-dl]').onclick = () => { const svg = A.markSvg({ id:'dl' }).replace('<svg class="mark"', '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"'); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([svg], { type:'image/svg+xml' })); a.download = 'iLabAtHome-logo.svg'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); };
-}
-
-/* the iLab@home van drives in on the sign-in / sign-up screens */
+/* ================= v29: sign-up van, team icons, doctor pictures ================= */
+Object.assign(I18N.en, { van_hi:'Your nurse is on the way', r_cyber:'Cybersecurity', r_hr:'Human resources', r_nurse_t:'Nurse', r_adv:'Advisor · Supervisor', r_devfull:'Platform developer · Computer engineer' });
+Object.assign(I18N.ar, { van_hi:'ممرضتك في الطريق', r_cyber:'الأمن السيبراني', r_hr:'الموارد البشرية', r_nurse_t:'ممرضة', r_adv:'المشرف والمستشار', r_devfull:'مطوّر المنصة · مهندس حاسوب' });
+/* the iLab@home van drives in on the sign-in / sign-up screens (picture, not a drawing) */
 function vanStrip(){
-  const van = merch().find(x => x[0] === 'van')[1];
-  return `<div class="van-strip" aria-hidden="true"><div class="vs-sky"><i class="cloud c1"></i><i class="cloud c2"></i><span class="vs-house">${A.markSvg({ id:'vsh', bg:'none', fg:'#cbd5e1', cross:'#fff', dot:'#f97316' })}</span></div><div class="vs-road"><i></i></div>
-    <div class="vs-van"><svg viewBox="0 0 240 210">${van}</svg><span class="vs-puff p1"></span><span class="vs-puff p2"></span></div><div class="vs-msg">${ic('pin',14)} ${t('van_hi')}</div></div>`;
+  return `<div class="van-strip" aria-hidden="true"><i class="vs-sun"></i><i class="vs-dune d1"></i><i class="vs-dune d2"></i><i class="vs-palm p1"></i><i class="vs-palm p2"></i><div class="vs-road"><i></i></div>
+    <div class="vs-van"><img src="img/art/van-side.webp" alt="" width="900" height="432" decoding="async"><span class="vs-puff p1"></span><span class="vs-puff p2"></span></div><div class="vs-msg">${ic('pin',14)} ${t('van_hi')}</div></div>`;
 }
+/* team: a small animated icon for each person's job (like emoji reactions) */
+const TEAM = [
+  ['Bilarab bin Suwailam Al Musallami','بلعرب بن سويلم المسلمي','dev','👨🏻‍💻','⚙️','r_devfull'],
+  ['Jokha Al Rawahi','جوخة الرواحي','cyber','🧕🏻','🛡️','r_cyber'],
+  ['Ansam Al Noumani','أنسام النعماني','hr','🧕🏻','📋','r_hr'],
+  ['Tasnim Al Hasani','تسنيم الحسني','hr','🧕🏻','🤝','r_hr'],
+  ['Rahaf Al Wardi','رهف الوردي','nurse','🧕🏻','🩺','r_nurse_t'],
+  ['Alzahraa Al Busaidi','الزهراء البوسعيدي','nurse','🧕🏻','💉','r_nurse_t'],
+  ['Dr. Salim Al Rashdi','د. سالم الراشدي','adv','👨🏻‍🏫','🎓','r_adv']];
+function teamCard([en, ar, role, face, badge, lbl]){
+  return `<div class="card center pad-lg tm-card tm-${role}"><span class="tm-av" aria-hidden="true"><span class="tm-face">${face}</span><span class="tm-badge">${badge}</span><i class="tm-fx"></i></span>
+    <h4 style="margin-top:12px">${esc(S.lang === 'ar' ? ar : en)}${role === 'dev' ? ' <span class="dev-s">★</span>' : ''}</h4><span class="chip ${role === 'adv' ? 'teal' : role === 'dev' ? '' : 'gray'}">${t(lbl)}</span></div>`;
+}
+/* doctors: Pixar-style portraits (fall back to the drawn avatar) */
+const DOC_PIC = { 'Dr. Aisha Al Balushi':'aisha', 'Dr. Hilal Al Harthy':'hilal', 'Dr. Rahma Al Shukaili':'rahma', 'Dr. Talal Al Riyami':'talal' };
+function docPic(name, gender, size){ const k = DOC_PIC[name]; return k ? `<img class="doc-pic" src="img/doctors/${k}.webp" alt="" width="${size}" height="${size}" loading="lazy" decoding="async">` : docArt(gender, size); }
 
 async function boot(){
   setLang(S.lang);

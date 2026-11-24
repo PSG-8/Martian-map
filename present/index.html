@@ -431,7 +431,7 @@ function drawCols(){
   $('#pp3').innerHTML = person({ x: 90, y: 95, s: .8, head: 'hair', acc: '#3B2A1A', body: '#2563EB', skin: '#E2B48C' }) + person({ x: 170, y: 95, s: .8, head: 'long', acc: '#1B1B1B', body: '#F97316', skin: '#B07A52' });
 }
 /* ---------- slide 8: team ---------- */
-const TEAM = [['BILARAB SUWAILAM ALMUSALLAMI', '#2563EB'], ['Jokha Suliaman Hamid Al Rawahi', '#E8466F'], ['Ansam Ibrahim Zaher Alnoumani', '#7A5AF8'], ['TASNIM SALIM HAMED AL HASANI', '#14B8A6']];
+const TEAM = [['BILARAB SUWAILAM ALMUSALLAMI', '#2563EB'], ['Jokha Suliaman Hamid Al Rawahi', '#E8466F'], ['Ansam Ibrahim Zaher Alnoumani', '#7A5AF8'], ['TASNIM SALIM HAMED AL HASANI', '#14B8A6'], ['RAHAF AL WARDI', '#0EA5E9'], ['ALZAHRAA AL BUSAIDI', '#F97316']];
 const ini = n => n.split(/\s+/).filter(w => w.length > 2 || /^Al/i.test(w)).map(w => w[0]).filter(Boolean).slice(0, 1).join('') + n.split(/\s+/).slice(-1)[0].replace(/^Al-?/i, '')[0];
 $('#team').innerHTML = TEAM.map(([n, c], i) => `<div class="tm"><span class="av" style="background:${c}">${ini(n).toUpperCase()}</span><b>${n.split(' ').map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ').replace(/ Al /g, ' Al ').replace(/Almusallami/, 'Almusallami')}${i ? '' : '<span class="st">★</span>'}</b></div>`).join('');
 /* ---------- notes ---------- */
@@ -443,7 +443,7 @@ const NOTES = [
   '<b>[2:50–3:40] How it works.</b> Eight steps, all visible in the app: register, choose a test, confirm the address, book a time, a nurse is assigned, the sample is collected, the lab processes it, and results are shared. The phone shows what the user sees at each step. Tap any step to jump to it.',
   '<b>[3:40–4:20] Services.</b> We start with routine and preventive tests: general health, metabolic, wellness, targeted tests requested by clinicians, home collection and digital results. Flip a card for examples. Packages for kids, seniors over sixty, and blood pressure and sugar. Final availability depends on lab confirmation and Omani regulations.',
   '<b>[4:20–5:00] Partners, customers, value.</b> Click three times. We work with licensed labs, qualified nurses, logistics and payment partners. We serve busy households, older adults, people with limited mobility and remote communities. Our difference: one coordinated journey, home convenience, transparent status, and a focus on Oman.<br><b>Q:</b> How do you make money? <b>A:</b> A home-visit fee plus a share of test value agreed with partner labs, and corporate programmes.',
-  '<b>[5:00–5:30] About us.</b> Your health, our mission. Introduce the team: Bilarab Al Musallami (platform developer), Jokha Al Rawahi, Ansam Al Noumani and Tasnim Al Hasani, with our team advisor Dr. Salim Al-Rashdi. Invite the audience to scan the codes: the app and our Instagram. Thank you.'];
+  '<b>[5:00–5:30] About us.</b> Your health, our mission. Introduce the team: Bilarab Al Musallami (platform developer), Jokha Al Rawahi, Ansam Al Noumani, Tasnim Al Hasani, Rahaf Al Wardi and Alzahraa Al Busaidi, with our team advisor Dr. Salim Al-Rashdi. Invite the audience to scan the codes: the app and our Instagram. Thank you.'];
 /* ---------- engine ---------- */
 const slides = $$('.slide'); let cur = 0, step = 0;
 function stepsOf(i){ return +slides[i].dataset.steps || 0; }

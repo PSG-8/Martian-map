@@ -1,4 +1,4 @@
-/* iLab@home – real-time 3D banners and the opening splash (three.js, physically based materials, ACES tone mapping). */
+/* iLab@Home – real-time 3D banners and the opening splash (three.js, physically based materials, ACES tone mapping). */
 import * as THREE from './vendor/three.module.min.js';
 
 const R = {}; // renderer state
@@ -15,15 +15,10 @@ function ctex(w, h, draw){ const c = document.createElement('canvas'); c.width =
 function rr(x, X, Y, w, h, r){ x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
 function roundShape(w, h, r){ const s = new THREE.Shape(); const x = -w / 2, y = -h / 2; s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r); s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h); s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r); s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y); return s; }
 function rbox(w, h, d, r, bevel = .04){ const g = new THREE.ExtrudeGeometry(roundShape(w, h, r), { depth: d - bevel * 2, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 4, curveSegments: 10 }); g.translate(0, 0, -(d - bevel * 2) / 2); return g; }
-/* v28 logo on the 3D van, kit and phone: blue rounded square, white roof over a white drop, blue cross, orange dot */
-function hexMark(x, X, Y, s){ x.save(); x.translate(X, Y); x.scale(s / 64, s / 64);
-  const g = x.createLinearGradient(0, 0, 64, 64); g.addColorStop(0, '#3b82f6'); g.addColorStop(.55, '#2563eb'); g.addColorStop(1, '#1e3a8a');
-  x.fillStyle = g; x.beginPath(); if (x.roundRect) x.roundRect(0, 0, 64, 64, 16); else x.rect(0, 0, 64, 64); x.fill();
-  x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = '#fff'; x.lineWidth = 6.2; x.stroke(new Path2D('M14.5 30.5 32 15.5l17.5 15'));
-  x.fillStyle = '#fff'; x.fill(new Path2D('M32 25.5c-5.6 6.4-10.4 12.3-10.4 17.6a10.4 10.4 0 0 0 20.8 0c0-5.3-4.8-11.2-10.4-17.6z'));
-  x.strokeStyle = '#2563eb'; x.lineWidth = 3.2; x.stroke(new Path2D('M32 38.2v9.6M27.2 43h9.6'));
-  x.fillStyle = '#f97316'; x.beginPath(); x.arc(48.6, 15.8, 4.4, 0, Math.PI * 2); x.fill(); x.restore(); }
-function wordmark(x, X, Y, size, col, at, align){ x.font = `800 ${size}px Inter, Arial`; x.textBaseline = 'middle'; const p = ['i', 'Lab', '@', 'home']; const ws = p.map(s => x.measureText(s).width); let px = align === 'center' ? X - (ws[0] + ws[1] + ws[2] + ws[3]) / 2 : X; p.forEach((s, i) => { x.fillStyle = i === 0 || i === 2 ? at : col; x.fillText(s, px, Y); px += ws[i]; }); }
+function hexMark(x, X, Y, s, col){ x.save(); x.translate(X, Y); x.scale(s / 64, s / 64); x.strokeStyle = col; x.lineCap = 'round'; x.lineJoin = 'round';
+  x.lineWidth = 3.4; x.stroke(new Path2D('M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2')); x.lineWidth = 1.7; x.stroke(new Path2D('M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9'));
+  x.translate(32, 34); x.rotate(-32 * Math.PI / 180); x.translate(-32, -34); x.lineWidth = 2.4; x.stroke(new Path2D('M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1')); x.stroke(new Path2D('M27 20.5h10')); x.lineWidth = 1.9; x.stroke(new Path2D('M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2')); x.restore(); }
+function wordmark(x, X, Y, size, col, at, align){ x.font = `800 ${size}px Inter, Arial`; x.textBaseline = 'middle'; const p = ['i', 'Lab', '@', 'Home']; const ws = p.map(s => x.measureText(s).width); let px = align === 'center' ? X - (ws[0] + ws[1] + ws[2] + ws[3]) / 2 : X; p.forEach((s, i) => { x.fillStyle = i === 0 || i === 2 ? at : col; x.fillText(s, px, Y); px += ws[i]; }); }
 const bg = (stops) => ctex(16, 512, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); stops.forEach(([o, c]) => g.addColorStop(o, c)); x.fillStyle = g; x.fillRect(0, 0, w, h); });
 const radialBg = (inner, outer) => ctex(512, 512, (x, w, h) => { const g = x.createRadialGradient(w * .62, h * .42, 10, w * .55, h * .5, w * .75); g.addColorStop(0, inner); g.addColorStop(1, outer); x.fillStyle = g; x.fillRect(0, 0, w, h); });
 function shadowDisc(r, o = .28){ const t = ctex(128, 128, (x, w, h) => { const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, `rgba(10,20,40,${o})`); g.addColorStop(1, 'rgba(10,20,40,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
@@ -160,7 +155,7 @@ function makeTextures(){
   R.texBagLabel = ctex(512, 170, (x, w, h) => { wordmark(x, 24, 70, 92, '#ffffff', '#7cc0ff'); x.font = '600 40px "IBM Plex Sans Arabic", Arial'; x.fillStyle = '#9fc4ff'; x.textBaseline = 'middle'; x.fillText('آي لاب@هوم', 30, 140); });
   R.texBP = ctex(512, 280, (x, w, h) => { x.fillStyle = '#c9e7dc'; rr(x, 0, 0, w, h, 26); x.fill(); x.fillStyle = '#0c2b22'; x.font = '800 116px Inter, Arial'; x.textBaseline = 'alphabetic'; x.fillText('120', 30, 128); x.font = '800 92px Inter, Arial'; x.fillText('80', 60, 238); x.font = '700 26px Inter, Arial'; x.fillText('SYS mmHg', 270, 60); x.fillText('DIA mmHg', 270, 170);
     x.fillStyle = '#e2474f'; x.font = '800 54px Inter, Arial'; x.fillText('♥ 72', 300, 250); });
-  R.texVial = ctex(512, 160, (x, w, h) => { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.fillStyle = '#0fae9b'; x.fillRect(0, 0, w, 34); x.fillStyle = '#0d1628'; x.font = '800 44px Inter, Arial'; x.fillText('VACCINE', 24, 96); x.font = '600 26px Inter, Arial'; x.fillStyle = '#56657f'; x.fillText('iLab@home · soon', 24, 136); });
+  R.texVial = ctex(512, 160, (x, w, h) => { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.fillStyle = '#0fae9b'; x.fillRect(0, 0, w, 34); x.fillStyle = '#0d1628'; x.font = '800 44px Inter, Arial'; x.fillText('VACCINE', 24, 96); x.font = '600 26px Inter, Arial'; x.fillStyle = '#56657f'; x.fillText('iLab@Home · soon', 24, 136); });
   R.texScreen = ctex(660, 1430, (x, w, h) => {
     x.fillStyle = '#f4f7fc'; x.fillRect(0, 0, w, h); x.fillStyle = '#0d1628'; x.fillRect(0, 0, w, 230); hexMark(x, 34, 70, 96, '#7cc0ff'); wordmark(x, 146, 118, 58, '#ffffff', '#7cc0ff');
     x.fillStyle = '#9fb3d6'; x.font = '600 26px Inter, Arial'; x.fillText('LAH-10254 · Report', 148, 176);
@@ -272,7 +267,7 @@ function sceneSoon(){
 async function fonts(){ try { await Promise.race([Promise.all(['800 100px Inter', '600 60px Inter', '600 60px "IBM Plex Sans Arabic"'].map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 1500))]); } catch(e) {} }
 function makeRenderer(canvas){
   const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
-  r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25)); r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+  r.setPixelRatio(Math.min(window.devicePixelRatio || 1, innerWidth < 700 ? 1.6 : 1.5)); r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
   r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05; r.outputColorSpace = THREE.SRGBColorSpace; return r;
 }
 const BUILD = [sceneVan, sceneKit, scenePhone, sceneSeniors, sceneSoon];
@@ -295,18 +290,13 @@ let loopOn = false, last = 0, T0 = performance.now();
 function loop(now){
   if (!R.r || !R.canvas || !R.canvas.isConnected) { loopOn = false; if (R.r) { R.r.dispose(); R.r.forceContextLoss(); R.r = null; R.canvas = null; } return; }
   requestAnimationFrame(loop);
-  /* while the page is scrolling, keep the last frame: the scroll gets the whole machine and stays smooth */
-  if (document.hidden || R.offscreen || now - (R.scrollT || 0) < 180) { last = now; return; }
+  if (document.hidden || R.offscreen) { last = now; return; }
   const dt = Math.min(.05, (now - last) / 1000 || .016); last = now; const t = (now - T0) / 1000;
   const sc = scene(R.cur || 0); const [w, h] = size(); frame(sc, w, h, true); sc.update(t, dt, 'banner'); R.r.render(sc.s, sc.cam);
 }
 export async function init(canvas){
   await ensure(canvas); scene(0);
   if ('IntersectionObserver' in window) { const io = new IntersectionObserver(es => { R.offscreen = !es[0].isIntersecting; }); io.observe(canvas); }
-  if (!R.scrollHook) { R.scrollHook = true; addEventListener('scroll', () => { R.scrollT = performance.now(); }, { passive: true }); addEventListener('wheel', () => { R.scrollT = performance.now(); }, { passive: true }); }
-  /* build the other banner scenes in spare moments, so a slide change never has to build one on the spot */
-  const idle = window.requestIdleCallback || (f => setTimeout(f, 300)); let k = 1;
-  const pre = () => { if (!R.r || k >= BUILD.length) return; scene(k++); idle(pre, { timeout: 2000 }); }; idle(pre, { timeout: 2000 });
   if (!loopOn) { loopOn = true; last = performance.now(); requestAnimationFrame(loop); }
   return true;
 }

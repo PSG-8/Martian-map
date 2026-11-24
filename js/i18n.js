@@ -278,8 +278,8 @@ Object.assign(window.I18N.ar, {
   roadmap:'خارطة الطريق', contact_us:'تواصل معنا',
   e_NEED_GENDER:'يرجى اختيار الجنس.', e_BAD_NURSE:'هذا الممرض غير متاح لهذا الحجز. اختر ممرضاً آخر.', e_GENDER_MISMATCH:'يجب أن يكون الممرض والمستخدم من نفس الجنس.', e_NEED_MESSAGE:'يرجى كتابة رسالتك.'
 });
-I18N.en.foot_team = 'Team: Bilarab bin Suwailam Al Musallami ★, Jokha Al Rawahi, Ansam Al Noumani and Tasnim Al Hasani · Supervised by Dr. Salim Al Rashdi';
-I18N.ar.foot_team = 'الفريق: بلعرب بن سويلم المسلمي ★، جوخة الرواحي، أنسام النعماني، تسنيم الحسني · بإشراف د. سالم الراشدي';
+I18N.en.foot_team = 'Team: Bilarab bin Suwailam Al Musallami ★, Jokha Al Rawahi, Ansam Al Noumani, Tasnim Al Hasani, Rahaf Al Wardi and Alzahraa Al Busaidi · Supervised by Dr. Salim Al Rashdi';
+I18N.ar.foot_team = 'الفريق: بلعرب بن سويلم المسلمي ★، جوخة الرواحي، أنسام النعماني، تسنيم الحسني، رهف الوردي، الزهراء البوسعيدي · بإشراف د. سالم الراشدي';
 I18N.en.dev_star = 'Platform developer'; I18N.ar.dev_star = 'مطوّر المنصة';
 I18N.en.try_demo = 'Try a demo account (password Demo@2026)';
 /* v3 strings */
