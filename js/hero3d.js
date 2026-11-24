@@ -290,13 +290,18 @@ let loopOn = false, last = 0, T0 = performance.now();
 function loop(now){
   if (!R.r || !R.canvas || !R.canvas.isConnected) { loopOn = false; if (R.r) { R.r.dispose(); R.r.forceContextLoss(); R.r = null; R.canvas = null; } return; }
   requestAnimationFrame(loop);
-  if (document.hidden || R.offscreen) { last = now; return; }
+  /* while the page is scrolling, keep the last frame: the scroll gets the whole machine and stays smooth */
+  if (document.hidden || R.offscreen || now - (R.scrollT || 0) < 180) { last = now; return; }
   const dt = Math.min(.05, (now - last) / 1000 || .016); last = now; const t = (now - T0) / 1000;
   const sc = scene(R.cur || 0); const [w, h] = size(); frame(sc, w, h, true); sc.update(t, dt, 'banner'); R.r.render(sc.s, sc.cam);
 }
 export async function init(canvas){
   await ensure(canvas); scene(0);
   if ('IntersectionObserver' in window) { const io = new IntersectionObserver(es => { R.offscreen = !es[0].isIntersecting; }); io.observe(canvas); }
+  if (!R.scrollHook) { R.scrollHook = true; addEventListener('scroll', () => { R.scrollT = performance.now(); }, { passive: true }); addEventListener('wheel', () => { R.scrollT = performance.now(); }, { passive: true }); }
+  /* build the other banner scenes in spare moments, so a slide change never has to build one on the spot */
+  const idle = window.requestIdleCallback || (f => setTimeout(f, 300)); let k = 1;
+  const pre = () => { if (!R.r || k >= BUILD.length) return; scene(k++); idle(pre, { timeout: 2000 }); }; idle(pre, { timeout: 2000 });
   if (!loopOn) { loopOn = true; last = performance.now(); requestAnimationFrame(loop); }
   return true;
 }

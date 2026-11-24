@@ -1962,7 +1962,8 @@ function bindHero(){
   root.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) { const fwd = S.lang === 'ar' ? dx > 0 : dx < 0; go3(i + (fwd ? 1 : -1)); arm(); } x0 = null; }, { passive:true });
   go3(0);
   SPLASH.then(() => { if (!root.isConnected) return; go3(0); arm();
-  root.classList.add('flat'); });
+  if (liteMode() || !webglOk()) { root.classList.add('flat'); return; }
+  loadH3().then(m => m.init($('.h3-c', root)).then(() => { mod = m; m.show(i); root.classList.add('g3'); })).catch(e => { console.warn('3D off', e); root.classList.add('flat'); }); });
 }
 function quickTiles(){
   const u = !!S.user; const T = u ? 'app/tests' : 'tests';
@@ -1999,12 +2000,15 @@ async function splashIntro(){
   if (!force && (sessionStorage.getItem('lah_splash') || matchMedia('(prefers-reduced-motion: reduce)').matches || /^#\/(reset|verify)\//.test(location.hash) || navigator.webdriver)) return;
   let release; SPLASH = new Promise(r => release = r);
   sessionStorage.setItem('lah_splash', '1');
-  const el = document.createElement('div'); el.id = 'splash'; el.className = 'flat';
-  el.innerHTML = `<div class="sp-road"><i></i></div><img class="sp-van" src="img/art/van-side.webp" alt="" decoding="async"><div class="sp-brand"><span class="sp-logo">${A.holo(84)}</span><span class="sp-wm">${A.wordmark}</span><small>${t('brand_sub')}</small></div><button class="sp-skip">${t('skip_intro')}</button>`;
+  const el = document.createElement('div'); el.id = 'splash'; el.innerHTML = `<canvas></canvas><div class="sp-brand"><span class="sp-logo">${A.logo}</span><span class="sp-wm">${A.wordmark}</span><small>${t('brand_sub')}</small></div><button class="sp-skip">${t('skip_intro')}</button>`;
   document.body.appendChild(el); document.body.classList.add('lock');
   let done = false; const end = () => { if (done) return; done = true; el.classList.add('out'); document.body.classList.remove('lock'); setTimeout(() => { el.remove(); release(); }, 450); };
   $('.sp-skip', el).onclick = end; el.addEventListener('click', e => { if (e.target === el) end(); });
-  setTimeout(() => el.classList.add('brand'), 900); if (!hold) setTimeout(end, 2600);
+  const lite = liteMode() || !webglOk();
+  setTimeout(() => el.classList.add('brand'), lite ? 150 : 1500); if (!hold) setTimeout(end, lite ? 1500 : 3400);
+  if (lite) { el.classList.add('flat'); return; }
+  const race = Promise.race([loadH3(), new Promise((_, rj) => setTimeout(() => rj(new Error('slow')), 1800))]);
+  race.then(m => { if (!done) { el.classList.add('g3'); return m.splash($('canvas', el), hold ? 1e9 : 3200); } }).catch(() => el.classList.add('flat'));
 }
 
 /* ================= v19: What's new (explainer video + changelog) ================= */
@@ -2025,7 +2029,7 @@ Object.assign(I18N.ar, { ig_follow:'تابعنا على إنستغرام', ig_sc
 const MEDIA = 'https://ufykiqxsegyuyablrjsq.supabase.co/storage/v1/object/public/media/';
 const HOW_READY = true;
 const NEWS = [['steth','nw28a','v28'],['flask','nw28b','v28'],['ring','nw28c','v28'],['spark','nw28d','v28'],['phone','nw25','v25'],['users','nw25b','v25'],['spark','nw18','v18'],['check','nw17a','v17'],['steth','nw17b','v17'],['hosp','nw17c','v17'],['flask','nw17d','v17'],['lock','nw17e','v17']];
-const VIDS = { how: ['media/iLabAtHome_HowItWorks.mp4', 'media/how_poster.jpg', 'new_vid', 'new_sub', '1:04'], cast: ['media/iLabAtHome_Story.mp4', 'media/story_poster.jpg', 'new_vid2', 'new_sub2', '0:56'] };
+const VIDS = { how: ['media/iLabAtHome_HowItWorks.mp4', 'media/how_poster.jpg', 'new_vid', 'new_sub', '1:04'], cast: ['media/iLabAtHome_Characters.mp4', 'media/cast_poster.jpg', 'new_vid2', 'new_sub2', '0:55'] };
 function vidCard(k){ const [src, poster, tt, st, dur] = VIDS[k]; return `<div class="card pad-lg vid-card"><div class="row between wrap" style="gap:8px;margin-bottom:12px"><div><h3 style="margin:0">${t(tt)}</h3><div class="small muted">${t(st)}</div></div><span class="chip teal">${ic('play',14)} ${dur}</span></div>
   <video class="vid" controls playsinline preload="none" poster="${poster}"><source src="${src}" type="video/mp4"></video></div>`; }
 function newBlock(short){
@@ -2154,16 +2158,16 @@ Object.assign(I18N.ar, { soon_dna1:'فحص الجينات للمقبلين عل�
   soon_dna3:'الجينات والأدوية', soon_dna3d:'كيف تتعامل جيناتك مع الأدوية الشائعة (مميعات الدم، المسكنات، مضادات الاكتئاب).',
   soon_dna4:'فحوصات وراثية للمواليد والعائلة', soon_dna4d:'تأكيد جينات الثلاسيميا أو المنجلية في العائلة بفحص DNA يُرسل لمختبر مرجعي معتمد.',
   soon_dent:'تنظيف الأسنان في البيت', soon_dentd:'تنظيف وتلميع على يد أخصائي صحة فم بأجهزة متنقلة.' });
-Object.assign(I18N.en, { new_vid2:'iLab@home in one minute', new_sub2:'English narration · Arabic subtitles',
+Object.assign(I18N.en, { 
   nw28a:'Doctor & dentist consultations', nw28ad:'Video or voice calls with a male or female doctor before your tests or after your results, plus online and home dentists.',
   nw28b:'Results read like a real lab', nw28bd:'Separate ranges for women and children, “slightly outside” values stay normal with tips, and only true emergencies are marked urgent.',
   nw28c:'Premarital screening', nw28cd:'The Ministry of Health premarital tests at home, fully confidential. DNA tests are coming soon.',
-  nw28d:'Pixar-style pictures & hologram logo', nw28dd:'New pictures of our nurses, families and van, a moving hologram logo, banners that move on phones, and the van that drives in when you sign up.' });
-Object.assign(I18N.ar, { new_vid2:'آي لاب@هوم في دقيقة', new_sub2:'تعليق بالإنجليزي · ترجمة عربية',
+  nw28d:'New team members', nw28dd:'Rahaf Al Wardi and Alzahraa Al Busaidi join the iLab@home team as nurses.' });
+Object.assign(I18N.ar, { 
   nw28a:'استشارات الأطباء وأطباء الأسنان', nw28ad:'مكالمة فيديو أو صوت مع طبيب أو طبيبة قبل الفحص أو بعد النتائج، وطبيب أسنان أونلاين وفي البيت.',
   nw28b:'قراءة نتائج مثل المختبر الحقيقي', nw28bd:'معدلات خاصة للنساء والأطفال، والقيم الخارجة بشكل بسيط تبقى طبيعية مع نصائح، وما يُعتبر عاجلاً إلا الطوارئ الحقيقية.',
   nw28c:'فحص ما قبل الزواج', nw28cd:'فحوصات برنامج وزارة الصحة لما قبل الزواج في بيتك وبسرية تامة. وفحوصات الجينات قريباً.',
-  nw28d:'صور بأسلوب بيكسار وشعار هولوغرام', nw28dd:'صور جديدة للممرضين والعائلات والفان، وشعار هولوغرام متحرك، وبنرات تتحرك على الجوال، والفان اللي يدخل لما تسجّل.' });
+  nw28d:'أعضاء جدد في الفريق', nw28dd:'انضمت رهف الوردي والزهراء البوسعيدي لفريق آي لاب@هوم كممرضات.' });
 /* money rules (fallbacks match the database settings) */
 let BIZ = null;
 const BIZ0 = { home_fee:5, nurse_fee:3, courier_fee:1, kit_cost:0.5, lab_share:0.65, pay_fee_pct:0.025, nurse_bonus:[0,0.25,0.5,0.75], consult_fee:4, consult_post_fee:3, consult_doctor_share:0.75, dental_home_fee:12, dental_home_share:0.65,
@@ -2373,9 +2377,10 @@ async function viewBusiness(){
 Object.assign(I18N.en, { van_hi:'Your nurse is on the way', r_cyber:'Cybersecurity', r_hr:'Human resources', r_nurse_t:'Nurse', r_adv:'Advisor · Supervisor', r_devfull:'Platform developer · Computer engineer' });
 Object.assign(I18N.ar, { van_hi:'ممرضتك في الطريق', r_cyber:'الأمن السيبراني', r_hr:'الموارد البشرية', r_nurse_t:'ممرضة', r_adv:'المشرف والمستشار', r_devfull:'مطوّر المنصة · مهندس حاسوب' });
 /* the iLab@home van drives in on the sign-in / sign-up screens (picture, not a drawing) */
+const VAN_SVG = `<ellipse cx="120" cy="196" rx="104" ry="6" fill="#0d1628" opacity=".12"/><path d="M14 168V96c0-10 8-18 18-18h118c8 0 15 4 19 10l26 34 22 8c6 2 9 7 9 13v25z" fill="#fff" stroke="#dbe5f5" stroke-width="2"/><path d="M152 86h12l24 34h-36z" fill="#bfdbfe"/><rect x="14" y="138" width="214" height="12" fill="#2563eb"/><rect x="14" y="150" width="214" height="5" fill="#f97316"/><g transform="translate(30 92) scale(.6)" stroke="#2563eb" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke-width="4"/><path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke-width="2"/><g transform="rotate(-32 32 34)" stroke-width="2.8"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="2.2"/></g></g><text x="108" y="120" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="18" fill="#0d1628" text-anchor="middle" letter-spacing="-.5" direction="ltr"><tspan fill="#2563eb">i</tspan>Lab<tspan fill="#2563eb">@</tspan>home</text><text x="108" y="132" font-family="Inter,Arial" font-weight="600" font-size="8" fill="#64748b" text-anchor="middle">+968 9434 2557 · @ilabathome</text><circle cx="58" cy="170" r="17" fill="#0d1628"/><circle cx="58" cy="170" r="7" fill="#cbd5e1"/><circle cx="184" cy="170" r="17" fill="#0d1628"/><circle cx="184" cy="170" r="7" fill="#cbd5e1"/>`;
 function vanStrip(){
-  return `<div class="van-strip" aria-hidden="true"><i class="vs-sun"></i><i class="vs-dune d1"></i><i class="vs-dune d2"></i><i class="vs-palm p1"></i><i class="vs-palm p2"></i><div class="vs-road"><i></i></div>
-    <div class="vs-van"><img src="img/art/van-side.webp" alt="" width="900" height="432" decoding="async"><span class="vs-puff p1"></span><span class="vs-puff p2"></span></div><div class="vs-msg">${ic('pin',14)} ${t('van_hi')}</div></div>`;
+  return `<div class="van-strip" aria-hidden="true"><div class="vs-sky"><i class="cloud c1"></i><i class="cloud c2"></i><span class="vs-house">${A.markSvg({ fg:'#cbd5e1', still:true })}</span></div><div class="vs-road"><i></i></div>
+    <div class="vs-van"><svg viewBox="0 0 240 210">${VAN_SVG}</svg><span class="vs-puff p1"></span><span class="vs-puff p2"></span></div><div class="vs-msg">${ic('pin',14)} ${t('van_hi')}</div></div>`;
 }
 /* team: a small animated icon for each person's job (like emoji reactions) */
 const TEAM = [
@@ -2387,8 +2392,9 @@ const TEAM = [
   ['Alzahraa Al Busaidi','الزهراء البوسعيدي','nurse','🧕🏻','💉','r_nurse_t'],
   ['Dr. Salim Al Rashdi','د. سالم الراشدي','adv','👨🏻‍🏫','🎓','r_adv']];
 function teamCard([en, ar, role, face, badge, lbl]){
-  return `<div class="card center pad-lg tm-card tm-${role}"><span class="tm-av" aria-hidden="true"><span class="tm-face">${face}</span><span class="tm-badge">${badge}</span><i class="tm-fx"></i></span>
-    <h4 style="margin-top:12px">${esc(S.lang === 'ar' ? ar : en)}${role === 'dev' ? ' <span class="dev-s">★</span>' : ''}</h4><span class="chip ${role === 'adv' ? 'teal' : role === 'dev' ? '' : 'gray'}">${t(lbl)}</span></div>`;
+  const c = { dev:'#2563eb', cyber:'#e8466f', hr:'#7a5af8', nurse:'#14b8a6', adv:'#0fae9b' }[role] || '#2563eb';
+  return role === 'dev' ? `<div class="card center pad-lg"><span class="avatar xl" style="background:${c}">${esc(initials(en))}</span><h4 style="margin-top:12px">${esc(S.lang === 'ar' ? ar : en)} <span class="dev-s">★</span></h4><span class="chip">${t('dev_star')}</span></div>`
+    : `<div class="card center pad-lg"><span class="avatar xl" style="background:${c}">${esc(initials(en.replace('Dr. ', '')))}</span><h4 style="margin-top:12px">${esc(S.lang === 'ar' ? ar : en)}</h4><span class="chip ${role === 'adv' ? 'teal' : ''}">${t(role === 'adv' ? 'supervisor' : 'member')}</span></div>`;
 }
 /* doctors: Pixar-style portraits (fall back to the drawn avatar) */
 const DOC_PIC = { 'Dr. Aisha Al Balushi':'aisha', 'Dr. Hilal Al Harthy':'hilal', 'Dr. Rahma Al Shukaili':'rahma', 'Dr. Talal Al Riyami':'talal' };
