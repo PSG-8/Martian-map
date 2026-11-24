@@ -1,0 +1,22 @@
+import { launch, phone, mock } from './harness.mjs';
+const b = await launch(); const errors = []; const O = '/tmp/lv/ex/shots/';
+const P = async (token) => { const p = await phone(b, { token, lang: 'en', errors, dpr: 3 }); await p.context().setDefaultTimeout(15000); return p; };
+const shot = async (p, n, full) => { await p.waitForTimeout(900); await p.evaluate(() => { const bt = document.getElementById('bot'); if (bt) bt.style.display = 'none'; }); await p.screenshot({ path: O + n + '.png', fullPage: !!full }); };
+let p = await P(null); await p.goto('http://site.local/#/register'); await shot(p, '01_register'); await p.context().close();
+p = await P('tok-patient'); await p.goto('http://site.local/#/app/tests?c=packages'); await shot(p, '02_packages');
+await p.goto('http://site.local/#/app/tests?c=kids'); await shot(p, '03_kids');
+await p.goto('http://site.local/#/app/tests'); await p.waitForSelector('[data-add]'); const adds = await p.$$('[data-add]'); await adds[0].tap(); await p.waitForTimeout(300);
+await p.goto('http://site.local/#/app/book'); await p.waitForSelector('#nx');
+for (let s = 1; s <= 4; s++) { await p.waitForTimeout(800); await shot(p, '04_book' + s); if (s === 4) { const sl = await p.$('[data-slot]:not([disabled]):not(.locked)'); if (sl) { await sl.tap(); await p.waitForTimeout(300); await shot(p, '04_book4b'); } } await p.tap('#nx'); }
+await p.waitForTimeout(800); if (await p.$('#cn')) { await p.fill('#cn', '4242424242424242'); await p.fill('#ce', '1230'); await p.fill('#cv', '123'); } await shot(p, '05_pay');
+await p.tap('#pay'); await p.waitForTimeout(1500); await shot(p, '06_booked'); await p.context().close();
+p = await P('tok-nurse'); await p.goto('http://site.local/#/app'); await shot(p, '07_nurse_home');
+mock.handle('demo_advance', { p_id: 'o2' });
+await p.goto('http://site.local/#/app/order/o2'); await shot(p, '08_nurse_order'); const c = await p.$('[data-act=collect]'); if (c) { await c.tap(); await p.waitForTimeout(500); for (const id of ['#c1', '#c2', '#c3', '#c5']) { const e = await p.$(id); if (e) await e.check(); } await shot(p, '09_checklist'); } await p.context().close();
+mock.handle('demo_advance', { p_id: 'o2' }); mock.handle('demo_advance', { p_id: 'o2' });
+p = await P('tok-patient'); await p.goto('http://site.local/#/app/order/o2'); await shot(p, '10_tracking', true);
+await p.goto('http://site.local/#/app/order/o7'); await shot(p, '11_urgent', true);
+await p.goto('http://site.local/#/app/order/o8'); await shot(p, '12_review', true);
+await p.goto('http://site.local/#/app/report/o8'); await shot(p, '13_report', true);
+await p.goto('http://site.local/#/app'); await shot(p, '14_home'); await p.context().close();
+console.log(errors.join('\n') || 'no errors'); await b.close();

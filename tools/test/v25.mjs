@@ -1,0 +1,12 @@
+import { launch, phone } from './harness.mjs';
+const b = await launch(); const errors = []; const O = '/tmp/lv/v25_';
+let p = await phone(b, { errors, lang: 'ar' }); await p.goto('http://site.local/#/'); await p.waitForTimeout(1500);
+const st = await p.evaluate(() => ({ flat: document.querySelector('#h3').classList.contains('flat'), img: [...document.querySelectorAll('.h3-im img')].map(i => i.currentSrc.split('/').pop()), wn: !!document.querySelector('#whatsnew video'), ct: !!document.querySelector('#contact .ig-qr svg'), h: document.body.scrollHeight }));
+console.log('phone', JSON.stringify(st)); await p.screenshot({ path: O + 'phone_top.png' });
+await p.evaluate(() => document.getElementById('whatsnew').scrollIntoView()); await p.waitForTimeout(500); await p.screenshot({ path: O + 'phone_new.png' });
+await p.evaluate(() => document.getElementById('contact').scrollIntoView()); await p.waitForTimeout(500); await p.screenshot({ path: O + 'phone_ct.png' });
+await p.goto('http://site.local/#/about'); await p.waitForTimeout(1200); await p.evaluate(() => document.querySelector('.team').scrollIntoView()); await p.waitForTimeout(400); await p.screenshot({ path: O + 'phone_team.png' });
+await p.context().close();
+const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } }); const d = await ctx.newPage(); d.on('pageerror', e => errors.push('d ' + e.message));
+await d.route('**/*', r => r.continue());
+await b.close(); console.log(errors.join('\n') || 'no errors');

@@ -1,0 +1,32 @@
+@font-face{font-family:Inter;src:url(fonts/Inter.ttf);font-weight:100 900}
+@font-face{font-family:Plex;src:url(fonts/IBMPlexSansArabic-SemiBold.ttf);font-weight:600}
+@font-face{font-family:Plex;src:url(fonts/IBMPlexSansArabic-Bold.ttf);font-weight:700}
+html,body{margin:0;background:#0a1222;overflow:hidden}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:Inter,Plex,sans-serif;color:#0d1628}
+#cv{position:absolute;inset:0}
+#ui{position:absolute;inset:0}#ui>*{position:absolute;opacity:0}
+#vign{inset:0;opacity:1!important;background:radial-gradient(ellipse at 50% 45%,transparent 60%,rgba(0,0,0,.28));}
+.wm{font-weight:800;letter-spacing:-.03em;white-space:nowrap;color:#0d1628}.wm i{font-style:normal;color:#2563eb}
+#bug{left:50px;top:38px;background:rgba(255,255,255,.9);padding:12px 22px;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.2)}#bug .wm{font-size:34px}
+#chip{right:50px;top:38px;display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.92);padding:12px 26px 12px 12px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+#chip b{background:#2563eb;color:#fff;font-size:26px;width:54px;height:54px;border-radius:50%;display:grid;place-items:center}
+#chip .en{font-size:30px;font-weight:800}#chip .ar{font-family:Plex;font-weight:700;font-size:28px;color:#2563eb}
+#title{left:50%;top:36%;text-align:center;background:rgba(255,255,255,.95);padding:34px 70px 38px;border-radius:40px;box-shadow:0 30px 80px rgba(0,0,0,.3)}
+#title .wm{font-size:150px;line-height:1}#title .tag{font-size:38px;font-weight:700;color:#334160;margin-top:10px}#title .tagar{font-family:Plex;font-weight:700;font-size:36px;color:#2563eb;direction:rtl;margin-top:4px}
+#sub{left:720px;bottom:40px;width:1320px;text-align:center}
+#sub span{display:inline-block;font-family:Plex;font-weight:700;font-size:44px;line-height:1.38;color:#fff;direction:rtl;background:rgba(10,18,34,.8);padding:10px 32px 14px;border-radius:22px;box-shadow:0 12px 34px rgba(0,0,0,.3)}
+#card{right:34px;bottom:28px;min-width:470px;min-height:206px;box-sizing:border-box;background:#fff;border-radius:28px;padding:22px 30px;box-shadow:0 18px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;justify-content:center;gap:12px}
+.who{border-left:8px solid var(--c);padding-left:18px}.who .n{font-size:38px;font-weight:800;letter-spacing:-.01em;white-space:nowrap}.who .n span{font-family:Plex;font-weight:700;color:var(--c);margin-left:14px;font-size:34px}
+.who .r{font-size:21px;font-weight:700;color:#56657f;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+#card .who+.who{margin-top:2px}
+.brand{text-align:center}.brand .wm{font-size:66px}.brand .big2{font-size:64px;font-weight:800;color:#2563eb;letter-spacing:-.02em}.brand .r{font-size:26px;font-weight:700;color:#56657f;margin-top:6px}
+.em{width:120px;height:120px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 14px 34px rgba(0,0,0,.3)}.em svg{width:72px;height:72px}
+.em.tx{width:auto;height:auto;border-radius:999px;padding:16px 30px;font-size:44px;font-weight:800;color:#fff;background:var(--c)}
+#live{left:50%;top:30px;background:rgba(255,255,255,.96);border-radius:26px;padding:16px 30px;font-size:30px;font-weight:800;text-align:center;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+#live i{display:inline-block;width:16px;height:16px;border-radius:50%;background:#ef4444;margin-right:12px;box-shadow:0 0 0 6px rgba(239,68,68,.2)}
+#live .steps{display:flex;gap:10px;margin-top:12px}#live .steps span{font-size:22px;font-weight:700;padding:8px 16px;border-radius:999px;background:#e8eef9;color:#56657f}#live .steps span.on{background:#2563eb;color:#fff}
+#scrim{inset:0;background:radial-gradient(ellipse at 50% 46%,rgba(10,18,34,.86),rgba(10,18,34,.62) 75%)}
+#end{left:50%;top:48%;text-align:center;color:#fff}#end .wm{color:#fff;font-size:190px;line-height:1}#end .wm i{color:#7cc0ff}
+#end .tl{font-size:58px;font-weight:800;margin-top:18px}#end .tlar{font-family:Plex;font-weight:700;font-size:50px;color:#9cc7ff;direction:rtl;margin-top:6px}
+#end .row{display:flex;gap:20px;justify-content:center;margin-top:36px}#end .pill{display:flex;align-items:center;gap:12px;font-size:34px;font-weight:700;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.3);padding:14px 30px;border-radius:999px}#end .pill svg{width:38px;height:38px}
+#fade{inset:0;background:#fff;pointer-events:none}

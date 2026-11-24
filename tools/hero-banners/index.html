@@ -1,0 +1,7 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0"><canvas id="c"></canvas>
+<script type="module">
+import * as H from './js/hero3d.js';
+window.go = async (w, h) => { const c = document.getElementById('c'); c.width = w; c.height = h; c.style.width = w + 'px'; c.style.height = h + 'px'; await H.filmSetup(c, w, h); window.W = w; window.Hh = h; };
+window.shot = (i, t, ox, oy, fov) => { for (let k = 0; k < 8; k++) H.filmRender(i, t - (7 - k) / 30, ox, oy, fov); return document.getElementById('c').toDataURL('image/jpeg', .84); };
+window.ready = true;
+</script></body></html>
