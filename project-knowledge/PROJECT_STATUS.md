@@ -1,6 +1,6 @@
 # Project status — last updated 2026-11-24
 
-## v30 (branch `lab-at-home`, pushed; production deploy waits for the owner's OK)
+## v30 (LIVE on labathome-oman.vercel.app since 2026-11-24, deployment dpl_5XKZtX6gDqWQTaDgSn1T9tKb9Dy2; live-checked: phone banner loops play, business page hidden for the public, doctor sign-up, patient↔Dr. Hilal messages)
 - **Business page** (`#/business`): only for admin accounts (the leader's account and the demo admin). Removed from the public top bar, footer and menu; other visitors who open the link go to the home page. Admins see it in their menu.
 - **Top bar**: a link that does not fit is now hidden whole (it moves to a hidden second line) instead of being cut in half.
 - **Doctors can join as partners**: "Join as partner" → Doctor (gender, licence, years, specialty incl. dentistry, wilayat). Pending until approved like other partners; approved doctors take online consultations.
