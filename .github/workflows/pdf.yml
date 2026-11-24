@@ -1,0 +1,16 @@
+name: snmp-pdf
+on: { push: { branches: [snmp-pdf] } }
+permissions: { contents: write }
+jobs:
+  pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils fonts-noto-color-emoji && pip install -q pypdf pillow
+      - run: npm init -y >/dev/null && npm i playwright@1.49.1 && npx playwright install --with-deps chromium
+      - run: node pdf.mjs && python3 merge.py
+      - run: |
+          mkdir pub && cp out/SNMP_Presentation_Bilarab_Almusallami.pdf out/SNMP_Slides_Images.pdf out/sheet.jpg pub/ && cd pub
+          git init -q -b snmp-pdf-out && git config user.email a@b.c && git config user.name actions && git add . && git commit -qm pdf && git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" snmp-pdf-out
