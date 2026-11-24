@@ -17,3 +17,6 @@ Owner / platform developer: Bilarab Al Musallami. Team: Jokha Al Rawahi, Ansam A
 - Bilarab's name comes first in every team list.
 - Test before saying something works (local harness + live check). Ask before deleting data, deploying, or spending money.
 - No build step: vanilla HTML/CSS/JS. Bump the asset version on every deploy (see RUNBOOK).
+
+## Claude Code setup
+Skills, subagents and safety hooks for this repo are in `.claude/` (see `.claude/README.md`).
