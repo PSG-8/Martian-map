@@ -1,10 +1,10 @@
-const V = 'lah-v29';
-const CORE = ['./', 'index.html', 'css/app.css?v=29', 'js/i18n.js?v=29', 'js/art.js?v=29', 'js/api.js?v=29', 'js/qr.js?v=29', 'js/pdf.js?v=29', 'js/guide.js?v=29', 'js/app.js?v=29', 'icons/icon.svg', 'manifest.webmanifest', "img/hero/h0d.webp", "img/hero/h0m.webp"];
+const V = 'lah-v30';
+const CORE = ['./', 'index.html', 'css/app.css?v=30', 'js/i18n.js?v=30', 'js/art.js?v=30', 'js/api.js?v=30', 'js/qr.js?v=30', 'js/pdf.js?v=30', 'js/guide.js?v=30', 'js/app.js?v=30', 'icons/icon.svg', 'manifest.webmanifest', "img/hero/h0d.webp", "img/hero/h0m.webp"];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
   const r = e.request; const u = new URL(r.url);
-  if (r.method !== 'GET' || r.headers.has('range') || u.pathname.includes('/media/') || u.pathname.includes('/api/') || u.hostname.endsWith('supabase.co') || u.hostname.includes('tile.openstreetmap')) return;
+  if (r.method !== 'GET' || r.headers.has('range') || u.pathname.includes('/media/') || u.pathname.endsWith('.mp4') || u.pathname.includes('/api/') || u.hostname.endsWith('supabase.co') || u.hostname.includes('tile.openstreetmap')) return;
   /* pages and anything without a version number: always try the network first, so every change shows up at once */
   if (r.mode === 'navigate') { e.respondWith(fetch(r.url, { cache: 'no-store', credentials: 'same-origin' }).catch(() => caches.match('index.html'))); return; }
   const versioned = u.search.includes('v=') || u.hostname.includes('unpkg') || u.hostname.includes('gstatic');

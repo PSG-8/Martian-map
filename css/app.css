@@ -932,3 +932,17 @@ input[type=range]{width:100%;accent-color:var(--blue);height:28px}
 /* doctor pictures */
 .doc-pic{border-radius:50%;object-fit:cover;flex:none;background:#eaf2ff;box-shadow:0 6px 16px rgba(16,40,90,.15)}
 .cs-hero-art .doc-pic{border:3px solid rgba(255,255,255,.6)}
+
+/* v30: top menu shows whole links only (a link that does not fit moves to a hidden second line instead of being cut) */
+.topbar .nav{flex-wrap:wrap;align-items:center;height:44px;overflow:hidden;row-gap:40px}
+.topbar .nav a{line-height:44px;padding-top:0;padding-bottom:0}
+/* v30: consultation messages */
+.chat-list{max-height:340px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:6px 2px 10px}
+.msg{display:flex;flex-direction:column;align-items:flex-start;max-width:82%}
+.msg.me{align-self:flex-end;align-items:flex-end}
+.msg .bub{background:#eef3fb;border-radius:16px 16px 16px 4px;padding:10px 14px;white-space:pre-wrap;word-break:break-word}
+.msg.me .bub{background:var(--blue);color:#fff;border-radius:16px 16px 4px 16px}
+[dir=rtl] .msg .bub{border-radius:16px 16px 4px 16px}[dir=rtl] .msg.me .bub{border-radius:16px 16px 16px 4px}
+.chat-form{display:flex;gap:8px;margin-top:6px}
+.h3-v{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 100%;opacity:0;transition:opacity .6s ease}
+.h3-v.ok{opacity:1}

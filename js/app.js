@@ -84,7 +84,7 @@ function topbar(){
   return `<header class="topbar"><div class="wrap-w in">
     <button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>
     <a href="#/" class="brand">${brandInner(t('brand_sub'))}</a>
-    <nav class="nav"><a href="#/how">${t('nav_how')}</a><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/business">${t('m_business')}</a><a href="#/install">${t('m_install')}</a><a href="#/contact">${t('m_contact')}</a><a href="#/about">${t('m_about')}</a><a href="#/new">${t('m_new')}</a></nav>
+    <nav class="nav"><a href="#/how">${t('nav_how')}</a><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/install">${t('m_install')}</a><a href="#/contact">${t('m_contact')}</a><a href="#/about">${t('m_about')}</a><a href="#/new">${t('m_new')}</a></nav>
     <div class="grow"></div>
     <button class="lang hide-sm" data-lang>${t('lang')}</button>
     <a class="icon-btn ${S.user ? '' : 'hide-sm'}" href="#/${S.user ? 'app/cart' : 'tests'}" aria-label="${t('m_cart')}">${ic('box')}${n ? `<span class="dot">${n}</span>` : ''}</a>
@@ -140,7 +140,7 @@ async function viewHow(){
 
   <section class="section" id="partners"><div class="wrap-w">
     <div class="section-h"><span class="eyebrow">${t('roles_eyebrow')}</span><h2>${t('roles_t')}</h2><p>${t('roles_p')}</p></div>
-    <div class="roles">${['patient','nurse','courier','lab','company'].map(r => `<a class="role" href="#/register/${r}">${A.roleIcon(r)}<h4>${t('r_'+r)}</h4><p>${t('r_'+r+'_d')}</p></a>`).join('')}</div>
+    <div class="roles">${['patient','nurse','doctor','courier','lab','company'].map(r => `<a class="role" href="#/register/${r}">${A.roleIcon(r)}<h4>${t('r_'+r)}</h4><p>${t('r_'+r+'_d')}</p></a>`).join('')}</div>
     <div class="band" style="margin-top:34px">
       <div><b>48 h</b><span>${t('band1')}</span></div><div><b>${omr(fee())}</b><span>${t('band2')} (${t('omr')})</span></div>
       <div><b>${C ? C.wilayats.length : 7}</b><span>${t('band3')}</span></div><div><b>${C ? C.tests.length + C.packages.length : 17}</b><span>${t('band4')}</span></div>
@@ -175,7 +175,7 @@ async function viewHow(){
 function footer(){
   return `<footer class="site"><div class="wrap-w"><div class="row wrap between" style="gap:20px;align-items:flex-start">
     <div style="max-width:520px"><div class="brand">${brandInner()}</div><p class="small" style="margin-top:12px">${t('foot_note')}</p><p class="xs" style="opacity:.75">${t('foot_team')}</p></div>
-    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/dental">${t('m_dental')}</a><a href="#/business">${t('m_business')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
+    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/dental">${t('m_dental')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/doctor">${t('r_doctor')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
     <p class="xs" style="opacity:.6;margin-top:24px">© 2026 iLab@home · Oman</p></div></footer>`;
 }
 /* map library: loaded only when a screen shows a map (it used to load on every page) */
@@ -242,7 +242,7 @@ function viewRegister(role){
   const draw = () => {
     if (!st.role) {
       app.innerHTML = authShell(`<button class="link" data-pat>${'<span class="flip">'+ic('back',18)+'</span>'} ${t('patient_link')}</button><h1 style="margin-top:12px">${t('partner_t')}</h1><p class="muted">${t('partner_q')}</p>
-        <div class="grid g2 collapse" style="margin-top:16px">${['nurse','lab','courier','company'].map(r => `<button class="role" style="text-align:start;display:flex;gap:12px;align-items:center;padding:14px" data-role="${r}">${A.roleIcon(r, 46)}<span><b>${t('r_'+r)}</b><span class="muted small" style="display:block">${t('r_'+r+'_d')}</span></span></button>`).join('')}</div>`);
+        <div class="grid g2 collapse" style="margin-top:16px">${['nurse','doctor','lab','courier','company'].map(r => `<button class="role" style="text-align:start;display:flex;gap:12px;align-items:center;padding:14px" data-role="${r}">${A.roleIcon(r, 46)}<span><b>${t('r_'+r)}</b><span class="muted small" style="display:block">${t('r_'+r+'_d')}</span></span></button>`).join('')}</div>`);
       $$('[data-role]').forEach(b => b.onclick = () => { st.role = b.dataset.role; history.replaceState(null, '', '#/register/' + st.role); draw(); });
       $('[data-pat]').onclick = () => { st.role = 'patient'; history.replaceState(null, '', '#/register'); draw(); };
       bindGlobal(); return;
@@ -257,6 +257,9 @@ function viewRegister(role){
       nurse: `<div class="grid g2"><label class="field"><span>${t('license')}</span><input class="input" name="license" required placeholder="OMSB-RN-…"></label><label class="field"><span>${t('years')}</span><input class="input" type="number" min="0" max="50" name="years"></label></div>
         <label class="field"><span>${t('wilayat')}</span>${wsel('wilayat')}</label><div class="field"><span>${t('coverage')}</span>${wsel('coverage', true)}</div>`,
       courier: `<label class="field"><span>${t('logistics_co')}</span><input class="input" name="company"></label><div class="grid g2"><label class="field"><span>${t('vehicle')}</span><input class="input" name="vehicle" placeholder="Van · 2–8 °C box"></label><label class="field"><span>${t('plate')}</span><input class="input" name="plate" placeholder="12345 AB"></label></div><label class="field"><span>${t('wilayat')}</span>${wsel('wilayat')}</label><div class="field"><span>${t('coverage')}</span>${wsel('coverage', true)}</div>`,
+      doctor: `<div class="grid g2"><label class="field"><span>${t('license')}</span><input class="input" name="license" required placeholder="OMSB-MD-…"></label><label class="field"><span>${t('years')}</span><input class="input" type="number" min="0" max="60" name="years"></label></div>
+        <label class="field"><span>${t('specialty')}</span><select class="input" name="specialty"><option value="Family Medicine">${t('sp_family')}</option><option value="Internal Medicine">${t('sp_internal')}</option><option value="Pediatrics">${t('sp_peds')}</option><option value="Dentistry">${t('sp_dent')}</option></select></label>
+        <label class="field"><span>${t('wilayat')}</span>${wsel('wilayat')}</label>`,
       lab: `<label class="field"><span>${t('lab_name')}</span><input class="input" name="lab_name" required></label><div class="grid g2"><label class="field"><span>${t('lab_license')}</span><input class="input" name="license" required></label><label class="field"><span>${t('accreditation')}</span><input class="input" name="accreditation" placeholder="ISO 15189 / CAP"></label></div>
         <label class="field"><span>${t('wilayat')}</span>${wsel('wilayat')}</label>`,
       company: `<label class="field"><span>${t('company_name')}</span><input class="input" name="company_name" required></label><div class="grid g2"><label class="field"><span>${t('cr')}</span><input class="input" name="cr"></label><label class="field"><span>${t('employees')}</span><input class="input" type="number" min="1" name="employees"></label></div><label class="field"><span>${t('wilayat')}</span>${wsel('wilayat')}</label>`
@@ -265,7 +268,7 @@ function viewRegister(role){
       <div class="row" style="margin:10px 0 4px">${A.roleIcon(r, 48)}<div><h1 style="margin:0">${t('reg_t')}</h1><div class="muted small">${t('r_'+r)} · ${t('r_'+r+'_d')}</div></div></div>
       <form id="rf" class="stack" style="margin-top:16px" novalidate>
         <label class="field"><span>${r === 'company' || r === 'lab' ? t('contact_person') : t('full_name')}</span><input class="input" name="full_name" autocomplete="name" required></label>
-        ${r === 'patient' || r === 'nurse' ? genderPick : ''}
+        ${r === 'patient' || r === 'nurse' || r === 'doctor' ? genderPick : ''}
         ${['patient','nurse','courier'].includes(r) ? `<label class="field"><span>${t('civil_id')}</span><input class="input" name="civil_id" inputmode="numeric" maxlength="10" required placeholder="${t('civil_ph')}"><div class="hint">${ic('shield',13)} ${t('civil_hint')}</div></label>` : ''}
         <label class="field"><span>${t('phone')}</span><input class="input" name="phone" inputmode="tel" autocomplete="tel" placeholder="9XXX XXXX"></label>
         <label class="field"><span>${t('email_opt')}</span><input class="input" type="email" name="email" autocomplete="email"></label>
@@ -282,13 +285,14 @@ function viewRegister(role){
     if ($('[data-partner]')) $('[data-partner]').onclick = () => { st.role = null; history.replaceState(null, '', '#/register?partner=1'); draw(); };
     $('#rf').onsubmit = async e => { e.preventDefault(); const f = e.target; $('#re').textContent = '';
       const val = n => f[n] ? (f[n].value || '').trim() : '';
-      if ((r === 'patient' || r === 'nurse') && !st.gender) { $('#re').textContent = t('e_NEED_GENDER'); return; }
+      if ((r === 'patient' || r === 'nurse' || r === 'doctor') && !st.gender) { $('#re').textContent = t('e_NEED_GENDER'); return; }
       const civ = val('civil_id').replace(/\D/g,'');
       if (['patient','nurse','courier'].includes(r) && !/^\d{6,10}$/.test(civ)) { $('#re').textContent = t(civ ? 'e_BAD_CIVIL' : 'e_NEED_CIVIL'); return; }
       const meta = {}; if (st.gender) meta.gender = st.gender;
       ['license','years','lab_name','accreditation','company_name','cr','employees','vehicle','company','plate'].forEach(k => { if (f[k] && f[k].value) meta[k] = f[k].value.trim(); });
       if (r === 'nurse' || r === 'courier') meta.coverage = $$('input[name=coverage]:checked', f).map(x => x.value);
       if (r === 'lab' && !meta.lab_name) { $('#re').textContent = t('e_NEED_NAME'); return; }
+      if (r === 'doctor') { const sp = f.specialty.value; meta.specialty = sp; meta.specialty_ar = { 'Family Medicine':'طب الأسرة', 'Internal Medicine':'الطب الباطني', 'Pediatrics':'طب الأطفال', 'Dentistry':'طب الأسنان' }[sp]; if (sp === 'Dentistry') meta.dental = true; meta.langs = ['Arabic','English']; }
       const w = val('wilayat') || null; const ll = WILAYAT_LL[w] || [];
       const p = { role:r, full_name: r === 'lab' ? (meta.lab_name || val('full_name')) : r === 'company' ? (meta.company_name || val('full_name')) : val('full_name'),
         phone: val('phone'), email: val('email'), password: f.newpass.value, consent: f.consent.checked,
@@ -309,7 +313,7 @@ function navFor(role){
     courier: [['app','home','m_home'],['app/orders','van','m_pickups'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     lab: [['app','home','m_home'],['app/orders','flask','m_samples'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     company: [['app','home','m_programs'],['app/notifs','bell','m_notifs'],['support','chat','m_support'],['app/profile','user','m_profile']],
-    admin: [['app','chart','overview'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/tickets','chat','m_tickets'],['app/admin/payments','card','m_payments'],['app/admin/contracts','building','m_contracts'],['app/admin/catalog','flask','m_catalog'],['app/admin/kit','box','m_kits'],['app/admin/settings','gear','m_settings'],['app/profile','user','m_profile']],
+    admin: [['app','chart','overview'],['business','coin','m_business'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/tickets','chat','m_tickets'],['app/admin/payments','card','m_payments'],['app/admin/contracts','building','m_contracts'],['app/admin/catalog','flask','m_catalog'],['app/admin/kit','box','m_kits'],['app/admin/settings','gear','m_settings'],['app/profile','user','m_profile']],
     staff: [['app','chart','overview'],['app/admin/tickets','chat','m_tickets'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/contracts','building','m_contracts'],['app/admin/kit','box','m_kits'],['app/admin/settings','gear','m_settings'],['app/profile','user','m_profile']]
   };
   return m[role] || m.patient;
@@ -1076,7 +1080,7 @@ function menuItems(){
   h += it('support', 'chat', t('m_support'));
   h += it('about', 'users', t('m_about') + ' · ' + t('m_team'));
   h += it('how', 'globe', t('nav_how'));
-  h += it('business', 'chart', t('m_business'));
+  if (canBiz()) h += it('business', 'chart', t('m_business'));
   if (!u) h += it('register?partner=1', 'building', t('m_join'));
   h += '<hr class="sep">';
   h += `<button class="mi" data-lang>${ic('globe')}<span class="grow">${t('lang')}</span></button>`;
@@ -1522,7 +1526,7 @@ async function renderNow(){
     else if (seg[0] === 'new') await viewNew();
     else if (seg[0] === 'consult') await viewConsultPublic(false);
     else if (seg[0] === 'dental') await viewConsultPublic(true);
-    else if (seg[0] === 'business') await viewBusiness();
+    else if (seg[0] === 'business') { if (canBiz()) await viewBusiness(); else go(''); }
     else if (seg[0] !== 'app') {
       if (seg[0] === 'login') { if (S.user) return go('app'); viewLogin(); }
       else if (seg[0] === 'register') { if (S.user) return go('app'); await loadCatalog().catch(() => {}); viewRegister(seg[1]); }
@@ -1633,7 +1637,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 29;
+const APP_V = 30;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -1657,7 +1661,7 @@ function appFeel(){
 }
 /* ================= v17: results care, hospitals, doctor, password reset, Google, kit ================= */
 Object.assign(I18N.en, {
-  r_doctor:'Doctor', r_doctor_d:'Reviews results that need attention and writes advice for the patient.',
+  r_doctor:'Doctor', r_doctor_d:'Online consultations (video, voice, messages) and advice on results.',
   lv_normal_t:'All results are in the normal range', lv_normal_p:'Keep up your healthy habits. A yearly check-up is a good routine.',
   lv_review_t:'Some results need a doctor’s review soon', lv_review_p:'This is not an emergency. Please see a doctor within 1–2 weeks. Until then, follow the advice below.',
   lv_urgent_t:'One result needs urgent medical care today', lv_urgent_p:'Please contact a doctor today. If you feel very unwell (chest pain, fainting, trouble breathing, confusion), call 9999 or go to the nearest emergency now.',
@@ -1681,7 +1685,7 @@ Object.assign(I18N.en, {
   demo_res_l:'Demo results', demo_res_p:'Which results demo and automatic requests produce.', dr_mixed:'Mixed (random)', dr_normal:'Always normal', dr_review:'Needs review', dr_urgent:'Urgent'
 });
 Object.assign(I18N.ar, {
-  r_doctor:'طبيب', r_doctor_d:'يراجع النتائج اللي تحتاج متابعة ويكتب التوصيات للمريض.',
+  r_doctor:'طبيب', r_doctor_d:'استشارات أونلاين (فيديو، صوت، رسائل) وتوصيات على النتائج.',
   lv_normal_t:'كل النتائج ضمن المعدل الطبيعي', lv_normal_p:'استمر على عاداتك الصحية. الفحص السنوي روتين ممتاز.',
   lv_review_t:'بعض النتائج تحتاج مراجعة الطبيب قريباً', lv_review_p:'هذي ليست حالة طارئة. راجع الطبيب خلال أسبوع إلى أسبوعين، وإلى ذلك الحين اتبع النصائح التالية.',
   lv_urgent_t:'نتيجة تحتاج رعاية طبية عاجلة اليوم', lv_urgent_p:'تواصل مع طبيب اليوم. إذا تشعر بتعب شديد (ألم في الصدر، إغماء، ضيق تنفس، تشوّش) اتصل بـ 9999 أو توجّه لأقرب طوارئ فوراً.',
@@ -1943,7 +1947,9 @@ function webglOk(){ try { const c = document.createElement('canvas'); return !!(
 function bindHero(){
   const root = $('#h3'); if (!root) return; const n = $$('.h3-s', root).length; let i = 0, timer = null, paused = false;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; const DUR = 6500;
-  let mod = null;
+  let mod = null, vids = false;
+  /* phones: the same 3D scenes as the computer, as short silent loops (only the visible one plays) */
+  const playV = () => { if (!vids) return; $$('.h3-v', root).forEach((v, j) => { if (j === i) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); } else if (!v.paused) v.pause(); }); };
   /* banner pictures after the first are fetched only when needed (the next one a slide ahead) */
   const wake = k => { const pic = $$('.h3-im', root)[(k + n) % n]; if (!pic || pic._w) return; pic._w = true; $$('[data-srcset]', pic).forEach(x => { x.srcset = x.dataset.srcset; delete x.dataset.srcset; }); const im = $('img[data-src]', pic); if (im) { im.src = im.dataset.src; delete im.dataset.src; } };
   const go3 = k => { i = (k + n) % n; root.dataset.i = i; $$('.h3-s', root).forEach((s, j) => { s.classList.toggle('on', j === i); s.setAttribute('aria-hidden', j === i ? 'false' : 'true'); });
@@ -1951,7 +1957,7 @@ function bindHero(){
     /* restart the progress bar on the next frames instead of forcing a full-page layout (that caused a stutter at every slide change) */
     const dot = $$('.h3-dots button', root)[i]; if (dot && !reduce && !paused) requestAnimationFrame(() => requestAnimationFrame(() => dot.classList.add('run')));
     wake(i); wake(i + 1);
-    $$('.h3-im', root).forEach((m, j) => m.classList.toggle('on', j === i));
+    $$('.h3-im', root).forEach((m, j) => m.classList.toggle('on', j === i)); playV();
     const cv = $('.h3-c', root); if (mod) { cv.classList.add('swap'); setTimeout(() => { mod.show(i); cv.classList.remove('swap'); }, 220); } };
   const arm = () => { clearInterval(timer); if (reduce) return; timer = setInterval(() => { if (!paused && !document.hidden) go3(i + 1); }, DUR); S.timers.push(timer); };
   $$('.h3-dots button', root).forEach(d => d.onclick = () => { go3(+d.dataset.d); arm(); });
@@ -1962,7 +1968,12 @@ function bindHero(){
   root.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) { const fwd = S.lang === 'ar' ? dx > 0 : dx < 0; go3(i + (fwd ? 1 : -1)); arm(); } x0 = null; }, { passive:true });
   go3(0);
   SPLASH.then(() => { if (!root.isConnected) return; go3(0); arm();
-  if (liteMode() || !webglOk()) { root.classList.add('flat'); return; }
+  if (liteMode() || !webglOk()) { root.classList.add('flat');
+    const nc = navigator.connection || {};
+    if (matchMedia('(max-width:760px)').matches && !reduce && !nc.saveData && !/2g/.test(nc.effectiveType || '')) { vids = true;
+      $$('.h3-im', root).forEach((m, j) => { const v = document.createElement('video'); v.className = 'h3-v'; v.muted = true; v.loop = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('muted', ''); v.preload = 'none'; v.dataset.src = 'img/hero/clip' + j + '.mp4?v=' + APP_V; v.addEventListener('playing', () => v.classList.add('ok'), { once:true }); m.appendChild(v); });
+      playV(); document.addEventListener('visibilitychange', () => { if (!root.isConnected) return; if (document.hidden) $$('.h3-v', root).forEach(v => v.pause()); else playV(); }); }
+    return; }
   loadH3().then(m => m.init($('.h3-c', root)).then(() => { mod = m; m.show(i); root.classList.add('g3'); })).catch(e => { console.warn('3D off', e); root.classList.add('flat'); }); });
 }
 function quickTiles(){
@@ -2168,6 +2179,12 @@ Object.assign(I18N.ar, {
   nw28b:'قراءة نتائج مثل المختبر الحقيقي', nw28bd:'معدلات خاصة للنساء والأطفال، والقيم الخارجة بشكل بسيط تبقى طبيعية مع نصائح، وما يُعتبر عاجلاً إلا الطوارئ الحقيقية.',
   nw28c:'فحص ما قبل الزواج', nw28cd:'فحوصات برنامج وزارة الصحة لما قبل الزواج في بيتك وبسرية تامة. وفحوصات الجينات قريباً.',
   nw28d:'أعضاء جدد في الفريق', nw28dd:'انضمت رهف الوردي والزهراء البوسعيدي لفريق آي لاب@هوم كممرضات.' });
+Object.assign(I18N.en, { specialty:'Specialty', sp_family:'Family medicine', sp_internal:'Internal medicine', sp_peds:'Paediatrics', sp_dent:'Dentistry',
+  cs_vcall:'Video call', cs_acall:'Voice call', cs_call_tip:'The call opens in a new tab (Jitsi Meet). Allow the camera / microphone when asked.', cs_chat_t:'Messages', cs_chat_empty:'No messages yet. Write to your doctor here.', cs_chat_ph:'Write a message…', send:'Send' });
+Object.assign(I18N.ar, { specialty:'التخصص', sp_family:'طب الأسرة', sp_internal:'الطب الباطني', sp_peds:'طب الأطفال', sp_dent:'طب الأسنان',
+  cs_vcall:'مكالمة فيديو', cs_acall:'مكالمة صوتية', cs_call_tip:'المكالمة تفتح في صفحة جديدة (Jitsi Meet). اسمح بالكاميرا أو المايك لما يطلب.', cs_chat_t:'الرسائل', cs_chat_empty:'ما في رسائل إلى الآن. اكتب لطبيبك هنا.', cs_chat_ph:'اكتب رسالة…', send:'إرسال' });
+/* the business numbers are only for the team leader's account and the demo admin */
+function canBiz(){ return !!(S.user && S.user.role === 'admin'); }
 /* money rules (fallbacks match the database settings) */
 let BIZ = null;
 const BIZ0 = { home_fee:5, nurse_fee:3, courier_fee:1, kit_cost:0.5, lab_share:0.65, pay_fee_pct:0.025, nurse_bonus:[0,0.25,0.5,0.75], consult_fee:4, consult_post_fee:3, consult_doctor_share:0.75, dental_home_fee:12, dental_home_share:0.65,
@@ -2302,15 +2319,17 @@ async function viewConsult(id){
   let c; try { c = await API.consult(id); } catch(e) { app.innerHTML = shell('', emptyBox(errMsg(e))); return; }
   const u = S.user; const doc = u.role === 'doctor' && c.doctor && c.doctor.id === u.id; const n = c.note;
   if (doc) await loadCatalog().catch(() => {});
-  const join = c.join && csJoinOpen(c);
+  const room = c.room ? 'https://meet.jit.si/' + c.room : null; const open = ['booked','live'].includes(c.status) && c.mode !== 'home';
   const wa = `https://wa.me/${CONTACT.wa}?text=${encodeURIComponent((S.lang === 'ar' ? 'استشارة ' : 'Consultation ') + c.code)}`;
   const sug = n ? [...(n.packages || []).map(x => ['package', x]), ...(n.tests || []).map(x => ['test', x])] : [];
   const body = `<div class="stack-lg">
     <div class="card"><div class="row between wrap"><div><div class="small muted">${t('cs_' + c.kind)} · ${t('cs_' + c.mode)}</div><h2 class="ltr" style="margin:0">${esc(c.code)}</h2></div>${csStatus(c)}</div>
       <div class="row" style="gap:12px;margin-top:14px">${doc ? `<span class="avatar xl">${esc(initials(c.patient && c.patient.name))}</span>` : docPic(c.doctor && c.doctor.name, c.doctor && c.doctor.gender, 64)}<div class="grow"><b>${esc(doc ? (c.patient && c.patient.name) : (c.doctor && c.doctor.name))}</b>
         <div class="small muted">${doc ? `${c.patient && c.patient.gender ? t(c.patient.gender) : ''}${c.patient && c.patient.dob ? ' · ' + age(c.patient.dob) : ''}` : esc(S.lang === 'ar' ? (c.doctor.specialty_ar || '') : (c.doctor.specialty || ''))}</div><div class="small b">${csWhen(c)}</div></div></div>
-      ${['booked','live'].includes(c.status) ? `<div class="row wrap" style="gap:8px;margin-top:14px">${c.mode === 'chat' ? `<a class="btn" href="${wa}" target="_blank" rel="noopener">${ic('wa',18)} ${t('cs_wa')}</a>` : c.mode === 'home' ? '' : join || doc ? `<a class="btn" href="${esc(c.join)}" target="_blank" rel="noopener" ${doc && c.status === 'booked' ? 'data-start' : ''}>${ic('video',18)} ${t(doc && c.status === 'booked' ? 'cs_start' : 'cs_join')}</a>` : `<button class="btn" disabled>${ic('video',18)} ${t('cs_join')}</button><span class="xs muted" style="align-self:center">${t('cs_join_soon')}</span>`}
-        ${!doc && c.status === 'booked' ? `<button class="btn ghost" data-ccancel>${t('cs_cancel')}</button>` : ''}</div>` : ''}</div>
+      ${open && room ? `<div class="row wrap" style="gap:8px;margin-top:14px"><a class="btn" href="${esc(room)}" target="_blank" rel="noopener" ${doc && c.status === 'booked' ? 'data-start' : ''}>${ic('video',18)} ${t('cs_vcall')}</a><a class="btn soft" href="${esc(room)}#config.startWithVideoMuted=true" target="_blank" rel="noopener" ${doc && c.status === 'booked' ? 'data-start' : ''}>${ic('phone',18)} ${t('cs_acall')}</a>${!doc && c.status === 'booked' ? `<button class="btn ghost" data-ccancel>${t('cs_cancel')}</button>` : ''}</div><div class="xs muted" style="margin-top:8px">${t('cs_call_tip')}</div>` : ''}
+      ${!doc && c.status === 'booked' && !(open && room) ? `<div class="row wrap" style="gap:8px;margin-top:14px"><button class="btn ghost" data-ccancel>${t('cs_cancel')}</button></div>` : ''}</div>
+    ${c.status !== 'cancelled' ? `<div class="card chat-card"><h3 style="margin:0 0 10px">${ic('chat',20)} ${t('cs_chat_t')}</h3><div class="chat-list" id="chl"><div class="xs muted center">${t('cs_chat_empty')}</div></div>
+      <form class="chat-form" id="chf"><input class="input grow" id="chi" maxlength="2000" autocomplete="off" placeholder="${t('cs_chat_ph')}"><button class="btn" aria-label="${t('send')}">${ic('send',18)}</button></form></div>` : ''}
     ${c.reason || c.order || c.address ? `<div class="card">${c.reason ? `<div class="vline"><span class="muted">${t('cs_reason_l')}</span><b style="white-space:pre-wrap;text-align:end">${esc(c.reason)}</b></div>` : ''}${c.order ? `<div class="vline"><span class="muted">${t('cs_linked')}</span><a class="b ltr" href="#/app/${doc ? 'order' : 'report'}/${c.order.id}">${esc(c.order.code)}</a></div>` : ''}${c.address ? `<div class="vline" style="border:0"><span class="muted">${t('location')}</span><b>${esc(c.address)}</b></div>` : ''}</div>` : ''}
     ${n ? `<div class="card docnote"><div class="row" style="gap:12px">${docPic(c.doctor && c.doctor.name, c.doctor && c.doctor.gender, 46)}<div class="grow"><div class="xs muted">${t('cs_advice')}</div><b>${esc(n.by || '')}</b><div class="xs muted">${fmtDT(n.at)}</div></div></div><p style="white-space:pre-wrap;margin:12px 0 0">${esc(n.note)}</p>
       ${sug.length ? `<h4 style="margin:14px 0 6px">${t('cs_suggested')}</h4><div class="row wrap" style="gap:6px">${sug.map(([ty, x]) => `<span class="chip">${esc(S.catalog ? LN(ty === 'package' ? S.catalog.P[x] : S.catalog.T[x], 'name') || x : x)}</span>`).join('')}</div>${!doc ? `<button class="btn teal" style="margin-top:12px" data-addsug>${ic('cart',18)} ${t('cs_add_suggested')}</button>` : ''}` : ''}</div>` : ''}
@@ -2321,8 +2340,14 @@ async function viewConsult(id){
     <p class="xs muted center">${t('cs_privacy')}</p></div>`;
   app.innerHTML = shell(esc(c.code), body, { back: true });
   if (!S.catalog && n && sug.length) loadCatalog().then(() => { if (location.hash.includes(id)) viewConsult(id); }).catch(() => {});
+  /* messages: load, then check for new ones every 4 seconds while this page is open */
+  let lastId = 0; const chl = $('#chl');
+  const addMsgs = list => { if (!chl || !list.length) return; if (!lastId) chl.innerHTML = ''; list.forEach(m => { lastId = Math.max(lastId, m.id); chl.insertAdjacentHTML('beforeend', `<div class="msg ${m.mine ? 'me' : ''}"><div class="bub">${esc(m.body)}</div><div class="xs muted">${m.mine ? '' : esc(m.who === 'doctor' ? (c.doctor && c.doctor.name || '') : (c.patient && c.patient.name || '')) + ' · '}${fmtTime(m.at)}</div></div>`); }); chl.scrollTop = chl.scrollHeight; };
+  const pull = async () => { if (!chl || !chl.isConnected || document.hidden) return; try { addMsgs(await API.consultMsgs(c.id, lastId)); } catch(e) {} };
+  if (chl) { pull(); S.timers.push(setInterval(pull, 4000)); }
+  if ($('#chf')) $('#chf').onsubmit = async e => { e.preventDefault(); const i = $('#chi'); const v = i.value.trim(); if (!v) return; i.value = ''; try { const m = await API.consultSend(c.id, v); addMsgs([m]); } catch(err) { i.value = v; toast(errMsg(err), true); } };
   const act = async (btn, a, p) => { try { const r = await busy(btn, () => API.consultAction(c.id, a, p)); return r; } catch(e) { toast(errMsg(e), true); return null; } };
-  if ($('[data-start]')) $('[data-start]').addEventListener('click', () => { API.consultAction(c.id, 'start').then(() => setTimeout(() => viewConsult(id), 600)).catch(() => {}); });
+  $$('[data-start]').forEach(x => x.addEventListener('click', () => { API.consultAction(c.id, 'start').then(() => setTimeout(() => viewConsult(id), 600)).catch(() => {}); }));
   if ($('[data-ccancel]')) $('[data-ccancel]').onclick = async e => { if (!await confirmBox(t('cs_cancel_q'), t('yes_cancel'), t('keep'))) return; if (await act(e.target, 'cancel')) viewConsult(id); };
   if ($('[data-cfinish]')) $('[data-cfinish]').onclick = async e => { const note = $('#cnote').value.trim(); if (!note) return toast(t('e_NEED_NOTE'), true);
     const tests = $$('[data-st]:checked').map(x => x.dataset.st), packages = $$('[data-sp]:checked').map(x => x.dataset.sp);

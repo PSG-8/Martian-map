@@ -5,7 +5,7 @@ const KEY = 'sb_publishable_rVQ1jmPovakb-FMIgB1pUQ_BAoJlXMv';
 class ApiError extends Error { constructor(code){ super(code); this.code = code; } }
 /* reads are safe to repeat: they get one quick retry. Every call has a time limit, so a weak phone signal
    can never leave a screen waiting for ever (that used to block every tap after it). */
-const READS = /^(catalog|auth_me|order_get|orders_list|my_stats|programs_mine|program_lookup|notif_list|partners_public|nurse_profile|fleet_overview|admin_[a-z_]*s|admin_overview|admin_settings|kit_mine|nurses_today|support_mine|consult_list|consult_get|doctors_list|business_public)$/;
+const READS = /^(catalog|auth_me|order_get|orders_list|my_stats|programs_mine|program_lookup|notif_list|partners_public|nurse_profile|fleet_overview|admin_[a-z_]*s|admin_overview|admin_settings|kit_mine|nurses_today|support_mine|consult_list|consult_get|consult_msgs|doctors_list|business_public)$/;
 async function send(fn, args, ms){
   const ctl = typeof AbortController === 'function' ? new AbortController() : null;
   const timer = ctl ? setTimeout(() => ctl.abort(), ms) : null;
@@ -91,6 +91,8 @@ window.API = {
   consults: () => rpc('consult_list', { p_token: tok() }),
   consult: (id) => rpc('consult_get', { p_token: tok(), p_id: id }),
   consultAction: (id, a, p) => rpc('consult_action', { p_token: tok(), p_id: id, p_action: a, p: p || {} }),
+  consultMsgs: (id, after) => rpc('consult_msgs', { p_token: tok(), p_id: id, p_after: after || 0 }),
+  consultSend: (id, body) => rpc('consult_send', { p_token: tok(), p_id: id, p_body: body }),
   setToken: (t) => t ? localStorage.setItem('lah_token', t) : localStorage.removeItem('lah_token'),
   hasToken: () => !!tok()
 };

@@ -1,5 +1,14 @@
 # Project status — last updated 2026-11-24
 
+## v30 (branch `lab-at-home`, pushed; production deploy waits for the owner's OK)
+- **Business page** (`#/business`): only for admin accounts (the leader's account and the demo admin). Removed from the public top bar, footer and menu; other visitors who open the link go to the home page. Admins see it in their menu.
+- **Top bar**: a link that does not fit is now hidden whole (it moves to a hidden second line) instead of being cut in half.
+- **Doctors can join as partners**: "Join as partner" → Doctor (gender, licence, years, specialty incl. dentistry, wilayat). Pending until approved like other partners; approved doctors take online consultations.
+- **Consultation messages and calls**: each online consultation has a message thread (checks for new messages every 4 s while open; the other side gets a notification at most every 3 minutes) and Video call / Voice call buttons (Jitsi Meet room of that consultation) for both patient and doctor. DB: table `consult_messages`, RPCs `consult_msgs`, `consult_send`; `_consult_json` now returns `room` (`project-knowledge/sql/v30_doctor_signup_chat.sql`).
+- **Team accounts** (for team testing; passwords given to the owner in chat, never stored in the repo): Rahaf and Alzahraa (nurses), "iLab Team Doctor (F)" and "iLab Team Doctor (M)".
+- **Phone banners move**: phones play short silent loops of the same 3D banner scenes as the computer (`img/hero/clip0-4.mp4`, ~0.8 MB in total, only the visible one plays; skipped on data saver, 2G and reduced motion). The pictures stay underneath as a fallback.
+- **Merch mockups** redrawn with the exact site logo (graphics only, no people): `project-knowledge/merch/`.
+
 ## v29 (LIVE on labathome-oman.vercel.app since 2026-11-24, deployment dpl_GmynV6xFJhkRf3DwptnYyHf6E9MQ; after owner review: banners, van, team circles and videos kept as in v27/v28; new Pixar-style films kept aside in `project-knowledge/videos` for later)
 - Logo: back to the **approved hexagon + flask** everywhere (header, app icons, link image, explainer). On the site it is a **hologram**: colour sweep along the lines, bubbles rising in the flask, twinkling spark; large version (splash) floats in 3D with a scan line.
 - Pictures: Pixar/Disney-style art generated with Figma AI (file "iLab@home v29 art"): 5 banners × phone/desktop, the van (real logo on its side), 4 consult doctors, film scenes. Rules: women in a full, loosely draped Gulf shayla hijab; men in uniforms (nurse, dentist, courier) bare-headed — never a kumma with scrubs/coat.
