@@ -12,8 +12,8 @@ self.addEventListener('fetch', e => {
   e.respondWith(caches.match(r).then(hit => hit || fetch(r).then(res => { if (res.ok && (u.origin === location.origin || u.hostname.includes('unpkg') || u.hostname.includes('gstatic') || u.hostname.includes('googleapis'))) { const cp = res.clone(); caches.open(V).then(c => c.put(r, cp)); } return res; })));
 });
 self.addEventListener('push', e => {
-  let d = {}; try { d = e.data ? e.data.json() : {}; } catch (x) { d = { title: 'Lab@Home', body: e.data ? e.data.text() : '' }; }
-  e.waitUntil(self.registration.showNotification(d.title || 'Lab@Home', { body: d.body || '', icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: d.tag || undefined, renotify: !!d.tag, dir: d.dir || 'auto', lang: d.lang || 'ar', data: { url: d.url || './#/app' }, vibrate: [120, 60, 120] }));
+  let d = {}; try { d = e.data ? e.data.json() : {}; } catch (x) { d = { title: 'iLab@home', body: e.data ? e.data.text() : '' }; }
+  e.waitUntil(self.registration.showNotification(d.title || 'iLab@home', { body: d.body || '', icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: d.tag || undefined, renotify: !!d.tag, dir: d.dir || 'auto', lang: d.lang || 'ar', data: { url: d.url || './#/app' }, vibrate: [120, 60, 120] }));
 });
 self.addEventListener('notificationclick', e => {
   e.notification.close(); const url = new URL((e.notification.data && e.notification.data.url) || './#/app', self.registration.scope).href;

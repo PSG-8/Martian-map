@@ -1,4 +1,4 @@
-/* iLab@Home – English / Arabic strings */
+/* iLab@home – English / Arabic strings */
 window.I18N = {
 en: {
   brand_sub:'Healthcare testing at your doorstep', nav_how:'How it works', nav_tests:'Tests & packages', nav_partners:'Partners', nav_coverage:'Coverage', nav_faq:'FAQ',
@@ -27,16 +27,16 @@ en: {
   faq_t:'Questions people ask',
   q1:'Who collects my sample?', a1:'A licensed nurse whose credentials we verify. You see the nurse’s name, licence and rating before the visit.',
   q2:'How are samples kept safe?', a2:'Samples are labelled and sealed at your home, then moved in temperature-controlled boxes (usually 2–8 °C). Every hand-over is recorded.',
-  q3:'Who issues my results?', a3:'Only the licensed partner laboratory tests your sample and issues the report. iLab@Home coordinates the service and does not diagnose.',
+  q3:'Who issues my results?', a3:'Only the licensed partner laboratory tests your sample and issues the report. iLab@home coordinates the service and does not diagnose.',
   q4:'How fast are results?', a4:'Our target is 48 hours for most routine tests. Some tests take longer depending on the laboratory workflow.',
   q5:'Is my data private?', a5:'Your medical data is only visible to you and the people handling your request. Nurses see your address only after they accept the visit.',
   q6:'Can my company pay?', a6:'Yes. Companies create a wellness programme and share a code with employees. The company never sees individual results.',
-  foot_note:'iLab@Home is a student business concept from Oman. Prices, partners and demo accounts are illustrative. The platform coordinates home sample collection and does not provide medical diagnosis.',
+  foot_note:'iLab@home is a student business concept from Oman. Prices, partners and demo accounts are illustrative. The platform coordinates home sample collection and does not provide medical diagnosis.',
   foot_team:'Concept by Ansam Al Noumani, Jokha Al Rawahi and Bilarab Al Musallami · Supervised by Dr. Salim Al-Rashdi',
   // auth
   welcome_back:'Welcome back', login_sub:'Log in with your email or phone number.', email_or_phone:'Email or phone', password:'Password', show:'Show', hide:'Hide',
-  no_account:'New to iLab@Home?', have_account:'Already have an account?', try_demo:'Try a demo account (password Demo@2026)', or:'or',
-  reg_t:'Create your account', reg_role:'How will you use iLab@Home?', next:'Continue', back:'Back', finish:'Create account',
+  no_account:'New to iLab@home?', have_account:'Already have an account?', try_demo:'Try a demo account (password Demo@2026)', or:'or',
+  reg_t:'Create your account', reg_role:'How will you use iLab@home?', next:'Continue', back:'Back', finish:'Create account',
   full_name:'Full name', email:'Email', email_opt:'Email (optional if you add a phone)', gender:'Gender', male:'Male', female:'Female', dob:'Date of birth',
   governorate:'Governorate', wilayat:'Wilayat', address:'Address details', address_ph:'Area, street, house number, landmark',
   pass_rule:'At least 8 characters with letters and numbers.', consent:'I agree that my personal and medical data is used to provide this service and shared only with the nurse, courier and laboratory handling my request.',
@@ -70,7 +70,7 @@ en: {
   report_t:'Laboratory report', patient:'User', age:'Age', sex:'Sex', request:'Request', collected_at:'Collected', reported_at:'Reported', lab:'Laboratory', verified_by:'Verified by',
   analyte:'Test', result:'Result', unit:'Unit', ref_range:'Reference range', flag:'Flag', f_N:'Normal', f_L:'Low', f_H:'High',
   all_normal:'All results are within the reference range.', some_flags:'{n} result(s) outside the reference range. Please share this report with your doctor.',
-  report_disclaimer:'This report is issued by the partner laboratory. Reference ranges may vary between laboratories. iLab@Home does not provide diagnosis; please consult a doctor about your results.',
+  report_disclaimer:'This report is issued by the partner laboratory. Reference ranges may vary between laboratories. iLab@home does not provide diagnosis; please consult a doctor about your results.',
   insight_t:'What this means',
   // nurse
   avail_t:'Available for visits', avail_on:'You are online and will receive requests in your wilayats.', avail_off:'You are offline.', available_req:'New requests near you', my_visits:'My visits', earnings:'Earnings', collected_n:'Collections', rating:'Rating', this_month:'This month',
@@ -86,19 +86,19 @@ en: {
   // admin
   overview:'Overview', orders_today:'Orders today', active_orders:'Active', completed_orders:'Completed', revenue:'Gross value', pending_verif:'Awaiting verification', approve:'Approve', reject:'Reject', suspend:'Suspend', by_status:'By status', last14:'Last 14 days', top_tests:'Top tests', by_wilayat:'By wilayat', role:'Role', status:'Status', joined_on:'Joined', price:'Price', active:'Active', assign:'Assign nurse', waitlist_n:'Waitlist',
   // profile
-  m_contact:'Contact us', ct_title:'Contact & enquiries', ct_p:'Questions about a booking, results or partnering with us? Reach the iLab@Home team directly.', ct_wa:'WhatsApp', ct_call:'Call us', ct_mail:'Email', ct_wa_txt:'Hello iLab@Home, I have a question:', ct_hours_t:'Prefer a written request?', ct_hours:'Open a support ticket and follow its replies in your account. We answer as soon as possible.', ct_ticket:'Open a support ticket',
+  m_contact:'Contact us', ct_title:'Contact & enquiries', ct_p:'Questions about a booking, results or partnering with us? Reach the iLab@home team directly.', ct_wa:'WhatsApp', ct_call:'Call us', ct_mail:'Email', ct_wa_txt:'Hello iLab@home, I have a question:', ct_hours_t:'Prefer a written request?', ct_hours:'Open a support ticket and follow its replies in your account. We answer as soon as possible.', ct_ticket:'Open a support ticket',
   ins_others:'Help family and friends install it', ins_auto_t:'Updates itself automatically', ins_auto_p:'Every improvement reaches your phone and computer on its own. You never need to delete or reinstall the app.',
-  m_install:'Install the app', ins_title:'Install the app', ins_cta:'Install the app on your phone', ins_free:'Free · no app store needed', ins_h1:'iLab@Home on your home screen', ins_lead:'Install it in seconds. It opens full screen like any app, and sends you live updates about your visit and your results.',
+  m_install:'Install the app', ins_title:'Install the app', ins_cta:'Install the app on your phone', ins_free:'Free · no app store needed', ins_h1:'iLab@home on your home screen', ins_lead:'Install it in seconds. It opens full screen like any app, and sends you live updates about your visit and your results.',
   ins_p1:'Instant notifications', ins_p2:'Opens in a second', ins_p3:'Secure sign-in', ins_p4:'Small, no storage used',
-  ins_done_t:'The app is installed', ins_done_p:'You are using iLab@Home as an app. Updates arrive on their own.', ins_open:'Open the app',
+  ins_done_t:'The app is installed', ins_done_p:'You are using iLab@home as an app. Updates arrive on their own.', ins_open:'Open the app',
   ins_safari_t:'Open this page in Safari', ins_safari_p:'On iPhone the app can only be added from Safari. Copy the link, open Safari, paste it, then follow the steps below.', ins_copy:'Copy link',
-  ins_one_t:'One tap to install', ins_one_p:'Your phone supports direct install. Tap the button and confirm.', ins_btn:'Install iLab@Home', ins_ok_toast:'Installed. Find iLab@Home on your home screen.',
+  ins_one_t:'One tap to install', ins_one_p:'Your phone supports direct install. Tap the button and confirm.', ins_btn:'Install iLab@home', ins_ok_toast:'Installed. Find iLab@home on your home screen.',
   ins_i1:'Tap the Share button', ins_i1p:'At the bottom of Safari (on iPad: top right).', ins_i2:'Choose “Add to Home Screen”', ins_i2p:'Scroll down the list if you don’t see it.', ins_a2hs:'Add to Home Screen',
-  ins_i3:'Tap “Add”', ins_i3p:'The iLab@Home icon appears on your home screen.', ins_add:'Add', ins_i4:'Open it from the icon', ins_i4p:'Sign in once, then allow notifications to get live updates.',
+  ins_i3:'Tap “Add”', ins_i3p:'The iLab@home icon appears on your home screen.', ins_add:'Add', ins_i4:'Open it from the icon', ins_i4p:'Sign in once, then allow notifications to get live updates.',
   ins_ios_note:'Notifications on iPhone need iOS 16.4 or later and work only after you add the app to your home screen.',
-  ins_a1:'Open the menu ⋮', ins_a1p:'Top right corner of Chrome.', ins_a2:'Tap “Install app”', ins_a2p:'On some phones it says “Add to Home screen”.', ins_inst_app:'Install app', ins_a3:'Confirm with “Install”', ins_a3p:'iLab@Home appears with your other apps.',
-  ins_qr_t:'Scan to install', ins_qr_p:'Point your phone camera at the code, or share the link with family and friends.', ins_share:'Share link', ins_share_txt:'iLab@Home: book lab tests at home and get your results on your phone.',
-  profile_t:'My profile', save_changes:'Save changes', saved:'Saved', change_pw:'Change password', old_pw:'Current password', new_pw:'New password', medical:'Medical information (optional)', blood:'Blood group', allergies:'Allergies', chronic:'Chronic conditions', install_t:'Install the app', install_p:'Add iLab@Home to your home screen for an app-like experience.', install_btn:'Install',
+  ins_a1:'Open the menu ⋮', ins_a1p:'Top right corner of Chrome.', ins_a2:'Tap “Install app”', ins_a2p:'On some phones it says “Add to Home screen”.', ins_inst_app:'Install app', ins_a3:'Confirm with “Install”', ins_a3p:'iLab@home appears with your other apps.',
+  ins_qr_t:'Scan to install', ins_qr_p:'Point your phone camera at the code, or share the link with family and friends.', ins_share:'Share link', ins_share_txt:'iLab@home: book lab tests at home and get your results on your phone.',
+  profile_t:'My profile', save_changes:'Save changes', saved:'Saved', change_pw:'Change password', old_pw:'Current password', new_pw:'New password', medical:'Medical information (optional)', blood:'Blood group', allergies:'Allergies', chronic:'Chronic conditions', install_t:'Install the app', install_p:'Add iLab@home to your home screen for an app-like experience.', install_btn:'Install',
   install_ios:'On iPhone: tap Share, then “Add to Home Screen”.',
   notifs_t:'Notifications', mark_read:'Mark all as read', no_notifs:'No notifications yet.',
   // misc
@@ -225,7 +225,7 @@ Object.assign(window.I18N.en, {
   start_t3:'Results on your phone', start_p3:'A partner laboratory tests your sample and your verified report arrives in about 48 hours.',
   start_go:'Get started', guest:'Browse as a guest', skip:'Skip',
   gender_q:'Gender', gender_hint:'We match you with a nurse of the same gender.', partner_q:'Are you a nurse, laboratory, courier or company?', partner_link:'Join as a partner',
-  partner_t:'Join iLab@Home as a partner', patient_link:'Register as a user instead',
+  partner_t:'Join iLab@home as a partner', patient_link:'Register as a user instead',
   add_cart:'Add to cart', in_cart:'In cart', added_cart:'Added to cart', view_cart:'View cart', cart_t:'Your cart', checkout:'Choose nurse & time', cart_sub:'Tests in your cart', clear:'Remove',
   b2_loc:'Location', b2_nurse:'Nurse', b2_time:'Date & time', b2_pay:'Review & pay', b2_who:'Who',
   gps_ask_t:'Share your location', gps_ask_p:'Allow location access so the nurse can find your door. You can also move the pin yourself.', gps_ok:'Location found', gps_denied:'Location access was blocked. Pick your wilayat and move the pin on the map.',
@@ -238,13 +238,13 @@ Object.assign(window.I18N.en, {
   sup_new:'Send a request', sup_topic:'Topic', tp_booking:'Booking', tp_results:'Results & reports', tp_payment:'Payment', tp_nurse:'Nurse visit', tp_partner:'Partnership', tp_other:'Other',
   sup_msg:'How can we help?', sup_order:'Request number (optional)', sup_send:'Send', sup_sent:'Thanks! We received your request #{n}.', sup_mine:'My requests to support', sup_open:'Open', sup_answered:'Answered', sup_reply:'Reply',
   sup_quick:'Quick answers', sup_guest:'You are not logged in: add a phone number so we can reply.', m_tickets:'Support',
-  about_t:'About iLab@Home', about_p:'A digital platform that brings laboratory testing to people’s homes in Oman, through licensed nurses, partner laboratories and approved logistics providers.',
+  about_t:'About iLab@home', about_p:'A digital platform that brings laboratory testing to people’s homes in Oman, through licensed nurses, partner laboratories and approved logistics providers.',
   about_story:'Why we started', about_story_p:'In many towns and villages of Oman there is no private laboratory nearby. Routine and preventive tests such as vitamin D, B12 or cholesterol often mean a long drive, waiting rooms and time off work. Older adults and people with limited mobility find this even harder.',
   about_sol:'Our solution', about_sol_p:'One app runs the whole journey: choose tests, book a home visit with a same-gender licensed nurse, track the sample to a partner laboratory and receive a verified report on your phone.',
   vision:'Vision', vision_p:'To become one of Oman’s leading digital platforms for convenient home-based laboratory testing and preventive healthcare.',
   mission:'Mission', mission_p:'To improve access to diagnostic laboratory services by connecting users with qualified healthcare professionals and accredited laboratories through one integrated platform.',
   app_t:'The app', app_f1:'Bilingual: Arabic and English', app_f2:'Same-gender nurse matching', app_f3:'Live tracking of every step', app_f4:'Verified lab reports as PDF', app_f5:'Installs on your phone like an app', app_f6:'Private by design: data shared only with your care team',
-  team_t:'The team', team_p:'iLab@Home is a business concept developed by students in Oman. The platform is designed and built by Bilarab Al Musallami.', supervisor:'Supervisor', member:'Founding team', dev:'Founding team · Platform developer',
+  team_t:'The team', team_p:'iLab@home is a business concept developed by students in Oman. The platform is designed and built by Bilarab Al Musallami.', supervisor:'Supervisor', member:'Founding team', dev:'Founding team · Platform developer',
   roadmap:'Roadmap', contact_us:'Contact us',
   e_NEED_GENDER:'Please choose a gender.', e_BAD_NURSE:'This nurse is not available for this booking. Please choose another.', e_GENDER_MISMATCH:'Nurse and user must be the same gender.', e_NEED_MESSAGE:'Please write your message.'
 });
@@ -298,8 +298,8 @@ Object.assign(window.I18N.en, {
   prep_t:'Fasting: {h} hours before your visit', prep_p:'Stop eating by {t} ({d}).', prep_1:'Plain water is fine, and it helps the nurse.', prep_2:'No coffee, tea, juice or gum.', prep_3:'Take regular medicines unless your doctor said otherwise.',
   add_cal:'Add to calendar', cal_ok:'Calendar file downloaded', copy_code:'Copy number', copied:'Copied', book_again:'Book again', again_ok:'Tests added to your cart', updated_x:'updated {x}',
   /* bot */
-  bot_name:'iLab@Home Assistant', bot_status:'Online · replies instantly', bot_ph:'Ask about booking, fasting, results…',
-  bot_hi:'Hi{n}! 👋 I’m the iLab@Home assistant. I can check your request status, explain fasting and prices, or connect you with our team.',
+  bot_name:'iLab@home Assistant', bot_status:'Online · replies instantly', bot_ph:'Ask about booking, fasting, results…',
+  bot_hi:'Hi{n}! 👋 I’m the iLab@home assistant. I can check your request status, explain fasting and prices, or connect you with our team.',
   bot_greet:'Hello! How can I help you today?', bot_thanks:'You’re welcome! Stay healthy 💙',
   bot_track_guest:'Log in and I can show the live status of your requests. Or start a booking now.', bot_track_staff:'Your jobs are on your home screen. Need help from the team?',
   bot_track_hdr:'Here is the latest on your requests:', bot_track_none:'You have no active requests right now.', bot_track_none_code:'I couldn’t find that request number on your account.',
@@ -421,7 +421,7 @@ Object.assign(window.I18N.en, { e_HAS_ACTIVE:'This account has active requests. 
 Object.assign(window.I18N.ar, { e_HAS_ACTIVE:'لهذا الحساب طلبات نشطة. أعد تعيينها أو أنهِها أولاً.', e_BAD_ROLE:'اختر نوع حساب صحيح.', e_NEED_CONTACT:'أضف بريداً إلكترونياً أو رقم هاتف.', e_BAD_PAYMENT:'يرجى الدفع بالبطاقة أو Apple Pay.' });
 Object.assign(window.I18N.en, {
   push_t:'Get updates on your phone', push_p:'Turn on notifications to know when the nurse is coming and when your results are ready.', push_btn:'Turn on notifications',
-  push_ios:'On iPhone: tap Share → “Add to Home Screen”, open iLab@Home from the home screen, then turn on notifications.', push_ok:'Notifications are on for this device', push_denied:'Notifications were not allowed.',
+  push_ios:'On iPhone: tap Share → “Add to Home Screen”, open iLab@home from the home screen, then turn on notifications.', push_ok:'Notifications are on for this device', push_denied:'Notifications were not allowed.',
   push_fail:'Could not turn on notifications on this browser.', push_card:'Phone notifications', push_card_p:'Updates about each step of your requests appear on this device, even when the app is closed.',
   push_on:'On for this device', push_test:'Send a test', push_sent:'Test sent — check your notifications', push_off_btn:'Turn off', push_blocked:'Notifications are blocked. Allow them for this site in your browser settings.', push_unsup:'This browser doesn’t support notifications. Try Chrome or Safari.'
 });

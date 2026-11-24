@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
   const n = b.n || {}; let sent = 0, gone = 0;
   await Promise.all((b.subs || []).map(async s => {
     const ar = s.lang === 'ar';
-    const payload = JSON.stringify({ title: (ar ? n.title_ar : n.title_en) || n.title_en || 'iLab@Home', body: (ar ? n.body_ar : n.body_en) || '',
+    const payload = JSON.stringify({ title: (ar ? n.title_ar : n.title_en) || n.title_en || 'iLab@home', body: (ar ? n.body_ar : n.body_en) || '',
       url: n.order_id ? './#/app/order/' + n.order_id : './#/app/notifs', tag: n.order_id || n.kind || undefined, dir: ar ? 'rtl' : 'ltr', lang: ar ? 'ar' : 'en' });
     try { await webpush.sendNotification({ endpoint: s.endpoint, keys: s.keys }, payload, { TTL: 86400, urgency: 'high' }); sent++; }
     catch (e) {

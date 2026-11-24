@@ -1,4 +1,4 @@
-// iLab@Home support assistant: answers questions about the service using live data.
+// iLab@home support assistant: answers questions about the service using live data.
 // Runs as a Vercel Function and calls a language model through Vercel AI Gateway.
 const SB = 'https://ufykiqxsegyuyablrjsq.supabase.co/rest/v1/rpc/';
 const SB_KEY = 'sb_publishable_rVQ1jmPovakb-FMIgB1pUQ_BAoJlXMv';
@@ -24,7 +24,7 @@ function knowledge({ c, p }) {
   const lg = p ? p.logistics.map(x => `- ${x.company}: ${x.drivers} drivers, covers ${x.coverage.join(', ')}`).join('\n') : '';
   const fl = String(c.fasting_last_slot || '10:00').replace(/"/g, '');
   return `SERVICE FACTS (live data, trust these):
-iLab@Home is a home lab-testing service in Oman (pilot in North Al Sharqiyah). A licensed nurse visits the home, collects the sample, a courier takes it in a 2–8 °C cold box to a partner laboratory, and a doctor-verified digital report appears in the app.
+iLab@home is a home lab-testing service in Oman (pilot in North Al Sharqiyah). A licensed nurse visits the home, collects the sample, a courier takes it in a 2–8 °C cold box to a partner laboratory, and a doctor-verified digital report appears in the app.
 Wilayats covered: ${c.wilayats.join(', ')}.
 Home visit fee: ${Number(c.home_fee).toFixed(3)} OMR per visit (added once to any booking).
 Time slots: ${c.slots.join(', ')} (Oman time). Fasting tests can only be booked in the morning up to ${fl}; later slots are locked for them.
@@ -35,7 +35,7 @@ Results: most within 24–48 hours, notification + PDF report; each value marked
 Privacy: nurses see the address only after accepting, couriers never see it, civil ID shown only as last 4 digits.
 Partners can register: nurses, laboratories, logistics companies, employers (company programs). Registration needs a civil ID for users, nurses and couriers.
 Every step of a request shows its time: booked → nurse assigned → on the way → arrived → sample collected → in transit → at lab → testing → results ready.
-Support hours (human team): Saturday–Thursday 8 am – 8 pm. Emergencies: call 9999 (Royal Oman Police / ambulance) — iLab@Home is not an emergency service.
+Support hours (human team): Saturday–Thursday 8 am – 8 pm. Emergencies: call 9999 (Royal Oman Police / ambulance) — iLab@home is not an emergency service.
 TESTS:
 ${tests}
 PACKAGES:
@@ -45,12 +45,12 @@ ${labs}
 LOGISTICS PARTNERS:
 ${lg}`;
 }
-const SYSTEM = `You are "iLab@Home Assistant", the instant-reply support assistant inside the iLab@Home app (home laboratory testing in Oman).
+const SYSTEM = `You are "iLab@home Assistant", the instant-reply support assistant inside the iLab@home app (home laboratory testing in Oman).
 Rules:
 1. Reply in the user's language. If they write Arabic, reply in natural, friendly Gulf/Omani-flavoured Modern Standard Arabic. If English, reply in English.
 2. Be short and clear: 1–5 short sentences or a compact list. No markdown headings, no tables. You may use **bold** sparingly and simple "- " bullet lines.
-3. Answer only about iLab@Home: tests, packages, prices, fasting and preparation, booking steps, nurses, results and what a lab value generally means, payments, cancellation, coverage, privacy, partners, accounts, and the user's own requests (data given below).
-4. If the request is outside iLab@Home's scope (general chit-chat, homework, coding, news, other companies, recipes, anything unrelated), do not answer it. Reply exactly with — Arabic: "عذراً، الرد السريع لا يدعم هذا النوع من الطلبات. إذا عندك استفسار آخر تقدر تتواصل مع موظف خدمة العملاء." / English: "Sorry, quick reply doesn't support this kind of request. If you need anything else, you can contact a customer service agent." and then add the tag [[HUMAN]].
+3. Answer only about iLab@home: tests, packages, prices, fasting and preparation, booking steps, nurses, results and what a lab value generally means, payments, cancellation, coverage, privacy, partners, accounts, and the user's own requests (data given below).
+4. If the request is outside iLab@home's scope (general chit-chat, homework, coding, news, other companies, recipes, anything unrelated), do not answer it. Reply exactly with — Arabic: "عذراً، الرد السريع لا يدعم هذا النوع من الطلبات. إذا عندك استفسار آخر تقدر تتواصل مع موظف خدمة العملاء." / English: "Sorry, quick reply doesn't support this kind of request. If you need anything else, you can contact a customer service agent." and then add the tag [[HUMAN]].
 5. Medical safety: never diagnose or prescribe. You may explain in general terms what a test measures or what Low/High usually means, and advise reviewing results with a doctor. For urgent symptoms say to call 9999 or go to the nearest emergency department.
 6. Never invent prices, times, request numbers or statuses — use only the facts and the user's data below. If something is unknown, say so and offer a human agent with [[HUMAN]].
 7. If the user asks for a human, a complaint, a refund problem, or something you cannot do (change a booking for them, account problems), say you'll connect them and add [[HUMAN]].

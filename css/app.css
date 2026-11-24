@@ -393,7 +393,7 @@ html[dir=rtl] .switch input:checked+i:before{transform:translateX(-24px)}
 .side-nav .brand .wm{height:15px}
 .wm-inline .wm{height:20px;color:#fff}
 .report .rh .mark{width:46px;height:46px}
-.report .rh .mark path,.report .rh .mark circle{stroke:#fff}
+.report .rh .mark{border-radius:12px;box-shadow:0 0 0 2px rgba(255,255,255,.35)}
 .hero{background:var(--hex) 0 0/56px 64px,radial-gradient(900px 480px at 88% -12%,rgba(59,130,246,.42),transparent 60%),radial-gradient(700px 420px at -12% 112%,rgba(56,189,248,.20),transparent 60%),#0b1426;color:#fff}
 .hero h1{color:#fff}
 .hero h1 em{background:linear-gradient(90deg,#60a5fa,#7dd3fc);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -874,3 +874,39 @@ input[type=range]{width:100%;accent-color:var(--blue);height:28px}
 @media (max-width:1400px){.topbar .nav a[href="#/business"]{display:none}}
 @media (max-width:1240px){.topbar .nav a[href="#/contact"]{display:none}}
 @media (max-width:1120px){.topbar .nav a[href="#/about"]{display:none}}
+
+/* v28: brand page */
+.brand-hero{display:flex;gap:28px;align-items:center;border-radius:24px;padding:32px;background:linear-gradient(135deg,#f5f8fd,#eaf2ff)}
+.brand-hero .bh-mark svg{width:150px;height:150px;filter:drop-shadow(0 18px 34px rgba(37,99,235,.35))}
+.brand-hero h1{margin:0;font-size:clamp(2.2rem,6vw,3.6rem)}.brand-hero p{max-width:560px;color:#3b4a66}
+.brand-hero .ar-wm{font:700 1.6rem 'IBM Plex Sans Arabic',sans-serif;color:#2563eb;margin:2px 0 8px}
+@media(max-width:760px){.brand-hero{flex-direction:column;align-items:flex-start;padding:22px}.brand-hero .bh-mark svg{width:96px;height:96px}}
+.lockup{display:inline-flex;align-items:center;gap:10px}.lockup svg{width:46px;height:46px}.lockup .wm{font-size:1.7rem}
+.lockup.stacked{flex-direction:column;gap:6px}.lockup.stacked svg{width:58px;height:58px}
+.lockup.dark .wm{color:#fff}.wm-ar{font:700 1.6rem 'IBM Plex Sans Arabic',sans-serif;color:#0d1628}
+.lg-tile{display:flex;flex-direction:column;gap:10px}.lg-tile.dark{background:#0d1628;color:#cbd5e1}
+.lg-show{min-height:120px;display:flex;align-items:center;justify-content:center;gap:16px}.lg-show>svg{width:64px;height:64px}
+.app-ic svg{width:72px;height:72px;border-radius:18px;box-shadow:0 10px 24px rgba(37,99,235,.3)}.app-ic.sm svg{width:40px;height:40px;border-radius:10px}
+.swatches{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.sw-c{display:flex;flex-direction:column;gap:2px}.sw-c i{height:54px;border-radius:12px;box-shadow:inset 0 0 0 1px rgba(13,22,40,.08)}
+.merch .mx{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px;background:linear-gradient(180deg,#f8fafc,#eef3fb)}
+.merch .mx svg{width:100%;max-width:220px;height:auto;aspect-ratio:1}.merch figcaption{font-weight:700;font-size:.95rem}
+@media(max-width:760px){.merch{grid-template-columns:repeat(2,1fr)!important}}
+/* v28: the van drives in on sign-in / sign-up */
+.van-strip{direction:ltr;position:relative;height:118px;border-radius:20px;overflow:hidden;margin-bottom:18px;background:linear-gradient(180deg,#dcebff,#f4f8ff 70%);isolation:isolate}
+.vs-sky .cloud{position:absolute;height:14px;border-radius:10px;background:#fff;opacity:.9}
+.vs-sky .c1{width:60px;top:16px;left:12%;animation:cloud 18s linear infinite}.vs-sky .c2{width:40px;top:34px;left:60%;animation:cloud 26s linear infinite}
+.vs-house{position:absolute;right:16px;bottom:30px;width:56px;height:56px}.vs-house svg{width:100%;height:100%}
+.vs-road{position:absolute;left:0;right:0;bottom:0;height:30px;background:#334155}
+.vs-road i{position:absolute;left:0;right:0;top:13px;height:4px;background:repeating-linear-gradient(90deg,#fde68a 0 22px,transparent 22px 44px);animation:road .6s linear 4}
+.vs-van{position:absolute;bottom:14px;left:-140px;width:130px;animation:vanIn 2.2s cubic-bezier(.2,.8,.2,1) .2s forwards}
+.vs-van svg{width:100%;height:auto;display:block;animation:vanBob .5s ease-in-out infinite alternate}
+.vs-puff{position:absolute;left:-6px;bottom:16px;width:10px;height:10px;border-radius:50%;background:#cbd5e1;opacity:0;animation:puff 1s ease-out 3}
+.vs-puff.p2{animation-delay:.5s}
+.vs-msg{direction:inherit;position:absolute;top:10px;left:50%;transform:translate(-50%,-6px);background:#fff;border-radius:999px;padding:5px 12px;font-size:.78rem;font-weight:700;color:#1e3a8a;box-shadow:0 6px 16px rgba(16,40,90,.12);white-space:nowrap;opacity:0;animation:msgIn .5s ease 2.2s forwards;display:inline-flex;gap:6px;align-items:center}
+@keyframes vanIn{0%{left:-140px}100%{left:calc(100% - 230px)}}
+@keyframes vanBob{from{transform:translateY(0)}to{transform:translateY(-2px)}}
+@keyframes road{to{background-position:-44px 0}}
+@keyframes puff{0%{opacity:.7;transform:scale(.6)}100%{opacity:0;transform:translate(-18px,-8px) scale(1.6)}}
+@keyframes cloud{from{transform:translateX(0)}to{transform:translateX(-120vw)}}
+@keyframes msgIn{to{opacity:1;transform:translate(-50%,0)}}
+@media (prefers-reduced-motion:reduce){.vs-van{animation:none;left:calc(100% - 230px)}.vs-van svg,.vs-road i,.vs-puff,.vs-sky .cloud{animation:none}.vs-msg{animation:none;opacity:1;transform:translate(-50%,0)}}

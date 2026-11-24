@@ -1,4 +1,4 @@
-/* iLab@Home – original illustrations and icons (hand-made SVG) */
+/* iLab@home – original illustrations and icons (hand-made SVG) */
 (function(){
 const P = {
   dna:'<path d="M7 3c0 6 10 6 10 12s-10 6-10 6"/><path d="M17 3c0 6-10 6-10 12s10 6 10 6"/><path d="M8.5 7h7M8.5 17h7M10 12h4"/>',
@@ -74,10 +74,16 @@ const P = {
 function icon(name, size, sw){ return `<svg viewBox="0 0 24 24" width="${size||22}" height="${size||22}" fill="none" stroke="currentColor" stroke-width="${sw||1.9}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name]||''}</svg>`; }
 
 let _lg=0;
-function logoFn(){ return `<svg class="mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="#3b82f6" stroke-width="3.2"/>  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="#3b82f6" stroke-width="1.6" opacity=".9"/>  <g transform="rotate(-32 32 34)" stroke="#3b82f6" stroke-width="2.2">    <path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/>    <path d="M27 20.5h10"/>    <path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/>    <circle cx="29.6" cy="40.4" r="1.6" stroke-width="1.5"/>    <circle cx="34.6" cy="39.4" r="1" stroke-width="1.3"/>  </g>  <circle cx="20.6" cy="20.2" r="1.3" stroke="#3b82f6" stroke-width="1.4"/>  <circle cx="17.6" cy="15.6" r=".9" stroke="#3b82f6" stroke-width="1.2"/>  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="#3b82f6" stroke-width="1.3"/></svg>`; }
-const WORDMARK = `<span class="wm" dir="ltr" role="img" aria-label="iLab@Home"><i>i</i>Lab<i>@</i>Home</span>`;
+/* v28 logo: a home roof over a blood drop with a medical cross, and an orange "at home" dot. Bold enough for an app icon, a pen or a cap. */
+const MARK_IN = (c) => `<path d="M14.5 30.5 32 15.5l17.5 15" stroke="${c.fg}" stroke-width="6.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 25.5c-5.6 6.4-10.4 12.3-10.4 17.6a10.4 10.4 0 0 0 20.8 0c0-5.3-4.8-11.2-10.4-17.6z" fill="${c.fg}"/><path d="M32 38.2v9.6M27.2 43h9.6" stroke="${c.cross}" stroke-width="3.2" stroke-linecap="round"/><circle cx="48.6" cy="15.8" r="4.4" fill="${c.dot}"/>`;
+let MARK_N = 0;
+function markSvg(o){ const c = Object.assign({ bg:'grad', fg:'#fff', cross:'#2563eb', dot:'#f97316', r:16 }, o || {}); const id = 'lg' + (c.id || '') + '_' + (++MARK_N);
+  const bg = c.bg === 'none' ? '' : c.bg === 'grad' ? `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset=".55" stop-color="#2563eb"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient></defs><rect width="64" height="64" rx="${c.r}" fill="url(#${id})"/>` : `<rect width="64" height="64" rx="${c.r}" fill="${c.bg}"/>`;
+  return `<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"${c.size ? ` width="${c.size}" height="${c.size}"` : ''}>${bg}${MARK_IN(c)}</svg>`; }
+function logoFn(){ return markSvg(); }
+const WORDMARK = `<span class="wm" dir="ltr" role="img" aria-label="iLab@home"><i>i</i>Lab<i>@</i>home</span>`;
 
-const hero = `<svg viewBox="0 0 620 540" style="direction:ltr" role="img" aria-label="A nurse visiting a home with the iLab@Home app">
+const hero = `<svg viewBox="0 0 620 540" style="direction:ltr" role="img" aria-label="A nurse visiting a home with the iLab@home app">
 <defs>
  <linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dcebff"/><stop offset="1" stop-color="#f4f8ff"/></linearGradient>
  <linearGradient id="hph" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b2b4f"/><stop offset="1" stop-color="#0b1730"/></linearGradient>
@@ -182,5 +188,5 @@ const welcomeArt = `<svg viewBox="0 0 220 180" aria-hidden="true"><circle cx="13
 
 const steps = ['user','search','cal','card','pin','syringe','van','flask','check','file'];
 
-window.ART = { icon, get logo(){ return logoFn(); }, wordmark: WORDMARK, hero, catIcon, roleIcon, emptyArt, welcomeArt, steps };
+window.ART = { icon, get logo(){ return logoFn(); }, markSvg, wordmark: WORDMARK, hero, catIcon, roleIcon, emptyArt, welcomeArt, steps };
 })();

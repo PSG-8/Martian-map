@@ -1,4 +1,4 @@
-/* iLab@Home – single-page app (vanilla JS, no build step) */
+/* iLab@home – single-page app (vanilla JS, no build step) */
 (function(){
 'use strict';
 const A = window.ART, ic = A.icon;
@@ -50,7 +50,7 @@ function modal(html, mount){
   return close;
 }
 function confirmBox(msg, yes, no){ return new Promise(r => modal(`<h3>${esc(msg)}</h3><div class="row" style="margin-top:18px"><button class="btn ghost grow" data-n>${esc(no||t('cancel'))}</button><button class="btn red grow" data-y>${esc(yes||t('confirm'))}</button></div>`, (el, close) => { $('[data-y]', el).onclick = () => { close(); r(true); }; $('[data-n]', el).onclick = () => { close(); r(false); }; })); }
-function setLang(l){ S.lang = l; localStorage.setItem('lah_lang', l); document.documentElement.lang = l; document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr'; document.title = 'iLab@Home · ' + t('brand_sub'); }
+function setLang(l){ S.lang = l; localStorage.setItem('lah_lang', l); document.documentElement.lang = l; document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr'; document.title = 'iLab@home · ' + t('brand_sub'); }
 /* catalog: shown at once from the copy saved on this device, then refreshed from the server in the background */
 let CATP = null; const CAT_KEY = 'lah_cat_v2';
 function setCatalog(c){ c.T = {}; c.tests.forEach(x => c.T[x.id] = x); c.P = {}; c.packages.forEach(x => c.P[x.id] = x); S.catalog = c;
@@ -176,8 +176,8 @@ async function viewHow(){
 function footer(){
   return `<footer class="site"><div class="wrap-w"><div class="row wrap between" style="gap:20px;align-items:flex-start">
     <div style="max-width:520px"><div class="brand">${brandInner()}</div><p class="small" style="margin-top:12px">${t('foot_note')}</p><p class="xs" style="opacity:.75">${t('foot_team')}</p></div>
-    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/dental">${t('m_dental')}</a><a href="#/business">${t('m_business')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
-    <p class="xs" style="opacity:.6;margin-top:24px">© 2026 iLab@Home · Oman</p></div></footer>`;
+    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/dental">${t('m_dental')}</a><a href="#/business">${t('m_business')}</a><a href="#/brand">${t('m_brand')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
+    <p class="xs" style="opacity:.6;margin-top:24px">© 2026 iLab@home · Oman</p></div></footer>`;
 }
 /* map library: loaded only when a screen shows a map (it used to load on every page) */
 let LREQ = false;
@@ -195,7 +195,7 @@ function covMap(){
 }
 async function viewTestsPublic(){
   await loadCatalog();
-  let cat = 'all';
+  let cat = new URLSearchParams(location.hash.split('?')[1] || '').get('c') || 'all';
   app.innerHTML = `${topbar()}<section class="section" style="padding-top:32px"><div class="wrap-w"><div class="section-h"><h2>${t('tests_t')}</h2><p>${t('tests_p',{fee:omr(fee())})}</p></div><div id="cb"></div><div id="cbar"></div></div></section>${footer()}`;
   const rer = c => { if (c) cat = c; $('#cb').innerHTML = catalogBlock(cat); bindCatalog($('#cb'), rer); $('#cbar').innerHTML = cartBar(); bindGo(); };
   rer();
@@ -206,7 +206,7 @@ function authShell(inner){
   return `<div class="auth"><div class="side"><a href="#/" class="brand on-dark">${brandInner()}</a>
     <div><h2>${t('hero_t1')} ${t('hero_t2')}</h2><p style="opacity:.85">${t('hero_p')}</p></div>
     <div style="max-width:420px;opacity:.95">${A.welcomeArt}</div></div>
-    <div class="main"><div class="box"><div class="row between" style="margin-bottom:22px"><a href="#/" class="brand">${brandInner()}</a><button class="lang" data-lang>${t('lang')}</button></div>${inner}</div></div></div>`;
+    <div class="main"><div class="box"><div class="row between" style="margin-bottom:14px"><a href="#/" class="brand">${brandInner()}</a><button class="lang" data-lang>${t('lang')}</button></div>${vanStrip()}${inner}</div></div></div>`;
 }
 function pwField(name, label, hint){
   return `<label class="field"><span>${label}</span><div class="pw"><input class="input" type="password" name="${name}" autocomplete="${name === 'password' ? 'current-password' : 'new-password'}" required><button type="button" class="eye" data-eye aria-label="${t('show')}">${ic('eye',20)}</button></div>${hint ? `<div class="meter"><i></i></div><div class="hint">${hint}</div>` : ''}</label>`;
@@ -540,10 +540,10 @@ function fastStart(o){ const h = Math.max(0, ...(o.tests || []).map(x => x.fasti
 function icsDownload(o){
   const st = slotAt(o), en = new Date(st.getTime() + 30 * 60000); const f = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const fs = fastStart(o); const link = location.origin + location.pathname + '#/app/order/' + o.id;
-  const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//iLab@Home//Oman//EN','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:' + o.id + '@labathome.om','DTSTAMP:' + f(new Date()),'DTSTART:' + f(st),'DTEND:' + f(en),
-    'SUMMARY:iLab@Home ' + o.code + ' – nurse home visit','LOCATION:' + String(o.address || wN(o.wilayat)).replace(/[,;\n]/g, ' '),
+  const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//iLab@home//Oman//EN','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:' + o.id + '@labathome.om','DTSTAMP:' + f(new Date()),'DTSTART:' + f(st),'DTEND:' + f(en),
+    'SUMMARY:iLab@home ' + o.code + ' – nurse home visit','LOCATION:' + String(o.address || wN(o.wilayat)).replace(/[,;\n]/g, ' '),
     'DESCRIPTION:' + (fs ? 'Fasting ' + fs.h + 'h – stop eating by ' + fmtTime(fs.at) + '. ' : '') + 'Track: ' + link, 'URL:' + link,
-    'BEGIN:VALARM','TRIGGER:' + (fs ? '-PT' + (fs.h + 1) + 'H' : '-PT2H'),'ACTION:DISPLAY','DESCRIPTION:iLab@Home ' + o.code,'END:VALARM','END:VEVENT','END:VCALENDAR'];
+    'BEGIN:VALARM','TRIGGER:' + (fs ? '-PT' + (fs.h + 1) + 'H' : '-PT2H'),'ACTION:DISPLAY','DESCRIPTION:iLab@home ' + o.code,'END:VALARM','END:VEVENT','END:VCALENDAR'];
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\r\n')], { type:'text/calendar' })); a.download = o.code + '.ics'; document.body.appendChild(a); a.click(); a.remove();
 }
 function partyRow(kind, p, state){
@@ -755,7 +755,7 @@ async function viewReport(id){
   /* real PDF file, made on the phone; prepared in advance so the tap opens the save/share sheet at once */
   const ar = S.lang === 'ar';
   const pdfData = { lang: S.lang, logo: A.logo, contact: `WhatsApp / Call ${CONTACT.phone}  ·  ${CONTACT.email}`, code: o.code, lab: o.lab ? o.lab.name : '', licence: o.lab && o.lab.license ? t('licence') + ': ' + o.lab.license : '', flags,
-    title: `iLab@Home ${o.code}`,
+    title: `iLab@home ${o.code}`,
     t: { title: t('report_t'), analyte: t('analyte'), result: t('result'), range: t('ref_range'), flag: t('flag'), insight: t('insight_t'), disclaimer: t('report_disclaimer'), summary: t('lv_'+LVL+'_t') + ' · ' + (flags ? t('some_flags',{n:flags}) : t('all_normal')) },
     info: [[t('patient'), p.name || '—'], [t('age') + ' / ' + t('sex'), `${p.dob ? age(p.dob) : '—'} / ${p.gender ? t(p.gender) : '—'}`], [t('request'), o.code], [t('collected_at'), ce ? fmtDT(ce.at) : '—'], [t('reported_at'), fmtDT(o.published_at)], [t('verified_by'), o.verified_by || '—']],
     groups: (o.tests || []).map(x => ({ name: LN(x,'name'), rows: x.analytes.map(a0 => { const a = prA(a0, p); const r = res[a.c] || {}; const fx = resFlag(a, r); return { name: ar ? a.na : a.n, v: r.v ?? '—', u: a.u || '', range: rangeTxt(a), f: r.f ? (fx.m ? 'L' : r.f) : '', fl: r.f ? (fx.c ? t('g_crit') : flagLbl(fx)) : '' }; }) })),
@@ -788,7 +788,7 @@ async function viewNurseHome(){
     <div class="card today-card ${st.today ? 'on' : ''}"><div class="row between"><div class="row"><span class="avatar" style="background:${g === 'female' ? '#e8466f' : '#1257d6'}">${esc(initials(u.full_name))}</span><div><b style="font-size:1.1rem">${t('today_t')}</b><div class="small muted">${st.today ? t('today_on') : t('today_off')}</div></div></div>
       <label class="switch"><input type="checkbox" id="av" ${st.today ? 'checked' : ''}><i></i></label></div>
       <div class="row wrap" style="gap:6px;margin-top:10px"><span class="chip ${g === 'female' ? 'red' : ''}">${t(g || 'female')}</span>${((u.meta || {}).coverage || [u.wilayat]).filter(Boolean).map(w => `<span class="chip gray">${esc(wN(w))}</span>`).join('')}</div></div>
-    <div class="grid g4"><div class="kpi blue"><span>${t('earnings')}</span><b>${omr(st.earnings)} <small style="font-size:.8rem">${t('omr')}</small></b></div><div class="kpi"><span>${t('collected_n')}</span><b>${st.collected}</b></div><div class="kpi"><span>${t('this_month')}</span><b>${st.month}</b></div><div class="kpi"><span>${t('rating')}</span><b>${st.rating ? '★ ' + st.rating : '—'}</b></div></div>
+    <div class="grid g4"><div class="kpi blue"><span>${t('earnings')}</span><b>${omr(st.earnings)} <small style="font-size:.8rem">${t('omr')}</small></b>${st.base != null ? `<small class="xs" style="opacity:.85;display:block;margin-top:2px">${t('per_visit')}: ${omr(st.base)}${st.bonus ? ' + ' + omr(st.bonus) + ' ' + t('lvl_' + st.level) : ''}</small>` : ''}</div><div class="kpi"><span>${t('collected_n')}</span><b>${st.collected}</b></div><div class="kpi"><span>${t('this_month')}</span><b>${st.month}</b></div><div class="kpi"><span>${t('rating')}</span><b>${st.rating ? '★ ' + st.rating : '—'}</b></div></div>
     <div><h3>${t('my_visits')}</h3>${act.length ? `<div class="olist">${act.map(o => orderItem(o)).join('')}</div>` : emptyBox(t('none_yet'))}</div>
     <div><h3>${t('available_req')} <span class="chip">${av.length}</span></h3>${av.length ? `<div class="olist">${av.map(o => orderItem(o, `<div style="margin-top:8px"><span class="chip teal">+${omr(st.fee)} ${t('omr')}</span>${o.preferred ? ` <span class="chip purple">${ic('star',12)} ${t('chose_you')}</span>` : ''}${o.fasting ? ` <span class="chip amber">${t('fasting',{h:o.fasting})}</span>` : ''}</div>`)).join('')}</div>` : emptyBox(t('none_yet'))}</div></div>`);
   $('#av').onchange = async e => { try { S.user = await API.profile({ available: e.target.checked }); viewNurseHome(); } catch(err) { toast(errMsg(err), true); } };
@@ -828,7 +828,7 @@ async function viewCompanyHome(){
       <div class="grid g3" style="margin-top:14px"><div class="kpi"><span>${t('booked_n')}</span><b>${p.booked}</b></div><div class="kpi"><span>${t('done_n')}</span><b>${p.completed}</b></div><div class="kpi"><span>${t('value')}</span><b>${omr(p.value)}</b></div></div>
       ${Object.keys(p.wilayats || {}).length ? `<div class="row wrap" style="gap:6px;margin-top:12px">${Object.entries(p.wilayats).map(([w, c]) => `<span class="chip gray">${esc(wN(w))} · ${c}</span>`).join('')}</div>` : ''}
       <div class="row wrap" style="margin-top:14px"><button class="btn soft sm" data-copy="${esc(p.code)}">${ic('share',16)} ${t('share_code')}</button></div></div>`; }).join('') : emptyBox(t('none_yet'))}</div>`);
-  $$('[data-copy]').forEach(b => b.onclick = () => { const txt = `${S.lang === 'ar' ? 'رمز برنامجنا الصحي في آي لاب@هوم' : 'Our iLab@Home wellness code'}: ${b.dataset.copy} · ${location.origin}`; if (navigator.share) navigator.share({ text: txt }).catch(() => {}); else navigator.clipboard.writeText(txt).then(() => toast('✓')); });
+  $$('[data-copy]').forEach(b => b.onclick = () => { const txt = `${S.lang === 'ar' ? 'رمز برنامجنا الصحي في آي لاب@هوم' : 'Our iLab@home wellness code'}: ${b.dataset.copy} · ${location.origin}`; if (navigator.share) navigator.share({ text: txt }).catch(() => {}); else navigator.clipboard.writeText(txt).then(() => toast('✓')); });
   if ($('#np')) $('#np').onclick = () => modal(`<h3>${t('new_program')}</h3><form id="pf" class="stack" style="margin-top:12px"><label class="field"><span>${t('program_name')}</span><input class="input" name="name" required placeholder="Wellness 2027"></label>
     <label class="field"><span>${t('program_pkg')}</span><select class="input" name="pkg">${S.catalog.packages.map(p => `<option value="${p.id}">${esc(LN(p,'name'))} · ${omr(p.price)}</option>`).join('')}</select></label>
     <label class="field"><span>${t('seats')}</span><input class="input" type="number" name="seats" min="1" max="5000" value="25"></label><div class="err" id="pe"></div><button class="btn block">${t('create')}</button></form>`, (el, close) => {
@@ -954,6 +954,8 @@ async function viewAdminPayments(){
   const P = await API.adminPayments(); const own = isOwner();
   app.innerHTML = shell(t('m_payments'), `<div class="stack-lg">
     <div class="grid g4"><div class="kpi blue"><span>${t('pay_gross')}</span><b>${omr(P.gross)}</b></div><div class="kpi"><span>${t('pay_sponsored')}</span><b>${omr(P.sponsored)}</b></div><div class="kpi"><span>${t('pay_refunded')}</span><b>${omr(P.refunded)}</b></div><div class="kpi"><span>${t('pay_nurses')}</span><b>${omr(P.nurse_payout)}</b></div></div>
+    ${P.lab_payout != null ? `<div class="card"><h3>${t('pay_split_t')}</h3><p class="xs muted" style="margin-top:-4px">${t('pay_split_p')}</p><div class="grid g4" style="margin-top:8px"><div class="kpi"><span>${t('bz_lab')}</span><b>${omr(P.lab_payout)}</b></div><div class="kpi"><span>${t('bz_courier')}</span><b>${omr(P.courier_payout)}</b></div><div class="kpi"><span>${t('bz_kit')} · ${t('bz_card')}</span><b>${omr(Number(P.kit_cost) + Number(P.card_fees))}</b></div><div class="kpi"><span>${t('bz_doctor')}</span><b>${omr(P.doctor_payout)}</b></div></div>
+      <div class="vline" style="margin-top:10px"><span>${t('pay_consults')}</span><b class="num">${omr(P.consult_revenue)} ${t('omr')}</b></div><div class="vline" style="border:0"><span class="b">${t('pay_margin')}</span><b class="num" style="color:${P.platform_margin >= 0 ? '#0a7d70' : 'var(--red)'}">${omr(P.platform_margin)} ${t('omr')}</b></div><a class="b small" href="#/business">${t('m_business')} →</a></div>` : ''}
     <div class="card"><h3>${t('pay_by_method')}</h3>${Object.entries(P.by_method || {}).map(([k, v]) => `<div class="vline"><span>${t('pm_' + k)}</span><b class="num">${omr(v)} ${t('omr')}</b></div>`).join('') || `<p class="muted">${t('none_yet')}</p>`}<div class="banner blue small" style="margin-top:10px">${ic('shield',18)}<span>${t('epay_only')}</span></div></div>
     <div class="card"><h3>${t('pay_list')}</h3><div class="scroll-x"><table class="table"><thead><tr><th>${t('request')}</th><th>${t('patient')}</th><th>${t('payment')}</th><th>${t('total')}</th><th>${t('time')}</th><th>${t('status')}</th>${own ? '<th></th>' : ''}</tr></thead><tbody>
       ${P.list.map(x => `<tr><td><a class="b ltr" href="#/app/order/${x.id}">${esc(x.code)}</a></td><td>${esc(x.patient)}</td><td class="small">${t('pm_' + x.method)}</td><td class="num">${omr(x.total)}</td><td class="xs muted">${fmtDT(x.at)}</td>
@@ -1076,6 +1078,7 @@ function menuItems(){
   h += it('about', 'users', t('m_about') + ' · ' + t('m_team'));
   h += it('how', 'globe', t('nav_how'));
   h += it('business', 'chart', t('m_business'));
+  h += it('brand', 'shirt', t('m_brand'));
   if (!u) h += it('register?partner=1', 'building', t('m_join'));
   h += '<hr class="sep">';
   h += `<button class="mi" data-lang>${ic('globe')}<span class="grow">${t('lang')}</span></button>`;
@@ -1523,6 +1526,7 @@ async function renderNow(){
     else if (seg[0] === 'consult') await viewConsultPublic(false);
     else if (seg[0] === 'dental') await viewConsultPublic(true);
     else if (seg[0] === 'business') await viewBusiness();
+    else if (seg[0] === 'brand') await viewBrand();
     else if (seg[0] !== 'app') {
       if (seg[0] === 'login') { if (S.user) return go('app'); viewLogin(); }
       else if (seg[0] === 'register') { if (S.user) return go('app'); await loadCatalog().catch(() => {}); viewRegister(seg[1]); }
@@ -1568,7 +1572,7 @@ function contactCard(compact){
     <div class="ct-grid">
       <a class="ct-item wa" href="https://wa.me/${CONTACT.wa}?text=${waTxt}" target="_blank" rel="noopener"><span class="ct-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a.9.9 0 0 0-.7.3 2.8 2.8 0 0 0-.9 2.1 4.9 4.9 0 0 0 1 2.6 11.2 11.2 0 0 0 4.3 3.8c1.6.7 2.2.7 3 .6a2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3z"/></svg></span><div><b>${t('ct_wa')}</b><small class="ltr">${CONTACT.phone}</small></div></a>
       <a class="ct-item call" href="tel:${CONTACT.tel}"><span class="ct-ic">${ic('phone',20)}</span><div><b>${t('ct_call')}</b><small class="ltr">${CONTACT.phone}</small></div></a>
-      <a class="ct-item mail" href="mailto:${CONTACT.email}?subject=${encodeURIComponent('iLab@Home')}"><span class="ct-ic">${ic('mail',20)}</span><div><b>${t('ct_mail')}</b><small class="ltr">${CONTACT.email}</small></div></a>
+      <a class="ct-item mail" href="mailto:${CONTACT.email}?subject=${encodeURIComponent('iLab@home')}"><span class="ct-ic">${ic('mail',20)}</span><div><b>${t('ct_mail')}</b><small class="ltr">${CONTACT.email}</small></div></a>
       <a class="ct-item ig" href="${CONTACT.ig}" target="_blank" rel="noopener"><span class="ct-ic">${IGSVG}</span><div><b>Instagram</b><small class="ltr">${CONTACT.igh}</small></div></a>
     </div>${compact ? '' : `<div class="ig-qr"><div class="qr-box">${window.LAHQR ? LAHQR.svg({ code: 'ig', size: 150, accent: '#d62976' }) : ''}</div><div><b>${t('ig_follow')}</b><div class="small muted">${t('ig_scan')}</div><a class="btn sm" style="margin-top:8px;background:linear-gradient(45deg,#f58529,#dd2a7b,#8134af);color:#fff" href="${CONTACT.ig}" target="_blank" rel="noopener">${IGSVG} ${CONTACT.igh}</a></div></div>`}</div>`;
 }
@@ -1595,7 +1599,7 @@ function installSteps(kind){
   if (kind === 'ios') return `<ol class="isteps">
     ${step(1, t('ins_i1'), t('ins_i1p'), `<div class="mock-bar"><span>‹</span><span>›</span><span class="hl">${shareIc}</span><span>${ic('list',18)}</span><span>${ic('home',18)}</span></div>`)}
     ${step(2, t('ins_i2'), t('ins_i2p'), `<div class="mock-row"><span>${t('ins_a2hs')}</span><span class="hl">${addIc}</span></div>`)}
-    ${step(3, t('ins_i3'), t('ins_i3p'), `<div class="mock-row"><span class="muted">${t('cancel')}</span><b>iLab@Home</b><span class="hl b">${t('ins_add')}</span></div>`)}
+    ${step(3, t('ins_i3'), t('ins_i3p'), `<div class="mock-row"><span class="muted">${t('cancel')}</span><b>iLab@home</b><span class="hl b">${t('ins_add')}</span></div>`)}
     ${step(4, t('ins_i4'), t('ins_i4p'))}</ol>`;
   return `<ol class="isteps">
     ${step(1, t('ins_a1'), t('ins_a1p'), `<div class="mock-bar"><span class="grow small ltr" style="text-align:start">labathome-oman.vercel.app</span><span class="hl">⋮</span></div>`)}
@@ -1612,7 +1616,7 @@ async function viewInstall(){
   else if (S.installEvt) primary = `<div class="card ins-one"><h3>${t('ins_one_t')}</h3><p class="muted">${t('ins_one_p')}</p><button class="btn block lg" id="instNow">${ic('download',20)} ${t('ins_btn')}</button></div>`;
   app.innerHTML = head + `${S.user ? '' : '<main>'}<section class="ins wrap-w">
     <div class="ins-hero">
-      <div class="ins-phone" aria-hidden="true"><div class="ins-screen"><div class="ins-clock">9:41</div><div class="ins-icons">${'<b class="ph"></b>'.repeat(6)}<span class="ins-app"><span class="ins-ico">${A.logo}</span><small>iLab@Home</small></span>${'<b class="ph"></b>'.repeat(5)}</div></div></div>
+      <div class="ins-phone" aria-hidden="true"><div class="ins-screen"><div class="ins-clock">9:41</div><div class="ins-icons">${'<b class="ph"></b>'.repeat(6)}<span class="ins-app"><span class="ins-ico">${A.logo}</span><small>iLab@home</small></span>${'<b class="ph"></b>'.repeat(5)}</div></div></div>
       <div><span class="chip t">${t('ins_free')}</span><h1>${t('ins_h1')}</h1><p class="lead">${t('ins_lead')}</p>
         <div class="ins-perks">${[['bell','ins_p1'],['clock','ins_p2'],['shield','ins_p3'],['box','ins_p4']].map(([i, k]) => `<span>${ic(i,18)} ${t(k)}</span>`).join('')}</div></div>
     </div>
@@ -1627,7 +1631,7 @@ async function viewInstall(){
   if (S.user && $('.content')) { const sec = $('.ins'); $('.content').appendChild(sec); }
   $$('[data-os]').forEach(b => b.onclick = () => { $$('[data-os]').forEach(x => x.classList.toggle('on', x === b)); $('#isteps').innerHTML = installSteps(b.dataset.os); });
   $$('[data-copy-url]').forEach(b => b.onclick = async () => { try { await navigator.clipboard.writeText(url); toast(t('copied')); } catch(e) { prompt('', url); } });
-  $$('[data-share-url]').forEach(b => b.onclick = () => navigator.share({ title: 'iLab@Home', text: t('ins_share_txt'), url }).catch(() => {}));
+  $$('[data-share-url]').forEach(b => b.onclick = () => navigator.share({ title: 'iLab@home', text: t('ins_share_txt'), url }).catch(() => {}));
   if ($('#instNow')) $('#instNow').onclick = async () => { const ev = S.installEvt; if (!ev) return; ev.prompt(); const r = await ev.userChoice.catch(() => ({})); S.installEvt = null; if (r.outcome === 'accepted') { toast(t('ins_ok_toast')); setTimeout(render, 600); } };
 }
 
@@ -1675,7 +1679,7 @@ Object.assign(I18N.en, {
   or_with:'or', g_btn:'Continue with Google', needs_profile:'Complete your profile (phone, gender, date of birth, civil ID) before booking.', complete_now:'Complete now',
   cat_vitals:'Vital signs', cat_kids:'Children', cat_men:'Men', badge_kids:'For kids', badge_seniors:'60+',
   soon_t:'Coming soon', soon_p:'New home services we are preparing.', soon_1:'Vaccinations at home', soon_1d:'Children and adult vaccines given by a licensed nurse.', soon_2:'Home IV & treatment', soon_2d:'Drips, injections and dressings at home with a prescription.', soon_3:'Doctor video consult', soon_3d:'Talk to a doctor about your results from home.', soon_4:'ECG at home', soon_4d:'Heart tracing recorded at home and read by a doctor.', soon_chip:'Soon',
-  m_kit:'My kit', kit_t:'My iLab@Home kit', kit_p:'The navy iLab@Home bag issued to every nurse. Items go down automatically after each collection.', kit_low:'Low', kit_ok:'OK', kit_req:'Request restock', kit_req_ok:'Restock request sent to operations.', kit_hist:'Recent requests', kit_pending:'Pending', kit_done:'Ready', kit_from_t:'Where does the kit come from?', kit_from_p:'iLab@Home gives each nurse a branded navy kit (bag, tubes, needles, gloves, cold box, BP monitor) at onboarding. Refills are collected from the operations office or the partner lab. The branded coat with performance stars comes next.',
+  m_kit:'My kit', kit_t:'My iLab@home kit', kit_p:'The navy iLab@home bag issued to every nurse. Items go down automatically after each collection.', kit_low:'Low', kit_ok:'OK', kit_req:'Request restock', kit_req_ok:'Restock request sent to operations.', kit_hist:'Recent requests', kit_pending:'Pending', kit_done:'Ready', kit_from_t:'Where does the kit come from?', kit_from_p:'iLab@home gives each nurse a branded navy kit (bag, tubes, needles, gloves, cold box, BP monitor) at onboarding. Refills are collected from the operations office or the partner lab. The branded coat with performance stars comes next.',
   stars_t:'My level', lvl_1:'Starter', lvl_2:'Silver', lvl_3:'Gold', lvl_4:'Platinum', lvl_next:'Next level: {v} visits and ★ {r}', lvl_top:'Top level reached. Thank you!',
   m_kits:'Nurse kits', kit_admin_t:'Nurse kits & restock', kit_fill:'Mark ready', kit_refill:'Refill full kit', kit_requests:'Restock requests', kit_nurses:'Stock by nurse', kit_items_low:'{n} low',
   demo_res_l:'Demo results', demo_res_p:'Which results demo and automatic requests produce.', dr_mixed:'Mixed (random)', dr_normal:'Always normal', dr_review:'Needs review', dr_urgent:'Urgent'
@@ -1758,7 +1762,7 @@ function guideHtml(flagged){
 function planStore(id){ try { return JSON.parse(localStorage.getItem('lah_plan_' + id) || '{}'); } catch(e) { return {}; } }
 function retestIcs(o, days){
   const d = new Date(Date.now() + days * 86400000); const ymd = d.toISOString().slice(0,10).replace(/-/g,'');
-  const ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LabAtHome//EN','BEGIN:VEVENT','UID:retest-' + o.id + '@labathome','DTSTAMP:' + new Date().toISOString().replace(/[-:]/g,'').slice(0,15) + 'Z','DTSTART;VALUE=DATE:' + ymd,'SUMMARY:iLab@Home – ' + (S.lang === 'ar' ? 'موعد إعادة الفحص' : 'Retest reminder') + ' (' + o.code + ')','DESCRIPTION:https://labathome-oman.vercel.app/#/app/tests','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LabAtHome//EN','BEGIN:VEVENT','UID:retest-' + o.id + '@labathome','DTSTAMP:' + new Date().toISOString().replace(/[-:]/g,'').slice(0,15) + 'Z','DTSTART;VALUE=DATE:' + ymd,'SUMMARY:iLab@home – ' + (S.lang === 'ar' ? 'موعد إعادة الفحص' : 'Retest reminder') + ' (' + o.code + ')','DESCRIPTION:https://labathome-oman.vercel.app/#/app/tests','END:VEVENT','END:VCALENDAR'].join('\r\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type:'text/calendar' })); a.download = 'LabAtHome-retest.ics'; document.body.appendChild(a); a.click(); setTimeout(() => a.remove(), 500);
 }
 function careBlock(o){
@@ -1808,6 +1812,7 @@ async function viewDoctorHome(){
   const item = o => orderItem(o, `<div class="row wrap" style="gap:6px;margin-top:8px"><span class="chip ${o.severity === 'urgent' ? 'red' : 'amber'}">${o.severity === 'urgent' ? '🔴 ' + t('doc_urgent') : '🟡 ' + t('m_review')}</span>${o.reviewed ? `<span class="chip teal">${ic('check',12,2.6)} ${t('doc_done')}</span>` : ''}</div>`);
   app.innerHTML = shell(t('hello',{n:esc(u.full_name.replace(/^Dr\.?\s*/,'').split(' ')[0])}), `<div class="stack-lg">
     <div class="card row" style="gap:14px">${A.roleIcon('doctor', 56)}<div class="grow"><b style="font-size:1.1rem">${esc(u.full_name)}</b><div class="small muted">${esc(S.lang === 'ar' ? ((u.meta||{}).specialty_ar || t('r_doctor')) : ((u.meta||{}).specialty || t('r_doctor')))}${(u.meta||{}).license ? ' · ' + esc(u.meta.license) : ''}</div></div></div>
+    ${(u.meta || {}).consult ? `<a class="card row cs-row" href="#/app/consult" style="gap:12px">${ic('video',24)}<div class="grow"><b>${t('cs_q')}</b><div class="xs muted">${t('cs_p')}</div></div><span class="flip">${ic('arrow',18)}</span></a>` : ''}
     <div class="grid g3"><div class="kpi" style="${urg ? 'background:#fdecec' : ''}"><span>🔴 ${t('doc_urgent')}</span><b>${urg}</b></div><div class="kpi"><span>🟡 ${t('doc_pending')}</span><b>${pend.length - urg}</b></div><div class="kpi blue"><span>${t('m_reviewed')}</span><b>${done.length}</b></div></div>
     <div><h3>${t('doc_home_t')} <span class="chip">${pend.length}</span></h3>${pend.length ? `<div class="olist">${pend.map(item).join('')}</div>` : emptyBox(t('doc_empty'))}</div>
     ${done.length ? `<div><h3>${t('m_reviewed')}</h3><div class="olist">${done.slice(0, 20).map(item).join('')}</div></div>` : ''}</div>`);
@@ -1847,7 +1852,7 @@ function profileBanner(){ const u = S.user; return u && u.role === 'patient' && 
 
 /* --- coming soon --- */
 function soonBlock(){
-  const S4 = [['syringe','soon_1'],['drop','soon_2'],['chat','soon_3'],['heart','soon_4']];
+  const S4 = [['syringe','soon_1'],['drop','soon_2'],['heart','soon_4'],['dna','soon_dna1'],['dna','soon_dna2'],['dna','soon_dna3'],['dna','soon_dna4'],['tooth','soon_dent']];
   return `<div class="section-h" id="soon" style="margin:40px auto 18px;scroll-margin-top:80px"><span class="eyebrow">${t('soon_t')}</span><h2>${t('soon_t')}</h2><p>${t('soon_p')}</p></div>
     <div class="grid g4 soon">${S4.map(([i, k]) => `<div class="card soon-c"><span class="chip purple soon-chip">${t('soon_chip')}</span><span class="ic-round">${ic(i,24)}</span><b>${t(k)}</b><div class="small muted">${t(k+'d')}</div></div>`).join('')}</div>`;
 }
@@ -1905,7 +1910,7 @@ Object.assign(I18N.en, {
   h3_e5:'Coming soon', h3_t5:'Vaccinations and treatment at home', h3_p5:'Vaccines, drips and doctor video consults are on the way.', h3_c5:'See what’s coming',
   hm_quick:'What do you need today?', hm_pk:'Popular packages', hm_steps:'Three simple steps', hm_how_more:'How it works in detail', hm_st1:'Book in 2 minutes', hm_st1d:'Pick tests, a time and your location.', hm_st2:'Nurse at your door', hm_st2d:'A licensed nurse collects the sample at home.', hm_st3:'Results on your phone', hm_st3d:'Clear report with advice and a PDF.',
   qt_book:'Book a test', qt_pk:'Packages', qt_kids:'Kids', qt_seniors:'Seniors 60+', qt_bp:'BP & sugar', qt_vit:'Vitamins', qt_results:'My results', qt_help:'Help',
-  hm_trust_t:'Trusted care, close to home', hm_app_t:'iLab@Home on your phone', hm_app_p:'Install the app in 10 seconds. It updates itself.', prev:'Previous', next_s:'Next', skip_intro:'Skip'
+  hm_trust_t:'Trusted care, close to home', hm_app_t:'iLab@home on your phone', hm_app_p:'Install the app in 10 seconds. It updates itself.', prev:'Previous', next_s:'Next', skip_intro:'Skip'
 });
 Object.assign(I18N.ar, {
   h3_e1:'سحب العينات في البيت', h3_t1:'فحوصات المختبر عند باب بيتك', h3_p1:'ممرض مرخّص يجيك البيت، والعينة تنتقل في صندوق تبريد ٢–٨ °م، والتقرير الموثّق يوصلك على جوالك.', h3_c1:'احجز فحصك',
@@ -1967,7 +1972,7 @@ function bindHero(){
 function quickTiles(){
   const u = !!S.user; const T = u ? 'app/tests' : 'tests';
   const tiles = [['flask','qt_book',T,'#1257d6','#eaf2ff'],['box','qt_pk',T + '?c=packages','#7a5af8','#efeaff'],['kid','qt_kids',T + '?c=kids','#f2a516','#fff4dc'],['heart','qt_seniors',T + '?c=packages','#e8466f','#fdeaf0'],
-    ['gauge','qt_bp',T + '?c=vitals','#0fae9b','#e3f7f4'],['sun','qt_vit',T + '?c=vitamins','#d97706','#fff4dc'],['file','qt_results',u ? 'app/orders?r=1' : 'login','#0d7c6c','#dff5ef'],['chat','qt_help','support','#0b2350','#e6ebf5']];
+    ['steth','m_consult',u ? 'app/consult' : 'consult','#2563eb','#eaf2ff'],['tooth','m_dental','dental','#0ea5e9','#e0f4fd'],['ring','cat_premarital',T + '?c=premarital','#db2777','#fdeaf3'],['gauge','qt_bp',T + '?c=vitals','#0fae9b','#e3f7f4'],['file','qt_results',u ? 'app/orders?r=1' : 'login','#0d7c6c','#dff5ef'],['chat','qt_help','support','#0b2350','#e6ebf5']];
   return `<div class="qtiles">${tiles.map(([i, k, h, c, b], n) => `<a class="qt" href="#/${h}" style="--d:${n * 40}ms"><span class="qi" style="color:${c};background:${b}">${ic(i, 26, 2)}</span><span>${t(k)}</span></a>`).join('')}</div>`;
 }
 async function viewLanding(){
@@ -1992,7 +1997,7 @@ async function viewLanding(){
   try { if (window.LAHQR && $('#hqr')) $('#hqr').innerHTML = window.LAHQR.svg({ size: 132 }); } catch(e) {}
   const hash = location.hash.split('#')[2]; if (hash) setTimeout(() => { const el = document.getElementById(hash); if (el) el.scrollIntoView({ behavior:'smooth' }); }, 80);
 }
-/* opening splash: the iLab@Home van drives in (once per session) */
+/* opening splash: the iLab@home van drives in (once per session) */
 let SPLASH = Promise.resolve();
 async function splashIntro(){
   const force = /splash=1/.test(location.search), hold = /splashhold/.test(location.search);
@@ -2011,8 +2016,8 @@ async function splashIntro(){
 }
 
 /* ================= v19: What's new (explainer video + changelog) ================= */
-Object.assign(I18N.en, { ig_follow:'Follow us on Instagram', ig_scan:'Scan the code with your phone camera.', m_new:'What’s new', new_t:'What’s new in iLab@Home', new_vid:'How iLab@Home works, in one minute', new_sub:'English with Arabic subtitles', new_watch:'Watch the 1-minute video',
-  nw18:'3D home screen', nw18d:'Rotating 3D banners, an opening intro with the iLab@Home van, and quick service tiles.',
+Object.assign(I18N.en, { ig_follow:'Follow us on Instagram', ig_scan:'Scan the code with your phone camera.', m_new:'What’s new', new_t:'What’s new in iLab@home', new_vid:'How iLab@home works, in one minute', new_sub:'English with Arabic subtitles', new_watch:'Watch the 1-minute video',
+  nw18:'3D home screen', nw18d:'Rotating 3D banners, an opening intro with the iLab@home van, and quick service tiles.',
   nw17a:'Clear result levels', nw17ad:'Normal, needs review or urgent, with diet tips and what to do until the doctor replies.',
   nw17b:'Doctor’s advice', nw17bd:'A doctor reviews results that need attention and sends a plan to the patient.',
   nw17c:'Nearest hospital', nw17cd:'Hospitals and health centres in North Al Sharqiyah, with distance and directions.',
@@ -2037,9 +2042,9 @@ function newBlock(short){
     <div class="grid g2 collapse">${HOW_READY ? vidCard('how') : ''}${vidCard('cast')}</div>
     <div class="stack" style="--g:10px">${items.map(([i, k, v]) => `<div class="card row" style="gap:14px;align-items:flex-start"><span class="qi" style="color:var(--blue);background:#eaf2ff;flex:none">${ic(i, 24, 2)}</span><div class="grow"><div class="row between"><b>${t(k)}</b><span class="chip gray">${v}</span></div><div class="small muted">${t(k + 'd')}</div></div></div>`).join('')}</div></div>`;
 }
-Object.assign(I18N.en, { new_vid:'How iLab@Home works, and how to sign up', new_sub:'English narration with Arabic subtitles', new_vid2:'Meet the iLab@Home family', new_sub2:'Eleven people, one journey · Arabic subtitles',
+Object.assign(I18N.en, { new_vid:'How iLab@home works, and how to sign up', new_sub:'English narration with Arabic subtitles', new_vid2:'Meet the iLab@home family', new_sub2:'Eleven people, one journey · Arabic subtitles',
   nw25:'Faster on phones', nw25d:'A lighter home screen that loads instantly on any phone, with the latest news, Instagram code, email and phone right on the home page.',
-  nw25b:'New team member', nw25bd:'Tasnim Al Hasani joins the iLab@Home team.' });
+  nw25b:'New team member', nw25bd:'Tasnim Al Hasani joins the iLab@home team.' });
 Object.assign(I18N.ar, { new_vid:'كيف يشتغل آي لاب@هوم، وطريقة التسجيل', new_sub:'بالإنجليزي مع ترجمة عربية', new_vid2:'تعرّف على عائلة آي لاب@هوم', new_sub2:'إحدى عشر شخص ورحلة وحدة · ترجمة عربية',
   nw25:'أسرع على الجوال', nw25d:'واجهة رئيسية أخف تفتح فوراً على أي جوال، وفيها آخر التحديثات وكود الإنستغرام والبريد والرقم.',
   nw25b:'عضوة جديدة في الفريق', nw25bd:'انضمت تسنيم الحسني لفريق آي لاب@هوم.' });
@@ -2145,6 +2150,18 @@ Object.assign(I18N.ar, {
   bz_note:'أرقام تخطيطية لخطة العمل، والعقود الفعلية قد تختلف.', bz_cta:'انضم كشريك'
 });
 
+Object.assign(I18N.en, { per_visit:'Per visit', pay_split_t:'Who was paid', pay_split_p:'From collected visits (planning rates: lab 65% of tests, courier 1.000, kit 0.500, card 2.5%).', pay_consults:'Consultation income', pay_margin:'iLab@home margin' });
+Object.assign(I18N.ar, { per_visit:'لكل زيارة', pay_split_t:'لمن دفعنا', pay_split_p:'من الزيارات المجمّعة (أسعار تخطيطية: المختبر 65% من الفحوصات، النقل 1.000، الحقيبة 0.500، البطاقة 2.5%).', pay_consults:'دخل الاستشارات', pay_margin:'هامش آي لاب@هوم' });
+Object.assign(I18N.en, { soon_dna1:'Couple DNA carrier test', soon_dna1d:'One cheek swab each checks 300+ inherited conditions (thalassaemia, sickle cell, SMA…) before marriage or pregnancy, with a genetic counsellor.',
+  soon_dna2:'NIPT – baby DNA in pregnancy', soon_dna2d:'From the mother’s blood at 10+ weeks: screens for Down syndrome and other chromosome changes. No risk to the baby.',
+  soon_dna3:'DNA & medicines', soon_dna3d:'Pharmacogenomics: how your genes handle common medicines (blood thinners, painkillers, antidepressants).',
+  soon_dna4:'Newborn & family genetic panels', soon_dna4d:'Confirm thalassaemia or sickle cell genes in the family with a DNA test sent to an accredited reference lab.',
+  soon_dent:'Teeth cleaning at home', soon_dentd:'Scaling and polishing by a dental hygienist with portable equipment.' });
+Object.assign(I18N.ar, { soon_dna1:'فحص الجينات للمقبلين على الزواج', soon_dna1d:'مسحة من الخد لكل طرف تكشف أكثر من 300 مرض وراثي (الثلاسيميا، المنجلية، ضمور العضلات…) قبل الزواج أو الحمل، مع مستشار وراثي.',
+  soon_dna2:'فحص NIPT – الحمض النووي للجنين', soon_dna2d:'من دم الأم بعد الأسبوع العاشر: يكشف متلازمة داون وتغيّرات الكروموسومات. بدون أي خطر على الجنين.',
+  soon_dna3:'الجينات والأدوية', soon_dna3d:'كيف تتعامل جيناتك مع الأدوية الشائعة (مميعات الدم، المسكنات، مضادات الاكتئاب).',
+  soon_dna4:'فحوصات وراثية للمواليد والعائلة', soon_dna4d:'تأكيد جينات الثلاسيميا أو المنجلية في العائلة بفحص DNA يُرسل لمختبر مرجعي معتمد.',
+  soon_dent:'تنظيف الأسنان في البيت', soon_dentd:'تنظيف وتلميع على يد أخصائي صحة فم بأجهزة متنقلة.' });
 /* money rules (fallbacks match the database settings) */
 let BIZ = null;
 const BIZ0 = { home_fee:5, nurse_fee:3, courier_fee:1, kit_cost:0.5, lab_share:0.65, pay_fee_pct:0.025, nurse_bonus:[0,0.25,0.5,0.75], consult_fee:4, consult_post_fee:3, consult_doctor_share:0.75, dental_home_fee:12, dental_home_share:0.65,
@@ -2348,6 +2365,70 @@ async function viewBusiness(){
   $$('[data-sl]').forEach(r => r.oninput = () => { st[r.dataset.sl] = +r.value; draw(); });
   $$('[data-lv]').forEach(b => b.onclick = () => { st.lv = +b.dataset.lv; $$('[data-lv]').forEach(x => x.classList.toggle('on', x === b)); draw(); });
   draw();
+}
+
+/* ================= v28: brand page (logo + display mockups) and the moving van on sign-up ================= */
+Object.assign(I18N.en, { m_brand:'Brand & merch', br_t:'The iLab@home brand', br_p:'Our logo is a home roof over a blood drop with a medical cross. The orange dot is the light that says “we are at your door”.',
+  br_logo:'Logo versions', br_on_light:'On light', br_on_dark:'On dark', br_mono:'One colour', br_icon:'App icon', br_ar:'Arabic', br_stack:'Stacked',
+  br_colors:'Colours', br_type:'Typography', br_merch:'Merchandise (display mockups)', br_merch_p:'Showcase items for events, the team and partners. Mockups for presentation.', br_dl:'Download logo (SVG)',
+  mx_tee:'T-shirt', mx_polo:'Nurse polo', mx_cap:'Cap', mx_mug:'Mug', mx_pen:'Pen', mx_wallet:'Wallet', mx_tote:'Tote bag', mx_badge:'ID badge & lanyard', mx_bag:'Nurse kit bag', mx_van:'Van', mx_case:'Phone case', mx_note:'Notebook', mx_sticker:'Stickers', mx_bottle:'Water bottle', mx_umbrella:'Umbrella', mx_box:'Sample cold box',
+  van_hi:'Your nurse is on the way' });
+Object.assign(I18N.ar, { m_brand:'الهوية والمنتجات', br_t:'هوية آي لاب@هوم', br_p:'شعارنا سقف بيت فوق قطرة دم فيها علامة طبية. والنقطة البرتقالية هي النور اللي يقول «إحنا عند بابك».',
+  br_logo:'نسخ الشعار', br_on_light:'على خلفية فاتحة', br_on_dark:'على خلفية داكنة', br_mono:'لون واحد', br_icon:'أيقونة التطبيق', br_ar:'بالعربي', br_stack:'عمودي',
+  br_colors:'الألوان', br_type:'الخطوط', br_merch:'المنتجات (نماذج للعرض)', br_merch_p:'منتجات للعرض في الفعاليات وللفريق والشركاء. نماذج تصميم للعرض فقط.', br_dl:'تحميل الشعار (SVG)',
+  mx_tee:'تيشيرت', mx_polo:'بولو الممرضين', mx_cap:'كاب', mx_mug:'كوب', mx_pen:'قلم', mx_wallet:'محفظة', mx_tote:'شنطة قماش', mx_badge:'بطاقة تعريف وحبل', mx_bag:'حقيبة الممرض', mx_van:'الفان', mx_case:'غطاء جوال', mx_note:'دفتر', mx_sticker:'ستيكرات', mx_bottle:'مطارة ماء', mx_umbrella:'مظلة', mx_box:'صندوق العينات المبرّد',
+  van_hi:'ممرضك في الطريق' });
+
+/* logo placed inside a drawing */
+function mk(x, y, s, o){ return A.markSvg(Object.assign({ id: 'm' + Math.round(x) + '_' + Math.round(y) + '_' + s }, o || {})).replace('<svg class="mark"', `<svg x="${x}" y="${y}" width="${s}" height="${s}"`); }
+const WMT = (x, y, size, fill, anchor, blue) => `<text x="${x}" y="${y}" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="${size}" fill="${fill}" text-anchor="${anchor || 'middle'}" letter-spacing="-.5" direction="ltr"><tspan fill="${blue || '#60a5fa'}">i</tspan>Lab<tspan fill="${blue || '#60a5fa'}">@</tspan>home</text>`;
+const ARW = (x, y, size, fill) => `<text x="${x}" y="${y}" font-family="'IBM Plex Sans Arabic',Arial" font-weight="700" font-size="${size}" fill="${fill}" text-anchor="middle" direction="rtl">آي لاب@هوم</text>`;
+const SH = '<ellipse cx="120" cy="222" rx="78" ry="7" fill="#0d1628" opacity=".10"/>';
+function merch(){
+  return [
+  ['tee', `${SH}<path d="M78 34l-44 20 14 34 20-8v122h104V80l20 8 14-34-44-20c-4 12-18 20-42 20s-38-8-42-20z" fill="#0d1628"/><path d="M78 34c4 12 18 20 42 20s38-8 42-20" fill="none" stroke="#1e3a8a" stroke-width="5"/>${mk(96, 82, 48)}${WMT(120, 150, 15, '#fff')}`],
+  ['polo', `${SH}<path d="M80 36l-44 18 14 34 20-8v120h100V80l20 8 14-34-44-18-16 8h-48z" fill="#fff" stroke="#dbe5f5" stroke-width="2"/><path d="M96 44l24 26 24-26" fill="#2563eb"/><path d="M120 70v38" stroke="#2563eb" stroke-width="3"/><circle cx="120" cy="82" r="2.4" fill="#2563eb"/><circle cx="120" cy="96" r="2.4" fill="#2563eb"/>${mk(142, 92, 26)}<rect x="36" y="78" width="30" height="8" rx="3" fill="#2563eb" transform="rotate(-24 50 82)"/><rect x="174" y="78" width="30" height="8" rx="3" fill="#2563eb" transform="rotate(24 190 82)"/><text x="120" y="190" font-family="Inter,Arial" font-weight="800" font-size="12" fill="#2563eb" text-anchor="middle" letter-spacing="2">NURSE · ممرض</text>`],
+  ['cap', `${SH}<path d="M48 138c0-52 32-82 72-82s72 30 72 82z" fill="#2563eb"/><path d="M120 56v82" stroke="#1d4ed8" stroke-width="2"/><path d="M84 66c-12 18-16 44-16 72M156 66c12 18 16 44 16 72" stroke="#1d4ed8" stroke-width="2" fill="none"/><circle cx="120" cy="56" r="5" fill="#1e3a8a"/><path d="M40 138h160c10 0 16 8 10 14-30 18-150 18-180 0-6-6 0-14 10-14z" fill="#1e40af"/>${mk(98, 82, 44, { bg:'#fff', fg:'#2563eb', cross:'#fff' })}`],
+  ['mug', `${SH}<path d="M62 60h104v128c0 14-10 24-24 24H86c-14 0-24-10-24-24z" fill="#fff" stroke="#dbe5f5" stroke-width="2"/><path d="M166 88h14c16 0 24 12 24 28s-8 30-24 30h-14" fill="none" stroke="#dbe5f5" stroke-width="12"/><ellipse cx="114" cy="60" rx="52" ry="8" fill="#eef2f8" stroke="#dbe5f5" stroke-width="2"/>${mk(88, 92, 52)}${WMT(114, 168, 16, '#0d1628', 'middle', '#2563eb')}<path d="M62 196h104" stroke="#2563eb" stroke-width="6"/>`],
+  ['pen', `${SH}<g transform="rotate(-35 120 120)"><rect x="20" y="108" width="200" height="24" rx="12" fill="#2563eb"/><rect x="20" y="108" width="40" height="24" rx="12" fill="#1e3a8a"/><path d="M220 112l18 8-18 8z" fill="#cbd5e1"/><rect x="52" y="100" width="70" height="8" rx="4" fill="#cbd5e1"/>${WMT(140, 125, 13, '#fff', 'middle', '#fdba74')}</g>`],
+  ['wallet', `${SH}<rect x="44" y="62" width="152" height="118" rx="16" fill="#0d1628"/><rect x="52" y="70" width="136" height="102" rx="12" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="5 5"/><path d="M196 96h-36a14 14 0 0 0 0 28h36z" fill="#1e293b"/><circle cx="162" cy="110" r="5" fill="#94a3b8"/>${mk(80, 92, 46, { bg:'#1e293b', fg:'#94a3b8', cross:'#1e293b', dot:'#b45309' })}`],
+  ['tote', `${SH}<path d="M88 70c0-30 64-30 64 0" fill="none" stroke="#d6c7a8" stroke-width="8"/><path d="M50 70h140l-10 146H60z" fill="#f3ead8"/>${mk(90, 98, 60)}${WMT(120, 186, 18, '#0d1628', 'middle', '#2563eb')}${ARW(120, 206, 13, '#475569')}`],
+  ['badge', `${SH}<path d="M96 10l14 66M144 10l-14 66" stroke="#2563eb" stroke-width="10"/><rect x="112" y="70" width="16" height="16" rx="3" fill="#94a3b8"/><rect x="70" y="80" width="100" height="136" rx="12" fill="#fff" stroke="#dbe5f5" stroke-width="2"/><rect x="70" y="80" width="100" height="34" rx="12" fill="#2563eb"/><rect x="70" y="102" width="100" height="12" fill="#2563eb"/>${mk(78, 86, 22)}${WMT(132, 102, 11, '#fff', 'middle', '#bfdbfe')}<circle cx="120" cy="140" r="18" fill="#fdeaf3"/><path d="M106 160c2-10 26-10 28 0" fill="#db2777" opacity=".5"/><text x="120" y="182" font-family="Inter,Arial" font-weight="700" font-size="11" fill="#0d1628" text-anchor="middle">Fatima A.</text><text x="120" y="197" font-family="Inter,Arial" font-size="9" fill="#64748b" text-anchor="middle">Licensed nurse · OMSB</text><rect x="92" y="203" width="56" height="6" rx="3" fill="#14b8a6"/>`],
+  ['bag', `${SH}<path d="M92 66c0-22 56-22 56 0" fill="none" stroke="#0d1628" stroke-width="9" stroke-linecap="round"/><rect x="40" y="66" width="160" height="140" rx="22" fill="#0d1628"/><rect x="40" y="96" width="160" height="7" fill="#2563eb"/>${mk(96, 120, 48)}${WMT(120, 192, 14, '#fff')}<rect x="52" y="76" width="30" height="12" rx="4" fill="#14b8a6"/>`],
+  ['van', `<ellipse cx="120" cy="196" rx="104" ry="6" fill="#0d1628" opacity=".12"/><path d="M14 168V96c0-10 8-18 18-18h118c8 0 15 4 19 10l26 34 22 8c6 2 9 7 9 13v25z" fill="#fff" stroke="#dbe5f5" stroke-width="2"/><path d="M152 86h12l24 34h-36z" fill="#bfdbfe"/><rect x="14" y="138" width="214" height="12" fill="#2563eb"/><rect x="14" y="150" width="214" height="5" fill="#f97316"/>${mk(30, 92, 38)}${WMT(108, 120, 18, '#0d1628', 'middle', '#2563eb')}<text x="108" y="132" font-family="Inter,Arial" font-weight="600" font-size="8" fill="#64748b" text-anchor="middle">+968 9434 2557 · @ilabathome</text><circle cx="58" cy="170" r="17" fill="#0d1628"/><circle cx="58" cy="170" r="7" fill="#cbd5e1"/><circle cx="184" cy="170" r="17" fill="#0d1628"/><circle cx="184" cy="170" r="7" fill="#cbd5e1"/>`],
+  ['case', `${SH}<rect x="72" y="20" width="96" height="196" rx="22" fill="url(#cg)"/><defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient></defs><rect x="82" y="30" width="40" height="40" rx="12" fill="#0d1628" opacity=".85"/><circle cx="96" cy="44" r="7" fill="#334155"/><circle cx="110" cy="58" r="5" fill="#334155"/>${mk(94, 104, 52, { bg:'none' })}${WMT(120, 190, 13, '#fff', 'middle', '#fdba74')}`],
+  ['note', `${SH}<rect x="58" y="28" width="124" height="180" rx="10" fill="#0d1628"/><rect x="58" y="28" width="14" height="180" fill="#1e293b"/><rect x="160" y="28" width="7" height="180" fill="#f97316"/>${mk(92, 82, 54)}${WMT(119, 166, 15, '#fff')}`],
+  ['sticker', `<rect x="22" y="22" width="196" height="196" rx="18" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>${mk(40, 40, 64)}<rect x="116" y="46" width="88" height="36" rx="18" fill="#0d1628"/>${WMT(160, 70, 13, '#fff')}<circle cx="72" cy="160" r="38" fill="#14b8a6"/><text x="72" y="156" font-family="Inter,Arial" font-weight="800" font-size="11" fill="#fff" text-anchor="middle">TESTED</text><text x="72" y="171" font-family="Inter,Arial" font-weight="800" font-size="11" fill="#fff" text-anchor="middle">AT HOME ✓</text><rect x="118" y="132" width="88" height="56" rx="14" fill="#fff4e6" stroke="#fdba74" stroke-width="2"/>${ARW(162, 166, 13, '#c2410c')}<circle cx="190" cy="104" r="14" fill="#f97316"/>`],
+  ['bottle', `${SH}<rect x="102" y="18" width="36" height="22" rx="6" fill="#0d1628"/><path d="M98 40h44v14c14 10 20 22 20 40v104c0 12-8 20-20 20H98c-12 0-20-8-20-20V94c0-18 6-30 20-40z" fill="#fff" stroke="#dbe5f5" stroke-width="2"/><path d="M78 150h84v48c0 12-8 20-20 20H98c-12 0-20-8-20-20z" fill="#2563eb"/>${mk(98, 92, 44)}<text x="120" y="182" font-family="Inter,Arial" font-weight="800" font-size="9" fill="#fff" text-anchor="middle">STAY HYDRATED</text>`],
+  ['box', `${SH}<rect x="40" y="86" width="160" height="116" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/><rect x="34" y="70" width="172" height="26" rx="10" fill="#2563eb"/><rect x="104" y="60" width="32" height="14" rx="5" fill="#1e3a8a"/>${mk(60, 112, 44)}${WMT(150, 132, 13, '#0d1628', 'middle', '#2563eb')}<rect x="112" y="146" width="76" height="30" rx="8" fill="#0d1628"/><text x="150" y="166" font-family="Inter,Arial" font-weight="800" font-size="13" fill="#5eead4" text-anchor="middle">4.2 °C</text>`],
+  ['umbrella', `${SH}<path d="M20 110c0-56 44-90 100-90s100 34 100 90c-12-10-24-10-34 0-10-10-24-10-33 0-10-10-23-10-33 0-10-10-23-10-33 0-10-10-24-10-33 0-12-10-24-10-34 0z" fill="#2563eb"/><path d="M120 20c-24 20-34 54-34 90M120 20c24 20 34 54 34 90" stroke="#1e3a8a" stroke-width="2" fill="none"/><path d="M120 110v84c0 14-22 14-22 0" stroke="#0d1628" stroke-width="6" fill="none" stroke-linecap="round"/>${mk(100, 44, 40, { bg:'none' })}`]
+  ];
+}
+function logoLockup(dark, stacked){ return `<div class="lockup ${dark ? 'dark' : ''} ${stacked ? 'stacked' : ''}">${A.markSvg({ id: 'lk' + (dark ? 'd' : 'l') + (stacked ? 's' : '') })}<span class="wm" dir="ltr"><i>i</i>Lab<i>@</i>home</span></div>`; }
+async function viewBrand(){
+  const items = merch();
+  const body = `<div class="stack-lg">
+    <div class="brand-hero"><div class="bh-mark">${A.markSvg({ id:'bh' })}</div><div><h1><span class="wm" dir="ltr"><i>i</i>Lab<i>@</i>home</span></h1><div class="ar-wm">آي لاب@هوم</div><p>${t('br_p')}</p><button class="btn" data-dl>${ic('download',18)} ${t('br_dl')}</button></div></div>
+    <div><h2 class="hm-h">${t('br_logo')}</h2><div class="grid g3 logo-grid">
+      <div class="card lg-tile"><div class="lg-show">${logoLockup(false)}</div><span class="xs muted">${t('br_on_light')}</span></div>
+      <div class="card lg-tile dark"><div class="lg-show">${logoLockup(true)}</div><span class="xs">${t('br_on_dark')}</span></div>
+      <div class="card lg-tile"><div class="lg-show">${logoLockup(false, true)}</div><span class="xs muted">${t('br_stack')}</span></div>
+      <div class="card lg-tile"><div class="lg-show">${A.markSvg({ id:'mono', bg:'#0d1628', cross:'#0d1628', dot:'#fff' })}${A.markSvg({ id:'mono2', bg:'none', fg:'#0d1628', cross:'#fff', dot:'#0d1628' })}</div><span class="xs muted">${t('br_mono')}</span></div>
+      <div class="card lg-tile"><div class="lg-show"><div class="app-ic">${A.markSvg({ id:'ai', r:14 })}</div><div class="app-ic sm">${A.markSvg({ id:'ai2', r:14 })}</div></div><span class="xs muted">${t('br_icon')}</span></div>
+      <div class="card lg-tile"><div class="lg-show"><div class="lockup">${A.markSvg({ id:'arl' })}<span class="wm-ar">آي لاب@هوم</span></div></div><span class="xs muted">${t('br_ar')}</span></div></div></div>
+    <div class="grid g2 collapse"><div class="card pad-lg"><h3 style="margin-top:0">${t('br_colors')}</h3><div class="swatches">${[['#2563EB','Royal blue'],['#0D1628','Navy'],['#14B8A6','Teal'],['#F97316','Orange'],['#F5F8FD','Light'],['#EF4444','Urgent only']].map(([c, n]) => `<div class="sw-c"><i style="background:${c}"></i><b>${n}</b><span class="xs muted ltr">${c}</span></div>`).join('')}</div></div>
+      <div class="card pad-lg"><h3 style="margin-top:0">${t('br_type')}</h3><div style="font:800 2rem Inter,sans-serif;letter-spacing:-.02em">Inter ExtraBold</div><div style="font:500 1.1rem Inter,sans-serif" class="muted">Inter Regular · body text 16px</div><div style="font:700 1.8rem 'IBM Plex Sans Arabic',sans-serif;margin-top:10px">آي بي إم بلكس عربي</div><div class="muted" style="font:500 1.05rem 'IBM Plex Sans Arabic',sans-serif">للنصوص العربية</div></div></div>
+    <div><h2 class="hm-h">${t('br_merch')}</h2><p class="muted small" style="margin-top:-6px">${t('br_merch_p')}</p><div class="grid g4 merch">${items.map(([k, svg]) => `<figure class="card mx"><svg viewBox="0 0 240 240" role="img" aria-label="${esc(t('mx_' + k))}">${svg}</svg><figcaption>${t('mx_' + k)}</figcaption></figure>`).join('')}</div></div></div>`;
+  app.innerHTML = S.user ? shell(t('m_brand'), body) : `${topbar()}<section class="section" style="padding-top:24px"><div class="wrap-w">${body}</div></section>${footer()}`;
+  if (!S.user) bindGlobal();
+  $('[data-dl]').onclick = () => { const svg = A.markSvg({ id:'dl' }).replace('<svg class="mark"', '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"'); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([svg], { type:'image/svg+xml' })); a.download = 'iLabAtHome-logo.svg'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); };
+}
+
+/* the iLab@home van drives in on the sign-in / sign-up screens */
+function vanStrip(){
+  const van = merch().find(x => x[0] === 'van')[1];
+  return `<div class="van-strip" aria-hidden="true"><div class="vs-sky"><i class="cloud c1"></i><i class="cloud c2"></i><span class="vs-house">${A.markSvg({ id:'vsh', bg:'none', fg:'#cbd5e1', cross:'#fff', dot:'#f97316' })}</span></div><div class="vs-road"><i></i></div>
+    <div class="vs-van"><svg viewBox="0 0 240 210">${van}</svg><span class="vs-puff p1"></span><span class="vs-puff p2"></span></div><div class="vs-msg">${ic('pin',14)} ${t('van_hi')}</div></div>`;
 }
 
 async function boot(){

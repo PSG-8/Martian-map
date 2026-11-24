@@ -1,4 +1,4 @@
-// Sends iLab@Home emails: address verification and request updates.
+// Sends iLab@home emails: address verification and request updates.
 // Mail is sent through SMTP (Gmail by default) using environment variables:
 //   MAIL_USER, MAIL_PASS (Gmail address + 16-letter App Password); optional MAIL_HOST, MAIL_PORT, MAIL_FROM.
 const nodemailer = require('nodemailer');
@@ -20,13 +20,13 @@ function shell(inner) {
   <tr><td style="background:#0d1628;padding:22px 26px"><span style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px"><span style="color:#60a5fa">i</span>Lab<span style="color:#60a5fa">@</span>Home</span>
   <div style="color:#9fb3d9;font-size:13px;margin-top:4px">الفحص يوصلك · The test comes to you</div></td></tr>
   <tr><td style="padding:26px">${inner}</td></tr>
-  <tr><td style="padding:16px 26px;background:#f6f9fe;color:#6b7a94;font-size:12px;line-height:1.6">iLab@Home · North Al Sharqiyah, Oman<br>هذه رسالة تلقائية، لا ترد عليها. · This is an automatic message.</td></tr>
+  <tr><td style="padding:16px 26px;background:#f6f9fe;color:#6b7a94;font-size:12px;line-height:1.6">iLab@home · North Al Sharqiyah, Oman<br>هذه رسالة تلقائية، لا ترد عليها. · This is an automatic message.</td></tr>
   </table></td></tr></table></body></html>`;
 }
 const btn = (href, label) => `<a href="${href}" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;font-weight:700;padding:13px 26px;border-radius:12px;font-size:15px">${label}</a>`;
 function verifyMail(name, code) {
   const link = SITE + '#/verify/' + code;
-  return { subject: 'تأكيد بريدك الإلكتروني · Verify your email – iLab@Home', html: shell(`
+  return { subject: 'تأكيد بريدك الإلكتروني · Verify your email – iLab@home', html: shell(`
     <div dir="rtl" style="text-align:right"><h2 style="margin:0 0 10px;font-size:20px">أهلاً ${esc(name)} 👋</h2>
     <p style="font-size:15px;line-height:1.8;margin:0 0 18px">شكراً لتسجيلك في آي لاب@هوم. اضغط الزر لتأكيد بريدك الإلكتروني، وبعدها توصلك تحديثات طلباتك ونتائجك على الإيميل.</p>
     <p style="margin:0 0 22px">${btn(link, 'تأكيد البريد الإلكتروني')}</p></div>
@@ -34,7 +34,7 @@ function verifyMail(name, code) {
     <div dir="ltr"><p style="font-size:14px;line-height:1.7;margin:0 0 16px">Hi ${esc(name)}, please confirm your email address to receive request updates and results by email.</p>
     <p style="margin:0 0 16px">${btn(link, 'Verify email')}</p>
     <p style="font-size:12px;color:#6b7a94;margin:0">The link works for 48 hours. If you didn’t create an account, ignore this email.<br>الرابط صالح لمدة 48 ساعة. إذا لم تنشئ حساباً تجاهل هذه الرسالة.</p></div>`),
-    text: `iLab@Home – تأكيد البريد / Verify your email: ${link}` };
+    text: `iLab@home – تأكيد البريد / Verify your email: ${link}` };
 }
 function notifyMail(name, n) {
   const link = SITE + (n.order_id ? '#/app/order/' + n.order_id : '#/app/notifs');
@@ -46,7 +46,7 @@ function notifyMail(name, n) {
 }
 function resetMail(name, code) {
   const link = SITE + '#/reset/' + code;
-  return { subject: 'إعادة تعيين كلمة المرور · Reset your password – iLab@Home', html: shell(`
+  return { subject: 'إعادة تعيين كلمة المرور · Reset your password – iLab@home', html: shell(`
     <div dir="rtl" style="text-align:right"><h2 style="margin:0 0 10px;font-size:20px">أهلاً ${esc(name)}</h2>
     <p style="font-size:15px;line-height:1.8;margin:0 0 18px">وصلنا طلب لتغيير كلمة المرور. اضغط الزر لتعيين كلمة مرور جديدة. الرابط صالح لمدة ساعة واحدة.</p>
     <p style="margin:0 0 22px">${btn(link, 'تعيين كلمة مرور جديدة')}</p></div>
@@ -54,7 +54,7 @@ function resetMail(name, code) {
     <div dir="ltr"><p style="font-size:14px;line-height:1.7;margin:0 0 16px">Hi ${esc(name)}, we received a request to reset your password. The link works for one hour.</p>
     <p style="margin:0 0 16px">${btn(link, 'Set a new password')}</p>
     <p style="font-size:12px;color:#6b7a93;margin:0">If you did not ask for this, you can ignore this email. Your password stays the same.</p></div>`),
-    text: `Reset your iLab@Home password (valid 1 hour): ${link}` };
+    text: `Reset your iLab@home password (valid 1 hour): ${link}` };
 }
 let tx = null;
 function transport() {
@@ -65,7 +65,7 @@ function transport() {
 }
 async function send(to, m) {
   const t = transport(); if (!t) { const e = new Error('NO_MAIL'); e.code = 'NO_MAIL'; throw e; }
-  await t.sendMail({ from: process.env.MAIL_FROM || `"iLab@Home" <${process.env.MAIL_USER}>`, to, subject: m.subject, html: m.html, text: m.text });
+  await t.sendMail({ from: process.env.MAIL_FROM || `"iLab@home" <${process.env.MAIL_USER}>`, to, subject: m.subject, html: m.html, text: m.text });
 }
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
