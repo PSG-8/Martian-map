@@ -1,6 +1,6 @@
 # Project status — last updated 2026-11-24
 
-## v29 (deployed after owner review: banners, van, team circles and videos kept as in v27/v28; new Pixar-style films kept aside in `project-knowledge/videos` for later)
+## v29 (LIVE on labathome-oman.vercel.app since 2026-11-24, deployment dpl_GmynV6xFJhkRf3DwptnYyHf6E9MQ; after owner review: banners, van, team circles and videos kept as in v27/v28; new Pixar-style films kept aside in `project-knowledge/videos` for later)
 - Logo: back to the **approved hexagon + flask** everywhere (header, app icons, link image, explainer). On the site it is a **hologram**: colour sweep along the lines, bubbles rising in the flask, twinkling spark; large version (splash) floats in 3D with a scan line.
 - Pictures: Pixar/Disney-style art generated with Figma AI (file "iLab@home v29 art"): 5 banners × phone/desktop, the van (real logo on its side), 4 consult doctors, film scenes. Rules: women in a full, loosely draped Gulf shayla hijab; men in uniforms (nurse, dentist, courier) bare-headed — never a kumma with scrubs/coat.
 - Home banners: no 3D any more; pictures on every device with a slow camera move (transform only), so phones move again.
