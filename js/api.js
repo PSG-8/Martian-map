@@ -5,7 +5,13 @@ const KEY = 'sb_publishable_rVQ1jmPovakb-FMIgB1pUQ_BAoJlXMv';
 class ApiError extends Error { constructor(code){ super(code); this.code = code; } }
 /* reads are safe to repeat: they get one quick retry. Every call has a time limit, so a weak phone signal
    can never leave a screen waiting for ever (that used to block every tap after it). */
-const READS = /^(catalog|auth_me|order_get|orders_list|my_stats|programs_mine|program_lookup|notif_list|partners_public|nurse_profile|fleet_overview|admin_[a-z_]*s|admin_overview|admin_settings|kit_mine|nurses_today|support_mine|consult_list|consult_get|consult_msgs|doctors_list|business_public)$/;
+const READS = /^(catalog|auth_me|order_get|orders_list|my_stats|programs_mine|program_lookup|notif_list|partners_public|nurse_profile|fleet_overview|admin_[a-z_]*s|admin_overview|admin_settings|kit_mine|nurses_today|support_mine|consult_list|consult_get|consult_msgs|doctors_list|business_public|my_loyalty|my_privacy|my_trends|share_get|camps_mine|admin_safety|admin_privacy|admin_coupons|admin_camps|coupon_check)$/;
+/* the last copy of my orders and reports stays on this phone so they open without internet; it is wiped at sign-out */
+const OFFLINE = /^(orders_list|order_get|my_loyalty)$/;
+const offKey = (fn, args) => 'lah_off_' + fn + '_' + (args && (args.p_id || args.p_scope) || '');
+function offSave(fn, args, data){ try { localStorage.setItem(offKey(fn, args), JSON.stringify(data)); } catch(e) {} }
+function offGet(fn, args){ try { const v = localStorage.getItem(offKey(fn, args)); return v ? JSON.parse(v) : undefined; } catch(e) { return undefined; } }
+function offClear(){ try { Object.keys(localStorage).filter(k => k.startsWith('lah_off_')).forEach(k => localStorage.removeItem(k)); } catch(e) {} }
 async function send(fn, args, ms){
   const ctl = typeof AbortController === 'function' ? new AbortController() : null;
   const timer = ctl ? setTimeout(() => ctl.abort(), ms) : null;
@@ -17,7 +23,9 @@ async function rpc(fn, args){
   try { res = await send(fn, args, read ? 9000 : 20000); }
   catch(e){
     if (!read) throw new ApiError(e && e.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK');
-    try { await new Promise(r => setTimeout(r, 600)); res = await send(fn, args, 12000); } catch(e2){ throw new ApiError(e2 && e2.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK'); }
+    try { await new Promise(r => setTimeout(r, 600)); res = await send(fn, args, 12000); } catch(e2){
+      if (OFFLINE.test(fn)) { const c = offGet(fn, args); if (c !== undefined) { window.LAH_OFFLINE = true; document.documentElement.classList.add('offline'); return c; } }
+      throw new ApiError(e2 && e2.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK'); }
   }
   const txt = await res.text();
   let data = null; try { data = txt ? JSON.parse(txt) : null; } catch(e){ data = txt; }
@@ -27,6 +35,7 @@ async function rpc(fn, args){
     if (code === 'AUTH_REQUIRED') { localStorage.removeItem('lah_token'); }
     throw new ApiError(code);
   }
+  if (OFFLINE.test(fn)) { offSave(fn, args, data); if (window.LAH_OFFLINE) { window.LAH_OFFLINE = false; document.documentElement.classList.remove('offline'); } }
   return data;
 }
 const tok = () => localStorage.getItem('lah_token');
@@ -93,7 +102,31 @@ window.API = {
   consultAction: (id, a, p) => rpc('consult_action', { p_token: tok(), p_id: id, p_action: a, p: p || {} }),
   consultMsgs: (id, after) => rpc('consult_msgs', { p_token: tok(), p_id: id, p_after: after || 0 }),
   consultSend: (id, body) => rpc('consult_send', { p_token: tok(), p_id: id, p_body: body }),
-  setToken: (t) => t ? localStorage.setItem('lah_token', t) : localStorage.removeItem('lah_token'),
+  /* v31 */
+  loyalty: () => rpc('my_loyalty', { p_token: tok() }),
+  referralApply: (code) => rpc('referral_apply', { p_token: tok(), p_code: code }),
+  couponCheck: (code, sub) => rpc('coupon_check', { p_token: tok(), p_code: code, p_sub: sub }),
+  adminCoupons: () => rpc('admin_coupons', { p_token: tok() }),
+  adminCouponSave: (p) => rpc('admin_coupon_save', { p_token: tok(), p }),
+  privacy: () => rpc('my_privacy', { p_token: tok() }),
+  privacyRequest: (kind, note) => rpc('privacy_request', { p_token: tok(), p_kind: kind, p_note: note || null }),
+  dataExport: () => rpc('my_data_export', { p_token: tok() }),
+  adminPrivacy: () => rpc('admin_privacy', { p_token: tok() }),
+  adminPrivacyDone: (id, status, reply) => rpc('admin_privacy_done', { p_token: tok(), p_id: id, p_status: status, p_reply: reply || null }),
+  sampleLog: (id, code, temp, note) => rpc('sample_log', { p_token: tok(), p_id: id, p_code: code, p_temp: temp, p_note: note || null }),
+  sos: (order, lat, lng, note) => rpc('sos_raise', { p_token: tok(), p_order: order || null, p_lat: lat ?? null, p_lng: lng ?? null, p_note: note || null }),
+  incident: (order, kind, note) => rpc('incident_report', { p_token: tok(), p_order: order || null, p_kind: kind, p_note: note }),
+  adminSafety: () => rpc('admin_safety', { p_token: tok() }),
+  adminSafetyClose: (kind, id) => rpc('admin_safety_close', { p_token: tok(), p_kind: kind, p_id: id }),
+  shareCreate: (id, hours) => rpc('share_create', { p_token: tok(), p_id: id, p_hours: hours || 72 }),
+  shareRevoke: (token) => rpc('share_revoke', { p_token: tok(), p_share: token }),
+  shareGet: (token) => rpc('share_get', { p_share: token }),
+  trends: (codes) => rpc('my_trends', { p_token: tok(), p_codes: codes }),
+  campCreate: (p) => rpc('camp_create', { p_token: tok(), p }),
+  campsMine: () => rpc('camps_mine', { p_token: tok() }),
+  adminCamps: () => rpc('admin_camps', { p_token: tok() }),
+  campUpdate: (id, p) => rpc('camp_update', { p_token: tok(), p_id: id, p }),
+  setToken: (t) => { if (t) localStorage.setItem('lah_token', t); else { localStorage.removeItem('lah_token'); offClear(); } },
   hasToken: () => !!tok()
 };
 })();

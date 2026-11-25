@@ -66,7 +66,10 @@ async function loadCatalog(force){
   if (cached && Array.isArray(cached.tests)) { setCatalog(cached); if (!CAT_FRESH) { CAT_FRESH = true; fetchCatalog().catch(() => {}); } return S.catalog; }
   return fetchCatalog();
 }
-const fee = () => S.catalog ? Number(S.catalog.home_fee) : 5;
+/* a cart with only self-collection tests is a courier visit (lower fee); anything else needs a nurse */
+const isKit = ids => { const C = S.catalog; return !!(C && ids && ids.length && ids.every(id => (C.T[id] || {}).collection === 'self')); };
+const fee = () => { if (!S.catalog) return 5; const C = S.catalog; let ids = []; try { ids = cartCalc().tests; } catch(e) {} return isKit(ids) ? Number(C.self_fee || 2) : Number(C.home_fee); };
+const colChip = x => x.collection === 'self' ? `<span class="chip teal">${ic('box',13)} ${t('col_self')}</span>` : x.collection === 'device' ? `<span class="chip gray">${t('col_device')}</span>` : '';
 function pkgFull(p){ return p.test_ids.reduce((s, id) => s + Number((S.catalog.T[id]||{}).price || 0), 0); }
 function cartCalc(){
   const C = S.catalog; if (!C) return { items:[], sub:0, tests:[] };
@@ -82,10 +85,9 @@ function toggleCart(type, id){ const k = type === 'package' ? 'packages' : 'test
 function topbar(){
   const n = cartCount();
   return `<header class="topbar"><div class="wrap-w in">
-    <button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>
     <a href="#/" class="brand">${brandInner(t('brand_sub'))}</a>
-    <nav class="nav"><a href="#/how">${t('nav_how')}</a><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/install">${t('m_install')}</a><a href="#/contact">${t('m_contact')}</a><a href="#/about">${t('m_about')}</a><a href="#/new">${t('m_new')}</a></nav>
     <div class="grow"></div>
+    <button class="menu-btn" data-menu aria-haspopup="true" aria-label="${t('menu')}">${ic('menu',20)}<span class="hide-sm">${t('menu')}</span><svg class="chev hide-sm" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
     <button class="lang hide-sm" data-lang>${t('lang')}</button>
     <a class="icon-btn ${S.user ? '' : 'hide-sm'}" href="#/${S.user ? 'app/cart' : 'tests'}" aria-label="${t('m_cart')}">${ic('box')}${n ? `<span class="dot">${n}</span>` : ''}</a>
     ${S.user ? `<a class="btn sm" href="#/app">${ic('home',18)} <span class="hide-sm">${esc(t('m_home'))}</span></a>` : `<a class="btn sm" href="#/login">${t('login')}</a>`}
@@ -94,7 +96,7 @@ function topbar(){
 function testCard(x, inCart){
   return `<div class="tcard">${A.catIcon(x.cat)}
     <div class="grow"><h4>${esc(LN(x,'name'))}</h4><div class="muted small">${esc(LN(x,'desc'))}</div>
-    <div class="meta"><span class="chip ${x.fasting_hours ? 'amber' : 'teal'}">${x.fasting_hours ? t('fasting',{h:x.fasting_hours}) : t('no_fasting')}</span><span class="chip gray">${t('results_in',{h:x.tat_hours})}</span></div></div>
+    <div class="meta">${colChip(x)}<span class="chip ${x.fasting_hours ? 'amber' : 'teal'}">${x.fasting_hours ? t('fasting',{h:x.fasting_hours}) : t('no_fasting')}</span><span class="chip gray">${t('results_in',{h:x.tat_hours})}</span></div></div>
     <div style="text-align:end;display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div class="price">${omr(x.price)} <small>${t('omr')}</small></div>
     <button class="btn sm ${inCart ? 'teal' : 'soft'}" data-add="test:${x.id}">${inCart ? ic('check',16,2.6) + ' ' + t('in_cart') : ic('plus',16,2.6) + ' ' + t('add_cart')}</button></div></div>`;
 }
@@ -109,9 +111,10 @@ function pkgCard(p, inCart){
 }
 function catalogBlock(cat, limit){
   const C = S.catalog;
-  const cats = ['all','packages','premarital','vitals','kids','vitamins','blood','diabetes','heart','thyroid','organs','men'];
+  const cats = ['all','packages','selfkit','expat','premarital','vitals','kids','vitamins','blood','diabetes','heart','thyroid','organs','men'];
   const tabs = `<div class="cats">${cats.map(c => `<button class="${c === cat ? 'on' : ''}" data-cat="${c}">${t('cat_'+c)}</button>`).join('')}</div>`;
-  const pk = (cat === 'all' || cat === 'packages') ? C.packages : cat === 'kids' ? C.packages.filter(p => p.badge === 'kids') : cat === 'premarital' ? C.packages.filter(p => p.id === 'premarital') : [];
+  const pk = (cat === 'all' || cat === 'packages') ? C.packages : cat === 'kids' ? C.packages.filter(p => p.badge === 'kids') : cat === 'premarital' ? C.packages.filter(p => p.id === 'premarital') : cat === 'selfkit' ? C.packages.filter(p => p.id === 'selfkit') : cat === 'expat' ? C.packages.filter(p => ['expat_pre','housemaid'].includes(p.id)) : [];
+  if (cat === 'expat') { const ex = new Set(C.packages.filter(p => ['expat_pre','housemaid'].includes(p.id)).flatMap(p => p.test_ids)); return `${tabs}<div class="banner blue small" style="margin-top:14px">${ic('shield',20)}<span>${t('ex_note')} <a href="#/expat" class="b">${t('m_expat')} ›</a></span></div><div class="grid g3" style="margin:14px 0 22px">${pk.map(p => pkgCard(p, S.cart.packages.includes(p.id))).join('')}</div><div class="grid g2 collapse">${C.tests.filter(x => ex.has(x.id) || x.cat === 'expat').map(x => testCard(x, S.cart.tests.includes(x.id))).join('')}</div>`; }
   let ts = cat === 'packages' ? [] : C.tests.filter(x => cat === 'all' || x.cat === cat);
   if (limit) ts = ts.slice(0, limit);
   return `${tabs}${pk.length ? `<div class="grid g3" style="margin:14px 0 22px">${pk.slice(0, limit ? 3 : 99).map(p => pkgCard(p, S.cart.packages.includes(p.id))).join('')}</div>` : ''}
@@ -120,12 +123,12 @@ function catalogBlock(cat, limit){
 function bindCatalog(root, rerender){
   $$('[data-cat]', root).forEach(b => b.onclick = () => rerender(b.dataset.cat));
   $$('[data-add]', root).forEach(b => b.onclick = () => { const [ty, id] = b.dataset.add.split(':'); const k = ty === 'package' ? 'packages' : 'tests'; const was = S.cart[k].includes(id);
-    toggleCart(ty, id); rerender(); refreshCartBadges(); if (!was) toastCart(); });
+    const rect = b.getBoundingClientRect(); toggleCart(ty, id); rerender(); refreshCartBadges(); if (!was) { toastCart(); if (window.FX) FX.flyToCart(rect); } });
 }
 function cartBar(){
   const n = cartCount(); if (!n || !S.catalog) return '';
   const c = cartCalc();
-  return `<div class="cart-bar"><div class="in">${ic('box',22)}<div class="grow"><b>${t('items_n',{n:c.items.length})} · ${omr(c.sub)} ${t('omr')}</b><div class="small" style="opacity:.8">+ ${omr(fee())} ${t('home_fee')}</div></div><button class="btn sm" data-go="${S.user ? 'app/cart' : 'register'}">${t('view_cart')} ${'<span class="flip">'+ic('arrow',18)+'</span>'}</button></div></div>`;
+  return `<div class="cart-bar"><div class="in">${ic('box',22)}<div class="grow"><b>${t('items_n',{n:c.items.length})} · ${omr(c.sub)} ${t('omr')}</b><div class="small" style="opacity:.8">+ ${omr(fee())} ${t(isKit(c.tests) ? 'kit_fee' : 'home_fee')}</div></div><button class="btn sm" data-go="${S.user ? 'app/cart' : 'register'}">${t('view_cart')} ${'<span class="flip">'+ic('arrow',18)+'</span>'}</button></div></div>`;
 }
 async function viewHow(){
   await loadCatalog().catch(() => null);
@@ -175,7 +178,7 @@ async function viewHow(){
 function footer(){
   return `<footer class="site"><div class="wrap-w"><div class="row wrap between" style="gap:20px;align-items:flex-start">
     <div style="max-width:520px"><div class="brand">${brandInner()}</div><p class="small" style="margin-top:12px">${t('foot_note')}</p><p class="xs" style="opacity:.75">${t('foot_team')}</p></div>
-    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/dental">${t('m_dental')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/doctor">${t('r_doctor')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
+    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/dental">${t('m_dental')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a><a href="#/expat">${t('m_expat')}</a><a href="#/sources">${t('m_sources')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/doctor">${t('r_doctor')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
     <p class="xs" style="opacity:.6;margin-top:24px">© 2026 iLab@home · Oman</p></div></footer>`;
 }
 /* map library: loaded only when a screen shows a map (it used to load on every page) */
@@ -195,7 +198,7 @@ function covMap(){
 async function viewTestsPublic(){
   await loadCatalog();
   let cat = new URLSearchParams(location.hash.split('?')[1] || '').get('c') || 'all';
-  app.innerHTML = `${topbar()}<section class="section" style="padding-top:32px"><div class="wrap-w"><div class="section-h"><h2>${t('tests_t')}</h2><p>${t('tests_p',{fee:omr(fee())})}</p></div><div id="cb"></div><div id="cbar"></div></div></section>${footer()}`;
+  app.innerHTML = `${topbar()}<section class="section" style="padding-top:32px"><div class="wrap-w"><div class="section-h"><h2 data-split>${t('tests_t')}</h2><p>${t('tests_p',{fee:omr(fee())})}</p>${waChip()}</div><div id="cb"></div><div id="cbar"></div></div></section>${footer()}`;
   const rer = c => { if (c) cat = c; $('#cb').innerHTML = catalogBlock(cat); bindCatalog($('#cb'), rer); $('#cbar').innerHTML = cartBar(); bindGo(); };
   rer();
 }
@@ -307,14 +310,14 @@ function viewRegister(role){
 /* ---------- app shell ---------- */
 function navFor(role){
   const m = {
-    patient: [['app','home','m_home'],['app/tests','flask','m_tests'],['app/cart','cart','m_cart'],['app/orders','list','m_orders'],['app/consult','steth','m_consult'],['dental','tooth','m_dental'],['app/profile','user','m_profile']],
+    patient: [['app','home','m_home'],['app/tests','flask','m_tests'],['app/cart','cart','m_cart'],['app/orders','list','m_orders'],['app/loyalty','star','m_loyalty'],['app/consult','steth','m_consult'],['dental','tooth','m_dental'],['app/profile','user','m_profile']],
     nurse: [['app','home','m_home'],['app/orders','syringe','m_jobs'],['app/kit','box','m_kit'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     doctor: [['app','steth','m_review'],['app/consult','video','m_consults'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     courier: [['app','home','m_home'],['app/orders','van','m_pickups'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
     lab: [['app','home','m_home'],['app/orders','flask','m_samples'],['app/notifs','bell','m_notifs'],['app/profile','user','m_profile']],
-    company: [['app','home','m_programs'],['app/notifs','bell','m_notifs'],['support','chat','m_support'],['app/profile','user','m_profile']],
-    admin: [['app','chart','overview'],['business','coin','m_business'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/tickets','chat','m_tickets'],['app/admin/payments','card','m_payments'],['app/admin/contracts','building','m_contracts'],['app/admin/catalog','flask','m_catalog'],['app/admin/kit','box','m_kits'],['app/admin/settings','gear','m_settings'],['app/profile','user','m_profile']],
-    staff: [['app','chart','overview'],['app/admin/tickets','chat','m_tickets'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/contracts','building','m_contracts'],['app/admin/kit','box','m_kits'],['app/admin/settings','gear','m_settings'],['app/profile','user','m_profile']]
+    company: [['app','home','m_programs'],['app/camps','building','m_camps'],['app/notifs','bell','m_notifs'],['support','chat','m_support'],['app/profile','user','m_profile']],
+    admin: [['app','chart','overview'],['business','coin','m_business'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/tickets','chat','m_tickets'],['app/admin/payments','card','m_payments'],['app/admin/contracts','building','m_contracts'],['app/admin/catalog','flask','m_catalog'],['app/admin/kit','box','m_kits'],['app/admin/safety','shield','m_safety'],['app/admin/coupons','coin','m_coupons'],['app/admin/camps','building','m_camps'],['app/admin/settings','gear','m_settings'],['app/profile','user','m_profile']],
+    staff: [['app','chart','overview'],['app/admin/tickets','chat','m_tickets'],['app/orders','list','m_all_orders'],['app/admin/users','users','m_users'],['app/admin/contracts','building','m_contracts'],['app/admin/kit','box','m_kits'],['app/admin/safety','shield','m_safety'],['app/admin/camps','building','m_camps'],['app/admin/settings','gear','m_settings'],['app/profile','user','m_profile']]
   };
   return m[role] || m.patient;
 }
@@ -327,14 +330,14 @@ function shell(title, body, opts){
   <div class="shell"><aside class="side-nav"><a href="#/" class="brand">${brandInner(t('r_'+u.role))}</a>
     ${items.map(([h, i, k]) => `<a href="#/${h}" class="${isOn(h) ? 'on' : ''}">${ic(i)} <span class="grow">${t(k)}</span>${h === 'app/cart' && n ? `<span class="chip red">${n}</span>` : ''}</a>`).join('')}
     <a href="#/app/notifs" class="${isOn('app/notifs') ? 'on' : ''}" style="${['patient','admin','staff'].includes(u.role) ? '' : 'display:none'}">${ic('bell')} <span class="grow">${t('m_notifs')}</span>${S.unread ? `<span class="chip red">${S.unread}</span>` : ''}</a>
-    <a href="#/support">${ic('chat')} <span class="grow">${t('m_support')}</span></a><a href="#/about">${ic('users')} <span class="grow">${t('m_about')}</span></a>
+    <a href="#" data-menu>${ic('menu')} <span class="grow">${t('m_more')}</span></a>
     <div class="me"><span class="avatar">${esc(initials(u.full_name))}</span><div class="grow"><div class="b small" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(u.full_name)}</div><button class="link small" data-logout>${t('logout')}</button></div></div></aside>
-  <main class="main-area"><div class="app-top">${opts && opts.back ? `<button class="icon-btn" data-goback aria-label="${t('back')}"><span class="flip">${ic('back')}</span></button>` : `<button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>`}<h1 class="grow">${title}</h1>
-    <button class="icon-btn" data-go="app/notifs" aria-label="${t('m_notifs')}">${ic('bell')}${S.unread ? `<span class="dot">${S.unread}</span>` : ''}</button>${opts && opts.back ? `<button class="icon-btn" data-menu aria-label="${t('menu')}">${ic('menu')}</button>` : ''}</div>
+  <main class="main-area"><div class="app-top">${opts && opts.back ? `<button class="icon-btn" data-goback aria-label="${t('back')}"><span class="flip">${ic('back')}</span></button>` : ''}<h1 class="grow">${title}</h1>
+    <button class="icon-btn" data-go="app/notifs" aria-label="${t('m_notifs')}">${ic('bell')}${S.unread ? `<span class="dot">${S.unread}</span>` : ''}</button></div>
   <div class="content">${profileBanner()}${emailBanner()}${pushBanner()}${u.status === 'pending' ? `<div class="banner amber" style="margin-bottom:16px">${ic('clock',22)}<div><b>${t('pending_t')}</b><div class="small">${t('pending_p')}</div></div></div>` : ''}${body}</div></main></div>
   <nav class="tabbar">${items.slice(0, 4).map(([h, i, k]) => `<a href="#/${h}" class="${isOn(h) ? 'on' : ''}">${ic(i)}${h === 'app/cart' && n ? `<span class="dot">${n}</span>` : ''}<span>${t(k)}</span></a>`).join('')}<a href="#" data-menu>${ic('menu')}<span>${t('menu')}</span></a></nav>`;
 }
-function loading(title){ app.innerHTML = shell(title || '', `<div class="loading"><span class="spin"></span></div>`); }
+function loading(title){ app.innerHTML = shell(title || '', `<div class="skel" aria-busy="true" aria-label="${t('loading')}"><i class="sk sk-h"></i><div class="sk-row"><i class="sk sk-c"></i><i class="sk sk-c"></i></div><i class="sk sk-l"></i><i class="sk sk-l"></i><i class="sk sk-l s"></i></div>`); }
 function orderItem(o, extra){
   const names = (o.items || []).map(i => S.lang === 'ar' ? i.name_ar : i.name_en).join(' · ');
   return `<a class="oitem" href="#/app/order/${o.id}"><span class="oi" style="color:var(--blue)">${ic(o.status === 'completed' ? 'file' : 'flask', 26)}</span>
@@ -348,12 +351,15 @@ function emptyBox(msg, cta){ return `<div class="card empty">${A.emptyArt}<p>${m
 /* ---------- patient ---------- */
 async function viewPatientHome(){
   loading(t('m_home'));
-  const [list] = await Promise.all([API.orders(), loadCatalog()]);
+  const [list, loy] = await Promise.all([API.orders(), API.loyalty().catch(() => null), loadCatalog()]);
   const active = list.filter(o => ACTIVE(o.status)); const done = list.filter(o => o.status === 'completed');
-  const C = S.catalog;
+  const C = S.catalog; if (loy) S.loy = loy;
   app.innerHTML = shell(t('m_home'), `<div class="stack-lg">
     ${heroHtml(true)}
     <div><h3 class="hm-h">${t('hello',{n:esc(S.user.full_name.split(' ')[0])})} 👋 <span class="muted small" style="font-weight:500">${t('hm_quick')}</span></h3>${quickTiles()}</div>
+    ${ramBanner()}${loy ? loyStrip(loy) : ''}
+    <div class="grid g2 promos"><a class="promo p-kit" href="#/app/tests?c=selfkit">${A.catIcon('selfkit', 30)}<div class="grow"><b>${t('hm_selfkit_t')}</b><div class="small">${t('hm_selfkit_p',{x:omr(C.self_fee || 2)})}</div></div><span class="flip">${ic('arrow',18)}</span></a>
+      <a class="promo p-ex" href="#/expat">${A.catIcon('expat', 30)}<div class="grow"><b>${t('hm_expat_t')}</b><div class="small">${t('hm_expat_p')}</div></div><span class="flip">${ic('arrow',18)}</span></a></div>
     <div><div class="row between"><h3>${t('upcoming')}</h3>${list.length ? `<a href="#/app/orders" class="small b">${t('see_all')}</a>` : ''}</div>
       ${active.length ? `<div class="olist">${active.map(o => orderItem(o)).join('')}</div>` : emptyBox(t('none_orders'), `<a class="btn" href="#/app/tests">${t('book_now')}</a>`)}</div>
     ${done.length ? `<div><h3>${t('q_reports')}</h3><div class="olist">${done.slice(0, 3).map(o => orderItem(o)).join('')}</div></div>` : ''}
@@ -366,7 +372,7 @@ async function viewPatientHome(){
 async function viewAppTests(){
   await loadCatalog();
   let cat = new URLSearchParams(location.hash.split('?')[1] || '').get('c') || 'all';
-  app.innerHTML = shell(t('m_tests'), `<p class="muted">${t('tests_p',{fee:omr(fee())})}</p><div id="cb"></div>${soonBlock()}<div id="cbar"></div>`);
+  app.innerHTML = shell(t('m_tests'), `<div class="row between wrap" style="gap:8px"><p class="muted" style="margin:0">${t('tests_p',{fee:omr(fee())})}</p>${waChip()}</div><div id="cb"></div>${soonBlock()}<div id="cbar"></div>`);
   const rer = c => { if (c) cat = c; $('#cb').innerHTML = catalogBlock(cat); bindCatalog($('#cb'), rer); $('#cbar').innerHTML = cartBar(); bindGo(); };
   rer();
 }
@@ -393,20 +399,29 @@ function bkInit(){
 }
 async function viewBook(){
   await loadCatalog(); const b = bkInit(); const C = S.catalog; if (b.pay === 'cash') b.pay = 'card';
-  const c = cartCalc();
+  const c = cartCalc(); const kit = !b.program && isKit(c.tests);
+  if (kit && b.step === 3) b.step = b._back ? 2 : 4; b._back = false;
+  if (!b.program && S.loy === undefined) S.loy = await API.loyalty().catch(() => null);
+  const L = S.loy || {}; const subNow = c.sub;
+  const dStamp = !b.program && L.free_next ? fee() : 0;
+  const dCoupon = !b.program && b.coupon ? Math.min(Number(b.coupon.amount) || 0, subNow) : 0;
+  const dRef = !b.program && L.referred_by && !L.orders && !(L.history || []).length ? Math.min(Number(L.reward || 1), Math.max(subNow - dCoupon, 0)) : 0;
   if (!b.program && !c.items.length) { app.innerHTML = shell(t('q_book'), emptyBox(t('cart_empty'), `<a class="btn" href="#/app/tests">${t('explore_tests')}</a>`)); return; }
-  const stepNames = ['b2_who','b2_loc','b2_nurse','b2_time','b2_pay'];
+  const stepNames = ['b2_who','b2_loc', kit ? 'b2_kit' : 'b2_nurse','b2_time','b2_pay'];
   const head = `<div class="stepper">${stepNames.map((s, i) => `<i class="${i < b.step ? 'on' : ''}"></i>`).join('')}</div><div class="steplabels">${stepNames.map((s, i) => `<span class="${i + 1 === b.step ? 'on' : ''}">${i + 1}. ${t(s)}</span>`).join('')}</div>`;
   const items = b.program ? [{ name: LN(C.P[b.program.package_id],'name'), price: Number(C.P[b.program.package_id].price) }] : c.items;
   const sub = b.program ? Number(C.P[b.program.package_id].price) : c.sub;
-  const total = b.program ? 0 : sub + fee();
+  const total = b.program ? 0 : Math.max(0, sub + fee() - dStamp - dCoupon - dRef);
   const g = bkGender(b);
   const fastH = b.program ? Math.max(0, ...C.P[b.program.package_id].test_ids.map(id => (C.T[id] || {}).fasting_hours || 0)) : (c.fasting || 0);
   const summary = `<div class="card summary"><h3>${t('summary')}</h3>${items.map(i => `<div class="line"><span>${esc(i.name)}</span><span class="num">${omr(i.price)}</span></div>`).join('')}
-    <div class="line"><span>${t('home_fee')}</span><span class="num">${omr(fee())}</span></div>
+    <div class="line"><span>${t(kit ? 'kit_fee' : 'home_fee')}</span><span class="num">${omr(fee())}</span></div>
     ${b.program ? `<div class="line" style="color:var(--teal)"><span>${t('discount')}</span><span class="num">−${omr(sub + fee())}</span></div>` : ''}
+    ${dStamp ? `<div class="line disc"><span>${ic('star',14)} ${t('d_stamp')}</span><span class="num">−${omr(dStamp)}</span></div>` : ''}
+    ${dCoupon ? `<div class="line disc"><span>${ic('coin',14)} ${t('d_coupon')} · ${esc(b.coupon.code)}</span><span class="num">−${omr(dCoupon)}</span></div>` : ''}
+    ${dRef ? `<div class="line disc"><span>${ic('users',14)} ${t('d_ref')}</span><span class="num">−${omr(dRef)}</span></div>` : ''}
     <div class="line total"><span>${t('total')}</span><span class="num">${omr(total)} ${t('omr')}</span></div>
-    <hr class="sep"><div class="small muted stack" style="--g:6px">${b.step > 1 ? `<div>${ic('user',14)} ${esc(b.who === 'family' ? b.person.name : S.user.full_name)} · ${t(g)}</div>` : ''}${b.step > 2 ? `<div>${ic('pin',14)} ${esc(wN(b.wilayat))}</div>` : ''}${b.step > 3 ? `<div>${ic('syringe',14)} ${b.nurse ? esc(b.nurse.name) : t('any_nurse')}</div>` : ''}${b.step > 4 ? `<div>${ic('cal',14)} ${fmtDate(b.date)} · ${b.time}</div>` : ''}${fastH ? `<div style="color:var(--amber)">${ic('timer',14)} ${t('fasting',{h:fastH})}</div>` : ''}</div></div>`;
+    <hr class="sep"><div class="small muted stack" style="--g:6px">${b.step > 1 ? `<div>${ic('user',14)} ${esc(b.who === 'family' ? b.person.name : S.user.full_name)} · ${t(g)}</div>` : ''}${b.step > 2 ? `<div>${ic('pin',14)} ${esc(wN(b.wilayat))}</div>` : ''}${b.step > 3 && kit ? `<div>${ic('box',14)} ${t('kit_mode_t')}</div>` : ''}${b.step > 3 && !kit ? `<div>${ic('syringe',14)} ${b.nurse ? esc(b.nurse.name) : t('any_nurse')}</div>` : ''}${b.step > 4 ? `<div>${ic('cal',14)} ${fmtDate(b.date)} · ${b.time}</div>` : ''}${fastH ? `<div style="color:var(--amber)">${ic('timer',14)} ${t('fasting',{h:fastH})}</div>` : ''}</div></div>`;
   let body = '';
   if (b.step === 1) {
     body = `<div class="card stack"><h3>${t('who_t')}</h3><div class="seg"><button data-who="me" class="${b.who === 'me' ? 'on' : ''}">${t('me')}</button><button data-who="family" class="${b.who === 'family' ? 'on' : ''}">${t('family')}</button></div>
@@ -428,6 +443,7 @@ async function viewBook(){
       <div id="nlist" class="stack"><div class="skel" style="height:90px"></div></div></div>`;
   } else if (b.step === 4) {
     const now = muscatNow(); const days = Array.from({ length: 14 }, (_, i) => addDays(now.date, i));
+    const ram = C.ramadan && b.date >= C.ramadan.from && b.date <= C.ramadan.to ? (C.ramadan.slots || []) : [];
     const slots = C.slots; const dis = s => b.date === now.date && (parseInt(s) * 60 <= now.mins + 60);
     const fl = String(C.fasting_last_slot || '10:00').replace(/"/g, ''); const lock = s => fastH > 0 && s > fl;
     if (b.time && lock(b.time)) b.time = '';
@@ -435,16 +451,19 @@ async function viewBook(){
     body = `<div class="card stack"><h3>${t('date_t')}</h3><div class="cal">${days.map(d => { const x = new Date(d+'T12:00:00'); return `<button data-date="${d}" class="${b.date === d ? 'on' : ''}"><div class="xs" style="opacity:.75">${x.toLocaleDateString(loc(),{ weekday:'short' })}</div>${x.getDate()}</button>`; }).join('')}</div>
       <h3 style="margin-top:8px">${t('time_t')}</h3>${fastH ? `<div class="banner amber small" id="fastb">${ic('timer',20)}<span><b>${t('fast_banner_t',{h:fastH})}</b><br>${t('fast_banner_p',{t:fl})}</span></div>` : ''}
       <div class="small b muted">${ic('sun',14)} ${t('morning')}</div><div class="slots">${slots.filter(s => parseInt(s) < 13).map(sbtn).join('')}</div>
-      <div class="small b muted">${t('evening')}${fastH ? ` · <span style="color:var(--amber)">${t('fast_evening')}</span>` : ''}</div><div class="slots">${slots.filter(s => parseInt(s) >= 13).map(sbtn).join('')}</div></div>`;
+      <div class="small b muted">${t('evening')}${fastH ? ` · <span style="color:var(--amber)">${t('fast_evening')}</span>` : ''}</div><div class="slots">${slots.filter(s => parseInt(s) >= 13).map(sbtn).join('')}</div>${ram.length ? `<div class="small b muted">🌙 ${t('ram_slots')}</div><div class="slots">${ram.map(sbtn).join('')}</div>` : ''}</div>`;
   } else {
     body = `<div class="card stack"><h3>${t('review_t')}</h3>
       <div class="vline"><span class="muted">${t('patient')}</span><b>${esc(b.who === 'family' ? b.person.name : S.user.full_name)} · ${t(g)}</b></div>
       <div class="vline"><span class="muted">${t('location')}</span><b>${esc(wN(b.wilayat))}</b></div>
-      <div class="vline"><span class="muted">${t('chosen_nurse')}</span><b>${b.nurse ? esc(b.nurse.name) : t('any_nurse')}</b></div>
+      ${kit ? `<div class="banner teal small">${ic('box',20)}<span><b>${t('kit_mode_t')}</b><br>${t('kit_mode_p')}</span></div>` : `<div class="vline"><span class="muted">${t('chosen_nurse')}</span><b>${b.nurse ? esc(b.nurse.name) : t('any_nurse')}</b></div>`}
       <div class="vline"><span class="muted">${t('appointment')}</span><b>${fmtDate(b.date)} · ${b.time}</b></div></div>
       <div class="card stack"><h3>${t('pay_t')}</h3>
       <div class="row"><input class="input grow" id="code" placeholder="${t('sponsor_code')}" value="${esc(b.code)}" style="text-transform:uppercase"><button class="btn soft" id="apply">${t('apply')}</button></div>
       ${b.program ? `<div class="banner teal">${ic('check',20)}<b>${t('sponsored_by',{c:esc(b.program.company)})} · ${esc(b.program.name)}</b></div>` : `
+      ${dStamp ? `<div class="banner teal loyal-win">${ic('star',22)}<span><b>${t('free_visit_t')}</b><br><span class="small">${t('free_visit_p')}</span></span></div>` : ''}
+      <div class="row"><input class="input grow" id="cpn" placeholder="${t('coupon')} · ${t('coupon_ph')}" value="${esc(b.coupon ? b.coupon.code : '')}" style="text-transform:uppercase" autocomplete="off"><button class="btn soft" id="cpa">${t('apply')}</button></div>
+      ${b.coupon ? `<div class="small" style="color:var(--teal);font-weight:600">${ic('check',14)} ${t('coupon_ok',{x:omr(dCoupon)})}</div>` : ''}
       <div class="paym">${[['card','card','pay_card'],['applepay','phone','pay_apple']].map(([v, i, k]) => `<label class="${b.pay === v ? 'on' : ''}"><input type="radio" name="pay" value="${v}" ${b.pay === v ? 'checked' : ''}> ${ic(i)} <span class="grow b">${t(k)}</span></label>`).join('')}</div>
       ${b.pay === 'card' ? `<div class="grid g3"><label class="field" style="grid-column:1/-1"><span>${t('card_no')}</span><input class="input ltr" id="cn" inputmode="numeric" maxlength="23" placeholder="4242 4242 4242 4242" autocomplete="cc-number" style="width:100%"></label><label class="field"><span>${t('exp')}</span><input class="input ltr" id="ce" inputmode="numeric" maxlength="5" placeholder="12/28" autocomplete="cc-exp"></label><label class="field"><span>${t('cvv')}</span><input class="input ltr" id="cv" inputmode="numeric" maxlength="4" placeholder="123" autocomplete="cc-csc"></label></div>` : ''}
       <div class="banner blue small">${ic('shield',20)}<span>${t('epay_only')} ${t('test_mode')}</span></div>`}</div>`;
@@ -469,7 +488,9 @@ async function viewBook(){
     if (b.step === 1 && b.who === 'family') { b.person = { name: $('#pn').value.trim(), relation: $('#pr').value, gender: b.person.gender, dob: $('#pd').value, civil_id: $('#pc').value.replace(/\D/g, '') || undefined }; }
     if (b.step === 2) { b.wilayat = $('#bw').value; b.address = $('#ba').value.trim(); b.notes = $('#bn').value.trim(); }
   };
-  if ($('#pv')) $('#pv').onclick = () => { keep(); b.step--; viewBook(); };
+  if ($('#pv')) $('#pv').onclick = () => { keep(); b.step--; b._back = true; viewBook(); };
+  if ($('#cpa')) $('#cpa').onclick = async () => { const code = $('#cpn').value.trim().toUpperCase(); if (!code) { b.coupon = null; return viewBook(); }
+    try { const r = await busy($('#cpa'), () => API.couponCheck(code, subNow)); b.coupon = r; if (window.FX) FX.celebrate('small'); viewBook(); } catch(e) { b.coupon = null; err(errMsg(e)); } };
   if ($('#nx')) $('#nx').onclick = () => { keep();
     if (b.step === 1 && b.who === 'family' && !b.person.name) return err(t('e_NEED_NAME'));
     if (b.step === 1 && b.who === 'family' && b.person.civil_id && !/^\d{6,10}$/.test(b.person.civil_id)) return err(t('e_BAD_CIVIL'));
@@ -485,9 +506,9 @@ async function viewBook(){
     if (!b.program && b.pay === 'card') { const n = ($('#cn').value || '').replace(/\D/g, ''); const ex = ($('#ce').value || '').trim(); const cv = ($('#cv').value || '').trim();
       if (!luhn(n) || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(ex) || !/^\d{3,4}$/.test(cv)) return err(t('e_CARD')); }
     const p = { items: c.items.map(i => ({ type:i.type, id:i.id })), slot_date: b.date, slot_time: b.time, wilayat: b.wilayat, governorate: 'North Al Sharqiyah', address: b.address, lat: b.lat, lng: b.lng, notes: b.notes, payment_method: b.pay, nurse_id: b.nurse ? b.nurse.id : null };
-    if (b.program) p.program_code = b.code;
+    if (b.program) p.program_code = b.code; else if (b.coupon) p.coupon = b.coupon.code;
     p.person = b.who === 'family' ? b.person : { name: S.user.full_name, gender: g, dob: (S.user.meta || {}).dob, relation: 'self' };
-    try { const o = await busy($('#pay'), () => API.orderCreate(p)); S.cart = { packages:[], tests:[] }; saveCart(); S.bk = null; bookedScreen(o); } catch(e) { err(errMsg(e)); }
+    try { const o = await busy($('#pay'), () => API.orderCreate(p)); S.cart = { packages:[], tests:[] }; saveCart(); S.bk = null; S.loy = undefined; bookedScreen(o); } catch(e) { err(errMsg(e)); }
   };
 }
 function luhn(n){ if (n.length < 13 || n.length > 19) return false; let s = 0, alt = false; for (let i = n.length - 1; i >= 0; i--) { let d = +n[i]; if (alt) { d *= 2; if (d > 9) d -= 9; } s += d; alt = !alt; } return s % 10 === 0; }
@@ -516,9 +537,10 @@ function bookMap(b){
 function bookedScreen(o){
   app.innerHTML = shell(t('booked_t'), `<div class="card pad-lg center" style="max-width:560px;margin:20px auto">
     <div style="width:84px;height:84px;border-radius:50%;background:var(--teal-bg);color:var(--teal);display:grid;place-items:center;margin:0 auto 14px">${ic('check',46,2.6)}</div>
-    <h2>${t('booked_t')}</h2><p class="muted">${t('booked_p',{c:esc(o.code)})}</p>
+    <h2 data-split>${t('booked_t')}</h2><p class="muted">${t('booked_p',{c:esc(o.code)})}</p>${o.disc && o.disc.stamp ? `<div class="banner teal loyal-win" style="text-align:start">${ic('star',22)}<b>${t('booked_free')}</b></div>` : ''}
     <div class="card flat" style="text-align:start;margin:16px 0"><div class="vline"><span class="muted">${t('appointment')}</span><b>${fmtDate(o.slot_date)} · ${esc(o.slot_time)}</b></div><div class="vline"><span class="muted">${t('location')}</span><b>${esc(wN(o.wilayat))}</b></div><div class="vline" style="border:0"><span class="muted">${t('total')}</span><b class="num">${omr(o.total)} ${t('omr')}</b></div></div>
-    <a class="btn block" href="#/app/order/${o.id}">${t('track_btn')}</a></div>`);
+    <a class="btn block" href="#/app/order/${o.id}">${t('track_btn')}</a><a class="btn ghost block" style="margin-top:10px" href="#/app/loyalty">${ic('star',18)} ${t('m_loyalty')}</a></div>`);
+  if (window.FX) { FX.scan(app); setTimeout(() => FX.celebrate('big'), 250); }
 }
 
 /* order detail – shared by all roles */
@@ -590,6 +612,36 @@ async function partyModal(kind, o){
     ${o.sample_temp != null ? `<div class="vline"><span class="muted">${t('temp')}</span><b class="num">${esc(o.sample_temp)} °C</b></div>` : ''}
     <div class="row" style="margin-top:14px">${c.phone ? `<a class="btn soft sm grow" href="tel:${esc(c.phone)}">${ic('phone',16)} ${t('call')}</a>` : ''}<button class="btn ghost sm grow" data-x>${t('close')}</button></div>`, (el, close) => { $('[data-x]', el).onclick = close; });
 }
+const stL = (o, s) => o.mode === 'self' && I18N.en['st_k_' + s] ? t('st_k_' + s) : t('st_' + s);
+/* the van rides along a little road up to the current step */
+function rideSvg(pct){
+  return `<svg class="ride" viewBox="0 0 640 84" role="img" aria-label="${pct}%"><defs><linearGradient id="rdg" x1="0" x2="1"><stop offset="0" stop-color="#1257d6"/><stop offset="1" stop-color="#18b5d8"/></linearGradient></defs>
+    <path class="fx-road-bg" d="M24 60 C 140 18, 250 78, 360 44 S 560 30, 616 46" fill="none" stroke="#e3e9f4" stroke-width="10" stroke-linecap="round"/>
+    <path class="fx-road" d="M24 60 C 140 18, 250 78, 360 44 S 560 30, 616 46" fill="none" stroke="url(#rdg)" stroke-width="10" stroke-linecap="round" stroke-dasharray="1 0" pathLength="100" style="stroke-dasharray:${pct} 100"/>
+    <g class="fx-pins"><circle cx="24" cy="60" r="9" fill="#fff" stroke="#1257d6" stroke-width="3"/><path d="M612 26c-6 0-10 4-10 10 0 7 10 16 10 16s10-9 10-16c0-6-4-10-10-10z" fill="#0fae9b"/><circle cx="612" cy="36" r="3.5" fill="#fff"/></g>
+    <g class="fx-van"><g transform="translate(-22,-26)"><rect x="2" y="6" width="30" height="18" rx="4" fill="#1257d6"/><path d="M32 11h7l5 6v7H32z" fill="#2f7bff"/><rect x="6" y="10" width="9" height="6" rx="1.5" fill="#cfe0ff"/><path d="M19 11h6M22 8v6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="11" cy="25" r="4" fill="#0f1b33"/><circle cx="35" cy="25" r="4" fill="#0f1b33"/><circle cx="11" cy="25" r="1.6" fill="#fff"/><circle cx="35" cy="25" r="1.6" fill="#fff"/></g></g></svg>`;
+}
+function placeVan(svg, pct){ try { const path = $('.fx-road', svg), van = $('.fx-van', svg); const L = path.getTotalLength(); const pt = path.getPointAtLength(L * Math.max(0, Math.min(1, pct))); van.setAttribute('transform', `translate(${pt.x},${pt.y})`); } catch(e) {} }
+const STEP_ICON2 = { collected:'syringe', pickup:'van', check:'thermo', handover:'flask', lab_received:'check' };
+function chainCard(o){
+  const sc = o.scans || []; const r = S.user.role;
+  const canLog = ['nurse','courier','lab','admin','staff'].includes(r) && ['collected','in_transit','at_lab','processing'].includes(o.status) && !(S.user.is_demo && r === 'admin');
+  if (!sc.length && !canLog) return '';
+  const first = sc.find(x => x.step === 'collected'); const age = first ? Date.now() - new Date(first.at) : 0; const live = ['collected','in_transit'].includes(o.status);
+  const tchip = v => v == null ? '' : `<span class="chip ${v >= 2 && v <= 8 ? 'teal' : 'red'} num">${ic('thermo',13)} ${esc(v)} °C</span>`;
+  return `<div class="card chain"><div class="row between wrap"><h3 style="margin:0">${ic('thermo',20)} ${t('chain_t')}</h3>${first && live ? `<span class="chip ${age > 4 * 3600e3 ? 'red' : 'gray'}">${ic('clock',13)} ${t('chain_age',{d:durTxt(age)})}</span>` : ''}</div>
+    <p class="xs muted" style="margin:6px 0 10px">${t('chain_p')}</p>
+    ${first && live && age > 4 * 3600e3 ? `<div class="banner red small">${ic('clock',18)}<span>${t('chain_old')}</span></div>` : ''}
+    <ol class="chain-l">${sc.map(x => `<li><span class="cd">${ic(STEP_ICON2[x.step] || 'check',15,2.2)}</span><div class="grow"><b>${t('step_' + x.step)}</b><div class="xs muted">${fmtDT(x.at)}</div></div>${tchip(x.temp)}</li>`).join('')}</ol>
+    ${canLog ? `<button class="btn soft sm" data-act="chain" style="margin-top:10px">${ic('thermo',16)} ${t('chain_check')}</button>` : ''}</div>`;
+}
+function safetyRow(o){
+  const r = S.user.role; const u = S.user;
+  const nurseOn = r === 'nurse' && o.nurse_id === u.id && ['assigned','on_the_way','arrived','collected'].includes(o.status);
+  const courierOn = r === 'courier' && o.courier_id === u.id && ['assigned','on_the_way','arrived','collected','in_transit'].includes(o.status);
+  if (!nurseOn && !courierOn) return '';
+  return `<div class="card safety"><div class="row" style="gap:12px;align-items:center"><button class="sos" data-sos aria-label="${t('sos_hold')}"><span class="sos-ring"></span>${t('sos_btn')}</button><div class="grow"><div class="small b">${t('sos_hold')}</div><button class="link small" data-act="incident">${ic('file',14)} ${t('inc_btn')}</button></div></div></div>`;
+}
 function drawOrder(o){
   const u = S.user, r = u.role;
   const idx = STATUS.indexOf(o.status);
@@ -602,14 +654,14 @@ function drawOrder(o){
   const tl = `<ul class="tl tl2">${STATUS.map((s, i) => { const cls = o.status === 'cancelled' ? 'todo' : i < idx || o.status === 'completed' ? 'done' : i === idx ? 'now' : 'todo';
       const at = ev[s] ? new Date(ev[s]) : null; const gap = at && prev ? at - prev : null; if (at) prev = at;
       const exp = !at && cls === 'todo' && o.status !== 'cancelled' ? expectAt(o, s, ev) : null;
-      return `<li class="${cls}"><span class="dotc">${cls === 'done' ? ic('check',16,2.6) : cls === 'now' ? ic(STEP_IC[s],15,2.2) : ic(STEP_IC[s],14,2)}</span><div class="grow"><div class="row between" style="gap:8px"><b>${t('st_'+s)}</b>${at ? `<span class="tm">${fmtTime(at)}</span>` : exp ? `<span class="tm exp">≈ ${fmtTime(exp)}</span>` : ''}</div>
+      return `<li class="${cls}"><span class="dotc">${cls === 'done' ? ic('check',16,2.6) : cls === 'now' ? ic(STEP_IC[s],15,2.2) : ic(STEP_IC[s],14,2)}</span><div class="grow"><div class="row between" style="gap:8px"><b>${stL(o, s)}</b>${at ? `<span class="tm">${fmtTime(at)}</span>` : exp ? `<span class="tm exp">≈ ${fmtTime(exp)}</span>` : ''}</div>
         <div class="xs muted">${at ? `${fmtDate(at, { day:'numeric', month:'short' })}${by[s] ? ' · ' + t('by_x',{x:esc(by[s])}) : ''}${gap != null && i ? ` · <span class="gap">+${durTxt(gap)}</span>` : ''}` : exp ? `${t('expected')} · ${fmtDate(exp, { weekday:'short', day:'numeric', month:'short' })}` : t('st_d_' + s)}</div></div></li>`; }).join('')}
     ${o.status === 'cancelled' ? `<li class="now"><span class="dotc" style="background:var(--red)">${ic('x',16,2.6)}</span><div><b>${t('st_cancelled')}</b><div class="xs muted">${fmtDT(ev.cancelled)}</div></div></li>` : ''}</ul>`;
   const totalTxt = o.status === 'completed' && ev.completed ? t('turnaround',{d:durTxt(new Date(ev.completed) - created)}) : o.status !== 'cancelled' ? t('elapsed',{d:durTxt(Date.now() - created)}) : '';
   const stDone = k => ({ nurse: idx >= 4, courier: idx >= 6, lab: idx >= 8 })[k];
   const stNow = k => ({ nurse: idx >= 1 && idx < 4, courier: idx >= 4 && idx < 6, lab: idx >= 6 && idx < 8 })[k];
   const team = o.status === 'cancelled' ? '' : `<div class="card"><div class="row between"><h3 style="margin:0">${t('care_team')}</h3><span class="xs muted">${t('care_team_p')}</span></div><div class="stack" style="--g:8px;margin-top:12px">
-    ${['nurse','courier','lab'].map(k => partyRow(k, o[k], o[k] ? (stDone(k) ? 'done' : stNow(k) ? 'now' : '') : '')).join('')}</div></div>`;
+    ${(o.mode === 'self' ? ['courier','lab'] : ['nurse','courier','lab']).map(k => partyRow(k, o[k], o[k] ? (stDone(k) ? 'done' : stNow(k) ? 'now' : '') : '')).join('')}</div></div>`;
   const tests = `<div class="card"><h3>${t('tests')}</h3>${(o.tests || []).map(x => `<div class="vline"><div><b>${esc(LN(x,'name'))}</b><div class="xs muted">${t('tube')}: ${esc(x.tube)} · ${x.fasting_hours ? t('fasting',{h:x.fasting_hours}) : t('no_fasting')} · ${t('tat_x',{h:x.tat_hours || 24})}</div></div></div>`).join('')}</div>`;
   const pat = o.patient || {};
   const details = `<div class="card"><h3>${t('details')}</h3>
@@ -631,15 +683,16 @@ function drawOrder(o){
       ${o.status === 'completed' ? `<a class="btn teal sm" href="#/app/report/${o.id}">${ic('file',16)} ${t('view_report')}</a><button class="btn soft sm" data-again>${ic('plus',16)} ${t('book_again')}</button>` : ''}
       ${ACTIVE(o.status) && idx < 4 ? `<button class="btn soft sm" data-ics>${ic('cal',16)} ${t('add_cal')}</button>` : ''}
       <button class="btn ghost sm" data-copy>${ic('copy',16)} ${t('copy_code')}</button></div>` : o.status === 'completed' ? `<div class="row wrap" style="margin-top:14px"><a class="btn teal sm" href="#/app/report/${o.id}">${ic('file',16)} ${t('view_report')}</a></div>` : '';
-  const head = `<div class="card ohead"><div class="row between wrap"><div><div class="small muted">${t('request')}</div><h2 style="margin:0" class="ltr">${esc(o.code)}</h2></div><div class="row" style="gap:8px">${ACTIVE(o.status) ? `<span class="live"><i></i>${t('live')}</span>` : ''}${stChip(o.status)}</div></div>
-    <div class="progress" style="margin-top:14px"><i style="width:${pct}%"></i></div>
+  const head = `<div class="card ohead"><div class="row between wrap"><div><div class="small muted">${t('request')}</div><h2 style="margin:0" class="ltr">${esc(o.code)}</h2></div><div class="row" style="gap:8px">${ACTIVE(o.status) ? `<span class="live"><i></i>${t('live')}</span>` : ''}${o.mode === 'self' && I18N.en['st_k_' + o.status] ? `<span class="chip blue">${stL(o, o.status)}</span>` : stChip(o.status)}</div></div>
+    ${o.status !== 'cancelled' ? rideSvg(pct) : `<div class="progress" style="margin-top:14px"><i style="width:${pct}%"></i></div>`}
     <div class="row between xs muted" style="margin-top:8px"><span>${ic('clock',13)} ${totalTxt}</span><span>${t('step_x',{a:Math.max(1, idx + 1), b:STATUS.length})}</span></div>${tools}</div>`;
   const map = o.lat && (r === 'nurse' || r === 'admin') ? `<div class="card" style="padding:0;overflow:hidden"><div class="mapbox" id="omap" style="border-radius:0;height:220px"></div>${o.address ? `<div style="padding:12px"><a class="btn soft sm" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${o.lat},${o.lng}">${ic('pin',16)} ${t('open_maps')}</a></div>` : ''}</div>` : '';
   app.innerHTML = shell(esc(o.code), `<div class="grid" id="og" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;align-items:start">
-    <div class="stack">${head}${acts}${careBlock(o)}${eta}${prep}${o.status === 'completed' && r === 'patient' ? rateBox(o) : ''}${map}${team}${details}${tests}</div>
+    <div class="stack">${head}${acts}${safetyRow(o)}${careBlock(o)}${eta}${prep}${o.status === 'completed' && r === 'patient' ? rateBox(o) : ''}${map}${team}${chainCard(o)}${details}${tests}</div>
     <div class="stack"><div class="card"><h3>${t('q_track')}</h3>${tl}</div></div></div>`, { back: true });
   if (innerWidth < 900) $('#og').style.gridTemplateColumns = 'minmax(0,1fr)';
   bindActions(o); bindCare(o, drawOrder);
+  const rs = $('.ride'); if (rs) { placeVan(rs, pct / 100); if (window.FX && !o._rode) { o._rode = 1; placeVan(rs, 0); const go = () => window.gsap ? FX.ride(rs, pct / 100) : placeVan(rs, pct / 100); setTimeout(go, FX.ready ? 60 : 900); } }
   $$('[data-party]').forEach(b => b.onclick = () => partyModal(b.dataset.party, o));
   if ($('[data-ics]')) $('[data-ics]').onclick = () => { icsDownload(o); toast(t('cal_ok')); };
   if ($('[data-copy]')) $('[data-copy]').onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(o.code) : Promise.reject()).then(() => toast(t('copied'))).catch(() => toast(o.code)); };
@@ -655,6 +708,9 @@ function actionPanel(o){
   const u = S.user, r = u.role; const s = o.status; let h = '';
   if (r === 'patient') {
     if (u.is_demo && ACTIVE(s)) h += `<div class="card" style="background:linear-gradient(120deg,#efeaff,#e8f1ff)"><div class="small" style="color:#3b2fa0">${ic('play',16)} ${t('demo_hint')}</div><div class="row wrap" style="margin-top:12px"><button class="btn sm" data-act="demo">${ic('next',16)} ${t('demo_next')}</button><button class="btn sm dark" data-act="demoall">${ic('play',16)} ${t('demo_auto')}</button></div></div>`;
+    if (o.mode === 'self' && s === 'arrived') h += `<div class="card selfcol"><div class="row" style="gap:12px;align-items:flex-start"><span class="lv-ic" style="background:var(--teal-bg);color:var(--teal)">${ic('box',24)}</span><div class="grow"><b>${t('self_t')}</b><div class="small">${t('self_p')}</div>
+      <ul class="small" style="margin:8px 0 0;padding-inline-start:18px">${(o.tests || []).map(x => `<li>${esc(LN(x,'name'))} · <span class="muted">${esc(x.tube)}</span></li>`).join('')}</ul>
+      <label class="check" style="margin-top:10px"><input type="checkbox" id="selfck"> ${t('self_ck')}</label><button class="btn teal" style="margin-top:10px" data-act="selfdone">${ic('check',18)} ${t('self_btn')}</button></div></div></div>`;
     if (['booked','assigned','recollect'].includes(s)) h += `<button class="btn ghost sm" data-act="cancel" style="align-self:flex-start">${ic('x',16)} ${t('cancel_req')}</button>`;
   }
   if (r === 'nurse') {
@@ -665,6 +721,9 @@ function actionPanel(o){
     if (mine && s === 'arrived') h = `<button class="btn teal block" data-act="collect">${ic('syringe',18)} ${t('collect_btn')}</button>`;
   }
   if (r === 'courier') {
+    if (o.mode === 'self' && ['booked','recollect'].includes(s) && !o.courier_id) h = `<button class="btn teal block" data-act="kit_accept">${ic('box',18)} ${t('kit_accept')}</button>`;
+    if (o.mode === 'self' && o.courier_id === u.id && s === 'assigned') h = `<button class="btn block" data-act="kit_start">${ic('truck',18)} ${t('kit_start')}</button>`;
+    if (o.mode === 'self' && o.courier_id === u.id && s === 'on_the_way') h = `<button class="btn teal block" data-act="kit_deliver">${ic('check',18)} ${t('kit_deliver')}</button>`;
     if (s === 'collected') h = `<button class="btn block" data-act="pickup">${ic('box',18)} ${t('pickup_btn')}</button>`;
     if (s === 'in_transit') h = `<button class="btn teal block" data-act="deliver">${ic('flask',18)} ${t('deliver_btn')}</button>`;
   }
@@ -692,13 +751,32 @@ function resFlag(a, r){ if (!r || r.v == null) return { f: r && r.f || '' }; if 
 function flagLbl(x){ return !x.f ? '' : x.f === 'N' ? t('f_N') : x.m ? t('f_s' + x.f) : t('f_' + x.f); }
 function rangeTxt(a){ return a.lo != null && a.hi != null ? `${a.lo} – ${a.hi}` : a.lo != null ? `≥ ${a.lo}` : a.hi != null ? `≤ ${a.hi}` : '—'; }
 function bindActions(o){
-  const run = async (btn, a, p, msg) => { try { const n = await busy(btn, () => API.action(o.id, a, p)); if (msg) toast(msg); drawOrder(n); } catch(e) {} };
+  const run = async (btn, a, p, msg) => { try { const n = await busy(btn, () => API.action(o.id, a, p)); if (msg) toast(msg); drawOrder(n); } catch(e) { toast(errMsg(e), true); } };
+  /* SOS: press and hold 2 seconds (a quick tap cannot send it by mistake) */
+  $$('[data-sos]').forEach(btn => { let tm = null; const start = e => { e.preventDefault(); btn.classList.add('hold'); tm = setTimeout(async () => { btn.classList.remove('hold'); btn.classList.add('sent');
+      try { navigator.vibrate && navigator.vibrate([200, 80, 200]); } catch(x) {}
+      const send = (lat, lng) => API.sos(o.id, lat, lng, null).then(() => toast(t('sos_sent'))).catch(err => toast(errMsg(err), true));
+      if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => send(p.coords.latitude, p.coords.longitude), () => send(null, null), { timeout: 6000, enableHighAccuracy: true }); else send(null, null); }, 2000); };
+    const stop = () => { clearTimeout(tm); btn.classList.remove('hold'); };
+    btn.addEventListener('pointerdown', start); ['pointerup','pointerleave','pointercancel'].forEach(ev => btn.addEventListener(ev, stop)); btn.addEventListener('contextmenu', e => e.preventDefault()); });
   $$('[data-act]').forEach(b => b.onclick = async () => {
     const a = b.dataset.act;
     if (a === 'demo') { try { const n = await busy(b, () => API.demoAdvance(o.id)); drawOrder(n); } catch(e) {} return; }
     if (a === 'demoall') { b.disabled = true; let n = o; while (ACTIVE(n.status)) { try { n = await API.demoAdvance(o.id); drawOrder(n); } catch(e) { break; } await new Promise(r => setTimeout(r, 1300)); } return; }
     if (a === 'cancel') { if (await confirmBox(t('cancel_q'), t('yes_cancel'), t('keep'))) run(b, 'cancel'); return; }
     if (a === 'accept') return run(b, 'accept', {}, t('job_accepted'));
+    if (['kit_accept','kit_start','kit_deliver'].includes(a)) return run(b, a, {}, a === 'kit_accept' ? t('job_accepted') : null);
+    if (a === 'selfdone') { if (!$('#selfck').checked) { toast(t('self_ck'), true); return; } return run(b, 'self_collected', { labelled: true }, t('self_ok')); }
+    if (a === 'chain') return modal(`<h3>${ic('thermo',20)} ${t('chain_check')}</h3><div class="stack" style="margin-top:12px">
+        <label class="field"><span>${t('chain_code')}</span><input class="input ltr" id="chc" autocomplete="off" placeholder="${esc(o.code)}" style="text-transform:uppercase"></label>
+        <label class="field"><span>${t('chain_temp')}</span><input class="input" id="cht" type="number" step="0.1" inputmode="decimal" placeholder="4.5"></label>
+        <label class="field"><span>${t('chain_note')}</span><input class="input" id="chn" maxlength="200"></label><div class="err" id="che"></div>
+        <button class="btn teal block" id="chok">${t('confirm')}</button></div>`, (el, close) => { $('#chok', el).onclick = async () => {
+          try { await busy($('#chok', el), () => API.sampleLog(o.id, $('#chc', el).value, parseFloat($('#cht', el).value), $('#chn', el).value)); close(); toast(t('chain_saved')); drawOrder(await API.order(o.id)); } catch(e) { $('#che', el).textContent = errMsg(e); } }; });
+    if (a === 'incident') return modal(`<h3>${t('inc_t')}</h3><div class="stack" style="margin-top:12px"><label class="field"><span>${t('inc_kind')}</span><select class="input" id="ik">${['needle','faint','sample','safety','vehicle','other'].map(k => `<option value="${k}">${t('inc_' + k)}</option>`).join('')}</select></label>
+        <label class="field"><span>${t('inc_note')}</span><textarea class="input" id="in" rows="3" maxlength="1500"></textarea></label><div class="err" id="ie"></div><button class="btn red block" id="iok">${ic('send',18)} ${t('send')}</button></div>`, (el, close) => {
+        $('#iok', el).onclick = async () => { const note = $('#in', el).value.trim(); if (!note) { $('#ie', el).textContent = t('inc_note'); return; }
+          try { await busy($('#iok', el), () => API.incident(o.id, $('#ik', el).value, note)); close(); toast(t('inc_sent')); } catch(e) { $('#ie', el).textContent = errMsg(e); } }; });
     if (['start','arrive','deliver','receive'].includes(a)) return run(b, a);
     if (a === 'collect') return modal(`<h3>${t('checklist_t')}</h3><div class="stack" style="margin-top:12px">
         <label class="check"><input type="checkbox" id="c1"> ${t('ck_id')}</label><label class="check"><input type="checkbox" id="c2"> ${t('ck_label')}</label><label class="check"><input type="checkbox" id="c3"> ${t('ck_consent')}</label>
@@ -742,19 +820,26 @@ async function viewReport(id){
       if (lo != null && hi != null && r.v != null) { const span = hi - lo; pos = Math.max(3, Math.min(97, 20 + (r.v - lo) / span * 60)); }
       return `<tr><td>${esc(S.lang === 'ar' ? a.na : a.n)}</td><td class="num b" style="color:${!r.f || r.f === 'N' ? 'inherit' : fx.m ? '#9a6400' : 'var(--red)'}">${r.v ?? '—'} <span class="xs muted" style="font-weight:500">${esc(a.u)}</span></td><td class="small muted num">${rangeTxt(a)}</td><td class="rb-col" style="width:120px"><div class="rangebar"><i style="left:${pos}%"></i></div></td><td>${r.f ? `<span class="flag ${r.f}${fx.m ? ' mild' : ''}${fx.c ? ' crit' : ''}">${fx.c ? t('g_crit') : flagLbl(fx)}</span>` : ''}</td></tr>`; }).join('')).join('');
   const ce = (o.events || []).find(e => e.status === 'collected'); const LVL = orderLevel(o).level;
-  app.innerHTML = shell(t('report_t'), `<div class="row no-print rep-actions"><button class="btn grow" id="pr">${ic('download',18)} ${t('download_pdf')}</button>${navigator.share ? `<button class="btn ghost grow" id="sh">${ic('share',18)} ${t('share_pdf')}</button>` : ''}<button class="btn ghost hide-sm" id="pp" aria-label="${t('print')}">${ic('file',18)} ${t('print')}</button></div>
+  app.innerHTML = shell(t('report_t'), `<div class="row no-print rep-actions"><button class="btn grow" id="pr">${ic('download',18)} ${t('download_pdf')}</button>${navigator.share ? `<button class="btn ghost grow" id="sh">${ic('share',18)} ${t('share_pdf')}</button>` : ''}${S.user.role === 'patient' ? `<button class="btn soft grow" id="shd">${ic('steth',18)} ${t('share_doc')}</button>` : ''}<button class="btn ghost hide-sm" id="pp" aria-label="${t('print')}">${ic('file',18)} ${t('print')}</button></div>
   <div class="report"><div class="rh"><div class="row">${A.logo.replace('<svg','<svg width="46" height="46"')}<div><div class="wm-inline">${A.wordmark}</div><div class="small" style="opacity:.8">${t('report_t')}</div></div></div>
     <div class="small" style="text-align:end"><b>${esc(o.lab ? o.lab.name : '')}</b><br>${o.lab && o.lab.license ? t('licence') + ': ' + esc(o.lab.license) : ''}</div></div>
   <div class="rb"><div class="grid g4" style="gap:12px;margin-bottom:18px">
     <div><div class="xs muted">${t('patient')}</div><b>${esc(p.name)}</b></div><div><div class="xs muted">${t('age')} / ${t('sex')}</div><b>${p.dob ? age(p.dob) : '—'} / ${p.gender ? t(p.gender) : '—'}</b></div>
     <div><div class="xs muted">${t('request')}</div><b>${esc(o.code)}</b></div><div><div class="xs muted">${t('collected_at')}</div><b>${ce ? fmtDT(ce.at) : '—'}</b></div>
     <div><div class="xs muted">${t('reported_at')}</div><b>${fmtDT(o.published_at)}</b></div><div><div class="xs muted">${t('verified_by')}</div><b>${esc(o.verified_by || '')}</b></div></div>
-  <div class="banner ${LVL === 'urgent' ? 'red' : flags ? 'amber' : 'teal'}" style="margin-bottom:16px">${ic(LVL === 'urgent' ? 'phone' : flags ? 'clock' : 'check',22)}<div><b>${t('lv_'+LVL+'_t')}</b><div class="small">${flags ? t('some_flags',{n:flags}) : t('all_normal')}</div></div></div>
+  <div class="banner ${LVL === 'urgent' ? 'red' : flags ? 'amber' : 'teal'}${flags ? ' fx-alert' : ''}" id="repban" style="margin-bottom:16px">${ic(LVL === 'urgent' ? 'phone' : flags ? 'clock' : 'check',22)}<div><b>${t('lv_'+LVL+'_t')}</b><div class="small">${flags ? t('some_flags',{n:flags}) : t('all_normal')}</div></div></div>
   <div class="scroll-x"><table class="rtable"><thead><tr><th>${t('analyte')}</th><th>${t('result')}</th><th>${t('ref_range')}</th><th class="rb-col"></th><th>${t('flag')}</th></tr></thead><tbody>${rows}</tbody></table></div>
-  ${notes.length ? `<div class="card flat" style="margin-top:18px"><h4>${t('insight_t')}</h4><ul class="small" style="margin:0;padding-inline-start:18px">${notes.join('')}</ul></div>` : ''}
+  ${notes.length ? `<div class="card flat" style="margin-top:18px"><h4>${t('insight_t')}</h4><ul class="small" style="margin:0;padding-inline-start:18px">${notes.join('')}</ul><a class="xs b" href="#/sources" style="display:inline-block;margin-top:8px">${ic('file',12)} ${t('sources_hint')} ›</a></div>` : ''}
   ${o.doctor_note ? `<div class="card flat" style="margin-top:18px"><h4>${t('doc_note_t')} · ${esc(o.doctor_note.name || '')}</h4><p class="small" style="white-space:pre-wrap;margin:0">${esc(o.doctor_note.note)}</p></div>` : ''}
-  <p class="xs muted" style="margin-top:18px">${t('report_disclaimer')}</p></div></div><div class="stack no-print" style="margin-top:18px">${careBlock(o)}</div>`, { back: true });
-  bindCare(o, () => viewReport(id));
+  <p class="xs muted" style="margin-top:18px">${t('report_disclaimer')}</p></div></div><div class="stack no-print" style="margin-top:18px">${LVL !== 'urgent' ? wiseCard(!flags) : ''}${careBlock(o)}<div id="trd"></div></div>`, { back: true });
+  bindCare(o, () => viewReport(id)); bindWise();
+  if (S.user.role === 'patient') {
+    /* celebrate a clean report once; a gentle red pulse when something needs attention */
+    const ck = 'lah_cel_' + o.id; let seen = false; try { seen = !!localStorage.getItem(ck); localStorage.setItem(ck, '1'); } catch(e) {}
+    if (window.FX) setTimeout(() => { if (!flags && !seen) FX.celebrate('big'); else if (flags) FX.alert($('#repban')); }, FX.ready ? 400 : 1600);
+    const codes = [...new Set((o.tests || []).flatMap(x => x.analytes.map(a => a.c)))];
+    API.trends(codes).then(tr => { const el = $('#trd'); if (el) { el.innerHTML = trendsHtml(tr, o.tests || [], p); if (window.FX) FX.scan(el); } }).catch(() => {});
+  }
   /* real PDF file, made on the phone; prepared in advance so the tap opens the save/share sheet at once */
   const ar = S.lang === 'ar';
   const pdfData = { lang: S.lang, logo: A.markSvg({ fg:'#ffffff', still:true }), contact: `WhatsApp / Call ${CONTACT.phone}  ·  ${CONTACT.email}`, code: o.code, lab: o.lab ? o.lab.name : '', licence: o.lab && o.lab.license ? t('licence') + ': ' + o.lab.license : '', flags,
@@ -779,6 +864,47 @@ async function viewReport(id){
   $('#pr').onclick = () => deliver($('#pr'), false);
   if ($('#sh')) $('#sh').onclick = () => deliver($('#sh'), true);
   $('#pp').onclick = () => window.print();
+  if ($('#shd')) $('#shd').onclick = () => shareModal(o);
+}
+function wiseCard(ok){
+  const L = ok ? WISE_OK : WISE_CARE; const i = Math.floor(Math.random() * L.length); const w = L[i]; const ar = S.lang === 'ar';
+  return `<div class="card wise ${ok ? 'ok' : 'care'}" data-wise="${ok ? 1 : 0}" data-i="${i}"><div class="wise-orn" aria-hidden="true">${ok ? '❁' : '❀'}</div><div class="xs b wise-t">${t(ok ? 'wise_ok_t' : 'wise_care_t')}</div>
+    <p class="wise-q" lang="ar" dir="rtl">${esc(w.ar)}</p>${ar ? '' : `<p class="wise-en">${esc(w.en)}</p>`}<div class="row between"><span class="xs muted">${esc(ar ? w.sa : w.se)}</span><button class="link xs" data-wmore>${t('wise_more')} ↻</button></div></div>`;
+}
+function bindWise(){ $$('[data-wmore]').forEach(b => b.onclick = () => { const c = b.closest('.wise'); const ok = c.dataset.wise === '1'; const L = ok ? WISE_OK : WISE_CARE; let i = (+c.dataset.i + 1) % L.length; const tmp = document.createElement('div'); tmp.innerHTML = wiseCard(ok); const n = tmp.firstElementChild; n.dataset.i = i; const w = L[i];
+  $('.wise-q', n).textContent = w.ar; if ($('.wise-en', n)) $('.wise-en', n).textContent = w.en; $('.row .muted', n).textContent = S.lang === 'ar' ? w.sa : w.se; c.replaceWith(n); bindWise(); if (window.FX) FX.pop(n); }); }
+function trendsHtml(tr, tests, person){
+  const names = {}; tests.forEach(x => x.analytes.forEach(a => { names[a.c] = prA(a, person); }));
+  const keys = Object.keys(tr || {}).filter(k => (tr[k] || []).length >= 2 && names[k]).slice(0, 4); if (!keys.length) return '';
+  const spark = (pts, a) => { const vs = pts.map(x => +x.v); const lo = Math.min(...vs, a.lo ?? Infinity), hi = Math.max(...vs, a.hi ?? -Infinity); const span = (hi - lo) || 1; const W = 220, H = 64;
+    const xy = pts.map((x, i) => [8 + i * (W - 16) / Math.max(1, pts.length - 1), H - 8 - (x.v - lo) / span * (H - 16)]);
+    const band = a.lo != null && a.hi != null ? `<rect x="0" y="${H - 8 - (a.hi - lo) / span * (H - 16)}" width="${W}" height="${Math.max(2, (a.hi - a.lo) / span * (H - 16))}" fill="#e3f7f4"/>` : '';
+    return `<svg viewBox="0 0 ${W} ${H}" class="spark" data-draw>${band}<polyline points="${xy.map(p => p.join(',')).join(' ')}" fill="none" stroke="#1257d6" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>${xy.map((p, i) => `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${pts[i].f && pts[i].f !== 'N' ? '#e2474f' : '#0fae9b'}"/>`).join('')}</svg>`; };
+  return `<div class="card trend"><h3 style="margin-bottom:2px">${ic('chart',20)} ${t('trends_t')}</h3><div class="xs muted" style="margin-bottom:12px">${t('trends_p')}</div><div class="grid g2" style="gap:12px">${keys.map(k => { const a = names[k]; const pts = tr[k]; const last = pts[pts.length - 1];
+    return `<div class="tr-c"><div class="row between"><b class="small">${esc(S.lang === 'ar' ? a.na : a.n)}</b><span class="num b">${esc(last.v)} <span class="xs muted">${esc(a.u || '')}</span></span></div>${spark(pts, a)}<div class="row between xs muted"><span>${fmtDate(pts[0].at, { month:'short', year:'2-digit' })}</span><span>${fmtDate(last.at, { month:'short', year:'2-digit' })}</span></div></div>`; }).join('')}</div></div>`;
+}
+function shareModal(o){
+  modal(`<h3>${ic('steth',20)} ${t('share_t')}</h3><p class="small muted">${t('share_p')}</p>
+    <label class="field"><span>${t('share_hours')}</span><select class="input" id="shh"><option value="24">24h</option><option value="72" selected>72h</option><option value="168">7 ${S.lang === 'ar' ? 'أيام' : 'days'}</option></select></label>
+    <div id="shout"></div><div class="err" id="she"></div><button class="btn block" id="shmk">${ic('share',18)} ${t('share_make')}</button>`, (el, close) => {
+    $('#shmk', el).onclick = async () => { try { const r = await busy($('#shmk', el), () => API.shareCreate(o.id, +$('#shh', el).value)); const url = location.origin + location.pathname + '#/r/' + r.token;
+      $('#shout', el).innerHTML = `<div class="sharebox"><input class="input ltr" readonly value="${esc(url)}"><div class="xs muted">${t('share_until',{d:fmtDT(r.expires_at)})}</div><div class="row wrap" style="gap:8px;margin-top:10px"><button class="btn sm" id="shc">${ic('copy',16)} ${t('share_copy')}</button><a class="btn sm soft" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(url)}">WhatsApp</a>${navigator.share ? `<button class="btn sm ghost" id="shn">${ic('share',16)}</button>` : ''}</div></div>`;
+      $('#shmk', el).remove(); $('#shc', el).onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => toast(t('share_copied'))).catch(() => toast(url)); };
+      if ($('#shn', el)) $('#shn', el).onclick = () => navigator.share({ title: 'iLab@home ' + o.code, url }).catch(() => {}); } catch(e) { $('#she', el).textContent = errMsg(e); } }; });
+}
+/* read-only report opened from a doctor link (no account needed) */
+async function viewShared(token){
+  let d; try { d = await API.shareGet(token); } catch(e) { app.innerHTML = `${topbar()}<section class="section"><div class="wrap-w" style="max-width:640px">${emptyBox(errMsg(e), `<a class="btn" href="#/">${t('m_home')}</a>`)}</div></section>${footer()}`; return; }
+  const person = { gender: d.sex, dob: d.age != null ? (new Date().getFullYear() - d.age) + '-06-30' : null }; const res = d.results || {};
+  const rows = (d.tests || []).map(x => `<tr class="grp"><td colspan="4">${esc(LN(x,'name'))}</td></tr>` + x.analytes.map(a0 => { const a = prA(a0, person); const r = res[a.c] || {}; const fx = resFlag(a, r);
+      return `<tr><td>${esc(S.lang === 'ar' ? a.na : a.n)}</td><td class="num b" style="color:${!r.f || r.f === 'N' ? 'inherit' : fx.m ? '#9a6400' : 'var(--red)'}">${r.v ?? '—'} <span class="xs muted">${esc(a.u)}</span></td><td class="small muted num">${rangeTxt(a)}</td><td>${r.f ? `<span class="flag ${r.f}${fx.m ? ' mild' : ''}${fx.c ? ' crit' : ''}">${fx.c ? t('g_crit') : flagLbl(fx)}</span>` : ''}</td></tr>`; }).join('')).join('');
+  app.innerHTML = `${topbar()}<section class="section" style="padding-top:28px"><div class="wrap-w" style="max-width:860px">
+    <div class="banner blue small" style="margin-bottom:14px">${ic('lock',18)}<span>${t('share_until',{d:fmtDT(d.expires_at)})}</span></div>
+    <div class="report"><div class="rh"><div class="row">${A.logo.replace('<svg','<svg width="46" height="46"')}<div><div class="wm-inline">${A.wordmark}</div><div class="small" style="opacity:.8">${t('report_t')}</div></div></div><div class="small" style="text-align:end"><b>${esc(d.lab || '')}</b><br>${d.licence ? t('licence') + ': ' + esc(d.licence) : ''}</div></div>
+    <div class="rb"><div class="grid g4" style="gap:12px;margin-bottom:18px"><div><div class="xs muted">${t('patient')}</div><b>${esc(d.name || '')}</b></div><div><div class="xs muted">${t('age')} / ${t('sex')}</div><b>${d.age ?? '—'} / ${d.sex ? t(d.sex) : '—'}</b></div><div><div class="xs muted">${t('request')}</div><b>${esc(d.code)}</b></div><div><div class="xs muted">${t('reported_at')}</div><b>${fmtDT(d.published_at)}</b></div></div>
+    <div class="scroll-x"><table class="rtable"><thead><tr><th>${t('analyte')}</th><th>${t('result')}</th><th>${t('ref_range')}</th><th>${t('flag')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+    ${d.doctor_note ? `<div class="card flat" style="margin-top:18px"><h4>${t('doc_note_t')} · ${esc(d.doctor_note.name || '')}</h4><p class="small" style="white-space:pre-wrap;margin:0">${esc(d.doctor_note.note)}</p></div>` : ''}
+    <p class="xs muted" style="margin-top:18px">${t('verified_by')}: ${esc(d.verified_by || '')} · ${t('report_disclaimer')}</p></div></div></div></section>${footer()}`;
 }
 
 /* ---------- nurse / courier / lab homes ---------- */
@@ -1061,47 +1187,57 @@ function refreshCartBadges(){
 function menuItems(){
   const u = S.user; const r = u ? u.role : null; const n = cartCount();
   const it = (href, icon, label, extra) => `<a href="#/${href}" class="mi">${ic(icon)}<span class="grow">${esc(label)}</span>${extra || ''}</a>`;
-  let h = '';
+  const grp = (title, body) => body ? `<div class="mg"><div class="mg-t">${esc(title)}</div><div class="mg-b">${body}</div></div>` : '';
+  let sv = '', ac = '', co = '';
   if (!u || r === 'patient') {
-    h += it(u ? 'app' : '', 'home', t('m_home'));
-    h += it(u ? 'app/tests' : 'tests', 'flask', t('q_book'));
-    h += it(u ? 'app/cart' : 'tests', 'box', t('m_cart'), n ? `<span class="chip red">${n}</span>` : '');
-    h += it(u ? 'app/consult' : 'consult', 'steth', t('m_consult'));
-    h += it('dental', 'tooth', t('m_dental'));
-    if (u) { h += it('app/orders', 'list', t('m_orders')); h += it('app/orders?r=1', 'file', t('m_reports_all')); h += it('app/notifs', 'bell', t('m_notifs'), S.unread ? `<span class="chip red">${S.unread}</span>` : ''); }
+    sv += it(u ? 'app' : '', 'home', t('m_home'));
+    sv += it(u ? 'app/tests' : 'tests', 'flask', t('q_book'));
+    sv += it(u ? 'app/tests?c=selfkit' : 'tests?c=selfkit', 'box', t('m_selfkit'), '<span class="chip teal">NEW</span>');
+    sv += it(u ? 'app/consult' : 'consult', 'steth', t('m_consult'));
+    sv += it('dental', 'tooth', t('m_dental'));
+    sv += it('expat', 'building', t('m_expat'), '<span class="chip teal">NEW</span>');
+    if (u) {
+      ac += it('app/cart', 'cart', t('m_cart'), n ? `<span class="chip red">${n}</span>` : '');
+      ac += it('app/orders', 'list', t('m_orders')); ac += it('app/orders?r=1', 'file', t('m_reports_all'));
+      ac += it('app/loyalty', 'star', t('m_loyalty')); ac += it('app/notifs', 'bell', t('m_notifs'), S.unread ? `<span class="chip red">${S.unread}</span>` : '');
+      ac += it('app/privacy', 'shield', t('m_privacy')); ac += it('app/profile', 'user', t('m_profile'));
+    } else sv += it('tests', 'cart', t('m_cart'), n ? `<span class="chip red">${n}</span>` : '');
   } else {
-    navFor(r).forEach(([h2, i, k]) => { h += it(h2, i, t(k)); });
-    if (r === 'admin') h += it('app/admin/tickets', 'chat', t('m_tickets'));
+    navFor(r).forEach(([h2, i, k]) => { ac += it(h2, i, t(k)); });
+    if (r === 'admin') ac += it('app/admin/tickets', 'chat', t('m_tickets'));
+    ac += it('app/privacy', 'shield', t('m_privacy'));
   }
-  h += '<hr class="sep">';
-  h += it('new', 'play', t('m_new'), '<span class="chip red">NEW</span>');
-  h += it('install', 'download', t('m_install'));
-  h += it('contact', 'phone', t('m_contact'));
-  h += it('support', 'chat', t('m_support'));
-  h += it('about', 'users', t('m_about') + ' · ' + t('m_team'));
-  h += it('how', 'globe', t('nav_how'));
-  if (canBiz()) h += it('business', 'chart', t('m_business'));
-  if (!u) h += it('register?partner=1', 'building', t('m_join'));
-  h += '<hr class="sep">';
-  h += `<button class="mi" data-lang>${ic('globe')}<span class="grow">${t('lang')}</span></button>`;
-  h += u ? it('app/profile', 'user', t('m_profile')) + `<button class="mi" data-logout>${ic('logout')}<span class="grow">${t('logout')}</span></button>`
-         : it('login', 'user', t('login')) + it('register', 'plus', t('signup'));
-  return h;
+  co += it('how', 'globe', t('nav_how')); co += it('new', 'play', t('m_new'));
+  co += it('about', 'users', t('m_about') + ' · ' + t('m_team')); co += it('contact', 'phone', t('m_contact'));
+  co += it('support', 'chat', t('m_support')); co += it('install', 'download', t('m_install'));
+  co += it('sources', 'file', t('m_sources'));
+  if (canBiz()) co += it('business', 'chart', t('m_business'));
+  if (!u) co += it('register?partner=1', 'building', t('m_join'));
+  const foot = `<div class="mg-foot"><button class="mi" data-lang>${ic('globe')}<span class="grow">${t('lang')}</span></button>${u ? `<button class="mi" data-logout>${ic('logout')}<span class="grow">${t('logout')}</span></button>` : ''}</div>`;
+  return grp(t('mg_services'), sv) + grp(t('mg_account'), ac) + grp('iLab@home', co) + foot;
 }
 
 function openMenu(){
-  const root = $('#modal-root'); const bg = document.createElement('div'); bg.className = 'drawer-bg';
+  const root = $('#modal-root'); if ($('.dd-bg', root)) { $('.dd-bg', root)._close(); return; }
+  const bg = document.createElement('div'); bg.className = 'dd-bg';
   const u = S.user;
-  bg.innerHTML = `<aside class="drawer" role="dialog" aria-modal="true" aria-label="${t('menu')}">
-    <div class="row between" style="margin-bottom:14px"><a href="#/" class="brand">${brandInner()}</a><button class="icon-btn" data-x aria-label="${t('close')}">${ic('x')}</button></div>
-    ${u ? `<div class="me-card"><span class="avatar">${esc(initials(u.full_name))}</span><div class="grow"><b>${esc(u.full_name)}</b><div class="xs muted">${t('r_'+u.role)}</div></div></div>` : `<div class="me-card" style="display:block"><b>${t('hero_t1')}</b><div class="small muted">${t('hero_t2')}</div><div class="row" style="margin-top:10px"><a class="btn sm grow" href="#/register">${t('signup')}</a><a class="btn sm ghost grow" href="#/login">${t('login')}</a></div></div>`}
-    <nav class="menu">${menuItems()}</nav></aside>`;
+  bg.innerHTML = `<div class="dd" role="dialog" aria-modal="true" aria-label="${t('menu')}"><span class="dd-grab"></span>
+    <div class="row between dd-head"><a href="#/" class="brand">${brandInner()}</a><button class="icon-btn" data-x aria-label="${t('close')}">${ic('x')}</button></div>
+    ${u ? `<div class="me-card"><span class="avatar">${esc(initials(u.full_name))}</span><div class="grow"><b>${esc(u.full_name)}</b><div class="xs muted">${t('r_'+u.role)}</div></div></div>` : `<div class="me-card dd-cta"><div class="grow"><b>${t('hero_t1')}</b><div class="small muted">${t('hero_t2')}</div></div><div class="row"><a class="btn sm" href="#/register">${t('signup')}</a><a class="btn sm ghost" href="#/login">${t('login')}</a></div></div>`}
+    <nav class="menu dd-grid">${menuItems()}</nav></div>`;
   root.appendChild(bg);
-  requestAnimationFrame(() => bg.classList.add('open')); document.body.classList.add('lock');
-  const close = () => { bg.classList.remove('open'); setTimeout(() => { bg.remove(); if (!$('#modal-root .modal-bg') && !$('.drawer-bg.open')) document.body.classList.remove('lock'); }, 220); };
+  const dd = $('.dd', bg); const btn = document.activeElement && document.activeElement.closest ? document.activeElement.closest('[data-menu]') : null;
+  /* desktop: open under the button that was pressed */
+  if (innerWidth >= 900 && btn) { const r = btn.getBoundingClientRect(); dd.style.top = Math.round(r.bottom + 10) + 'px'; if (S.lang === 'ar') dd.style.left = Math.max(12, Math.round(r.left)) + 'px'; else dd.style.right = Math.max(12, Math.round(innerWidth - r.right)) + 'px'; }
+  requestAnimationFrame(() => { bg.classList.add('open'); if (window.FX && FX.ready && window.gsap && !matchMedia('(prefers-reduced-motion: reduce)').matches) gsap.from($$('.mi', dd), { y: 10, opacity: 0, duration: .35, stagger: .018, ease: 'power2.out', clearProps: 'all' }); });
+  document.body.classList.add('lock');
+  const close = () => { bg.classList.remove('open'); setTimeout(() => { bg.remove(); if (!$('#modal-root .modal-bg') && !$('.dd-bg.open')) document.body.classList.remove('lock'); }, 220); };
+  bg._close = close;
   bg.addEventListener('click', e => { if (e.target === bg || e.target.closest('[data-x]') || e.target.closest('a')) close(); });
+  const esc2 = e => { if (e.key === 'Escape') { close(); removeEventListener('keydown', esc2); } }; addEventListener('keydown', esc2);
   $$('[data-lang]', bg).forEach(b => b.onclick = () => { close(); setLang(S.lang === 'ar' ? 'en' : 'ar'); render(); });
   $$('[data-logout]', bg).forEach(b => b.onclick = () => { close(); doLogout(); });
+  const f = $('.mi', dd); if (f && innerWidth >= 900) f.focus({ preventScroll: true });
 }
 
 function viewStart(){
@@ -1508,7 +1644,7 @@ async function render(){
 async function renderNow(){
   clearTimers(); saveUser();
   const route = location.hash.split('?')[0];
-  if (route !== lastRoute) { lastRoute = route; app.classList.remove('pg'); void app.offsetWidth; app.classList.add('pg'); $$('#modal-root .modal-bg, #modal-root .drawer-bg').forEach(m => m._close ? m._close() : m.remove()); document.body.classList.remove('lock', 'kb'); }
+  if (route !== lastRoute) { lastRoute = route; app.classList.remove('pg'); void app.offsetWidth; app.classList.add('pg'); $$('#modal-root .modal-bg, #modal-root .drawer-bg, #modal-root .dd-bg').forEach(m => m._close ? m._close() : m.remove()); document.body.classList.remove('lock', 'kb'); }
   const h = (location.hash.slice(2) || '').split('#')[0];
   const [path] = h.split('?'); const seg = path.split('/');
   const standalone = window.matchMedia && matchMedia('(display-mode: standalone)').matches;
@@ -1525,6 +1661,9 @@ async function renderNow(){
     else if (seg[0] === 'how') await viewHow();
     else if (seg[0] === 'new') await viewNew();
     else if (seg[0] === 'consult') await viewConsultPublic(false);
+    else if (seg[0] === 'sources') await viewSources();
+    else if (seg[0] === 'expat') await viewExpat();
+    else if (seg[0] === 'r' && seg[1]) await viewShared(seg[1]);
     else if (seg[0] === 'dental') await viewConsultPublic(true);
     else if (seg[0] === 'business') { if (canBiz()) await viewBusiness(); else go(''); }
     else if (seg[0] !== 'app') {
@@ -1549,7 +1688,10 @@ async function renderNow(){
       else if (sub === 'profile') await viewProfile();
       else if (sub === 'notifs') await viewNotifs();
       else if (sub === 'programs') await viewCompanyHome();
-      else if (sub === 'admin' && (r === 'admin' || r === 'staff')) await ((r === 'admin' ? { users: viewAdminUsers, catalog: viewAdminCatalog, tickets: viewAdminTickets, payments: viewAdminPayments, contracts: viewAdminContracts, settings: viewAdminSettings, kit: viewAdminKit } : { users: viewAdminUsers, tickets: viewAdminTickets, contracts: viewAdminContracts, settings: viewAdminSettings, kit: viewAdminKit })[seg[2]] || viewAdminHome)();
+      else if (sub === 'loyalty' && r === 'patient') await viewLoyalty();
+      else if (sub === 'privacy') await viewPrivacy();
+      else if (sub === 'camps' && r === 'company') await viewCamps();
+      else if (sub === 'admin' && (r === 'admin' || r === 'staff')) await ((r === 'admin' ? { users: viewAdminUsers, catalog: viewAdminCatalog, tickets: viewAdminTickets, payments: viewAdminPayments, contracts: viewAdminContracts, settings: viewAdminSettings, kit: viewAdminKit, safety: viewAdminSafety, coupons: viewAdminCoupons, camps: viewAdminCamps } : { users: viewAdminUsers, tickets: viewAdminTickets, contracts: viewAdminContracts, settings: viewAdminSettings, kit: viewAdminKit, safety: viewAdminSafety, camps: viewAdminCamps })[seg[2]] || viewAdminHome)();
       else go('app');
     }
   } catch(e) {
@@ -1559,6 +1701,8 @@ async function renderNow(){
     const c = $('.content') || app; c.insertAdjacentHTML('beforeend', `<div class="card empty" style="margin:20px">${A.emptyArt}<p>${errMsg(e)}</p><button class="btn" onclick="location.reload()">${t('retry')}</button></div>`);
   }
   bindGlobal(); botMount(); bindPush(); bindMail();
+  if (window.FX) FX.scan(app);
+  if (window.LAH_OFFLINE) toast(t('offline_t'));
   if (!location.hash.includes('#', 1)) window.scrollTo(0, 0); else { const el = document.getElementById(location.hash.split('#')[2]); if (el) setTimeout(() => el.scrollIntoView({ behavior:'smooth', block:'start' }), 120); }
 }
 async function poll(){ if (!S.user || document.hidden) return; try { const r = await API.me(); const before = S.unread; S.user = r.user; S.unread = r.unread; if (r.unread !== before) { $$('[data-go="app/notifs"] .dot').forEach(d => d.textContent = r.unread); if (r.unread > before) { const b = $('[data-go="app/notifs"]'); if (b && !$('.dot', b)) b.insertAdjacentHTML('beforeend', `<span class="dot">${r.unread}</span>`); } } } catch(e) { if (e.code === 'AUTH_REQUIRED') { S.user = null; go('login'); } } }
@@ -1637,7 +1781,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 30;
+const APP_V = 31;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -2183,6 +2327,71 @@ Object.assign(I18N.en, { specialty:'Specialty', sp_family:'Family medicine', sp_
   cs_vcall:'Video call', cs_acall:'Voice call', cs_call_tip:'The call opens in a new tab (Jitsi Meet). Allow the camera / microphone when asked.', cs_chat_t:'Messages', cs_chat_empty:'No messages yet. Write to your doctor here.', cs_chat_ph:'Write a message…', send:'Send' });
 Object.assign(I18N.ar, { specialty:'التخصص', sp_family:'طب الأسرة', sp_internal:'الطب الباطني', sp_peds:'طب الأطفال', sp_dent:'طب الأسنان',
   cs_vcall:'مكالمة فيديو', cs_acall:'مكالمة صوتية', cs_call_tip:'المكالمة تفتح في صفحة جديدة (Jitsi Meet). اسمح بالكاميرا أو المايك لما يطلب.', cs_chat_t:'الرسائل', cs_chat_empty:'ما في رسائل إلى الآن. اكتب لطبيبك هنا.', cs_chat_ph:'اكتب رسالة…', send:'إرسال' });
+Object.assign(I18N.en, {
+  mg_services:'Services', mg_account:'My account', m_more:'More', m_selfkit:'Self-test kits', m_expat:'Workers & companies', m_loyalty:'Loyalty card', m_privacy:'Privacy & my data', m_sources:'Sources & references', m_camps:'Camp visits', m_safety:'Safety & privacy', m_coupons:'Offers & coupons',
+  cat_selfkit:'Self-kits (no nurse)', cat_expat:'Workers', col_self:'No nurse needed', col_device:'Measured at home', col_nurse:'Nurse visit',
+  kit_fee:'Kit delivery & pickup', kit_mode_t:'No nurse needed for this order', kit_mode_p:'A courier brings the kit, you take the sample yourself with the simple steps, and the courier takes it back to the lab.', b2_kit:'Kit',
+  coupon:'Discount code', coupon_ph:'e.g. WELCOME10', coupon_ok:'Code applied: −{x} OMR', d_stamp:'Loyalty card: free visit', d_coupon:'Discount code', d_ref:'Friend’s invite', free_visit_t:'This is your 5th order: the visit is free 🎉', free_visit_p:'Thank you for staying with iLab@home.',
+  ram_slots:'Ramadan nights', booked_free:'Your loyalty card made this visit free.',
+  e_BAD_COUPON:'This code is not valid.', e_COUPON_EXPIRED:'This code has expired.', e_COUPON_FULL:'This code has been fully used.', e_COUPON_USED:'You already used this code.', e_COUPON_FIRST:'This code is for the first order only.', e_COUPON_MIN:'Your order is below the minimum for this code.',
+  e_BAD_REF:'This invite code is not valid.', e_REF_DONE:'You already used an invite code.', e_REF_LATE:'Invite codes work before your first order only.', e_CODE_MISMATCH:'The code does not match this sample.', e_LINK_EXPIRED:'This link has expired or was stopped by the patient.', e_ALREADY_OPEN:'You already have an open request of this kind.', e_NEED_CONSENT:'Please confirm the workers agreed.', e_TOO_MANY:'Too many links today. Try tomorrow.',
+  st_k_assigned:'Courier assigned', st_k_on_the_way:'Kit on the way', st_k_arrived:'Kit delivered: take your sample', st_k_collected:'Sample ready for pickup',
+  kit_accept:'Accept kit delivery', kit_start:'Start: kit on the way', kit_deliver:'Kit delivered', self_t:'Take your sample now', self_p:'Follow the card inside the kit. Wash your hands, fill the container to the line, close it well and stick the name label.', self_ck:'I labelled the container with my name and date', self_btn:'I took my sample', self_ok:'Thank you. The courier will pick it up soon.',
+  chain_t:'Sample journey (cold chain)', chain_p:'Every hand-over is recorded with the time and the box temperature (2–8 °C).', chain_check:'Log a temperature check', chain_code:'Scan or type the sample code', chain_temp:'Box temperature (°C)', chain_note:'Note (optional)', chain_saved:'Check saved', chain_age:'{d} since collection', chain_old:'Over 4 hours since collection: tell the lab.',
+  step_collected:'Collected', step_pickup:'Picked up', step_check:'Temperature check', step_handover:'Handed to the lab', step_lab_received:'Received by the lab',
+  sos_btn:'SOS', sos_hold:'Hold 2 seconds to send an emergency alert', sos_sent:'Alert sent to operations with your location.', inc_btn:'Report an incident', inc_t:'Incident report', inc_kind:'What happened?', inc_needle:'Needle-stick injury', inc_faint:'Patient fainted', inc_sample:'Sample problem', inc_safety:'Safety at the address', inc_vehicle:'Vehicle / road', inc_other:'Other', inc_note:'Describe briefly', inc_sent:'Report sent. Operations will contact you.',
+  wise_ok_t:'All clear, alhamdulillah 🌿', wise_care_t:'A gentle reminder', wise_more:'Another one', share_doc:'Share with my doctor', share_t:'Private link for your doctor', share_p:'Anyone with this link can see this report until it expires. You can stop it any time from Privacy.', share_hours:'Link works for', share_make:'Create link', share_copy:'Copy link', share_copied:'Link copied', share_until:'Works until {d}',
+  trends_t:'Your numbers over time', trends_p:'From your past reports with iLab@home.', sources_hint:'Where our health information comes from', src_link:'Sources',
+  loy_t:'Your loyalty card', loy_p:'Every order adds a stamp. The 5th home visit is free.', loy_next:'{n} more to your free visit', loy_free_now:'Your next order: free home visit 🎉', loy_hist:'Your stamps', loy_how:'How it works', loy_how_p:'1 order = 1 stamp. Fill 5 stamps and the home-visit fee of that order is on us. Sponsored check-ups don’t count.', loy_free:'Free visit',
+  ref_t:'Invite a friend', ref_p:'Your friend gets {x} OMR off the first order, and you get a bonus stamp when their result is ready.', ref_code:'Your invite code', ref_share:'Share code', ref_have:'Have a friend’s code?', ref_apply:'Use code', ref_ok:'Invite code saved: {x} OMR off your first order.', ref_count:'{n} friends joined with your code', ref_msg:'Book a home lab test with iLab@home and get {x} OMR off with my code: {c}',
+  pv_t:'Privacy & your data', pv_p:'Your health data is protected under Oman’s Personal Data Protection Law (Royal Decree 6/2022). You decide.', pv_consent:'You agreed to the privacy terms on {d}.', pv_views:'Who opened your reports', pv_views_p:'Lab, doctor and shared-link views of your finished reports.', pv_none:'No one else has opened your reports yet.', pv_shares:'Your shared links', pv_stop:'Stop link', pv_stopped:'Stopped', pv_exp:'Download my data', pv_exp_p:'A file with your profile, orders, results and consultations.', pv_del:'Ask to delete my account', pv_del_p:'We delete what the law allows. Lab reports may have to be kept for the period health rules require; we will tell you what stays.', pv_fix:'Ask to correct my data', pv_req_t:'Your requests', pv_req_ok:'Request sent. We reply within 7 days.', pv_note:'Tell us more (optional)', pv_idle:'For safety, staff accounts sign out after 30 minutes without use.', role_share:'Shared link', role_lab:'Laboratory', role_doctor:'Doctor', role_admin:'iLab@home operations',
+  src_t:'Sources & references', src_p:'The medical ranges, screening advice, rules and texts we use, with links. Partner-lab ranges take priority over general ones.',
+  ex_t:'Medical checks for workers and companies', ex_p:'Know early, before the official residency medical. For companies, households and individuals across North Al Sharqiyah.', ex_note_t:'Important', ex_note:'The official residency (visa) medical certificate is issued through the Ministry of Health system (e-health portal or Sanad offices) at approved centres. iLab@home does not issue it. Our checks help you know early and avoid surprises.', ex_off_t:'The official steps (as published)', ex_off_1:'Register the medical fitness exam through the MOH e-health portal or a Sanad office.', ex_off_2:'Typical tests: HIV, hepatitis B and C, syphilis, blood count, urine, stool and a physical exam. Latent TB screening was added; a positive result leads to a chest X-ray.', ex_off_3:'Rules change: always check the latest list with the Ministry of Health.', ex_co_t:'Companies: camp visit', ex_co_p:'Send the workers list, choose the date and the package. A team of nurses visits the camp. You see fit / needs follow-up for each worker, never their medical details.', ex_home_t:'Households: domestic worker check', ex_home_p:'A female nurse visits your home for your domestic worker’s yearly check.', ex_req:'Request a camp visit', ex_login_co:'Sign in as a company',
+  camp_t:'Camp visit requests', camp_new:'New camp visit', camp_site:'Camp / site address', camp_date:'Preferred date', camp_pkg:'Package', camp_workers:'Workers list', camp_workers_p:'One worker per line: name, ID or passport number, gender (M/F), nationality. You can paste from Excel or choose a CSV file.', camp_csv:'Choose CSV file', camp_consent:'Each worker agreed to the check and to sharing the fit / follow-up result with the company.', camp_send:'Send request', camp_sent:'Request sent. Our team will confirm the date.', camp_n:'{n} workers', r_fit:'Fit', r_unfit:'Needs follow-up', r_retest:'Retest', r_pending:'Pending', cs_requested:'Requested', cs_scheduled:'Scheduled', cs_visited:'Visited', cs_completed:'Completed', cs2_cancelled:'Cancelled',
+  adm_sos:'SOS alerts', adm_inc:'Incident reports', adm_pv:'Privacy requests', adm_resolve:'Resolve', adm_close:'Close', adm_done:'Done', adm_reject:'Reject', adm_reply:'Reply to the user', adm_camps:'Camp visits', adm_coupons:'Discount codes', cp_code:'Code', cp_kind:'Type', cp_pct:'% off tests', cp_fixed:'OMR off', cp_value:'Value', cp_max:'Max uses', cp_min:'Minimum order (OMR)', cp_first:'First order only', cp_exp:'Expires', cp_save:'Save code', cp_used:'{a} / {b} used', nothing:'Nothing here.',
+  ram_t:'Ramadan Kareem 🌙', ram_p:'Night visits after Iftar are open during Ramadan.', wa_book:'Book on WhatsApp', wa_txt:'Hello iLab@home, I would like to book a home test.', offline_t:'You are offline: showing your last saved copy.', idle_out:'Signed out after 30 minutes without use.',
+  hm_loy:'Loyalty card', hm_selfkit_t:'New: self-test kits', hm_selfkit_p:'Urine, stool and swabs without a nurse visit. Delivery from {x} OMR.', hm_expat_t:'Workers & domestic staff', hm_expat_p:'Pre-checks and yearly checks at home or at the camp.'
+});
+Object.assign(I18N.ar, {
+  mg_services:'الخدمات', mg_account:'حسابي', m_more:'المزيد', m_selfkit:'عُدد الفحص الذاتي', m_expat:'العمالة والشركات', m_loyalty:'بطاقة الولاء', m_privacy:'الخصوصية وبياناتي', m_sources:'المصادر والمراجع', m_camps:'زيارات سكن العمال', m_safety:'السلامة والخصوصية', m_coupons:'العروض والكوبونات',
+  cat_selfkit:'فحوصات ذاتية (بدون ممرض)', cat_expat:'العمالة', col_self:'بدون ممرض', col_device:'قياس في البيت', col_nurse:'زيارة ممرض',
+  kit_fee:'توصيل واستلام العدة', kit_mode_t:'هذا الطلب ما يحتاج ممرض', kit_mode_p:'المندوب يوصل لك العدة، تاخذ العينة بنفسك بخطوات بسيطة، والمندوب يرجع ياخذها للمختبر.', b2_kit:'العدة',
+  coupon:'كود الخصم', coupon_ph:'مثلاً WELCOME10', coupon_ok:'تم تطبيق الكود: −{x} ر.ع', d_stamp:'بطاقة الولاء: زيارة مجانية', d_coupon:'كود الخصم', d_ref:'دعوة صديق', free_visit_t:'هذا طلبك الخامس: الزيارة مجانية 🎉', free_visit_p:'شكراً لأنك معنا في آي لاب@هوم.',
+  ram_slots:'ليالي رمضان', booked_free:'بطاقة الولاء خلت هذي الزيارة مجانية.',
+  e_BAD_COUPON:'هذا الكود غير صالح.', e_COUPON_EXPIRED:'انتهت صلاحية هذا الكود.', e_COUPON_FULL:'هذا الكود انتهى عدد استخدامه.', e_COUPON_USED:'استخدمت هذا الكود من قبل.', e_COUPON_FIRST:'هذا الكود لأول طلب فقط.', e_COUPON_MIN:'طلبك أقل من الحد الأدنى لهذا الكود.',
+  e_BAD_REF:'كود الدعوة غير صالح.', e_REF_DONE:'استخدمت كود دعوة من قبل.', e_REF_LATE:'كود الدعوة يشتغل قبل أول طلب فقط.', e_CODE_MISMATCH:'الكود ما يطابق هذي العينة.', e_LINK_EXPIRED:'انتهى هذا الرابط أو أوقفه المريض.', e_ALREADY_OPEN:'عندك طلب مفتوح من نفس النوع.', e_NEED_CONSENT:'أكد إن العمال موافقين.', e_TOO_MANY:'روابط كثيرة اليوم. جرّب بكرة.',
+  st_k_assigned:'تم تعيين المندوب', st_k_on_the_way:'العدة في الطريق', st_k_arrived:'وصلت العدة: خذ العينة', st_k_collected:'العينة جاهزة للاستلام',
+  kit_accept:'قبول توصيل العدة', kit_start:'ابدأ: العدة في الطريق', kit_deliver:'تم توصيل العدة', self_t:'خذ عينتك الحين', self_p:'اتبع البطاقة اللي داخل العدة. اغسل يدك، عبّ العلبة لين الخط، سكّرها زين، وألصق ملصق الاسم.', self_ck:'كتبت اسمي والتاريخ على العلبة', self_btn:'أخذت العينة', self_ok:'شكراً لك. المندوب بيمر ياخذها قريب.',
+  chain_t:'رحلة العينة (السلسلة الباردة)', chain_p:'كل تسليم يتسجل بالوقت وحرارة الصندوق (2–8 °م).', chain_check:'سجّل فحص حرارة', chain_code:'امسح أو اكتب كود العينة', chain_temp:'حرارة الصندوق (°م)', chain_note:'ملاحظة (اختياري)', chain_saved:'تم حفظ الفحص', chain_age:'{d} من وقت السحب', chain_old:'مرّت أكثر من 4 ساعات من السحب: بلّغ المختبر.',
+  step_collected:'تم السحب', step_pickup:'استلمها المندوب', step_check:'فحص حرارة', step_handover:'تسليم للمختبر', step_lab_received:'استلمها المختبر',
+  sos_btn:'نجدة', sos_hold:'اضغط مطولاً ثانيتين لإرسال تنبيه طوارئ', sos_sent:'تم إرسال التنبيه للعمليات مع موقعك.', inc_btn:'بلّغ عن حادث', inc_t:'بلاغ حادث', inc_kind:'ويش صار؟', inc_needle:'وخزة إبرة', inc_faint:'المريض أغمي عليه', inc_sample:'مشكلة في العينة', inc_safety:'خطر في الموقع', inc_vehicle:'السيارة / الطريق', inc_other:'غير ذلك', inc_note:'اوصف باختصار', inc_sent:'تم إرسال البلاغ. العمليات بتتواصل معك.',
+  wise_ok_t:'كل شي طيب، الحمد لله 🌿', wise_care_t:'تذكير لطيف', wise_more:'غيرها', share_doc:'شارك مع طبيبي', share_t:'رابط خاص لطبيبك', share_p:'أي شخص عنده الرابط يقدر يشوف هذا التقرير لين تنتهي مدته. تقدر توقفه أي وقت من صفحة الخصوصية.', share_hours:'مدة الرابط', share_make:'سوّ الرابط', share_copy:'نسخ الرابط', share_copied:'تم نسخ الرابط', share_until:'يشتغل لين {d}',
+  trends_t:'أرقامك مع الوقت', trends_p:'من تقاريرك السابقة في آي لاب@هوم.', sources_hint:'من وين معلوماتنا الصحية', src_link:'المصادر',
+  loy_t:'بطاقة الولاء', loy_p:'كل طلب يضيف ختم. الزيارة المنزلية الخامسة مجانية.', loy_next:'باقي {n} للزيارة المجانية', loy_free_now:'طلبك الجاي: زيارة منزلية مجانية 🎉', loy_hist:'أختامك', loy_how:'كيف تشتغل', loy_how_p:'كل طلب = ختم. لما تكمل 5 أختام، رسوم الزيارة في ذاك الطلب علينا. الفحوصات المدفوعة من الشركات ما تنحسب.', loy_free:'زيارة مجانية',
+  ref_t:'ادعُ صديق', ref_p:'صديقك ياخذ خصم {x} ر.ع على أول طلب، وأنت تاخذ ختم إضافي لما تطلع نتيجته.', ref_code:'كود دعوتك', ref_share:'شارك الكود', ref_have:'عندك كود من صديق؟', ref_apply:'استخدم الكود', ref_ok:'تم حفظ كود الدعوة: خصم {x} ر.ع على أول طلب.', ref_count:'{n} أصدقاء انضموا بكودك', ref_msg:'احجز فحص في البيت مع آي لاب@هوم وخذ خصم {x} ر.ع بكودي: {c}',
+  pv_t:'الخصوصية وبياناتك', pv_p:'بياناتك الصحية محمية حسب قانون حماية البيانات الشخصية العماني (المرسوم السلطاني 6/2022). القرار لك.', pv_consent:'وافقت على شروط الخصوصية بتاريخ {d}.', pv_views:'مين فتح تقاريرك', pv_views_p:'فتح التقارير المكتملة من المختبر أو الطبيب أو رابط المشاركة.', pv_none:'ما أحد غيرك فتح تقاريرك للحين.', pv_shares:'روابطك المشتركة', pv_stop:'أوقف الرابط', pv_stopped:'متوقف', pv_exp:'نزّل بياناتي', pv_exp_p:'ملف فيه حسابك وطلباتك ونتائجك واستشاراتك.', pv_del:'اطلب حذف حسابي', pv_del_p:'نحذف اللي يسمح فيه القانون. تقارير المختبر ممكن لازم تنحفظ للمدة اللي تطلبها الأنظمة الصحية، وبنخبرك ويش يبقى.', pv_fix:'اطلب تصحيح بياناتي', pv_req_t:'طلباتك', pv_req_ok:'تم إرسال الطلب. نرد خلال 7 أيام.', pv_note:'خبرنا أكثر (اختياري)', pv_idle:'للأمان، حسابات الموظفين تطلع تلقائياً بعد 30 دقيقة بدون استخدام.', role_share:'رابط مشترك', role_lab:'المختبر', role_doctor:'الطبيب', role_admin:'عمليات آي لاب@هوم',
+  src_t:'المصادر والمراجع', src_p:'النطاقات الطبية ونصائح الكشف المبكر والأنظمة والنصوص اللي نستخدمها، مع الروابط. نطاقات المختبر الشريك لها الأولوية على النطاقات العامة.',
+  ex_t:'فحوصات العمالة والشركات', ex_p:'اعرف مبكراً قبل فحص الإقامة الرسمي. للشركات والأسر والأفراد في شمال الشرقية.', ex_note_t:'مهم', ex_note:'شهادة اللياقة الطبية الرسمية للإقامة تصدر عن طريق نظام وزارة الصحة (البوابة الإلكترونية أو مكاتب سند) في المراكز المعتمدة. آي لاب@هوم ما يصدرها. فحوصاتنا تساعدك تعرف مبكراً وتتفادى المفاجآت.', ex_off_t:'الخطوات الرسمية (حسب المنشور)', ex_off_1:'سجّل فحص اللياقة الطبية عن طريق بوابة وزارة الصحة الإلكترونية أو مكتب سند.', ex_off_2:'الفحوصات المعتادة: الإيدز، التهاب الكبد B وC، الزهري، صورة الدم، البول، البراز وفحص جسدي. وانضاف فحص السل الكامن، واللي نتيجته إيجابية يسوي أشعة صدر.', ex_off_3:'الأنظمة تتغير: تأكد دائماً من آخر قائمة عند وزارة الصحة.', ex_co_t:'الشركات: زيارة سكن العمال', ex_co_p:'أرسل قائمة العمال واختر التاريخ والباقة. فريق ممرضين يزور السكن. تشوف "لائق" أو "يحتاج متابعة" لكل عامل، وما تشوف تفاصيله الطبية أبداً.', ex_home_t:'الأسر: فحص العاملة المنزلية', ex_home_p:'ممرضة تزورك في البيت للفحص السنوي للعاملة المنزلية.', ex_req:'اطلب زيارة سكن', ex_login_co:'سجّل دخول كشركة',
+  camp_t:'طلبات زيارة سكن العمال', camp_new:'زيارة سكن جديدة', camp_site:'عنوان السكن / الموقع', camp_date:'التاريخ المفضل', camp_pkg:'الباقة', camp_workers:'قائمة العمال', camp_workers_p:'كل عامل في سطر: الاسم، رقم البطاقة أو الجواز، الجنس (M/F)، الجنسية. تقدر تلصق من Excel أو تختار ملف CSV.', camp_csv:'اختر ملف CSV', camp_consent:'كل عامل وافق على الفحص وعلى مشاركة نتيجة "لائق / يحتاج متابعة" مع الشركة.', camp_send:'أرسل الطلب', camp_sent:'تم إرسال الطلب. فريقنا بيأكد التاريخ.', camp_n:'{n} عامل', r_fit:'لائق', r_unfit:'يحتاج متابعة', r_retest:'إعادة فحص', r_pending:'بانتظار النتيجة', cs_requested:'مطلوب', cs_scheduled:'تم تحديد الموعد', cs_visited:'تمت الزيارة', cs_completed:'مكتمل', cs2_cancelled:'ملغي',
+  adm_sos:'تنبيهات النجدة', adm_inc:'بلاغات الحوادث', adm_pv:'طلبات الخصوصية', adm_resolve:'تم الحل', adm_close:'إغلاق', adm_done:'تم', adm_reject:'رفض', adm_reply:'الرد على المستخدم', adm_camps:'زيارات السكن', adm_coupons:'أكواد الخصم', cp_code:'الكود', cp_kind:'النوع', cp_pct:'% من الفحوصات', cp_fixed:'ر.ع خصم', cp_value:'القيمة', cp_max:'أقصى عدد استخدام', cp_min:'أقل مبلغ للطلب (ر.ع)', cp_first:'لأول طلب فقط', cp_exp:'ينتهي', cp_save:'احفظ الكود', cp_used:'{a} / {b} مستخدم', nothing:'ما في شي هنا.',
+  ram_t:'رمضان كريم 🌙', ram_p:'الزيارات الليلية بعد الإفطار متاحة طول رمضان.', wa_book:'احجز بالواتساب', wa_txt:'مرحبا آي لاب@هوم، أبغى أحجز فحص في البيت.', offline_t:'أنت بدون نت: نعرض آخر نسخة محفوظة.', idle_out:'تم تسجيل الخروج بعد 30 دقيقة بدون استخدام.',
+  hm_loy:'بطاقة الولاء', hm_selfkit_t:'جديد: عُدد الفحص الذاتي', hm_selfkit_p:'بول وبراز ومسحات بدون زيارة ممرض. التوصيل من {x} ر.ع.', hm_expat_t:'العمالة والعاملات المنزليات', hm_expat_p:'فحوصات مبدئية وسنوية في البيت أو في السكن.'
+});
+/* words of comfort and wisdom shown with results (Quran, hadith and proverbs, with their source) */
+const WISE_OK = [
+  { ar:'نِعْمَتَانِ مَغْبُونٌ فِيهِمَا كَثِيرٌ مِنَ النَّاسِ: الصِّحَّةُ وَالْفَرَاغُ', sa:'حديث شريف · رواه البخاري', en:'“Two blessings many people lose out on: health and free time.”', se:'Hadith · Sahih al-Bukhari' },
+  { ar:'مَنْ أَصْبَحَ مِنْكُمْ آمِنًا فِي سِرْبِهِ، مُعَافًى فِي جَسَدِهِ، عِنْدَهُ قُوتُ يَوْمِهِ، فَكَأَنَّمَا حِيزَتْ لَهُ الدُّنْيَا', sa:'حديث شريف · رواه الترمذي', en:'“Whoever wakes up safe at home, healthy in body, with food for the day, it is as if the whole world were his.”', se:'Hadith · at-Tirmidhi' },
+  { ar:'وَكُلُوا وَاشْرَبُوا وَلَا تُسْرِفُوا', sa:'سورة الأعراف · الآية 31', en:'“Eat and drink, but do not be excessive.”', se:'Qur’an 7:31' },
+  { ar:'إِنَّ لِجَسَدِكَ عَلَيْكَ حَقًّا', sa:'حديث شريف · رواه البخاري', en:'“Your body has a right over you.”', se:'Hadith · Sahih al-Bukhari' },
+  { ar:'سَلُوا اللَّهَ الْعَفْوَ وَالْعَافِيَةَ، فَإِنَّ أَحَدًا لَمْ يُعْطَ بَعْدَ الْيَقِينِ خَيْرًا مِنَ الْعَافِيَةِ', sa:'حديث شريف · رواه الترمذي وأحمد', en:'“Ask Allah for pardon and well-being: after certainty of faith, no one is given anything better than well-being.”', se:'Hadith · at-Tirmidhi, Ahmad' },
+  { ar:'الصحة تاج على رؤوس الأصحاء، لا يراه إلا المرضى', sa:'حكمة', en:'“Health is a crown on the heads of the healthy that only the sick can see.”', se:'Proverb' },
+  { ar:'صحتك أغلى ما تملك، فحافظ عليها', sa:'حكمة', en:'Your health is the richest thing you own: look after it.', se:'Wisdom' }
+];
+const WISE_CARE = [
+  { ar:'وَإِذَا مَرِضْتُ فَهُوَ يَشْفِينِ', sa:'سورة الشعراء · الآية 80', en:'“And when I am ill, it is He who cures me.”', se:'Qur’an 26:80' },
+  { ar:'مَا أَنْزَلَ اللَّهُ دَاءً إِلَّا أَنْزَلَ لَهُ شِفَاءً', sa:'حديث شريف · رواه البخاري', en:'“Allah has not sent down a disease without sending down a cure for it.”', se:'Hadith · Sahih al-Bukhari' },
+  { ar:'الوقاية خير من العلاج، والاكتشاف المبكر نصف العلاج', sa:'حكمة', en:'Prevention is better than cure, and finding it early is half the cure.', se:'Wisdom' }
+];
 /* the business numbers are only for the team leader's account and the demo admin */
 function canBiz(){ return !!(S.user && S.user.role === 'admin'); }
 /* money rules (fallbacks match the database settings) */
@@ -2424,6 +2633,202 @@ function teamCard([en, ar, role, face, badge, lbl]){
 /* doctors: Pixar-style portraits (fall back to the drawn avatar) */
 const DOC_PIC = { 'Dr. Aisha Al Balushi':'aisha', 'Dr. Hilal Al Harthy':'hilal', 'Dr. Rahma Al Shukaili':'rahma', 'Dr. Talal Al Riyami':'talal' };
 function docPic(name, gender, size){ const k = DOC_PIC[name]; return k ? `<img class="doc-pic" src="img/doctors/${k}.webp" alt="" width="${size}" height="${size}" loading="lazy" decoding="async">` : docArt(gender, size); }
+
+
+/* ---------- v31: small shared pieces ---------- */
+function waChip(){ return `<a class="chip wa" target="_blank" rel="noopener" href="https://wa.me/${CONTACT.wa}?text=${encodeURIComponent(t('wa_txt'))}"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.4-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg> ${t('wa_book')}</a>`; }
+function ramBanner(){ const C = S.catalog; if (!C || !C.ramadan) return ''; const d = muscatNow().date; if (d < C.ramadan.from || d > C.ramadan.to) return '';
+  return `<div class="banner ram">${ic('moon',22)}<div><b>${t('ram_t')}</b><div class="small">${t('ram_p')}</div></div></div>`; }
+function loyStrip(L){ const per = L.per || 5; return `<a class="loy-strip" href="#/app/loyalty"><span class="ls-ic">${ic('star',20)}</span><div class="grow"><b>${t('hm_loy')}</b><div class="xs">${L.free_next ? t('loy_free_now') : t('loy_next',{n: per - L.stamps})}</div></div>
+  <span class="ls-dots">${Array.from({ length: per }, (_, i) => `<i class="${i < L.stamps ? 'on' : ''}"></i>`).join('')}</span></a>`; }
+
+/* ---------- loyalty card + invite a friend ---------- */
+async function viewLoyalty(){
+  loading(t('m_loyalty'));
+  let L; try { L = await API.loyalty(); S.loy = L; } catch(e) { app.innerHTML = shell(t('m_loyalty'), emptyBox(errMsg(e))); return; }
+  const per = L.per || 5, n = L.stamps || 0, left = per - n; const rw = omr(L.reward || 1);
+  const slot = i => `<span class="stamp ${i < n ? 'on' : ''} ${i === per - 1 ? 'gift' : ''}">${i < n ? A.markSvg({ fg:'#ffffff', still:true }) : i === per - 1 ? `${ic('star',20)}<small>${t('loy_free')}</small>` : `<b>${i + 1}</b>`}</span>`;
+  const msg = t('ref_msg', { x: rw, c: L.ref_code || '' }) + ' ' + location.origin + location.pathname;
+  app.innerHTML = shell(t('m_loyalty'), `<div class="stack-lg loy-page">
+    <div class="loyal-wrap"><div class="loyal" id="lcard" tabindex="0" role="button" aria-label="${t('loy_how')}"><div class="lc-in">
+      <div class="lc-front"><div class="row between"><div class="row" style="gap:10px"><span class="lc-logo">${A.markSvg({ fg:'#ffffff', still:true })}</span><div><b>iLab@home</b><div class="xs" style="opacity:.8">${t('loy_t')}</div></div></div><span class="lc-name">${esc(S.user.full_name.split(' ')[0])}</span></div>
+        <div class="stamps">${Array.from({ length: per }, (_, i) => slot(i)).join('')}</div>
+        <div class="lc-foot">${L.free_next ? t('loy_free_now') : t('loy_next', { n: left })}</div></div>
+      <div class="lc-back"><b>${t('loy_how')}</b><p class="small" style="margin:8px 0 0">${t('loy_how_p')}</p></div></div></div>
+      <div class="xs muted center" style="margin-top:8px">↻ ${t('loy_how')}</div></div>
+    <div class="card refer"><div class="row" style="gap:12px;align-items:flex-start">${A.catIcon('packages', 28).replace('packages','')}<div class="grow"><h3 style="margin:0">${t('ref_t')}</h3><p class="small muted" style="margin:4px 0 12px">${t('ref_p', { x: rw })}</p>
+      <div class="xs muted">${t('ref_code')}</div><div class="ref-code ltr" id="rcode">${esc(L.ref_code || '—')}</div>
+      <div class="row wrap" style="gap:8px;margin-top:10px"><button class="btn sm" id="rcopy">${ic('copy',16)} ${t('copy_code')}</button><a class="btn sm soft" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">WhatsApp</a>${navigator.share ? `<button class="btn sm ghost" id="rshare">${ic('share',16)} ${t('ref_share')}</button>` : ''}</div>
+      ${L.referred ? `<div class="xs" style="margin-top:10px;color:var(--teal);font-weight:600">${ic('users',14)} ${t('ref_count', { n: L.referred })}</div>` : ''}</div></div>
+      ${L.can_apply_ref ? `<hr class="sep"><div class="b small">${t('ref_have')}</div><div class="row" style="margin-top:8px"><input class="input grow ltr" id="rin" style="text-transform:uppercase" placeholder="IL•••••" autocomplete="off"><button class="btn soft" id="rapply">${t('ref_apply')}</button></div><div class="err" id="rerr"></div>` : ''}</div>
+    <div class="card"><h3>${t('loy_hist')}</h3>${(L.history || []).length ? `<div class="stack" style="--g:8px">${L.history.map(h => `<div class="vline"><div><b class="ltr">${esc(h.code)}</b><div class="xs muted">${fmtDate(h.at)}</div></div>${h.free ? `<span class="chip teal">${ic('star',13)} ${t('loy_free')}</span>` : stChip(h.status)}</div>`).join('')}</div>` : `<p class="muted small" style="margin:0">${t('none_orders')}</p>`}</div>
+  </div>`);
+  const card = $('#lcard'); card.onclick = card.onkeydown = e => { if (e.type === 'keydown' && !['Enter',' '].includes(e.key)) return; card.classList.toggle('flip'); };
+  $('#rcopy').onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(L.ref_code) : Promise.reject()).then(() => toast(t('copied'))).catch(() => toast(L.ref_code)); };
+  if ($('#rshare')) $('#rshare').onclick = () => navigator.share({ title: 'iLab@home', text: msg }).catch(() => {});
+  if ($('#rapply')) $('#rapply').onclick = async () => { try { await busy($('#rapply'), () => API.referralApply($('#rin').value)); toast(t('ref_ok', { x: rw })); S.loy = undefined; viewLoyalty(); } catch(e) { $('#rerr').textContent = errMsg(e); } };
+  /* stamps land one by one */
+  const ons = $$('.stamp.on'); if (window.FX && ons.length) { const go = () => { ons.forEach((st, i) => setTimeout(() => FX.stamp(st), 250 + i * 220)); if (L.free_next) setTimeout(() => FX.celebrate('small'), 300 + ons.length * 220); }; if (window.gsap) go(); else setTimeout(() => { if (window.gsap) go(); }, 1400); }
+}
+
+/* ---------- privacy & my data ---------- */
+async function viewPrivacy(){
+  loading(t('m_privacy'));
+  let d; try { d = await API.privacy(); } catch(e) { app.innerHTML = shell(t('m_privacy'), emptyBox(errMsg(e))); return; }
+  const u = S.user; const isP = u.role === 'patient';
+  const roleName = r => ({ share: t('role_share'), lab: t('role_lab'), doctor: t('role_doctor'), admin: t('role_admin'), staff: t('role_admin') })[r] || t('r_' + r);
+  const reqKind = k => ({ export: t('pv_exp'), delete: t('pv_del'), correct: t('pv_fix') })[k] || k;
+  app.innerHTML = shell(t('m_privacy'), `<div class="stack-lg">
+    <div class="card pv-head"><div class="row" style="gap:14px;align-items:flex-start"><span class="pv-ic">${ic('shield',30)}</span><div class="grow"><h2 style="margin:0">${t('pv_t')}</h2><p class="small muted" style="margin:6px 0 0">${t('pv_p')}</p>${d.consent_at ? `<div class="xs" style="margin-top:8px;color:var(--teal);font-weight:600">${ic('check',13)} ${t('pv_consent', { d: fmtDate(d.consent_at) })}</div>` : ''}</div></div></div>
+    ${isP ? `<div class="card"><h3>${ic('eye',20)} ${t('pv_views')}</h3><p class="xs muted">${t('pv_views_p')}</p>${d.views.length ? `<div class="stack" style="--g:6px">${d.views.map(v => `<div class="vline"><div><b>${esc(v.who || roleName(v.role))}</b><div class="xs muted">${roleName(v.role)} · <span class="ltr">${esc(v.code)}</span></div></div><span class="xs muted">${fmtDT(v.at)}</span></div>`).join('')}</div>` : `<p class="small muted" style="margin:0">${t('pv_none')}</p>`}</div>
+    ${d.shares.length ? `<div class="card"><h3>${ic('share',20)} ${t('pv_shares')}</h3><div class="stack" style="--g:6px">${d.shares.map(x => { const live = !x.revoked && new Date(x.expires_at) > new Date(); return `<div class="vline"><div><b class="ltr">${esc(x.code)}</b><div class="xs muted">${t('share_until', { d: fmtDT(x.expires_at) })} · 👁 ${x.views}</div></div>${live ? `<button class="btn ghost sm" data-stop="${esc(x.token)}">${t('pv_stop')}</button>` : `<span class="chip gray">${t('pv_stopped')}</span>`}</div>`; }).join('')}</div></div>` : ''}` : ''}
+    <div class="card"><div class="stack" style="--g:10px">
+      <div class="pv-act"><div class="grow"><b>${ic('download',18)} ${t('pv_exp')}</b><div class="xs muted">${t('pv_exp_p')}</div></div><button class="btn sm" id="pvx">${ic('download',16)}</button></div>
+      <div class="pv-act"><div class="grow"><b>${ic('edit',18)} ${t('pv_fix')}</b></div><button class="btn sm soft" data-req="correct">${t('send')}</button></div>
+      <div class="pv-act"><div class="grow"><b>${ic('x',18)} ${t('pv_del')}</b><div class="xs muted">${t('pv_del_p')}</div></div><button class="btn sm ghost" data-req="delete">${t('send')}</button></div></div></div>
+    ${d.requests.length ? `<div class="card"><h3>${t('pv_req_t')}</h3>${d.requests.map(r => `<div class="vline"><div><b>${reqKind(r.kind)}</b><div class="xs muted">${fmtDT(r.created_at)}${r.reply ? ' · ' + esc(r.reply) : ''}</div></div><span class="chip ${r.status === 'open' ? 'amber' : r.status === 'done' ? 'teal' : 'gray'}">${esc(r.status)}</span></div>`).join('')}</div>` : ''}
+    ${isP ? '' : `<div class="banner blue small">${ic('clock',18)}<span>${t('pv_idle')}</span></div>`}
+    <a class="small b" href="#/sources#privacy">${ic('file',14)} ${t('sources_hint')} ›</a>
+  </div>`);
+  $('#pvx').onclick = async () => { try { const data = await busy($('#pvx'), () => API.dataExport()); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = 'iLabAtHome-my-data.json'; document.body.appendChild(a); a.click(); setTimeout(() => a.remove(), 600); } catch(e) { toast(errMsg(e), true); } };
+  $$('[data-req]').forEach(b => b.onclick = () => modal(`<h3>${reqKind(b.dataset.req)}</h3>${b.dataset.req === 'delete' ? `<p class="small muted">${t('pv_del_p')}</p>` : ''}<label class="field"><span>${t('pv_note')}</span><textarea class="input" id="pvn" rows="3" maxlength="1000"></textarea></label><div class="err" id="pve"></div><button class="btn block" id="pvs">${t('send')}</button>`, (el, close) => {
+    $('#pvs', el).onclick = async () => { try { await busy($('#pvs', el), () => API.privacyRequest(b.dataset.req, $('#pvn', el).value)); close(); toast(t('pv_req_ok')); viewPrivacy(); } catch(e) { $('#pve', el).textContent = errMsg(e); } }; }));
+  $$('[data-stop]').forEach(b => b.onclick = async () => { try { await busy(b, () => API.shareRevoke(b.dataset.stop)); viewPrivacy(); } catch(e) { toast(errMsg(e), true); } });
+}
+
+/* ---------- sources & references ---------- */
+const SOURCES = [
+  { id:'ranges', t:['Lab ranges and result reading','النطاقات وقراءة النتائج'], items:[
+    ['KDIGO 2024 Clinical Practice Guideline for CKD (eGFR, albumin/creatinine)', 'https://kdigo.org/guidelines/ckd-evaluation-and-management/'],
+    ['American Diabetes Association · Standards of Care in Diabetes (HbA1c, glucose)', 'https://professional.diabetes.org/standards-of-care'],
+    ['NIH Office of Dietary Supplements · Vitamin D fact sheet', 'https://ods.od.nih.gov/factsheets/VitaminD-HealthProfessional/'],
+    ['WHO · Haemoglobin concentrations for the diagnosis of anaemia', 'https://www.who.int/publications/i/item/WHO-NMH-NHD-MNM-11.1'] ] },
+  { id:'screening', t:['Screening and self-collection','الكشف المبكر والفحص الذاتي'], items:[
+    ['American Cancer Society · Colorectal cancer screening from age 45 (FIT)', 'https://www.cancer.org/cancer/types/colon-rectal-cancer/detection-diagnosis-staging/acs-recommendations.html'],
+    ['US Preventive Services Task Force · Colorectal cancer screening (2021)', 'https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/colorectal-cancer-screening'],
+    ['WHO · Guideline for screening and treatment of cervical pre-cancer (HPV self-sampling)', 'https://www.who.int/publications/i/item/9789240030824'] ] },
+  { id:'samples', t:['Sample transport and safety','نقل العينات والسلامة'], items:[
+    ['WHO · Laboratory biosafety manual, 4th edition', 'https://www.who.int/publications/i/item/9789240011311'],
+    ['WHO · Guidance on regulations for the transport of infectious substances', 'https://www.who.int/publications/i/item/9789240089778'] ] },
+  { id:'oman', t:['Oman rules and expat medicals','أنظمة عمان وفحص العمالة'], items:[
+    ['Ministry of Health Oman · Licensing and assessing nursing categories', 'https://moh.gov.om/media/tklpor0j/licensing-and-assessing-nursing-categories.pdf'],
+    ['Oman Medical Specialty Board (OMSB)', 'https://omsb.gov.om'],
+    ['Oman Observer · New guidelines for visa medical certification', 'https://www.omanobserver.om/article/1147865/oman/health/new-guidelines-for-visa-medical-certification'],
+    ['Oman Observer · Visa medical to include latent TB screening', 'https://www.omanobserver.om/article/1157277/oman/health/visa-medical-to-include-latent-tb-screening-moh'] ] },
+  { id:'privacy', t:['Privacy and data protection','الخصوصية وحماية البيانات'], items:[
+    ['Royal Decree 6/2022 · Personal Data Protection Law (Oman)', 'https://decree.om/2022/rd20220006/'],
+    ['Al Tamimi & Co · The Omani Personal Data Protection Law comes into force', 'https://tamimi.com/news/new-omani-personal-data-protection-law-comes-into-force'] ] },
+  { id:'texts', t:['Qur’an and hadith shown with results','الآيات والأحاديث المعروضة مع النتائج'], items:[
+    ['Qur’an 26:80 · «وإذا مرضت فهو يشفين»', 'https://quran.com/26/80'],
+    ['Qur’an 7:31 · «وكلوا واشربوا ولا تسرفوا»', 'https://quran.com/7/31'],
+    ['Sahih al-Bukhari 6412 · «نعمتان مغبون فيهما…»', 'https://sunnah.com/bukhari:6412'],
+    ['Sahih al-Bukhari 5678 · «ما أنزل الله داء إلا أنزل له شفاء»', 'https://sunnah.com/bukhari:5678'],
+    ['Sahih al-Bukhari 1975 · «إن لجسدك عليك حقا»', 'https://sunnah.com/bukhari:1975'],
+    ['Jami at-Tirmidhi 2346 · «من أصبح منكم آمنا في سربه…»', 'https://sunnah.com/tirmidhi:2346'] ] }
+];
+async function viewSources(){
+  const ar = S.lang === 'ar';
+  app.innerHTML = `${topbar()}<section class="section" style="padding-top:32px"><div class="wrap-w" style="max-width:900px">
+    <div class="section-h"><h2 data-split>${t('src_t')}</h2><p>${t('src_p')}</p></div>
+    <div class="stack-lg">${SOURCES.map(g => `<div class="card src" id="${g.id}"><h3>${esc(g.t[ar ? 1 : 0])}</h3><ol class="src-l">${g.items.map(([n, u]) => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}</a><div class="xs muted ltr">${esc(new URL(u).hostname)}</div></li>`).join('')}</ol></div>`).join('')}</div>
+    <p class="xs muted" style="margin-top:18px">${t('report_disclaimer')}</p></div></section>${footer()}`;
+}
+
+/* ---------- workers & companies ---------- */
+async function viewExpat(){
+  await loadCatalog().catch(() => {}); const C = S.catalog; const P = id => C && C.P[id];
+  const u = S.user; const coBtn = u && u.role === 'company' ? `<a class="btn" href="#/app/camps">${ic('building',18)} ${t('ex_req')}</a>` : `<a class="btn" href="#/${u ? 'app' : 'login'}">${ic('building',18)} ${t('ex_login_co')}</a><a class="btn ghost" href="#/register/company">${t('r_company')}</a>`;
+  const pk = id => { const p = P(id); if (!p) return ''; const inC = S.cart.packages.includes(id); return pkgCard(p, inC); };
+  app.innerHTML = `${topbar()}<section class="hero ex-hero"><div class="wrap-w"><div class="ex-in"><div><span class="chip purple">${ic('building',14)} ${t('m_expat')}</span><h1 data-split>${t('ex_t')}</h1><p class="muted">${t('ex_p')}</p><div class="row wrap" style="gap:10px;margin-top:16px">${coBtn}</div></div>
+    <svg class="ex-art" viewBox="0 0 320 220" data-draw aria-hidden="true"><rect x="20" y="90" width="120" height="100" rx="10" fill="none" stroke="#1257d6" stroke-width="4"/><path d="M20 110h120M50 90V60h60v30" fill="none" stroke="#1257d6" stroke-width="4" stroke-linejoin="round"/><rect x="40" y="128" width="22" height="22" rx="4" fill="none" stroke="#18b5d8" stroke-width="3"/><rect x="98" y="128" width="22" height="22" rx="4" fill="none" stroke="#18b5d8" stroke-width="3"/><rect x="170" y="70" width="130" height="120" rx="14" fill="none" stroke="#0fae9b" stroke-width="4"/><path d="M205 70V52a30 30 0 0 1 60 0v18" fill="none" stroke="#0fae9b" stroke-width="4"/><path d="M235 105v40M215 125h40" stroke="#0fae9b" stroke-width="7" stroke-linecap="round"/><path d="M10 196h300" stroke="#c9d8f5" stroke-width="4" stroke-linecap="round"/></svg></div></div></section>
+    <section class="section" style="padding-top:8px"><div class="wrap-w stack-lg">
+      <div class="banner amber">${ic('shield',22)}<div><b>${t('ex_note_t')}</b><div class="small">${t('ex_note')}</div></div></div>
+      <div class="grid g2"><div class="card feat"><h3>${ic('building',20)} ${t('ex_co_t')}</h3><p class="small muted">${t('ex_co_p')}</p><div class="row wrap" style="gap:8px">${coBtn}</div></div>
+        <div class="card feat"><h3>${ic('home',20)} ${t('ex_home_t')}</h3><p class="small muted">${t('ex_home_p')}</p><a class="btn soft" href="#/${u ? 'app/tests' : 'tests'}?c=expat">${t('q_book')}</a></div></div>
+      <div class="grid g3" id="expk">${pk('expat_pre')}${pk('housemaid')}</div>
+      <div class="card"><h3>${t('ex_off_t')}</h3><ol class="small" style="margin:0;padding-inline-start:20px;line-height:1.9"><li>${t('ex_off_1')}</li><li>${t('ex_off_2')}</li><li>${t('ex_off_3')}</li></ol><a class="xs b" href="#/sources#oman" style="display:inline-block;margin-top:8px">${t('src_link')} ›</a></div>
+    </div><div id="cbar"></div></section>${footer()}`;
+  $$('#expk [data-add]').forEach(b => b.onclick = () => { const [ty, id] = b.dataset.add.split(':'); const was = S.cart.packages.includes(id); const rect = b.getBoundingClientRect(); toggleCart(ty, id); viewExpat().then(() => { if (!was && window.FX) { toastCart(); FX.flyToCart(rect); } }); });
+  if ($('#cbar')) { $('#cbar').innerHTML = cartBar(); bindGo(); }
+}
+function parseWorkers(txt){
+  return String(txt || '').split(/\r?\n/).map(l => l.trim()).filter(l => l && !/^name\b|^الاسم/i.test(l)).map(l => { const c = l.split(/\t|;|,/).map(x => x.trim());
+    const g = (c[2] || '').toLowerCase(); return { n: c[0], id: c[1] || '', g: /^(m|male|ذكر|م)$/.test(g) ? 'male' : /^(f|female|أنثى|انثى|ث)$/.test(g) ? 'female' : null, nat: c[3] || '' }; }).filter(w => w.n);
+}
+async function viewCamps(){
+  loading(t('m_camps'));
+  const [list] = await Promise.all([API.campsMine(), loadCatalog()]); const C = S.catalog;
+  const min = addDays(muscatNow().date, 2);
+  const rchip = r => `<span class="chip ${r === 'fit' ? 'teal' : r === 'unfit' ? 'red' : r === 'retest' ? 'amber' : 'gray'}">${t('r_' + (r || 'pending'))}</span>`;
+  app.innerHTML = shell(t('camp_t'), `<div class="stack-lg">
+    <div class="card"><h3>${ic('plus',20)} ${t('camp_new')}</h3><div class="stack">
+      <div class="grid g2"><label class="field"><span>${t('camp_pkg')}</span><select class="input" id="cpk">${C.packages.filter(p => ['expat_pre','housemaid','basic','annual'].includes(p.id)).map(p => `<option value="${p.id}">${esc(LN(p,'name'))} · ${omr(p.price)} ${t('omr')}</option>`).join('')}</select></label>
+        <label class="field"><span>${t('camp_date')}</span><input class="input" type="date" id="cdt" min="${min}" value="${min}"></label></div>
+      <div class="grid g2"><label class="field"><span>${t('wilayat')}</span><select class="input" id="cwl">${C.wilayats.map(w => `<option value="${esc(w)}">${esc(wN(w))}</option>`).join('')}</select></label>
+        <label class="field"><span>${t('camp_site')}</span><input class="input" id="cst" maxlength="200"></label></div>
+      <label class="field"><span>${t('camp_workers')}</span><textarea class="input ltr" id="cwk" rows="6" placeholder="Ram Kumar, P1234567, M, India&#10;Ali Khan, P7654321, M, Pakistan"></textarea><span class="hint">${t('camp_workers_p')}</span></label>
+      <div class="row wrap" style="gap:8px"><label class="btn soft sm" style="cursor:pointer">${ic('file',16)} ${t('camp_csv')}<input type="file" id="ccsv" accept=".csv,.txt,text/csv" hidden></label><span class="small b" id="ccount"></span></div>
+      <label class="check"><input type="checkbox" id="ccons"> ${t('camp_consent')}</label><div class="err" id="cerr"></div>
+      <button class="btn teal" id="csend">${ic('send',18)} ${t('camp_send')}</button></div></div>
+    ${list.length ? list.map(c => `<div class="card camp"><div class="row between wrap"><div><b class="ltr">${esc(c.code)}</b> · ${esc(LN(C.P[c.package_id] || {name_en:c.package_id, name_ar:c.package_id}, 'name'))}<div class="xs muted">${fmtDate(c.visit_date)} · ${esc(c.site)}${c.wilayat ? ' · ' + esc(wN(c.wilayat)) : ''}</div></div><span class="chip ${c.status === 'completed' ? 'teal' : c.status === 'cancelled' ? 'gray' : 'blue'}">${t(c.status === 'cancelled' ? 'cs2_cancelled' : 'cs_' + c.status)}</span></div>
+      <details style="margin-top:10px"><summary class="small b">${t('camp_n', { n: (c.workers || []).length })}</summary><div class="scroll-x"><table class="rtable small"><tbody>${(c.workers || []).map(w => `<tr><td>${esc(w.n)}</td><td class="ltr muted">•••${esc(w.id || '')}</td><td>${rchip(w.r)}</td></tr>`).join('')}</tbody></table></div></details></div>`).join('') : ''}
+  </div>`);
+  const upd = () => { const n = parseWorkers($('#cwk').value).length; $('#ccount').textContent = n ? t('camp_n', { n }) : ''; };
+  $('#cwk').oninput = upd;
+  $('#ccsv').onchange = e => { const f = e.target.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { $('#cwk').value = String(rd.result || ''); upd(); }; rd.readAsText(f); };
+  $('#csend').onclick = async () => { const workers = parseWorkers($('#cwk').value); if (!workers.length) { $('#cerr').textContent = t('camp_workers_p'); return; }
+    if (!$('#ccons').checked) { $('#cerr').textContent = t('e_NEED_CONSENT'); return; }
+    try { await busy($('#csend'), () => API.campCreate({ package_id: $('#cpk').value, visit_date: $('#cdt').value, wilayat: $('#cwl').value, site: $('#cst').value, consent: true, workers })); toast(t('camp_sent')); if (window.FX) FX.celebrate('small'); viewCamps(); } catch(e) { $('#cerr').textContent = errMsg(e); } };
+}
+
+/* ---------- admin: safety & privacy, coupons, camps ---------- */
+async function viewAdminSafety(){
+  loading(t('m_safety'));
+  const [sf, pv] = await Promise.all([API.adminSafety(), API.adminPrivacy()]); const ro = S.user.is_demo;
+  const reqKind = k => ({ export: t('pv_exp'), delete: t('pv_del'), correct: t('pv_fix') })[k] || k;
+  app.innerHTML = shell(t('m_safety'), `<div class="stack-lg">
+    <div class="card"><h3>🚨 ${t('adm_sos')}</h3>${sf.sos.length ? sf.sos.map(x => `<div class="vline ${x.resolved_at ? '' : 'sos-open'}"><div><b>${esc(x.who)}</b> <span class="chip gray">${t('r_' + x.role)}</span><div class="xs muted">${fmtDT(x.at)}${x.order ? ' · ' + esc(x.order) : ''}${x.note ? ' · ' + esc(x.note) : ''}</div>
+      <div class="row wrap" style="gap:6px;margin-top:6px">${x.lat ? `<a class="btn sm soft" target="_blank" rel="noopener" href="https://maps.google.com/?q=${x.lat},${x.lng}">${ic('pin',14)} Map</a>` : ''}${x.phone ? `<a class="btn sm soft ltr" href="tel:${esc(x.phone)}">${ic('phone',14)} ${esc(x.phone)}</a>` : ''}</div></div>
+      ${x.resolved_at ? `<span class="chip teal">${t('adm_resolve')}</span>` : `<button class="btn sm red" data-close="sos:${x.id}" ${ro ? 'disabled' : ''}>${t('adm_resolve')}</button>`}</div>`).join('') : `<p class="small muted" style="margin:0">${t('nothing')}</p>`}</div>
+    <div class="card"><h3>${ic('file',20)} ${t('adm_inc')}</h3>${sf.incidents.length ? sf.incidents.map(x => `<div class="vline"><div><b>${t('inc_' + x.kind)}</b> · ${esc(x.who)}<div class="xs muted">${fmtDT(x.at)}${x.order ? ' · ' + esc(x.order) : ''}</div><div class="small">${esc(x.note)}</div></div>${x.status === 'open' ? `<button class="btn sm ghost" data-close="incident:${x.id}" ${ro ? 'disabled' : ''}>${t('adm_close')}</button>` : `<span class="chip gray">${t('adm_close')}</span>`}</div>`).join('') : `<p class="small muted" style="margin:0">${t('nothing')}</p>`}</div>
+    <div class="card"><h3>${ic('shield',20)} ${t('adm_pv')}</h3>${pv.length ? pv.map(r => `<div class="vline"><div><b>${reqKind(r.kind)}</b> · ${esc(r.user)}<div class="xs muted">${fmtDT(r.created_at)}${r.note ? ' · ' + esc(r.note) : ''}${r.reply ? ' · ↳ ' + esc(r.reply) : ''}</div></div>${r.status === 'open' ? `<div class="row" style="gap:6px"><button class="btn sm" data-pv="${r.id}:done" ${ro ? 'disabled' : ''}>${t('adm_done')}</button><button class="btn sm ghost" data-pv="${r.id}:rejected" ${ro ? 'disabled' : ''}>${t('adm_reject')}</button></div>` : `<span class="chip gray">${esc(r.status)}</span>`}</div>`).join('') : `<p class="small muted" style="margin:0">${t('nothing')}</p>`}</div>
+  </div>`);
+  $$('[data-close]').forEach(b => b.onclick = async () => { const [k, id] = b.dataset.close.split(':'); try { await busy(b, () => API.adminSafetyClose(k, +id)); viewAdminSafety(); } catch(e) { toast(errMsg(e), true); } });
+  $$('[data-pv]').forEach(b => b.onclick = () => { const [id, st] = b.dataset.pv.split(':'); modal(`<h3>${t('adm_reply')}</h3><textarea class="input" id="pvr" rows="3"></textarea><button class="btn block" style="margin-top:10px" id="pvok">${t('send')}</button>`, (el, close) => {
+    $('#pvok', el).onclick = async () => { try { await busy($('#pvok', el), () => API.adminPrivacyDone(+id, st, $('#pvr', el).value)); close(); viewAdminSafety(); } catch(e) { toast(errMsg(e), true); } }; }); });
+}
+async function viewAdminCoupons(){
+  loading(t('m_coupons'));
+  const list = await API.adminCoupons(); const ro = S.user.is_demo;
+  app.innerHTML = shell(t('m_coupons'), `<div class="stack-lg">
+    <div class="card"><h3>${ic('plus',20)} ${t('adm_coupons')}</h3><div class="grid g3">
+      <label class="field"><span>${t('cp_code')}</span><input class="input ltr" id="kc" maxlength="20" style="text-transform:uppercase"></label>
+      <label class="field"><span>${t('cp_kind')}</span><select class="input" id="kk"><option value="pct">${t('cp_pct')}</option><option value="fixed">${t('cp_fixed')}</option></select></label>
+      <label class="field"><span>${t('cp_value')}</span><input class="input" id="kv" type="number" step="0.5" min="0.5"></label>
+      <label class="field"><span>${t('cp_max')}</span><input class="input" id="km" type="number" min="1"></label>
+      <label class="field"><span>${t('cp_min')}</span><input class="input" id="kn" type="number" step="0.5" min="0" value="0"></label>
+      <label class="field"><span>${t('cp_exp')}</span><input class="input" id="ke" type="date"></label></div>
+      <label class="check" style="margin-top:8px"><input type="checkbox" id="kf"> ${t('cp_first')}</label><div class="err" id="kerr"></div>
+      <button class="btn" style="margin-top:10px" id="ksave" ${ro ? 'disabled' : ''}>${t('cp_save')}</button></div>
+    <div class="card"><div class="scroll-x"><table class="rtable"><thead><tr><th>${t('cp_code')}</th><th>${t('cp_value')}</th><th>${t('cp_min')}</th><th>${t('cp_exp')}</th><th></th></tr></thead><tbody>${list.map(c => `<tr><td class="ltr b">${esc(c.code)}${c.first_order ? ` <span class="chip teal">${t('cp_first')}</span>` : ''}</td><td>${c.kind === 'pct' ? esc(c.value) + '%' : omr(c.value) + ' ' + t('omr')}</td><td>${omr(c.min_sub)}</td><td>${c.expires_on ? fmtDate(c.expires_on) : '—'}</td><td class="xs muted">${t('cp_used', { a: c.used, b: c.max_uses || '∞' })}</td></tr>`).join('')}</tbody></table></div></div>
+  </div>`);
+  $('#ksave').onclick = async () => { try { await busy($('#ksave'), () => API.adminCouponSave({ code: $('#kc').value, kind: $('#kk').value, value: $('#kv').value, max_uses: $('#km').value, min_sub: $('#kn').value, expires_on: $('#ke').value, first_order: $('#kf').checked, active: true })); viewAdminCoupons(); } catch(e) { $('#kerr').textContent = errMsg(e); } };
+}
+async function viewAdminCamps(){
+  loading(t('m_camps'));
+  const [list] = await Promise.all([API.adminCamps(), loadCatalog()]); const C = S.catalog; const ro = S.user.is_demo;
+  app.innerHTML = shell(t('m_camps'), `<div class="stack-lg">${list.length ? list.map(c => `<div class="card camp" data-camp="${c.id}"><div class="row between wrap"><div><b class="ltr">${esc(c.code)}</b> · ${esc(c.company)}<div class="xs muted">${esc(LN(C.P[c.package_id] || {name_en:c.package_id, name_ar:c.package_id}, 'name'))} · ${fmtDate(c.visit_date)} · ${esc(c.site)} · ${t('camp_n', { n: c.workers_n })}</div></div>
+      <select class="input sm" data-st style="width:auto">${['requested','scheduled','visited','completed','cancelled'].map(x => `<option value="${x}" ${c.status === x ? 'selected' : ''}>${t(x === 'cancelled' ? 'cs2_cancelled' : 'cs_' + x)}</option>`).join('')}</select></div>
+      <details style="margin-top:10px"><summary class="small b">${t('camp_workers')}</summary><div class="scroll-x"><table class="rtable small"><tbody>${(c.workers || []).map((w, i) => `<tr><td>${esc(w.n)}</td><td class="ltr muted">${esc(w.id || '')}</td><td>${esc(w.nat || '')}</td><td><select class="input sm" data-r="${i}">${['','fit','unfit','retest'].map(r => `<option value="${r}" ${(c.results || {})[i] === r ? 'selected' : ''}>${r ? t('r_' + r) : '—'}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table></div></details>
+      <button class="btn sm" style="margin-top:10px" data-save ${ro ? 'disabled' : ''}>${t('confirm')}</button></div>`).join('') : emptyBox(t('nothing'))}</div>`);
+  $$('[data-camp]').forEach(card => { const b = $('[data-save]', card); if (b) b.onclick = async () => { const results = {}; $$('[data-r]', card).forEach(s => { if (s.value) results[s.dataset.r] = s.value; });
+    try { await busy(b, () => API.campUpdate(card.dataset.camp, { status: $('[data-st]', card).value, results })); toast(t('done')); viewAdminCamps(); } catch(e) { toast(errMsg(e), true); } }; });
+}
+/* staff accounts sign out after 30 minutes without use (privacy of patient data on shared devices) */
+let IDLE_T = null, IDLE_AT = 0;
+function armIdle(){ const now = Date.now(); if (now - IDLE_AT < 20000) return; IDLE_AT = now; clearTimeout(IDLE_T);
+  if (S.user && !['patient','company'].includes(S.user.role)) IDLE_T = setTimeout(() => { if (S.user) { toast(t('idle_out')); doLogout(); } }, 30 * 60 * 1000); }
+['pointerdown','keydown','touchstart','scroll'].forEach(ev => addEventListener(ev, armIdle, { passive: true }));
 
 async function boot(){
   setLang(S.lang);

@@ -65,6 +65,8 @@ const P = {
   spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/>',
   copy:'<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
   menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
+  moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
   steth:'<path d="M6 3H5v5a5 5 0 0 0 10 0V3h-1"/><path d="M10 13v2a5 5 0 0 0 10 0v-2"/><circle cx="20" cy="11" r="2"/>',
   hosp:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 7v6M9 10h6M10 21v-4h4v4"/>',
   gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4-5"/><circle cx="12" cy="17" r="1.3"/>',
@@ -171,7 +173,7 @@ const hero = `<svg viewBox="0 0 620 540" style="direction:ltr" role="img" aria-l
 <g transform="translate(470 360)" filter="url(#hsh)"><rect width="120" height="58" rx="16" fill="#0b2350"/><text x="16" y="25" font-family="Inter,Arial" font-size="9" fill="#9fb6e6">Sample box</text><text x="16" y="44" font-family="Inter,Arial" font-size="15" font-weight="800" fill="#fff">4.2 °C</text><circle cx="98" cy="30" r="9" fill="#0fae9b"/></g>
 </svg>`;
 
-const cats = { premarital:['ring','#db2777','#fdeaf3'], dental:['tooth','#0ea5e9','#e0f4fd'], dna:['dna','#7a5af8','#efeaff'], vitamins:['sun','#f2a516','#fff4dc'], blood:['drop','#e2474f','#fdecec'], diabetes:['glucose','#7a5af8','#efeaff'], heart:['heart','#e8466f','#fdeaf0'], thyroid:['butterfly','#0fae9b','#e3f7f4'], organs:['organs','#1257d6','#eaf2ff'], packages:['box','#1257d6','#eaf2ff'], vitals:['gauge','#0fae9b','#e3f7f4'], kids:['kid','#f2a516','#fff4dc'], men:['male','#1257d6','#eaf2ff'] };
+const cats = { premarital:['ring','#db2777','#fdeaf3'], dental:['tooth','#0ea5e9','#e0f4fd'], dna:['dna','#7a5af8','#efeaff'], vitamins:['sun','#f2a516','#fff4dc'], blood:['drop','#e2474f','#fdecec'], diabetes:['glucose','#7a5af8','#efeaff'], heart:['heart','#e8466f','#fdeaf0'], thyroid:['butterfly','#0fae9b','#e3f7f4'], organs:['organs','#1257d6','#eaf2ff'], packages:['box','#1257d6','#eaf2ff'], vitals:['gauge','#0fae9b','#e3f7f4'], kids:['kid','#f2a516','#fff4dc'], men:['male','#1257d6','#eaf2ff'] , selfkit:['box','#0fae9b','#e3f7f4'], expat:['building','#7c3aed','#f1eaff']};
 function catIcon(c, size){ const x = cats[c]||cats.organs; return `<span class="ti" style="background:${x[2]};color:${x[1]}">${icon(x[0], size||26, 2)}</span>`; }
 
 const roleArt = {
