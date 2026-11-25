@@ -1835,7 +1835,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 35;
+const APP_V = 36;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -2150,7 +2150,7 @@ function heroSlides(){
 }
 function heroHtml(compact){
   const sl = heroSlides(); const D = S.lang === 'ar' ? 'r' : 'd'; /* desktop pictures: 'r' has the scene on the left for Arabic */
-  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=35" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=35" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=35"><img ${a}src="img/hero/h${n}${D}.jpg?v=35" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=36" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=36" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=36"><img ${a}src="img/hero/h${n}${D}.jpg?v=36" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
     <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
       <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
     <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
@@ -2360,10 +2360,10 @@ Object.assign(I18N.ar, { nw34a:'حماية أقوى لبياناتك', nw34ad:'�
   nw32d:'أسرع وأسلس', nw32dd:'فحصنا كل زر على الجوال والكمبيوتر، وصلّحنا زر الطبيب بعد النتائج وقائمة المزيد، وما عادت صفحة بطيئة تأخّر اللي بعدها.' });
 /* v32: three films, each with one job: the idea (story), how to sign up and use the app (how, real screens), a day with iLab@home (film) */
 const VIDS = { story: ['media/iLabAtHome_Explainer.mp4', 'media/explainer_poster.jpg', 'new_vid3', 'new_sub3', '1:41'], how: ['media/iLabAtHome_Guide.mp4', 'media/guide_poster.jpg', 'vid_how', 'vid_how_s', '1:28'], film: ['media/iLabAtHome_Film.mp4', 'media/film_poster.jpg', 'vid_film', 'vid_film_s', '2:11'] };
-Object.assign(I18N.en, { vid_how:'How to sign up and use the app', vid_how_s:'Real app screens, step by step · English voice, Arabic subtitles', vid_film:'A day with iLab@home (film)', vid_film_s:'From the first light to the report: male and female nurses, the lab, a dentist and a doctor online · Arabic subtitles',
-  new_vid3:'The idea of iLab@home, in 100 seconds' });
-Object.assign(I18N.ar, { vid_how:'طريقة التسجيل واستخدام البرنامج', vid_how_s:'شاشات البرنامج الحقيقية خطوة بخطوة · صوت إنجليزي مع ترجمة عربية', vid_film:'يوم مع آي لاب@هوم (فلم)', vid_film_s:'من أول الصبح لين التقرير: الممرض والممرضة والمختبر وطبيبة الأسنان والطبيب أونلاين · ترجمة عربية',
-  new_vid3:'فكرة آي لاب@هوم في 100 ثانية' });
+Object.assign(I18N.en, { vid_how:'From sign-up to your report', vid_how_s:'Real app screens, step by step · English voice, Arabic subtitles', vid_film:'Good morning, Sharqiyah', vid_film_s:'From the first light to the report: male and female nurses, the lab, a dentist and a doctor online · Arabic subtitles',
+  new_vid3:'iLab@home in 100 seconds' });
+Object.assign(I18N.ar, { vid_how:'من التسجيل لين التقرير', vid_how_s:'شاشات البرنامج الحقيقية خطوة بخطوة · صوت إنجليزي مع ترجمة عربية', vid_film:'صباح الخير يا الشرقية', vid_film_s:'من أول الصبح لين التقرير: الممرض والممرضة والمختبر وطبيبة الأسنان والطبيب أونلاين · ترجمة عربية',
+  new_vid3:'آي لاب@هوم في 100 ثانية' });
 function vidCard(k){ const [src, poster, tt, st, dur] = VIDS[k]; return `<div class="card pad-lg vid-card"><div class="row between wrap" style="gap:8px;margin-bottom:12px"><div><h3 style="margin:0">${t(tt)}</h3><div class="small muted">${t(st)}</div></div><span class="chip teal">${ic('play',14)} ${dur}</span></div>
   <video class="vid" controls playsinline preload="none" poster="${poster}"><source src="${src}" type="video/mp4"></video></div>`; }
 function newBlock(short){
@@ -2507,7 +2507,7 @@ Object.assign(I18N.en, { specialty:'Specialty', sp_family:'Family medicine', sp_
 Object.assign(I18N.ar, { specialty:'التخصص', sp_family:'طب الأسرة', sp_internal:'الطب الباطني', sp_peds:'طب الأطفال', sp_dent:'طب الأسنان',
   cs_vcall:'مكالمة فيديو', cs_acall:'مكالمة صوتية', cs_call_tip:'المكالمة تفتح في صفحة جديدة (Jitsi Meet). اسمح بالكاميرا أو المايك لما يطلب.', cs_chat_t:'الرسائل', cs_chat_empty:'ما في رسائل إلى الآن. اكتب لطبيبك هنا.', cs_chat_ph:'اكتب رسالة…', send:'إرسال' });
 Object.assign(I18N.en, {
-  new_vid3:'iLab@home in 100 seconds (new)', new_sub3:'Everything new: home visits, self-test kits, online doctor, loyalty card and more · English voice, Arabic subtitles',
+  new_vid3:'iLab@home in 100 seconds', new_sub3:'The whole idea: home visits, self-test kits, online doctor, loyalty card and more · English voice, Arabic subtitles',
   mg_services:'Services', mg_account:'My account', m_more:'More', m_selfkit:'Self-test kits', m_expat:'Workers & companies', m_loyalty:'Loyalty card', m_privacy:'Privacy & my data', m_sources:'Sources & references', m_camps:'Camp visits', m_safety:'Safety & privacy', m_coupons:'Offers & coupons',
   cat_selfkit:'Self-kits (no nurse)', cat_expat:'Workers', col_self:'No nurse needed', col_device:'Measured at home', col_nurse:'Nurse visit',
   kit_fee:'Kit delivery & pickup', kit_mode_t:'No nurse needed for this order', kit_mode_p:'A courier brings the kit, you take the sample yourself with the simple steps, and the courier takes it back to the lab.', b2_kit:'Kit',
@@ -2533,7 +2533,7 @@ Object.assign(I18N.en, {
   hm_loy:'Loyalty card', hm_selfkit_t:'New: self-test kits', hm_selfkit_p:'Urine, stool and swabs without a nurse visit. Delivery from {x} OMR.', hm_expat_t:'Workers & domestic staff', hm_expat_p:'Pre-checks and yearly checks at home or at the camp.'
 });
 Object.assign(I18N.ar, {
-  new_vid3:'آي لاب@هوم في 100 ثانية (جديد)', new_sub3:'كل الجديد: الزيارة المنزلية، عُدد الفحص الذاتي، الطبيب أونلاين، بطاقة الولاء وأكثر · صوت إنجليزي مع ترجمة عربية',
+  new_vid3:'آي لاب@هوم في 100 ثانية', new_sub3:'الفكرة كاملة: الزيارة المنزلية، عُدد الفحص الذاتي، الطبيب أونلاين، بطاقة الولاء وأكثر · صوت إنجليزي مع ترجمة عربية',
   mg_services:'الخدمات', mg_account:'حسابي', m_more:'المزيد', m_selfkit:'عُدد الفحص الذاتي', m_expat:'العمالة والشركات', m_loyalty:'بطاقة الولاء', m_privacy:'الخصوصية وبياناتي', m_sources:'المصادر والمراجع', m_camps:'زيارات سكن العمال', m_safety:'السلامة والخصوصية', m_coupons:'العروض والكوبونات',
   cat_selfkit:'فحوصات ذاتية (بدون ممرض)', cat_expat:'العمالة', col_self:'بدون ممرض', col_device:'قياس في البيت', col_nurse:'زيارة ممرض',
   kit_fee:'توصيل واستلام العدة', kit_mode_t:'هذا الطلب ما يحتاج ممرض', kit_mode_p:'المندوب يوصل لك العدة، تاخذ العينة بنفسك بخطوات بسيطة، والمندوب يرجع ياخذها للمختبر.', b2_kit:'العدة',
