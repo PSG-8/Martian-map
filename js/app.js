@@ -185,7 +185,7 @@ async function viewHow(){
 function footer(){
   return `<footer class="site"><div class="wrap-w"><div class="row wrap between" style="gap:20px;align-items:flex-start">
     <div style="max-width:520px"><div class="brand">${brandInner()}</div><p class="small" style="margin-top:12px">${t('foot_note')}</p><p class="xs" style="opacity:.75">${t('foot_team')}</p></div>
-    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/dental">${t('m_dental')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a><a href="#/expat">${t('m_expat')}</a><a href="#/sources">${t('m_sources')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/doctor">${t('r_doctor')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
+    <div class="stack small"><a href="#/tests">${t('nav_tests')}</a><a href="#/consult">${t('m_consult')}</a><a href="#/dental">${t('m_dental')}</a><a href="#/support">${t('m_support')}</a><a href="#/about">${t('m_about')}</a><a href="#/expat">${t('m_expat')}</a><a href="#/guarantee">${t('m_guarantee')}</a><a href="#/sources">${t('m_sources')}</a></div><div class="stack small ft-ct"><b>${t('m_contact')}</b><a href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener" class="ltr">WhatsApp ${CONTACT.phone}</a><a href="tel:${CONTACT.tel}" class="ltr">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}" class="ltr">${CONTACT.email}</a><a href="${CONTACT.ig}" target="_blank" rel="noopener" class="ltr">Instagram ${CONTACT.igh}</a></div><div class="stack small"><a href="#/install">${t('m_install')}</a><a href="#/register/nurse">${t('r_nurse')}</a><a href="#/register/doctor">${t('r_doctor')}</a><a href="#/register/lab">${t('r_lab')}</a><a href="#/register/company">${t('r_company')}</a></div></div>
     <p class="xs" style="opacity:.6;margin-top:24px">© 2026 iLab@home · Oman</p></div></footer>`;
 }
 /* map library: loaded only when a screen shows a map (it used to load on every page) */
@@ -212,10 +212,10 @@ async function viewTestsPublic(){
 
 /* ---------- auth ---------- */
 function authShell(inner){
-  return `<div class="auth"><div class="side"><a href="#/" class="brand on-dark">${brandInner()}</a>
+  return `<div class="auth"><div class="side"><a href="#/" class="brand on-dark brand-anim">${A.logo}<span class="bw">${wmAnim('big')}</span></a>
     <div><h2>${t('hero_t1')} ${t('hero_t2')}</h2><p style="opacity:.85">${t('hero_p')}</p></div>
     <div style="max-width:420px;opacity:.95">${A.welcomeArt}</div></div>
-    <div class="main"><div class="box"><div class="row between" style="margin-bottom:14px"><a href="#/" class="brand">${brandInner()}</a><button class="lang" data-lang>${t('lang')}</button></div>${vanStrip()}${inner}</div></div></div>`;
+    <div class="main"><div class="box"><div class="row between" style="margin-bottom:14px"><a href="#/" class="brand brand-anim">${A.logo}<span class="bw">${wmAnim()}</span></a><button class="lang" data-lang>${t('lang')}</button></div>${vanStrip()}${inner}</div></div></div>`;
 }
 function pwField(name, label, hint){
   return `<label class="field"><span>${label}</span><div class="pw"><input class="input" type="password" name="${name}" autocomplete="${name === 'password' ? 'current-password' : 'new-password'}" required><button type="button" class="eye" data-eye aria-label="${t('show')}">${ic('eye',20)}</button></div>${hint ? `<div class="meter"><i></i></div><div class="hint">${hint}</div>` : ''}</label>`;
@@ -241,7 +241,7 @@ function viewLogin(){
     <div class="demo-grid">${demos.map(([r, e, sub]) => `<button type="button" data-demo="${e}">${A.roleIcon(r === 'fleet' ? 'courier' : r, 34)}<span>${t('r_'+r)}${sub ? `<small>${esc(sub)}</small>` : ''}</span></button>`).join('')}</div></div>`);
   bindPw(app);
   $('#lf').onsubmit = async e => { e.preventDefault(); const f = e.target; $('#le').textContent = '';
-    try { const r = await busy($('button.btn', f), () => API.login(f.login.value, f.password.value)); afterLogin(r); } catch(err) { $('#le').textContent = errMsg(err); } };
+    try { const r = await busy($('button.btn', f), () => API.login(f.login.value, f.password.value)); afterLogin(r); } catch(err) { $('#le').textContent = errMsg(err); const fl = $('a[href="#/forgot"]', f); if (fl) { fl.classList.remove('nudge'); void fl.offsetWidth; fl.classList.add('nudge'); fl.title = t('th_err'); } } };
   $$('[data-demo]').forEach(b => b.onclick = async () => { try { const r = await busy(b, () => API.login(b.dataset.demo, 'Demo@2026')); afterLogin(r); } catch(e) {} });
   mountGoogle();
 }
@@ -445,7 +445,7 @@ async function viewBook(){
       <label class="field"><span>${t('address')}</span><textarea class="input" id="ba" rows="2" placeholder="${t('address_ph')}">${esc(b.address)}</textarea></label>
       <label class="field"><span>${t('notes')}</span><input class="input" id="bn" value="${esc(b.notes)}" placeholder="${t('notes_ph')}"></label></div>`;
   } else if (b.step === 3) {
-    body = `<div class="card stack"><h3>${t('nurse_t')}</h3><p class="muted small" style="margin:0">${t('nurse_p',{w:esc(wN(b.wilayat)), g:t(g === 'female' ? 'g_female' : 'g_male')})}</p>
+    body = `<div class="card stack"><h3>${t('nurse_t')}</h3><p class="muted small" style="margin:0">${t('nurse_p',{w:esc(wN(b.wilayat)), g:t(bkNurseGender(b) === 'female' ? 'g_female' : 'g_male')})}</p><div class="banner blue small" style="margin:0">${ic('shield',18)}<span>${t(bkChild(b) ? 'nurse_rule_child' : 'nurse_rule')}</span></div>
       <button type="button" class="ncard ${!b.nurse ? 'on' : ''}" data-nurse=""><span class="avatar" style="background:var(--teal)">${ic('users',20)}</span><span class="grow" style="text-align:start"><b>${t('any_nurse')}</b><span class="xs muted" style="display:block">${t('any_nurse_d')}</span></span><span class="radio"></span></button>
       <div id="nlist" class="stack"><div class="skel" style="height:90px"></div></div></div>`;
   } else if (b.step === 4) {
@@ -473,7 +473,7 @@ async function viewBook(){
       ${b.coupon ? `<div class="small" style="color:var(--teal);font-weight:600">${ic('check',14)} ${t('coupon_ok',{x:omr(dCoupon)})}</div>` : ''}
       <div class="paym">${[['card','card','pay_card'],['applepay','phone','pay_apple']].map(([v, i, k]) => `<label class="${b.pay === v ? 'on' : ''}"><input type="radio" name="pay" value="${v}" ${b.pay === v ? 'checked' : ''}> ${ic(i)} <span class="grow b">${t(k)}</span></label>`).join('')}</div>
       ${b.pay === 'card' ? `<div class="grid g3"><label class="field" style="grid-column:1/-1"><span>${t('card_no')}</span><input class="input ltr" id="cn" inputmode="numeric" maxlength="23" placeholder="4242 4242 4242 4242" autocomplete="cc-number" style="width:100%"></label><label class="field"><span>${t('exp')}</span><input class="input ltr" id="ce" inputmode="numeric" maxlength="5" placeholder="12/28" autocomplete="cc-exp"></label><label class="field"><span>${t('cvv')}</span><input class="input ltr" id="cv" inputmode="numeric" maxlength="4" placeholder="123" autocomplete="cc-csc"></label></div>` : ''}
-      <div class="banner blue small">${ic('shield',20)}<span>${t('epay_only')} ${t('test_mode')}</span></div>`}</div>`;
+      <div class="banner blue small">${ic('shield',20)}<span>${t('epay_only')} ${t('test_mode')}</span></div>`}<p class="xs muted" style="margin:8px 0 0"><a class="b" href="#/guarantee">${t('guar_book')}</a></p></div>`;
   }
   const next = b.step < 5 ? `<button class="btn" id="nx">${t('next')} ${'<span class="flip">'+ic('arrow',18)+'</span>'}</button>` : `<button class="btn teal" id="pay">${b.program ? t('confirm_book') : t('confirm_pay',{x:omr(total)})}</button>`;
   app.innerHTML = shell(t('q_book'), `${head}<div class="grid" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px" id="bkg">
@@ -486,7 +486,7 @@ async function viewBook(){
   $$('[data-slot]').forEach(x => x.onclick = () => { if (x.classList.contains('locked')) { err(t('fast_locked',{t:String(C.fasting_last_slot || '10:00').replace(/"/g, '')})); x.classList.remove('shake'); void x.offsetWidth; x.classList.add('shake'); const fb = $('#fastb'); if (fb) { fb.classList.remove('flash'); void fb.offsetWidth; fb.classList.add('flash'); } return; } b.time = x.dataset.slot; viewBook(); });
   $$('input[name=pay]').forEach(x => x.onchange = () => { b.pay = x.value; viewBook(); });
   if (b.step === 2) bookMap(b);
-  if (b.step === 3) API.nursesToday(b.wilayat, g).then(list => { const el = $('#nlist'); if (!el) return;
+  if (b.step === 3) API.nursesToday(b.wilayat, bkNurseGender(b)).then(list => { const el = $('#nlist'); if (!el) return;
       el.innerHTML = list.length ? list.map(n => nurseCardHtml(n, b.nurse && b.nurse.id === n.id)).join('') : `<div class="banner amber small">${ic('clock',20)}<span>${t('no_nurses')}</span></div>`;
       bindNurses(list); }).catch(e => { $('#nlist').innerHTML = `<div class="err">${errMsg(e)}</div>`; });
   function bindNurses(list){ $$('[data-np]').forEach(x => x.onclick = e => { e.stopPropagation(); const n = list.find(y => y.id === x.dataset.np); if (n) partyModal('nurse', { nurse: n }); }); $$('[data-nurse]').forEach(x => x.onclick = () => { const id = x.dataset.nurse; b.nurse = id ? { id, name: (list.find(n => n.id === id) || {}).name } : null; $$('[data-nurse]').forEach(y => y.classList.toggle('on', y === x)); }); }
@@ -637,7 +637,7 @@ function chainCard(o){
   const first = sc.find(x => x.step === 'collected'); const age = first ? Date.now() - new Date(first.at) : 0; const live = ['collected','in_transit'].includes(o.status);
   const tchip = v => v == null ? '' : `<span class="chip ${v >= 2 && v <= 8 ? 'teal' : 'red'} num">${ic('thermo',13)} ${esc(v)} °C</span>`;
   return `<div class="card chain"><div class="row between wrap"><h3 style="margin:0">${ic('thermo',20)} ${t('chain_t')}</h3>${first && live ? `<span class="chip ${age > 4 * 3600e3 ? 'red' : 'gray'}">${ic('clock',13)} ${t('chain_age',{d:durTxt(age)})}</span>` : ''}</div>
-    <p class="xs muted" style="margin:6px 0 10px">${t('chain_p')}</p>
+    <p class="xs muted" style="margin:6px 0 10px">${t('chain_p')} <a class="b" href="#/guarantee">${t('m_guarantee')}</a></p>
     ${first && live && age > 4 * 3600e3 ? `<div class="banner red small">${ic('clock',18)}<span>${t('chain_old')}</span></div>` : ''}
     <ol class="chain-l">${sc.map(x => `<li><span class="cd">${ic(STEP_ICON2[x.step] || 'check',15,2.2)}</span><div class="grow"><b>${t('step_' + x.step)}</b><div class="xs muted">${fmtDT(x.at)}</div></div>${tchip(x.temp)}</li>`).join('')}</ol>
     ${canLog ? `<button class="btn soft sm" data-act="chain" style="margin-top:10px">${ic('thermo',16)} ${t('chain_check')}</button>` : ''}</div>`;
@@ -1217,6 +1217,7 @@ function menuItems(){
   co += it('how', 'globe', t('nav_how')); co += it('new', 'play', t('m_new'));
   co += it('about', 'users', t('m_about') + ' · ' + t('m_team')); co += it('contact', 'phone', t('m_contact'));
   co += it('support', 'chat', t('m_support')); co += it('install', 'download', t('m_install'));
+  co += it('guarantee', 'shield', t('m_guarantee'));
   co += it('sources', 'file', t('m_sources'));
   if (canBiz()) co += it('business', 'chart', t('m_business'));
   if (!u) co += it('register?partner=1', 'building', t('m_join'));
@@ -1336,7 +1337,13 @@ async function viewCart(){
   $$('[data-rm]').forEach(x => x.onclick = () => { const it = c.items[+x.dataset.rm]; toggleCart(it.type, it.id); viewCart(); });
 }
 
+Object.assign(I18N.en, { nurse_rule:'Our rule: a male nurse visits men, and a female nurse visits women and children.', nurse_rule_child:'Children under 12 are always visited by a female nurse.' });
+Object.assign(I18N.ar, { nurse_rule:'قاعدتنا: الممرض يزور الرجال، والممرضة تزور النساء والأطفال.', nurse_rule_child:'الأطفال تحت 12 سنة تزورهم ممرضة دائماً.' });
 function bkGender(b){ return b.who === 'family' ? b.person.gender : ((S.user.meta || {}).gender || 'male'); }
+/* v32 rule (owner): a male nurse visits men; a female nurse visits women and children under 12 */
+function ageOf(dob){ if (!dob) return null; const d = new Date(dob); if (isNaN(d)) return null; const n = new Date(); let a = n.getFullYear() - d.getFullYear(); if (n.getMonth() < d.getMonth() || (n.getMonth() === d.getMonth() && n.getDate() < d.getDate())) a--; return a; }
+function bkChild(b){ const a = ageOf(b.who === 'family' ? b.person.dob : (S.user.meta || {}).dob); return a != null && a < 12; }
+function bkNurseGender(b){ return bkChild(b) ? 'female' : bkGender(b); }
 
 function nearestWilayat(lat, lng){ let best = null, bd = 1e9; for (const [w, ll] of Object.entries(WILAYAT_LL)) { const d = Math.hypot((ll[0]-lat) * 111, (ll[1]-lng) * 102); if (d < bd) { bd = d; best = w; } } return { w: best, km: bd }; }
 
@@ -1672,6 +1679,7 @@ function bindGlobal(){
   $$('[data-logout]').forEach(b => b.onclick = doLogout);
   $$('[data-goback]').forEach(b => b.onclick = () => history.length > 1 ? history.back() : go('app'));
   $$('[data-menu]').forEach(b => b.onclick = e => { e.preventDefault(); openMenu(b); });
+  if ($('.van-strip.v32')) bindVan();
   /* v32: "Talk to a doctor" under a report / finished order (it had no handler before) */
   $$('[data-cspost]').forEach(b => b.onclick = e => { e.preventDefault(); csGoBook('post', b.dataset.cspost); });
   bindGo();
@@ -1707,6 +1715,7 @@ async function renderNow(){
     else if (seg[0] === 'new') await viewNew();
     else if (seg[0] === 'consult') await viewConsultPublic(false);
     else if (seg[0] === 'sources') await viewSources();
+    else if (seg[0] === 'guarantee') viewGuarantee();
     else if (seg[0] === 'expat') await viewExpat();
     else if (seg[0] === 'r' && seg[1]) await viewShared(seg[1]);
     else if (seg[0] === 'dental') await viewConsultPublic(true);
@@ -1826,7 +1835,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 32;
+const APP_V = 33;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -2009,14 +2018,15 @@ async function viewDoctorHome(){
 
 /* --- forgot / reset password --- */
 function viewForgot(){
-  app.innerHTML = authShell(`<h1>${t('forgot_t')}</h1><p class="muted">${t('forgot_p')}</p>
+  app.innerHTML = authShell(`${thinker()}<h1>${t('forgot_t')}</h1><p class="muted">${t('forgot_p')}</p>
     <form id="ff" class="stack" style="margin-top:18px"><label class="field"><span>${t('email_or_phone')}</span><input class="input ltr" name="login" autocomplete="username" autocapitalize="off" required placeholder="name@email.com · 9XXXXXXX"></label><div class="err" id="fe"></div><button class="btn block">${t('forgot_send')}</button></form>
     <div id="fok"></div><p class="center muted" style="margin:16px 0"><a href="#/login" class="b">${t('login')}</a></p>`);
+  const TH = bindThinker($('#ff'));
   $('#ff').onsubmit = async e => { e.preventDefault(); const f = e.target; $('#fe').textContent = '';
-    try { await busy($('button', f), () => API.resetRequest(f.login.value.trim())); f.style.display = 'none'; $('#fok').innerHTML = `<div class="banner teal">${ic('mail',22)}<span>${t('forgot_ok')}</span></div>`; } catch(err) { $('#fe').textContent = errMsg(err); } };
+    try { await busy($('button', f), () => API.resetRequest(f.login.value.trim())); f.style.display = 'none'; if (TH) TH.happy(); $('#fok').innerHTML = `<div class="banner teal">${ic('mail',22)}<span>${t('forgot_ok')}</span></div>`; } catch(err) { $('#fe').textContent = errMsg(err); const th = $('#thk'); if (th) { th.classList.remove('th-no'); void th.offsetWidth; th.classList.add('th-no'); } } };
 }
 function viewReset(code){
-  app.innerHTML = authShell(`<h1>${t('reset_t')}</h1><form id="rf" class="stack" style="margin-top:18px">${pwField('new1', t('new_pw'), t('pass_rule'))}<div class="err" id="re"></div><button class="btn block">${t('reset_save')}</button></form>
+  app.innerHTML = authShell(`${thinker()}<h1>${t('reset_t')}</h1><form id="rf" class="stack" style="margin-top:18px">${pwField('new1', t('new_pw'), t('pass_rule'))}<div class="err" id="re"></div><button class="btn block">${t('reset_save')}</button></form>
     <p class="center muted" style="margin:16px 0"><a href="#/forgot" class="b">${t('forgot')}</a></p>`);
   bindPw(app);
   $('#rf').onsubmit = async e => { e.preventDefault(); const f = e.target; $('#re').textContent = '';
@@ -2140,7 +2150,7 @@ function heroSlides(){
 }
 function heroHtml(compact){
   const sl = heroSlides(); const D = S.lang === 'ar' ? 'r' : 'd'; /* desktop pictures: 'r' has the scene on the left for Arabic */
-  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=32" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=32" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=32"><img ${a}src="img/hero/h${n}${D}.jpg?v=32" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=33" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=33" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=33"><img ${a}src="img/hero/h${n}${D}.jpg?v=33" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
     <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
       <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
     <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
@@ -2191,13 +2201,13 @@ function quickTiles(){
 /* ---------- v32 home page: order journey, new-feature cards with small drawings, questions, closing call ---------- */
 Object.assign(I18N.en, {
   jr_e:'Your order, step by step', jr_t:'From booking to your report', jr_p:'Every step is tracked in the app, so you always know where your sample is.',
-  jr1:'Book on your phone', jr1d:'Pick tests, a time and your location.', jr2:'Nurse or kit at your door', jr2d:'A licensed nurse takes the sample, or a courier brings a self-kit.',
+  jr1:'Book on your phone', jr1d:'Pick tests, a time and your location.', jr2:'Nurse or kit at your door', jr2d:'A licensed male nurse for men, a female nurse for women and children, or a courier with a self-kit.',
   jr3:'2–8 °C cold chain', jr3d:'Every hand-over is logged with time and temperature.', jr4:'Accredited lab', jr4d:'Tested in a partner lab and checked before release.', jr5:'Report on your phone', jr5d:'Clear results with advice and a PDF.',
   ft_e:'New at iLab@home', ft_t:'More ways to look after your health', ft_kit:'Self-collection kits', ft_kitd:'No nurse needed: a courier brings the kit and takes it back.', ft_loy:'Stamp card', ft_loyd:'Every 5th home visit is free, and friends get 1.000 OMR off.',
   ft_doc:'Doctor online', ft_docd:'Video or voice, plus messages after the call.', ft_co:'Companies & workers', ft_cod:'Site visits and a simple fit / follow-up list.',
   ft_prv:'Your privacy', ft_prvd:'See who opened your report and download your data.', ft_cold:'Logged cold chain', ft_coldd:'Time and temperature for every hand-over.',
   fq_e:'Questions', fq_t:'Good to know before you book',
-  fq1:'Who takes my sample?', fq1a:'A nurse licensed by the Ministry of Health. You see the nurse’s name and licence in the app before the visit.',
+  fq1:'Who takes my sample?', fq1a:'A nurse licensed by the Ministry of Health: a male nurse for men, a female nurse for women and children. You see the name and licence in the app before the visit.',
   fq2:'When do my results come?', fq2a:'Our target is within 48 hours for most tests; a few take longer. You get a notification as soon as the report is published.',
   fq3:'Do I need to fast?', fq3a:'Some tests, such as fasting sugar and cholesterol, need 8–12 hours without food (water is fine). Each test says if it needs fasting, and those visits are booked in the morning.',
   fq4:'What is a self-collection kit?', fq4a:'A kit for tests such as urine, stool, a flu/COVID swab or an HPV self-swab. A courier brings it for {f} OMR, you collect the sample in private and the courier takes it to the lab.',
@@ -2207,13 +2217,13 @@ Object.assign(I18N.en, {
   cta_t:'Ready when you are', cta_p:'Book in two minutes and we come to you.', cta_b:'Book a test', cta_w:'WhatsApp us' });
 Object.assign(I18N.ar, {
   jr_e:'طلبك خطوة بخطوة', jr_t:'من الحجز لين التقرير', jr_p:'كل خطوة تنسجّل في البرنامج، فتعرف دايماً وين عينتك.',
-  jr1:'احجز من جوالك', jr1d:'اختر الفحوصات والوقت وموقعك.', jr2:'ممرضة أو عُدّة عند بابك', jr2d:'ممرضة مرخّصة تسحب العينة، أو مندوب يوصل لك عُدّة ذاتية.',
+  jr1:'احجز من جوالك', jr1d:'اختر الفحوصات والوقت وموقعك.', jr2:'ممرض أو عُدّة عند بابك', jr2d:'ممرض مرخّص للرجال وممرضة مرخّصة للنساء والأطفال يسحبون العينة، أو مندوب يوصل لك عُدّة ذاتية.',
   jr3:'تبريد ٢–٨ °م', jr3d:'كل تسليم ينسجّل بالوقت والحرارة.', jr4:'مختبر معتمد', jr4d:'التحليل في مختبر شريك، ويتراجع قبل النشر.', jr5:'التقرير على جوالك', jr5d:'نتائج واضحة مع نصائح وملف PDF.',
   ft_e:'جديد آي لاب@هوم', ft_t:'طرق أكثر تهتم فيها بصحتك', ft_kit:'عُدد السحب الذاتي', ft_kitd:'بدون ممرض: المندوب يوصّل العُدّة ويرجّعها.', ft_loy:'بطاقة الأختام', ft_loyd:'كل زيارة خامسة مجاناً، وصديقك ياخذ خصم 1.000 ر.ع.',
   ft_doc:'طبيب أونلاين', ft_docd:'فيديو أو صوت، ورسائل بعد المكالمة.', ft_co:'الشركات والعمالة', ft_cod:'زيارات لموقع العمل وقائمة بسيطة: لائق أو متابعة.',
   ft_prv:'خصوصيتك', ft_prvd:'تشوف مين فتح تقريرك وتنزّل بياناتك.', ft_cold:'تبريد مسجّل', ft_coldd:'الوقت والحرارة لكل تسليم.',
   fq_e:'أسئلة', fq_t:'حلو تعرفها قبل الحجز',
-  fq1:'منو ياخذ العينة؟', fq1a:'ممرضة أو ممرض مرخّص من وزارة الصحة، وتشوف الاسم والترخيص في البرنامج قبل الزيارة.',
+  fq1:'منو ياخذ العينة؟', fq1a:'ممرض مرخّص من وزارة الصحة للرجال، وممرضة مرخّصة للنساء والأطفال، وتشوف الاسم والترخيص في البرنامج قبل الزيارة.',
   fq2:'متى توصل النتائج؟', fq2a:'هدفنا خلال 48 ساعة لأغلب الفحوصات، وبعضها ياخذ وقت أطول. يوصلك إشعار أول ما ينشر التقرير.',
   fq3:'لازم أصوم؟', fq3a:'بعض الفحوصات مثل السكر الصائم والدهون تحتاج صيام 8 إلى 12 ساعة (الماي مسموح). كل فحص مكتوب عنده إذا يحتاج صيام، ومواعيدها تكون الصبح.',
   fq4:'وش هي العُدّة الذاتية؟', fq4a:'عُدّة لفحوصات مثل البول والبراز ومسحة الإنفلونزا/كورونا ومسحة HPV الذاتية. يوصلها المندوب بـ {f} ر.ع، تاخذ العينة بخصوصية، والمندوب يوصلها للمختبر.',
@@ -2251,7 +2261,7 @@ function featBlock(){
 function faqBlock(){
   const f = omr((S.catalog && S.catalog.self_fee) || 2);
   return `<section class="hm-sec alt" id="faq"><div class="wrap-w"><div class="section-h"><span class="eyebrow">${t('fq_e')}</span><h2>${t('fq_t')}</h2></div>
-    <div class="faq">${[1, 2, 3, 4, 5, 6, 7].map(i => `<details class="fq"><summary><b>${t('fq' + i)}</b><span class="fq-i" aria-hidden="true">+</span></summary><p>${t('fq' + i + 'a', { f })}</p></details>`).join('')}</div></div></section>`;
+    <div class="faq">${[1, 2, 3, 4, 5, 6, 7, 8].map(i => `<details class="fq"><summary><b>${t('fq' + i)}</b><span class="fq-i" aria-hidden="true">+</span></summary><p>${t('fq' + i + 'a', { f })}${i === 8 ? ` <a class="b" href="#/guarantee">${t('m_guarantee')}</a>` : ''}</p></details>`).join('')}</div></div></section>`;
 }
 function ctaBlock(){
   return `<section class="hm-sec"><div class="wrap-w"><div class="cta-band hx-io"><div class="cta-txt"><h2>${t('cta_t')}</h2><p>${t('cta_p')}</p><div class="row wrap" style="gap:10px"><a class="btn white" href="#/${S.user ? 'app/tests' : 'register'}">${ic('flask',18)} ${t('cta_b')}</a><a class="btn ghost-w" href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener">${ic('chat',18)} ${t('cta_w')}</a></div></div>
@@ -2347,10 +2357,10 @@ Object.assign(I18N.ar, { nw32a:'تعرّف على نور، مرشدتك', nw32ad
   nw32c:'ثلاث أفلام جديدة', nw32cd:'فكرة آي لاب@هوم، وطريقة التسجيل واستخدام البرنامج، وفلم قصير: يوم مع آي لاب@هوم.',
   nw32d:'أسرع وأسلس', nw32dd:'فحصنا كل زر على الجوال والكمبيوتر، وصلّحنا زر الطبيب بعد النتائج وقائمة المزيد، وما عادت صفحة بطيئة تأخّر اللي بعدها.' });
 /* v32: three films, each with one job: the idea (story), how to sign up and use the app (how, real screens), a day with iLab@home (film) */
-const VIDS = { story: ['media/iLabAtHome_Explainer.mp4', 'media/explainer_poster.jpg', 'new_vid3', 'new_sub3', '1:41'], how: ['media/iLabAtHome_Guide.mp4', 'media/guide_poster.jpg', 'vid_how', 'vid_how_s', '1:28'], film: ['media/iLabAtHome_Film.mp4', 'media/film_poster.jpg', 'vid_film', 'vid_film_s', '1:53'] };
-Object.assign(I18N.en, { vid_how:'How to sign up and use the app', vid_how_s:'Real app screens, step by step · English voice, Arabic subtitles', vid_film:'A day with iLab@home (film)', vid_film_s:'From the first light to the report: nurse, lab, dentist and doctor online · Arabic subtitles',
+const VIDS = { story: ['media/iLabAtHome_Explainer.mp4', 'media/explainer_poster.jpg', 'new_vid3', 'new_sub3', '1:41'], how: ['media/iLabAtHome_Guide.mp4', 'media/guide_poster.jpg', 'vid_how', 'vid_how_s', '1:28'], film: ['media/iLabAtHome_Film.mp4', 'media/film_poster.jpg', 'vid_film', 'vid_film_s', '2:09'] };
+Object.assign(I18N.en, { vid_how:'How to sign up and use the app', vid_how_s:'Real app screens, step by step · English voice, Arabic subtitles', vid_film:'A day with iLab@home (film)', vid_film_s:'From the first light to the report: male and female nurses, the lab, a dentist and a doctor online · Arabic subtitles',
   new_vid3:'The idea of iLab@home, in 100 seconds' });
-Object.assign(I18N.ar, { vid_how:'طريقة التسجيل واستخدام البرنامج', vid_how_s:'شاشات البرنامج الحقيقية خطوة بخطوة · صوت إنجليزي مع ترجمة عربية', vid_film:'يوم مع آي لاب@هوم (فلم)', vid_film_s:'من أول الصبح لين التقرير: الممرضة والمختبر وطبيبة الأسنان والطبيب أونلاين · ترجمة عربية',
+Object.assign(I18N.ar, { vid_how:'طريقة التسجيل واستخدام البرنامج', vid_how_s:'شاشات البرنامج الحقيقية خطوة بخطوة · صوت إنجليزي مع ترجمة عربية', vid_film:'يوم مع آي لاب@هوم (فلم)', vid_film_s:'من أول الصبح لين التقرير: الممرض والممرضة والمختبر وطبيبة الأسنان والطبيب أونلاين · ترجمة عربية',
   new_vid3:'فكرة آي لاب@هوم في 100 ثانية' });
 function vidCard(k){ const [src, poster, tt, st, dur] = VIDS[k]; return `<div class="card pad-lg vid-card"><div class="row between wrap" style="gap:8px;margin-bottom:12px"><div><h3 style="margin:0">${t(tt)}</h3><div class="small muted">${t(st)}</div></div><span class="chip teal">${ic('play',14)} ${dur}</span></div>
   <video class="vid" controls playsinline preload="none" poster="${poster}"><source src="${src}" type="video/mp4"></video></div>`; }
@@ -2805,15 +2815,65 @@ async function viewBusiness(){
   draw();
 }
 
+/* ================= v32: livelier sign-in screens ================= */
+Object.assign(I18N.en, { vs_m:['Your nurse is on the way', 'Prevention is better than cure', 'Health is a crown only the sick can see', 'No trip, no queue', 'Your results, straight to your phone', 'Cold box: 2–8 °C, all the way'], vs_honk:'Beep beep!',
+  th_q:'Hmm… what was my password?', th_type:'Type your email or phone', th_ok:'Got it! Check your messages', th_err:'Forgot it? Tap “Forgot password”' });
+Object.assign(I18N.ar, { vs_m:['ممرضك في الطريق', 'الوقاية خير من العلاج', 'الصحة تاج على رؤوس الأصحاء', 'بدون مشوار ولا طابور', 'نتيجتك توصلك على جوالك', 'صندوق التبريد ٢–٨ °م طول الطريق'], vs_honk:'بيب بيب!',
+  th_q:'همم… وش كانت كلمة المرور؟', th_type:'اكتب إيميلك أو رقمك', th_ok:'تمام! شيّك رسائلك', th_err:'نسيتها؟ اضغط «نسيت كلمة المرور»' });
+/* the van drives on: scenery scrolls behind it (transform-only layers, done by the graphics card) */
+const VAN32 = `<svg viewBox="0 0 280 120" aria-hidden="true"><ellipse cx="140" cy="112" rx="122" ry="6" fill="#0b2350" opacity=".14"/><rect x="10" y="20" width="186" height="72" rx="16" fill="#fff" stroke="#dbe5f5" stroke-width="3"/>
+  <path d="M196 30h44l30 34v26h-74z" fill="#1257d6"/><rect x="206" y="38" width="32" height="24" rx="5" fill="#cfe0ff"/><rect x="10" y="66" width="260" height="10" fill="#1257d6" opacity=".85"/>
+  <g transform="translate(26,30)"></g><text x="74" y="56" font-family="Outfit,Inter,sans-serif" font-weight="700" font-size="20" fill="#0b2350">iLab<tspan fill="#1257d6">@</tspan>home</text><rect x="252" y="72" width="16" height="8" rx="3" fill="#ffd166"/><circle class="vs-beacon" cx="150" cy="16" r="5" fill="#e2474f"/></svg>`;
+const WHEEL32 = `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#1d2433"/><circle cx="20" cy="20" r="8" fill="#cfd8e8"/><path d="M20 12v16M12 20h16" stroke="#1d2433" stroke-width="3"/></svg>`;
+const SCENE32 = (cls, w, h, body) => `<div class="vs-layer ${cls}"><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${body}</svg><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${body}</svg></div>`;
+function vanStrip(){
+  const hills = `<path d="M0 60 L40 30 L70 46 L110 18 L150 44 L190 24 L230 50 L270 28 L300 40 L300 60Z" fill="#c9d8f2"/>`;
+  const near = Array.from({ length: 4 }, (_, i) => `<g transform="translate(${20 + i * 75},58)"><path d="M0 0 Q2 -18 1 -34" stroke="#4a8c5c" stroke-width="3" fill="none"/>${[-1, -.4, .3, 1].map(k => `<path d="M1 -34 q${k * 14} -6 ${k * 22} 6" stroke="#4a8c5c" stroke-width="2.6" fill="none" stroke-linecap="round"/>`).join('')}</g>${i % 2 ? `<rect x="${55 + i * 75}" y="40" width="26" height="18" fill="#efe2c6"/><rect x="${53 + i * 75}" y="36" width="30" height="5" fill="#e2d1ad"/>` : ''}`).join('');
+  const logo = A.markSvg({ still: true }).replace('<svg', '<svg width="40" height="40"');
+  return `<div class="van-strip v32" aria-hidden="true"><div class="vs-sun"></div>${SCENE32('vs-far', 300, 60, hills)}${SCENE32('vs-near', 300, 60, near)}<div class="vs-road"><i></i></div>
+    <div class="vs-van" data-honk>${VAN32.replace('<g transform="translate(26,30)"></g>', `<g transform="translate(26,30)">${logo}</g>`)}<span class="vs-wh w1">${WHEEL32}</span><span class="vs-wh w2">${WHEEL32}</span><span class="vs-puff p1"></span><span class="vs-puff p2"></span></div>
+    <div class="vs-msg"><span class="vs-ic">${ic('pin',14)}</span><span class="vs-t">${esc(I18N[S.lang].vs_m[0])}</span></div></div>`;
+}
+let VS_T = null;
+function bindVan(){
+  const st = $('.van-strip.v32'); clearInterval(VS_T); if (!st) return;
+  const msgs = I18N[S.lang].vs_m || []; let k = 0; const tx = $('.vs-t', st), box = $('.vs-msg', st);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduce) VS_T = setInterval(() => { if (!st.isConnected) return clearInterval(VS_T); if (document.hidden) return; box.classList.add('swap'); setTimeout(() => { k = (k + 1) % msgs.length; tx.textContent = msgs[k]; box.classList.remove('swap'); }, 260); }, 3600);
+  const van = $('[data-honk]', st); if (van) van.onclick = () => { van.classList.remove('honk'); void van.offsetWidth; van.classList.add('honk'); tx.textContent = t('vs_honk'); try { navigator.vibrate && navigator.vibrate(30); } catch(e) {} };
+  const vis = () => st.classList.toggle('paused', document.hidden); document.addEventListener('visibilitychange', vis);
+}
+/* the brand name, letter by letter (used on the sign-in screens) */
+function wmAnim(cls){ const parts = [['i', 1], ['L'], ['a'], ['b'], ['@', 1], ['h'], ['o'], ['m'], ['e']];
+  return `<span class="wm wm-anim ${cls || ''}" dir="ltr" role="img" aria-label="iLab@home">${parts.map(([c, hl], n) => `<b class="${hl ? 'hl' : ''}${c === '@' ? ' at' : ''}" style="--n:${n}">${c}</b>`).join('')}<span class="wm-shine"></span></span>`; }
+/* a person thinking about the password (forgot / reset) */
+function thinker(){
+  return `<div class="thinker" id="thk"><svg viewBox="0 0 220 210" aria-hidden="true">
+    <g class="th-bub"><circle class="b1" cx="128" cy="92" r="6" fill="#fff" stroke="#c9d8f5" stroke-width="2"/><circle class="b2" cx="146" cy="70" r="9" fill="#fff" stroke="#c9d8f5" stroke-width="2"/>
+      <g class="b3"><ellipse cx="176" cy="36" rx="40" ry="28" fill="#fff" stroke="#c9d8f5" stroke-width="2"/><text class="th-q" x="176" y="47" text-anchor="middle" font-family="Outfit,Inter,sans-serif" font-weight="800" font-size="30" fill="#1257d6">?</text>
+      <g class="th-dots" fill="#0b2350">${[0, 1, 2, 3].map(i => `<circle cx="${158 + i * 12}" cy="38" r="4"/>`).join('')}</g><g class="th-bulb"><path d="M176 18a14 14 0 0 1 8 25v6h-16v-6a14 14 0 0 1 8-25z" fill="#ffd166" stroke="#e8a400" stroke-width="2"/><rect x="169" y="51" width="14" height="5" rx="2" fill="#9aa8c0"/></g></g></g>
+    <g class="th-person" transform="translate(70,205)"><ellipse cx="0" cy="0" rx="46" ry="7" fill="#0b2350" opacity=".12"/>
+      <path d="M-36 -110 Q-42 -50 -38 -4 L38 -4 Q42 -50 36 -110 Q0 -124 -36 -110Z" fill="#fff" stroke="#dfe6f2" stroke-width="2"/><path d="M0 -110 V-76" stroke="#c9b48a" stroke-width="3"/>
+      <g class="th-arm"><path d="M30 -100 Q46 -70 22 -64" stroke="#fff" stroke-width="15" stroke-linecap="round" fill="none"/><path d="M30 -100 Q46 -70 22 -64" stroke="#dfe6f2" stroke-width="1.5" fill="none" opacity=".6"/><circle cx="18" cy="-66" r="8" fill="#c98d63"/></g>
+      <path d="M-30 -100 Q-46 -66 -38 -46" stroke="#fff" stroke-width="15" stroke-linecap="round" fill="none"/><circle cx="-38" cy="-44" r="8" fill="#c98d63"/>
+      <g class="th-head"><ellipse cx="0" cy="-142" rx="21" ry="25" fill="#c98d63"/><path d="M-19 -136 Q-18 -112 0 -108 Q18 -112 19 -136 Q12 -125 0 -124 Q-12 -125 -19 -136Z" fill="#2a2523"/>
+        <path d="M-23 -160 Q0 -188 23 -160 L23 -153 L-23 -153Z" fill="#fff" stroke="#e1e7f1"/><path d="M-19 -160h38" stroke="#1257d6" stroke-width="2" stroke-dasharray="3 3"/>
+        <g class="th-eyes"><ellipse cx="-8" cy="-146" rx="2.8" ry="3.6" fill="#1d2433"/><ellipse cx="8" cy="-146" rx="2.8" ry="3.6" fill="#1d2433"/></g>
+        <path class="th-brow" d="M-13 -154 l8 -2 M5 -156 l8 2" stroke="#2a2523" stroke-width="2.4" stroke-linecap="round"/>
+        <path class="th-mouth" d="M-6 -129 Q0 -127 6 -130" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><path class="th-smile" d="M-8 -131 Q0 -123 8 -131" stroke="#8a3f33" stroke-width="2.6" fill="none" stroke-linecap="round"/></g></g>
+    <g class="th-mail" transform="translate(150,150)"><rect x="-22" y="-15" width="44" height="30" rx="5" fill="#1257d6"/><path d="M-22 -13 L0 4 L22 -13" stroke="#fff" stroke-width="3" fill="none"/></g></svg>
+    <div class="th-say">${t('th_q')}</div></div>`;
+}
+function bindThinker(form){
+  const th = $('#thk'); if (!th || !form) return; const say = $('.th-say', th); const inp = $('input', form);
+  if (inp) { inp.addEventListener('focus', () => { th.classList.add('typing'); say.textContent = t('th_type'); }); inp.addEventListener('blur', () => { if (!th.classList.contains('happy')) { th.classList.remove('typing'); say.textContent = t('th_q'); } }); }
+  return { happy(){ th.classList.remove('typing'); th.classList.add('happy'); say.textContent = t('th_ok'); } };
+}
 /* ================= v29: sign-up van, team icons, doctor pictures ================= */
 Object.assign(I18N.en, { van_hi:'Your nurse is on the way', r_cyber:'Cybersecurity', r_hr:'Human resources', r_nurse_t:'Nurse', r_adv:'Advisor · Supervisor', r_devfull:'Platform developer · Computer engineer' });
-Object.assign(I18N.ar, { van_hi:'ممرضتك في الطريق', r_cyber:'الأمن السيبراني', r_hr:'الموارد البشرية', r_nurse_t:'ممرضة', r_adv:'المشرف والمستشار', r_devfull:'مطوّر المنصة · مهندس حاسوب' });
+Object.assign(I18N.ar, { van_hi:'ممرضك في الطريق', r_cyber:'الأمن السيبراني', r_hr:'الموارد البشرية', r_nurse_t:'ممرضة', r_adv:'المشرف والمستشار', r_devfull:'مطوّر المنصة · مهندس حاسوب' });
 /* the iLab@home van drives in on the sign-in / sign-up screens (picture, not a drawing) */
 const VAN_SVG = `<ellipse cx="120" cy="196" rx="104" ry="6" fill="#0d1628" opacity=".12"/><path d="M14 168V96c0-10 8-18 18-18h118c8 0 15 4 19 10l26 34 22 8c6 2 9 7 9 13v25z" fill="#fff" stroke="#dbe5f5" stroke-width="2"/><path d="M152 86h12l24 34h-36z" fill="#bfdbfe"/><rect x="14" y="138" width="214" height="12" fill="#2563eb"/><rect x="14" y="150" width="214" height="5" fill="#f97316"/><g transform="translate(30 92) scale(.6)" stroke="#2563eb" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke-width="4"/><path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke-width="2"/><g transform="rotate(-32 32 34)" stroke-width="2.8"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="2.2"/></g></g><text x="108" y="120" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="18" fill="#0d1628" text-anchor="middle" letter-spacing="-.5" direction="ltr"><tspan fill="#2563eb">i</tspan>Lab<tspan fill="#2563eb">@</tspan>home</text><text x="108" y="132" font-family="Inter,Arial" font-weight="600" font-size="8" fill="#64748b" text-anchor="middle">+968 9434 2557 · @ilabathome</text><circle cx="58" cy="170" r="17" fill="#0d1628"/><circle cx="58" cy="170" r="7" fill="#cbd5e1"/><circle cx="184" cy="170" r="17" fill="#0d1628"/><circle cx="184" cy="170" r="7" fill="#cbd5e1"/>`;
-function vanStrip(){
-  return `<div class="van-strip" aria-hidden="true"><div class="vs-sky"><i class="cloud c1"></i><i class="cloud c2"></i><span class="vs-house">${A.markSvg({ fg:'#cbd5e1', still:true })}</span></div><div class="vs-road"><i></i></div>
-    <div class="vs-van"><svg viewBox="0 0 240 210">${VAN_SVG}</svg><span class="vs-puff p1"></span><span class="vs-puff p2"></span></div><div class="vs-msg">${ic('pin',14)} ${t('van_hi')}</div></div>`;
-}
 /* team: a small animated icon for each person's job (like emoji reactions) */
 const TEAM = [
   ['Bilarab bin Suwailam Al Musallami','بلعرب بن سويلم المسلمي','dev','👨🏻‍💻','⚙️','r_devfull'],
@@ -2934,6 +2994,43 @@ const SOURCES = [
     ['Sunan Abi Dawud 4811 · «من لا يشكر الناس لا يشكر الله»', 'https://sunnah.com/abudawud:4811'],
     ['Jami at-Tirmidhi 2380 · «ما ملأ آدمي وعاء شرا من بطن»', 'https://sunnah.com/tirmidhi:2380'] ] }
 ];
+/* ================= v32: sample guarantee and our responsibilities (#/guarantee) ================= */
+const GUAR = {
+  en: { t:'Sample guarantee & our policy', p:'If something goes wrong with your sample on our side, you never pay for it. Here is exactly what we cover, what we do not, and how it works.',
+    promise:'Our promise', pr:[['refresh','Free re-collection','We take a new sample at home, at a time you choose, with no fees at all.'],['card','Or a full refund','Prefer not to redo it? We refund the affected tests and the visit fee to your original payment method.'],['star','An apology gift','A code that waives the fee of your next home visit.']],
+    when:'When the guarantee applies (our responsibility)', wl:['The sample is lost, broken or leaks during transport.','The cold box goes outside 2–8 °C, or the sample reaches the lab after its safe time.','A labelling or identity mix-up on our side, at the visit, in transport or at the lab.','The lab cannot test the sample because of how it was taken, stored or handled (for example haemolysed or not enough blood).','An error or instrument failure at our partner lab.','The nurse or courier does not come, or is more than 60 minutes late without telling you: free new time and the visit fee back.'],
+    who:'Who is responsible?', whop:'iLab@home is your single point of responsibility. You deal only with us: we fix it first, and then settle with the nurse, courier or partner lab under our contracts and our professional liability insurance. You never have to chase anyone.',
+    how:'What happens if something goes wrong', hs:[['Detected','Every hand-over is scanned with time and temperature, so we usually know before you do. You can also report a problem from your order.'],['We tell you','We contact you as soon as we know, at the latest within 24 hours, and explain what happened.'],['You choose','Free re-collection or a full refund. Your choice is final.'],['Done','Re-collection is booked at no cost. Refunds are sent the same day and reach you within 5–10 working days, depending on your bank.']],
+    not:'What we are not responsible for', nl:[['Wrong or missing details','An address, phone number or patient details entered incorrectly that stop the visit or mix up your own records.'],['Preparation not followed','Not fasting when asked, or taking medicine or supplements against the test instructions. We can take a new sample, but the visit fee applies.'],['Missed appointment','Nobody at the address after the nurse waits 15 minutes. Tests are refunded; the visit fee is not.'],['Self-kits used incorrectly','A self-collection kit not used as instructed, or not handed back on time.'],['A sample that cannot be taken','For medical reasons (for example after two gentle attempts). You pay nothing for the tests and we offer another time or advise you where to go.'],['Medical decisions','Reports explain your results but are not a diagnosis. Treatment decisions are made with your doctor.'],['Events outside our control','Severe weather, road closures or network outages: we reschedule for free, without further compensation.'],['Indirect costs','Time off work, transport or other providers’ fees.']],
+    can:'Cancelling and changing your visit', cl:['Free change or cancellation up to 2 hours before the visit.','Later than that, or a missed visit: the home visit fee is kept; tests that were not taken are always refunded.','Self-kits: once the kit is delivered, the courier fee is kept; tests are refunded if the kit is returned unopened.'],
+    ct:'Questions or a complaint?', ctp:'Write to us on WhatsApp or email. We answer within 2 working days and keep a record of every complaint.', upd:'Last updated 25 November 2026 · Pilot version' },
+  ar: { t:'ضمان العينة وسياستنا', p:'إذا صار شي لعينتك من جهتنا، أنت ما تدفع شي أبداً. هنا بالضبط وش نتحمّل، ووش ما نتحمّل، وكيف تمشي الأمور.',
+    promise:'وعدنا لك', pr:[['refresh','إعادة السحب مجاناً','ناخذ عينة جديدة في البيت، في الوقت اللي يناسبك، وبدون أي رسوم.'],['card','أو استرجاع المبلغ كامل','ما تبي تعيد؟ نرجّع لك قيمة الفحوصات المتأثرة ورسوم الزيارة على نفس طريقة الدفع.'],['star','هدية اعتذار','كود يلغي رسوم زيارتك المنزلية القادمة.']],
+    when:'متى ينطبق الضمان (مسؤوليتنا)', wl:['العينة ضاعت أو انكسرت أو تسرّبت أثناء النقل.','صندوق التبريد طلع عن ٢–٨ °م، أو العينة وصلت المختبر بعد الوقت الآمن.','خطأ في الملصق أو الهوية من جهتنا، في الزيارة أو النقل أو المختبر.','المختبر ما قدر يحلل العينة بسبب طريقة السحب أو الحفظ أو النقل (مثل تكسّر الدم أو كمية غير كافية).','خطأ أو عطل في أجهزة المختبر الشريك.','الممرض أو المندوب ما وصل، أو تأخر أكثر من 60 دقيقة بدون ما يبلغك: موعد جديد مجاناً ونرجّع رسوم الزيارة.'],
+    who:'منو يتحمّل المسؤولية؟', whop:'آي لاب@هوم هي الجهة الوحيدة المسؤولة قدامك. تتعامل معنا بس: نصلّح المشكلة أول، وبعدين نتحاسب مع الممرض أو المندوب أو المختبر الشريك حسب عقودنا وتأمين المسؤولية المهنية. أنت ما تلاحق أحد أبداً.',
+    how:'وش يصير إذا صار خطأ', hs:[['نكتشفه','كل تسليم ينمسح بالوقت والحرارة، فغالباً نعرف قبلك. وتقدر بعد تبلّغ عن مشكلة من صفحة طلبك.'],['نبلّغك','نتواصل معك أول ما نعرف، وبحد أقصى خلال 24 ساعة، ونشرح لك وش صار.'],['أنت تختار','إعادة السحب مجاناً أو استرجاع المبلغ كامل، والقرار لك.'],['نخلّصها','نحجز إعادة السحب بدون تكلفة، أو نرسل المبلغ نفس اليوم ويوصلك خلال 5 إلى 10 أيام عمل حسب بنكك.']],
+    not:'الأشياء اللي ما نتحمّلها', nl:[['بيانات غلط أو ناقصة','عنوان أو رقم أو بيانات مريض مكتوبة غلط تمنع الزيارة أو تلخبط سجلاتك.'],['عدم الالتزام بالتحضير','ما صمت لما طلبنا، أو أخذت أدوية أو مكملات عكس تعليمات الفحص. نقدر نعيد السحب، بس تنطبق رسوم الزيارة.'],['عدم التواجد في الموعد','ما في أحد في العنوان بعد ما ينتظر الممرض 15 دقيقة. نرجّع قيمة الفحوصات، ورسوم الزيارة ما ترجع.'],['استخدام العُدّة الذاتية غلط','العُدّة الذاتية ما انستخدمت حسب التعليمات، أو ما انسلّمت في الوقت.'],['عينة ما ينفع تنسحب','لأسباب طبية (مثلاً بعد محاولتين بلطف). ما تدفع شي للفحوصات، ونعطيك موعد ثاني أو ننصحك وين تروح.'],['القرارات الطبية','التقرير يشرح نتائجك بس مو تشخيص، والعلاج يتقرر مع طبيبك.'],['ظروف خارجة عن إرادتنا','طقس شديد أو إغلاق طرق أو انقطاع الشبكة: نغيّر الموعد مجاناً بدون تعويض إضافي.'],['التكاليف غير المباشرة','الإجازة من الدوام أو المواصلات أو رسوم جهات ثانية.']],
+    can:'إلغاء الزيارة أو تغييرها', cl:['التغيير أو الإلغاء مجاناً لين قبل الزيارة بساعتين.','بعدها، أو إذا ما كنت موجود: رسوم الزيارة ما ترجع، والفحوصات اللي ما انسحبت ترجع دايماً.','العُدّة الذاتية: بعد ما توصلك، رسوم المندوب ما ترجع، والفحوصات ترجع إذا رجّعت العُدّة بدون ما تنفتح.'],
+    ct:'عندك سؤال أو شكوى؟', ctp:'راسلنا على الواتساب أو الإيميل، ونرد خلال يومين عمل، ونسجّل كل شكوى.', upd:'آخر تحديث 25 نوفمبر 2026 · نسخة المرحلة التجريبية' }
+};
+Object.assign(I18N.en, { m_guarantee:'Sample guarantee', guar_link:'Sample guarantee: free re-collection or a full refund if anything goes wrong on our side.', guar_book:'By confirming you agree to our sample guarantee and policy.',
+  fq8:'What if my sample gets damaged?', fq8a:'It is never your loss: we take a new sample at home for free, or refund you in full. See our sample guarantee.' });
+Object.assign(I18N.ar, { m_guarantee:'ضمان العينة', guar_link:'ضمان العينة: إعادة السحب مجاناً أو استرجاع المبلغ كامل إذا صار أي خطأ من جهتنا.', guar_book:'بالتأكيد أنت موافق على ضمان العينة وسياستنا.',
+  fq8:'وش يصير إذا تخربت عينتي؟', fq8a:'ما تتحمّل شي أبداً: نعيد السحب في البيت مجاناً، أو نرجّع لك المبلغ كامل. شوف ضمان العينة.' });
+function viewGuarantee(){
+  const G = GUAR[S.lang === 'ar' ? 'ar' : 'en'];
+  app.innerHTML = `${topbar()}<section class="section gu" style="padding-top:28px"><div class="wrap-w" style="max-width:960px">
+    <div class="gu-hero"><div class="gu-shield" aria-hidden="true"><svg viewBox="0 0 120 130"><path d="M60 6 108 24v34c0 32-21 54-48 64C33 112 12 90 12 58V24Z" fill="#e3f7f4" stroke="#0fae9b" stroke-width="5"/><path class="gu-ck" d="M38 64l15 15 30-32" stroke="#0fae9b" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><h1 data-split>${G.t}</h1><p class="muted">${G.p}</p></div></div>
+    <h2 class="hm-h">${G.promise}</h2><div class="grid g3 gu-pr">${G.pr.map(([i, a, b]) => `<div class="card"><span class="ic-round">${ic(i === 'refresh' ? 'van' : i === 'card' ? 'card' : 'star', 22)}</span><b>${a}</b><p class="small muted">${b}</p></div>`).join('')}</div>
+    <div class="card gu-when"><h3>${ic('shield',20)} ${G.when}</h3><ul class="gu-l ok">${G.wl.map(x => `<li>${x}</li>`).join('')}</ul></div>
+    <div class="card gu-who"><h3>${ic('users',20)} ${G.who}</h3><p>${G.whop}</p></div>
+    <h2 class="hm-h">${G.how}</h2><div class="gu-steps">${G.hs.map(([a, b], n) => `<div class="gu-st"><span class="n">${n + 1}</span><b>${a}</b><span class="small muted">${b}</span></div>`).join('')}</div>
+    <div class="card gu-not"><h3>${ic('shield',20)} ${G.not}</h3><div class="grid g2">${G.nl.map(([a, b]) => `<div class="gu-n"><b>${a}</b><span class="small muted">${b}</span></div>`).join('')}</div></div>
+    <div class="card"><h3>${ic('cal',20)} ${G.can}</h3><ul class="gu-l">${G.cl.map(x => `<li>${x}</li>`).join('')}</ul></div>
+    <div class="card"><h3>${ic('chat',20)} ${G.ct}</h3><p>${G.ctp}</p><div class="row wrap" style="gap:10px"><a class="btn" href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener">WhatsApp</a><a class="btn ghost" href="#/contact">${t('m_contact')}</a></div></div>
+    <p class="xs muted center">${G.upd}</p></div></section>${footer()}`;
+}
 async function viewSources(){
   const ar = S.lang === 'ar';
   app.innerHTML = `${topbar()}<section class="section" style="padding-top:32px"><div class="wrap-w" style="max-width:900px">

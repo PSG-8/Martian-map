@@ -1,0 +1,1095 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iLab@home · العرض التقديمي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;600;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F8FD;--ink:#0b2350;--muted:#5b6b88;--blue:#1257d6;--blue2:#2f7bff;--teal:#0fae9b;--amber:#f2a516;--red:#e2474f;--card:#fff;--line:#e3e9f4}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);overflow:hidden;font-family:"IBM Plex Sans Arabic",Inter,sans-serif;color:var(--ink)}
+#bgc{position:fixed;inset:0;z-index:0}
+#wrap{position:relative;width:100vw;height:100vh;height:100dvh;min-height:calc(56.25vw + 60px);display:grid;place-items:center;z-index:1;overflow:hidden;touch-action:pan-y}
+#stage{width:1600px;height:900px;position:relative;transform-origin:center center}
+.slide{position:absolute;inset:0;padding:70px 90px;opacity:0;pointer-events:none;transform:translateY(40px) scale(.98);transition:opacity .6s,transform .7s cubic-bezier(.2,.8,.2,1),filter .6s}
+.slide.on{opacity:1;pointer-events:auto;transform:none;filter:none}
+.slide.out{opacity:0;transform:translateX(160px) scale(.94) rotateY(-8deg);filter:blur(6px)}
+.in{opacity:0;transform:translateY(26px);transition:opacity .6s calc(var(--d,0)*1s + .25s),transform .7s calc(var(--d,0)*1s + .25s) cubic-bezier(.2,.8,.2,1)}
+.slide.on .in{opacity:1;transform:none}
+[data-step]{opacity:0;transform:translateY(18px) scale(.98);transition:opacity .5s,transform .6s cubic-bezier(.2,.8,.2,1)}
+[data-step].shown{opacity:1;transform:none}
+h1{font:700 64px/1.25 "IBM Plex Sans Arabic";margin:0}h1 small{display:block;font:600 30px Poppins,Inter;color:var(--muted);margin-top:8px;direction:ltr;text-align:right}
+.eyebrow{display:inline-block;font:700 22px Inter,"IBM Plex Sans Arabic";color:var(--blue);background:#e3edff;border-radius:999px;padding:6px 20px;margin-bottom:18px}
+.eyebrow.teal{color:#0b8f7f;background:#e3f7f4}.eyebrow.amber{color:#9a6400;background:#fff4dc}
+p,.p{font-size:26px;line-height:1.7;color:var(--muted);margin:0}
+.row{display:flex;gap:28px}.col{display:flex;flex-direction:column;gap:18px}
+.card{background:var(--card);border-radius:26px;padding:26px 30px;box-shadow:0 14px 40px rgba(16,40,90,.08)}
+.card h3{margin:0 0 6px;font:700 28px "IBM Plex Sans Arabic"}.card .en{font:600 20px Inter;color:var(--muted);direction:ltr;text-align:right}
+.card p{font-size:22px;line-height:1.6}
+.big{font:800 96px Poppins,Inter;color:var(--blue);direction:ltr}
+.ltr{direction:ltr;unicode-bidi:isolate}
+svg text{font-family:Inter,"IBM Plex Sans Arabic",sans-serif}
+.note-ar{font-size:22px;color:var(--muted)}
+.pill{display:inline-flex;gap:10px;align-items:center;background:#fff;border-radius:999px;padding:10px 22px;font:600 24px "IBM Plex Sans Arabic";box-shadow:0 8px 24px rgba(16,40,90,.08)}
+.pill i{width:14px;height:14px;border-radius:50%;background:var(--teal);display:inline-block}
+.risk{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:36px}
+.flip{perspective:1400px;height:470px}.flip .fi{position:relative;width:100%;height:100%;transition:transform .8s cubic-bezier(.3,1.3,.4,1);transform-style:preserve-3d}
+.flip.done .fi{transform:rotateY(180deg)}
+.flip .fa,.flip .fb{position:absolute;inset:0;backface-visibility:hidden;border-radius:28px;padding:30px;display:flex;flex-direction:column;gap:12px}
+.flip .fa{background:#fff4f4;border:2px solid #f3c6ca}.flip .fb{background:#effbf8;border:2px solid #bfe9e1;transform:rotateY(180deg)}
+.flip h3{margin:0;font:700 30px "IBM Plex Sans Arabic"}.flip ul{margin:0;padding-inline-start:24px;font-size:22px;line-height:1.7;color:#33415c}
+.tag{font:700 18px Inter;letter-spacing:.06em;text-transform:uppercase}
+.stamp{width:96px;height:96px;border-radius:24px;border:4px dashed rgba(255,255,255,.45);display:grid;place-items:center;position:relative}
+.stamp b{position:absolute;inset:-4px;border-radius:24px;background:linear-gradient(140deg,#0fae9b,#18b5d8);display:grid;place-items:center;transform:scale(2.4) rotate(-30deg);opacity:0;transition:transform .5s cubic-bezier(.3,1.6,.5,1),opacity .3s}
+.stamp b.on{transform:scale(1) rotate(-8deg);opacity:1}.stamp.gift{border-color:#ffd166}.stamp.gift b{background:linear-gradient(140deg,#f2a516,#ffd166)}
+.lcard{width:700px;height:390px;border-radius:36px;padding:34px;color:#fff;background:radial-gradient(130% 140% at 100% 0%,#2f7bff,#1257d6 40%,#0b2350);box-shadow:0 30px 70px rgba(11,35,80,.35)}
+.team{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:40px}
+.mem{background:#fff;border-radius:26px;padding:24px;text-align:center;box-shadow:0 12px 34px rgba(16,40,90,.08)}
+.av{width:96px;height:96px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;font:800 34px Poppins,Inter;color:#fff}
+.mem b{display:block;font:700 24px Inter}.mem span{font-size:20px;color:var(--muted)}
+.mem.lead{outline:4px solid #ffd166}
+.refs{columns:2;column-gap:46px;margin-top:26px;font-size:19px;line-height:1.5}
+.refs li{break-inside:avoid;margin-bottom:12px}.refs a{color:var(--blue);text-decoration:none;font-weight:600}.refs small{display:block;color:var(--muted);direction:ltr;text-align:right}
+.bar{display:flex;height:92px;border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(16,40,90,.1);direction:ltr}
+.bar div{display:grid;place-items:center;color:#fff;font:700 20px Inter;width:0;transition:width 1.2s cubic-bezier(.2,.8,.2,1);white-space:nowrap;overflow:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:12px 26px;margin-top:16px;font-size:21px;direction:rtl}.legend i{display:inline-block;width:16px;height:16px;border-radius:5px;margin-inline-end:8px;vertical-align:-2px}
+#prog{position:fixed;top:0;left:0;height:5px;background:linear-gradient(90deg,var(--blue),#18b5d8);z-index:5;transition:width .5s}
+#ctl{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:6;display:flex;gap:8px;background:rgba(11,35,80,.86);border-radius:999px;padding:8px 12px;transition:opacity .4s;direction:ltr}
+#ctl button{background:none;border:0;color:#fff;font:600 16px Inter;padding:8px 14px;border-radius:999px;cursor:pointer}#ctl button:hover{background:rgba(255,255,255,.14)}
+#ctl span{color:#c9d8f5;font:600 15px Inter;align-self:center;padding:0 8px}
+body.idle #ctl{opacity:0}
+#notes{position:fixed;inset:auto 0 0 0;max-height:42vh;overflow:auto;background:#0b2350;color:#eaf2ff;z-index:7;padding:22px 34px;font-size:19px;line-height:1.7;transform:translateY(105%);transition:transform .35s}
+#notes.show{transform:none}#notes h4{margin:0 0 6px;color:#ffd166;font:700 18px Inter}
+.brandtop{position:absolute;top:40px;left:60px;display:flex;align-items:center;gap:12px;font:800 28px Inter;direction:ltr}.brandtop b{color:var(--blue)}
+.brandtop svg{width:44px;height:44px}
+
+.scene .mv{transform-box:fill-box}
+.ch-hit{cursor:pointer}.ch-hit .mv{transition:transform .2s}.ch-hit:hover .mv{transform:translateY(-6px)}
+.jump .mv{animation:jump .6s cubic-bezier(.3,1.6,.5,1)}@keyframes jump{0%{transform:none}40%{transform:translateY(-34px) scale(1.04,.97)}100%{transform:none}}
+.slide.on .scene .bob,.slide.on .ch-hit .bob{animation:bob 2.6s ease-in-out infinite;transform-box:fill-box}@keyframes bob{50%{transform:translateY(-5px)}}
+.walking .ll{animation:leg .32s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 0}.walking .lr{animation:leg .32s ease-in-out infinite alternate-reverse;transform-box:fill-box;transform-origin:50% 0}@keyframes leg{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+.wave .ar{animation:wave 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 6%}@keyframes wave{0%,40%,100%{transform:none}10%,30%{transform:rotate(-150deg)}20%{transform:rotate(-120deg)}}
+.gok{opacity:0;transform:scale(0);transform-box:fill-box;transform-origin:center;transition:opacity .3s,transform .5s cubic-bezier(.3,1.6,.5,1)}.gok.shown{opacity:1;transform:none}
+.goals .gcard{flex:1;text-align:center;padding:18px 24px}.goals .gcard h3{font-size:24px}
+.hcards .card{padding:18px 22px}.hcards .card h3{font-size:24px}.hcards .card p{font-size:19px}
+.risk{margin-top:26px}.flip{height:520px}.flip.shown:not(.done) .fa{animation:pulseR 1.6s ease-in-out 2}@keyframes pulseR{50%{box-shadow:0 0 0 14px rgba(226,71,79,.12)}}
+.rhead{display:flex;align-items:center;gap:12px}.ricon{width:46px;height:46px;flex:none}
+.flip.shown .fa .ricon{animation:shake .6s ease .2s 2}@keyframes shake{25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+.flip.done .fb .ricon{animation:pop .6s cubic-bezier(.3,1.6,.5,1) .5s both}@keyframes pop{from{transform:scale(0)}to{transform:none}}
+.rill{height:96px;display:flex;justify-content:center}.rill svg{height:100%;width:auto}
+.rnext{margin-top:auto;font:700 19px "IBM Plex Sans Arabic";color:#b4535a;opacity:.8}
+
+/* v3: 3D windows, map, phones */
+.d3{position:relative;border-radius:30px;overflow:hidden;background:radial-gradient(circle at 50% 40%,#eaf2ff,#cfdcf5)}
+.d3 .d3c{position:absolute;inset:0;width:100%!important;height:100%!important;display:block;cursor:grab}
+.d3.d3-off{display:none}
+.d3bg{position:absolute;inset:0;border-radius:0;z-index:0}
+.thanks3d{padding:0}.thanks3d>div:not(.d3):not(.d3veil){position:relative;z-index:2}
+.d3veil{position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse at 50% 45%,rgba(245,248,253,.92) 0%,rgba(245,248,253,.75) 40%,rgba(245,248,253,.15) 75%)}
+.d3map{position:relative;flex:1.65;height:600px;border-radius:30px;overflow:hidden;background:linear-gradient(180deg,#dcebff,#f6efe2);box-shadow:0 20px 50px rgba(16,40,90,.12)}
+.d3map canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+.d3hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);background:rgba(11,35,80,.78);color:#fff;font:600 18px "IBM Plex Sans Arabic",Inter;padding:8px 18px;border-radius:999px;z-index:2;pointer-events:none}
+.d3map.d3-off{background:#eaf2ff}
+.mapinfo{flex:1;display:flex;flex-direction:column;gap:10px;justify-content:center}
+.mapinfo .mi-k{font:700 18px Inter,"IBM Plex Sans Arabic";color:var(--blue);letter-spacing:.06em}
+.mapinfo .mi-n{font:800 54px "IBM Plex Sans Arabic",Inter;line-height:1.1;color:var(--ink)}
+.mapinfo .mi-s{font:600 24px Inter,"IBM Plex Sans Arabic";color:var(--muted)}
+.mapinfo p{font-size:23px}
+.mapinfo .mi-row{display:flex;flex-direction:column;gap:6px;font-size:21px;color:#33415c}.mapinfo .mi-row b{font:800 34px Poppins,Inter;color:var(--teal)}
+.mapinfo .mi-tags{display:flex;flex-wrap:wrap;gap:8px}.mapinfo .mi-tags span{background:#e3f7f4;color:#0b8f7f;border-radius:999px;padding:6px 14px;font:700 17px "IBM Plex Sans Arabic",Inter}
+.mapinfo.pop{animation:miPop .45s cubic-bezier(.3,1.4,.5,1)}@keyframes miPop{from{transform:translateY(14px);opacity:.3}to{transform:none;opacity:1}}
+.risk.r4{grid-template-columns:repeat(4,1fr);gap:20px}.risk.r4 .flip{height:540px}.risk.r4 .flip h3{font-size:26px}.risk.r4 .flip ul{font-size:19px}.risk.r4 .fa,.risk.r4 .fb{padding:24px}
+#rot{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:8;background:rgba(11,35,80,.9);color:#fff;font:600 14px "IBM Plex Sans Arabic",Inter;padding:8px 14px;border-radius:999px;display:none;align-items:center;gap:8px;white-space:nowrap}
+#rot button{background:none;border:0;color:#9fc4ff;font:inherit;cursor:pointer}
+@media (orientation:portrait) and (max-width:820px){#rot{display:flex}}
+#ctl a{color:#fff;font:600 16px Inter,"IBM Plex Sans Arabic";padding:8px 14px;border-radius:999px;text-decoration:none}#ctl a:hover{background:rgba(255,255,255,.14)}
+@media (hover:none){body.idle #ctl{opacity:1}}
+[dir=ltr] h1 small,[dir=ltr] .card .en,[dir=ltr] .refs small{text-align:left}[dir=ltr] .legend{direction:ltr}[dir=ltr] .brandtop{left:auto;right:60px}
+[dir=ltr] .th-say{border-radius:16px 16px 16px 4px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style></head><body>
+<noscript><div style="position:fixed;inset:auto 0 0 0;background:#0b2350;color:#fff;padding:14px;text-align:center;z-index:9;font:600 18px sans-serif">افتح الملف في متصفح Chrome أو Edge ليشتغل العرض · Open this file in Chrome or Edge</div></noscript><canvas id="bgc"></canvas><div id="prog"></div>
+<div id="wrap"><div id="stage">
+
+<!-- 1 title -->
+<section data-k="title" class="slide on" data-steps="0" data-notes="[0:30] السلام عليكم. نحن فريق آي لاب@هوم. فكرتنا بسيطة: الفحص المخبري يجي لك البيت بدل ما تروح أنت للمختبر، في ولايات شمال الشرقية. خلال العرض بنشرح المشكلة والحل وكيف يشتغل البرنامج، والمخاطر وكيف نحلها، والأرقام والفريق.">
+  <div style="display:grid;grid-template-columns:1fr 520px;align-items:center;height:100%">
+    <div class="col">
+      <span class="eyebrow in" style="--d:.1">North Al Sharqiyah · Oman</span>
+      <div class="in" style="--d:.2;font:800 112px Poppins,Inter;direction:ltr;text-align:right;letter-spacing:-3px">iLab<span style="color:var(--blue)">@</span>home</div>
+      <h1 class="in" style="--d:.35">فحوصاتك المخبرية عند باب بيتك<small>Lab tests at your doorstep</small></h1>
+      <div class="in p" style="--d:.55;margin-top:20px"><b style="color:var(--ink)">Bilarab Al Musallami</b> · Jokha Al Rawahi · Ansam Al Noumani · Tasnim Al Hasani · Rahaf Al Wardi · Alzahraa Al Busaidi<br>المشرف: د. سالم الراشدي</div>
+    </div>
+    <div class="in" style="--d:.2;position:relative;width:520px;height:520px">
+      <svg viewBox="0 0 520 520" style="position:absolute;inset:0"><circle cx="260" cy="260" r="236" fill="none" stroke="#cfe0ff" stroke-width="6" stroke-dasharray="16 20" class="spin"/><circle cx="260" cy="260" r="186" fill="#fff"/></svg>
+      <div style="position:absolute;left:110px;top:110px;width:300px;height:300px"><svg width="100%" height="100%" class="mark holo-mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <defs><linearGradient id="hg1" x1="0" y1="0" x2="1" y2="1" spreadMethod="reflect"><stop offset="0" stop-color="#3b82f6"/><stop offset=".35" stop-color="#22d3ee"/><stop offset=".55" stop-color="#60a5fa"/><stop offset=".75" stop-color="#a78bfa"/><stop offset="1" stop-color="#3b82f6"/><animateTransform attributeName="gradientTransform" type="translate" from="-1 -1" to="1 1" dur="3.2s" repeatCount="indefinite"/></linearGradient></defs>
+  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="url(#hg1)" stroke-width="3.2"/>
+  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="url(#hg1)" stroke-width="1.6" opacity=".9"/>
+  <g transform="rotate(-32 32 34)" stroke="url(#hg1)" stroke-width="2.2"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/><circle cx="29.6" cy="40.4" r="1.6" stroke="url(#hg1)" stroke-width="1.4"><animate attributeName="cy" values="40.4;33.4;40.4" dur="2.6s" begin="0s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.25;1" dur="2.6s" begin="0s" repeatCount="indefinite"/></circle><circle cx="34.6" cy="39.4" r="1" stroke="url(#hg1)" stroke-width="1.4"><animate attributeName="cy" values="39.4;32.4;39.4" dur="2.1s" begin="0.7s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.25;1" dur="2.1s" begin="0.7s" repeatCount="indefinite"/></circle></g>
+  <circle cx="20.6" cy="20.2" r="1.3" stroke="url(#hg1)" stroke-width="1.4"><animate attributeName="cy" values="20.2;13.2;20.2" dur="3s" begin="0.3s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.25;1" dur="3s" begin="0.3s" repeatCount="indefinite"/></circle><circle cx="17.6" cy="15.6" r=".9" stroke="url(#hg1)" stroke-width="1.2"/>
+  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="url(#hg1)" stroke-width="1.3"><animate attributeName="opacity" values="1;.2;1" dur="1.8s" repeatCount="indefinite"/></path></svg></div>
+      <svg viewBox="-60 -250 120 260" style="position:absolute;left:-40px;bottom:-10px;width:150px;overflow:visible"><g class="ch-hit wave" data-say="أهلاً فيكم!" data-tip="t1"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><g class="lg ll"><rect x="-20" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="-12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g>
+  <g class="lg lr"><rect x="4" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g><path d="M-34 -150 Q-38 -82 -30 -68 L30 -68 Q38 -82 34 -150 Q0 -164 -34 -150Z" fill="#0fae9b"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="-40" cy="-86" r="8" fill="#e9b48f"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="40" cy="-86" r="8" fill="#e9b48f"/></g><path d="M-42 -148 Q-46 -200 0 -232 Q46 -200 42 -148 Q22 -134 0 -132 Q-22 -134 -42 -148Z" fill="#33507d"/>
+  <ellipse cx="0" cy="-198" rx="34" ry="37" fill="#33507d"/><path d="M-22 -206 Q0 -224 22 -206" stroke="#24406b" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#e9b48f"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><rect x="10" y="-128" width="16" height="10" rx="2" fill="#fff"/><path d="M18 -126v6M15 -123h6" stroke="#0fae9b" stroke-width="2"/></g></g></svg>
+    </div></div>
+</section>
+
+<!-- 2 problem -->
+<section data-k="problem" class="slide" data-steps="2" data-notes="[0:40] المشكلة: عشان فحص دم واحد، الشخص يسوق للمختبر وينتظر في الطابور، وأحياناً يرجع مرة ثانية ياخذ النتيجة. هذا ياخذ ساعات من يومه. وأكثر الناس تعباً: كبار السن، والأمهات مع الأطفال، والعمال اللي ما عندهم وقت، ومرضى الأمراض المزمنة اللي يحتاجون فحص دوري. (الأرقام توضيحية من تجربة الزيارة المعتادة، مو إحصائية رسمية.)">
+  <span class="eyebrow amber in">المشكلة · The problem</span>
+  <h1 class="in" style="--d:.1">ساعات تضيع عشان فحص واحد<small>Hours lost for one test</small></h1>
+  <svg viewBox="0 0 1420 420" style="width:1420px;margin-top:30px" class="in" id="jsvg">
+    <path id="jpath" d="M1300 260 C 1100 120, 900 380, 700 240 S 300 120, 140 250" fill="none" stroke="#c9d8f5" stroke-width="14" stroke-linecap="round" stroke-dasharray="2 26"/>
+    <g transform="translate(1300,260)"><circle r="56" fill="#fff" stroke="#1257d6" stroke-width="5"/><path d="M-26 6 L0 -20 L26 6 V28 H-26Z" fill="none" stroke="#1257d6" stroke-width="6" stroke-linejoin="round"/><text y="96" text-anchor="middle" font-size="24" font-weight="700" fill="#0b2350">البيت</text></g>
+    <g transform="translate(700,240)"><circle r="56" fill="#fff" stroke="#f2a516" stroke-width="5"/><path d="M-24 -14h48M-24 0h48M-24 14h30" stroke="#f2a516" stroke-width="6" stroke-linecap="round"/><text y="96" text-anchor="middle" font-size="24" font-weight="700" fill="#0b2350">طابور الانتظار</text></g>
+    <g transform="translate(140,250)"><circle r="56" fill="#fff" stroke="#0fae9b" stroke-width="5"/><path d="M-10 -26h20M-6 -26v18l-14 26a5 5 0 0 0 4 8h32a5 5 0 0 0 4-8l-14-26v-18" stroke="#0fae9b" stroke-width="5" fill="none"/><text y="96" text-anchor="middle" font-size="24" font-weight="700" fill="#0b2350">المختبر</text></g>
+    <circle id="jcar" r="20" fill="#e2474f"/>
+    <g transform="translate(700,70)"><rect x="-150" y="-46" width="300" height="92" rx="46" fill="#fff4f4" stroke="#f3c6ca" stroke-width="3"/><text id="jclock" x="0" y="16" text-anchor="middle" font-size="44" font-weight="800" fill="#e2474f" font-family="Poppins">0:00</text></g>
+  </svg>
+  <div class="row" style="margin-top:6px;justify-content:center">
+    <span class="pill" data-step="1"><i style="background:#f2a516"></i>كبار السن</span><span class="pill" data-step="1"><i style="background:#db2777"></i>الأمهات والأطفال</span>
+    <span class="pill" data-step="2"><i style="background:#1257d6"></i>العمال والمشغولين</span><span class="pill" data-step="2"><i></i>مرضى السكر والضغط</span></div>
+</section>
+
+<!-- goal (v2) -->
+<section data-k="goal" class="slide" data-steps="2" data-notes="[0:40] هدفنا واضح: أي شخص في شمال الشرقية يقدر يسوي فحصه وهو في بيته، بدون مشوار ولا طابور. نبدأ بسبع ولايات في المرحلة الأولى، وهدفنا النتيجة خلال 48 ساعة لأغلب الفحوصات، ورسوم الزيارة 5 ريال، والعدة الذاتية 2 ريال. وأكثر ناس نفكر فيهم: كبار السن، والأمهات مع الأطفال، والعمال. وقاعدتنا: الممرض يزور الرجال، والممرضة تزور النساء والأطفال. (اضغط على أي شخصية عشان تتكلم.)">
+  <span class="eyebrow teal in">الهدف · Our goal</span>
+  <h1 class="in" style="--d:.1">الفحص يجيك لين البيت، بدون مشوار<small>The lab comes home, no trip, no queue</small></h1>
+  <svg viewBox="0 0 1420 400" class="in scene" style="--d:.2;width:1420px;margin-top:10px" id="gsvg">
+    <defs><radialGradient id="gglow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#dff5ef"/><stop offset="1" stop-color="#dff5ef" stop-opacity="0"/></radialGradient></defs>
+    <ellipse cx="710" cy="330" rx="620" ry="40" fill="#e9eff9"/>
+    <circle cx="710" cy="190" r="190" fill="url(#gglow)"/>
+    <g transform="translate(600,330)"><g class="house" transform="translate(0,0)"><path d="M0 -150 L120 -230 L240 -150Z" fill="#f2a516"/><rect x="18" y="-152" width="204" height="152" rx="8" fill="#fff" stroke="#dfe6f2" stroke-width="3"/>
+    <g class="door"><rect x="94" y="-96" width="52" height="96" rx="6" fill="#1257d6"/><circle cx="136" cy="-48" r="4" fill="#fff"/></g><rect x="36" y="-120" width="40" height="36" rx="5" fill="#cfe0ff"/><rect x="164" y="-120" width="40" height="36" rx="5" fill="#cfe0ff"/></g></g>
+    <g transform="translate(190,336)"><g class="ch-hit" data-say="ما أحتاج أسوق للمستشفى، الممرض يجيني" data-tip="g1"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><path d="M-36 -150 Q-42 -60 -38 -4 L38 -4 Q42 -60 36 -150 Q0 -164 -36 -150Z" fill="#fff" stroke="#dfe6f2" stroke-width="2"/><path d="M0 -150 V-110" stroke="#c9b48a" stroke-width="3"/><circle cx="0" cy="-106" r="4" fill="#c9b48a"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#fff"/><circle cx="-40" cy="-86" r="8" fill="#c98d63"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#fff"/><circle cx="40" cy="-86" r="8" fill="#c98d63"/></g><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#c98d63"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  <path d="M-19 -186 Q-18 -160 0 -156 Q18 -160 19 -186 Q12 -175 0 -174 Q-12 -175 -19 -186Z" fill="#d8d8d8"/>
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M-23 -210 Q0 -238 23 -210 L23 -203 L-23 -203Z" fill="#fff" stroke="#e1e7f1"/><path d="M-19 -210h38" stroke="#1257d6" stroke-width="2" stroke-dasharray="3 3"/><path d="M-14 -219h28" stroke="#0fae9b" stroke-width="2" stroke-dasharray="2 4"/></g></g></g>
+    <g transform="translate(330,336)"><g class="ch-hit" data-say="الشركة تحجز لنا في موقع العمل" data-tip="g4"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><g class="lg ll"><rect x="-20" y="-72" width="16" height="70" rx="7" fill="#e07b1a"/><ellipse cx="-12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g>
+  <g class="lg lr"><rect x="4" y="-72" width="16" height="70" rx="7" fill="#e07b1a"/><ellipse cx="12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g><path d="M-34 -150 Q-38 -82 -30 -68 L30 -68 Q38 -82 34 -150 Q0 -164 -34 -150Z" fill="#e07b1a"/><path d="M-34 -110h68" stroke="#e8f04a" stroke-width="6"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#e07b1a"/><circle cx="-40" cy="-86" r="8" fill="#c98d63"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#e07b1a"/><circle cx="40" cy="-86" r="8" fill="#c98d63"/></g><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#c98d63"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  <path d="M-19 -186 Q-18 -160 0 -156 Q18 -160 19 -186 Q12 -175 0 -174 Q-12 -175 -19 -186Z" fill="#3a2a20"/>
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M-25 -206 Q0 -236 25 -206Z" fill="#ffd34d"/><rect x="-28" y="-208" width="56" height="6" rx="3" fill="#f2b705"/></g></g></g>
+    <g transform="translate(470,336)"><g class="ch-hit" data-say="أنا أزور الرجال لين البيت" data-tip="g6"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><g class="lg ll"><rect x="-20" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="-12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g>
+  <g class="lg lr"><rect x="4" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g><path d="M-36 -150 Q-40 -82 -32 -68 L32 -68 Q40 -82 36 -150 Q0 -164 -36 -150Z" fill="#0fae9b"/><path d="M-10 -150 L0 -134 L10 -150" fill="#0b8f7f"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="-40" cy="-86" r="8" fill="#c98d63"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="40" cy="-86" r="8" fill="#c98d63"/></g><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#c98d63"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  <path d="M-19 -186 Q-18 -160 0 -156 Q18 -160 19 -186 Q12 -175 0 -174 Q-12 -175 -19 -186Z" fill="#2a2523"/>
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M-22 -204 Q-20 -226 0 -228 Q20 -226 22 -204 Q14 -216 0 -216 Q-14 -216 -22 -204Z" fill="#2a2523"/><rect x="10" y="-128" width="16" height="10" rx="2" fill="#fff"/><path d="M18 -126v6M15 -123h6" stroke="#0fae9b" stroke-width="2"/></g></g></g>
+    <g transform="translate(960,336)"><g class="ch-hit" data-say="الأطفال يرتاحون في بيتهم" data-tip="g2"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><path d="M-38 -150 Q-46 -60 -42 -2 L42 -2 Q46 -60 38 -150 Q0 -164 -38 -150Z" fill="#22252e"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#22252e"/><circle cx="-40" cy="-86" r="8" fill="#e9b48f"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#22252e"/><circle cx="40" cy="-86" r="8" fill="#e9b48f"/></g><path d="M-42 -148 Q-46 -200 0 -232 Q46 -200 42 -148 Q22 -134 0 -132 Q-22 -134 -42 -148Z" fill="#2b2f3a"/>
+  <ellipse cx="0" cy="-198" rx="34" ry="37" fill="#2b2f3a"/><path d="M-22 -206 Q0 -224 22 -206" stroke="#1b1d24" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#e9b48f"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/></g></g></g>
+    <g transform="translate(1050,336)"><g class="ch-hit" data-say="ما خفت أبداً!" data-tip="g3"><g class="mv"><ellipse cx="0" cy="0" rx="28" ry="6" fill="#0b2350" opacity=".12"/><g transform="scale(.62)"><g class="lg ll"><rect x="-20" y="-72" width="16" height="70" rx="7" fill="#33507d"/><ellipse cx="-12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g>
+  <g class="lg lr"><rect x="4" y="-72" width="16" height="70" rx="7" fill="#33507d"/><ellipse cx="12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g><path d="M-30 -150 Q-34 -84 -28 -70 L28 -70 Q34 -84 30 -150 Q0 -162 -30 -150Z" fill="#f2a516"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#f2a516"/><circle cx="-40" cy="-86" r="8" fill="#c98d63"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#f2a516"/><circle cx="40" cy="-86" r="8" fill="#c98d63"/></g><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#c98d63"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M-20 -212 Q0 -228 20 -212 Q14 -220 0 -221 Q-14 -220 -20 -212Z" fill="#2a1d14"/></g></g></g></g>
+    <g transform="translate(1190,336)"><g class="ch-hit" data-say="وأنا أزور النساء والأطفال" data-tip="g5"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><g class="lg ll"><rect x="-20" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="-12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g>
+  <g class="lg lr"><rect x="4" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g><path d="M-34 -150 Q-38 -82 -30 -68 L30 -68 Q38 -82 34 -150 Q0 -164 -34 -150Z" fill="#0fae9b"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="-40" cy="-86" r="8" fill="#e9b48f"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="40" cy="-86" r="8" fill="#e9b48f"/></g><path d="M-42 -148 Q-46 -200 0 -232 Q46 -200 42 -148 Q22 -134 0 -132 Q-22 -134 -42 -148Z" fill="#33507d"/>
+  <ellipse cx="0" cy="-198" rx="34" ry="37" fill="#33507d"/><path d="M-22 -206 Q0 -224 22 -206" stroke="#24406b" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#e9b48f"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><rect x="10" y="-128" width="16" height="10" rx="2" fill="#fff"/><path d="M18 -126v6M15 -123h6" stroke="#0fae9b" stroke-width="2"/></g></g></g>
+    <g transform="translate(190,60)"><g class="gok" data-step="1"><g class="ok" transform="translate(0,0)"><circle r="22" fill="#0fae9b"/><path d="M-8.8 0 l6.6 6.6 l12.100000000000001 -12.100000000000001" stroke="#fff" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></g></g><g transform="translate(330,60)"><g class="gok" data-step="1"><g class="ok" transform="translate(0,0)"><circle r="22" fill="#0fae9b"/><path d="M-8.8 0 l6.6 6.6 l12.100000000000001 -12.100000000000001" stroke="#fff" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></g></g><g transform="translate(1000,60)"><g class="gok" data-step="1"><g class="ok" transform="translate(0,0)"><circle r="22" fill="#0fae9b"/><path d="M-8.8 0 l6.6 6.6 l12.100000000000001 -12.100000000000001" stroke="#fff" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></g></g>
+    <g id="gbub" opacity="0" transform="translate(710,40)"><rect x="-190" y="-34" width="380" height="58" rx="29" fill="#fff" stroke="#c9d8f5" stroke-width="3"/><text x="0" y="6" text-anchor="middle" font-size="24" font-weight="700" fill="#0b2350"></text></g>
+  </svg>
+  <div class="row goals" style="margin-top:4px">
+    <div class="card gcard" data-step="2"><div class="big cnt" data-to="7" style="font-size:72px">0</div><h3>ولايات في المرحلة الأولى</h3><div class="en">Pilot wilayats</div></div>
+    <div class="card gcard" data-step="2"><div class="big" style="font-size:72px">48h</div><h3>هدف ظهور النتيجة</h3><div class="en">Results target, most tests</div></div>
+    <div class="card gcard" data-step="2"><div class="big" style="font-size:72px">5 · 2</div><h3>ر.ع زيارة منزلية · العدّة الذاتية</h3><div class="en">OMR nurse visit · self-kit</div></div>
+  </div>
+</section>
+
+<!-- 3 solution / how it works (v2) -->
+<section data-k="how" class="slide" data-steps="4" data-notes="[0:50] الحل: المختبر يجي لك، في أربع خطوات. أولاً تحجز من البرنامج في دقيقة وتدفع إلكترونياً. ثانياً ممرض مرخّص يزور الرجال، وممرضة مرخّصة تزور النساء والأطفال، يتأكدون من الهوية ويسحبون العينة. ثالثاً العينة تنتقل في صندوق مبرد من 2 إلى 8 درجات، وكل تسليم ينسجّل بالوقت والحرارة لين المختبر. رابعاً التقرير المعتمد يوصل الجوال مشروح، ولو يحتاج متابعة نوصلك بطبيب. سؤال متوقع: كم ياخذ وقت؟ هدفنا خلال 48 ساعة لأغلب الفحوصات.">
+  <span class="eyebrow in">الحل · How it works</span>
+  <h1 class="in" style="--d:.1">المختبر يجي لك، في أربع خطوات<small>The lab comes to you, in four steps</small></h1>
+  <svg viewBox="0 0 1420 400" class="in scene" style="--d:.2;width:1420px;margin-top:6px" id="hsc">
+    <path d="M60 352 H1360" stroke="#dfe6f2" stroke-width="22" stroke-linecap="round"/><path d="M60 352 H1360" stroke="#fff" stroke-width="3" stroke-dasharray="26 22"/>
+    <g transform="translate(70,348)"><g class="lab" transform="translate(0,0)"><rect x="0" y="-170" width="210" height="170" rx="12" fill="#fff" stroke="#dfe6f2" stroke-width="3"/><rect x="0" y="-196" width="210" height="34" rx="10" fill="#0fae9b"/>
+    <text x="105" y="-172" text-anchor="middle" font-family="Inter" font-weight="800" font-size="18" fill="#fff">LAB</text><path d="M92 -130h26M98 -130v26l-14 26a6 6 0 0 0 5 9h32a6 6 0 0 0 5-9l-14-26v-26" stroke="#0fae9b" stroke-width="5" fill="none" stroke-linejoin="round"/>
+    <rect x="22" y="-60" width="44" height="60" rx="5" fill="#cfe0ff"/><rect x="144" y="-60" width="44" height="60" rx="5" fill="#cfe0ff"/></g></g>
+    <g transform="translate(860,348)"><g class="house" transform="translate(0,0)"><path d="M0 -150 L120 -230 L240 -150Z" fill="#f2a516"/><rect x="18" y="-152" width="204" height="152" rx="8" fill="#fff" stroke="#dfe6f2" stroke-width="3"/>
+    <g class="door"><rect x="94" y="-96" width="52" height="96" rx="6" fill="#1257d6"/><circle cx="136" cy="-48" r="4" fill="#fff"/></g><rect x="36" y="-120" width="40" height="36" rx="5" fill="#cfe0ff"/><rect x="164" y="-120" width="40" height="36" rx="5" fill="#cfe0ff"/></g></g>
+    <g transform="translate(1180,40)"><g id="hphone"><rect width="190" height="300" rx="30" fill="#0b2350"/><rect x="10" y="10" width="170" height="280" rx="22" fill="#f5f8fd"/>
+      <g id="hbook" opacity="0"><rect x="22" y="40" width="146" height="70" rx="16" fill="#fff"/><circle cx="50" cy="75" r="16" fill="#1257d6"/><path d="M43 75l5 5 9-10" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round"/><text x="160" y="70" text-anchor="end" direction="ltr" font-size="18" font-weight="800" fill="#0b2350">تم الحجز</text><text x="160" y="94" text-anchor="end" direction="ltr" font-size="14" fill="#5b6b88">7:30 ص</text></g>
+      <g id="hrep" opacity="0"><rect x="22" y="130" width="146" height="130" rx="16" fill="#e3f7f4"/><circle cx="95" cy="172" r="24" fill="#0fae9b"/><path d="M84 172l8 8 14-15" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/><text x="95" y="226" text-anchor="middle" font-size="19" font-weight="800" fill="#0b5c52">النتيجة جاهزة</text><text x="95" y="248" text-anchor="middle" font-size="14" fill="#2d6f66">طبيعي · نصائح</text></g></g></g>
+    <g id="hvan" transform="translate(600,352)"><g class="mv"><g class="van" transform="translate(0,0) scale(1)"><g class="vbody" ><rect x="0" y="-86" width="190" height="70" rx="16" fill="#fff" stroke="#dfe6f2" stroke-width="3"/><path d="M190 -76h46l34 36v24h-80z" fill="#1257d6"/><rect x="200" y="-68" width="34" height="24" rx="5" fill="#cfe0ff"/>
+    <rect x="0" y="-44" width="270" height="10" fill="#1257d6" opacity=".85"/><g transform="translate(40,-80)"><svg width="50" height="50" class="mark holo-mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <defs><linearGradient id="hv1" x1="0" y1="0" x2="1" y2="1" spreadMethod="reflect"><stop offset="0" stop-color="#3b82f6"/><stop offset=".35" stop-color="#22d3ee"/><stop offset=".55" stop-color="#60a5fa"/><stop offset=".75" stop-color="#a78bfa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs>
+  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="url(#hv1)" stroke-width="3.2"/>
+  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="url(#hv1)" stroke-width="1.6" opacity=".9"/>
+  <g transform="rotate(-32 32 34)" stroke="url(#hv1)" stroke-width="2.2"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/><circle cx="29.6" cy="40.4" r="1.6" stroke="url(#hv1)" stroke-width="1.4"/><circle cx="34.6" cy="39.4" r="1" stroke="url(#hv1)" stroke-width="1.4"/></g>
+  <circle cx="20.6" cy="20.2" r="1.3" stroke="url(#hv1)" stroke-width="1.4"/><circle cx="17.6" cy="15.6" r=".9" stroke="url(#hv1)" stroke-width="1.2"/>
+  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="url(#hv1)" stroke-width="1.3"></path></svg></g><text x="94" y="-54" font-family="Inter" font-weight="800" font-size="17" fill="#0b2350">iLab<tspan fill="#1257d6">@</tspan>home</text>
+    <g class="wheel" transform="translate(56,-14)"><circle r="22" fill="#1d2433"/><circle r="9" fill="#cfd8e8"/><path d="M0 -9V9M-9 0H9" stroke="#1d2433" stroke-width="3"/></g>
+    <g class="wheel" transform="translate(216,-14)"><circle r="22" fill="#1d2433"/><circle r="9" fill="#cfd8e8"/><path d="M0 -9V9M-9 0H9" stroke="#1d2433" stroke-width="3"/></g></g></g></g></g>
+    <g id="hcold" transform="translate(735,236)" opacity="0"><rect x="-70" y="-30" width="140" height="52" rx="26" fill="#0fae9b"/><text x="0" y="5" text-anchor="middle" font-size="24" font-weight="800" fill="#fff" font-family="Inter" direction="ltr">4.5 °C ✓</text></g>
+    <g transform="translate(860,352)"><g id="hnurse" class="ch-hit" data-say="السلام عليكم، أنا الممرض" data-tip="h1"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><g class="lg ll"><rect x="-20" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="-12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g>
+  <g class="lg lr"><rect x="4" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g><path d="M-36 -150 Q-40 -82 -32 -68 L32 -68 Q40 -82 36 -150 Q0 -164 -36 -150Z" fill="#0fae9b"/><path d="M-10 -150 L0 -134 L10 -150" fill="#0b8f7f"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="-40" cy="-86" r="8" fill="#c98d63"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="40" cy="-86" r="8" fill="#c98d63"/></g><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#c98d63"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  <path d="M-19 -186 Q-18 -160 0 -156 Q18 -160 19 -186 Q12 -175 0 -174 Q-12 -175 -19 -186Z" fill="#2a2523"/>
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M-22 -204 Q-20 -226 0 -228 Q20 -226 22 -204 Q14 -216 0 -216 Q-14 -216 -22 -204Z" fill="#2a2523"/><rect x="10" y="-128" width="16" height="10" rx="2" fill="#fff"/><path d="M18 -126v6M15 -123h6" stroke="#0fae9b" stroke-width="2"/></g></g></g>
+    <g transform="translate(1060,352)"><g class="ch-hit" data-say="الحمد لله، بدون مشوار" data-tip="h2"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><path d="M-36 -150 Q-42 -60 -38 -4 L38 -4 Q42 -60 36 -150 Q0 -164 -36 -150Z" fill="#fff" stroke="#dfe6f2" stroke-width="2"/><path d="M0 -150 V-110" stroke="#c9b48a" stroke-width="3"/><circle cx="0" cy="-106" r="4" fill="#c9b48a"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#fff"/><circle cx="-40" cy="-86" r="8" fill="#c98d63"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#fff"/><circle cx="40" cy="-86" r="8" fill="#c98d63"/></g><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#c98d63"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  <path d="M-19 -186 Q-18 -160 0 -156 Q18 -160 19 -186 Q12 -175 0 -174 Q-12 -175 -19 -186Z" fill="#d8d8d8"/>
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M-23 -210 Q0 -238 23 -210 L23 -203 L-23 -203Z" fill="#fff" stroke="#e1e7f1"/><path d="M-19 -210h38" stroke="#1257d6" stroke-width="2" stroke-dasharray="3 3"/><path d="M-14 -219h28" stroke="#0fae9b" stroke-width="2" stroke-dasharray="2 4"/></g></g></g>
+    <g id="hbub" opacity="0" transform="translate(710,40)"><rect x="-170" y="-32" width="340" height="56" rx="28" fill="#fff" stroke="#c9d8f5" stroke-width="3"/><text x="0" y="7" text-anchor="middle" font-size="23" font-weight="700" fill="#0b2350"></text></g>
+  </svg>
+  <div class="row hcards" style="margin-top:6px">
+    <div class="card" data-step="1" style="flex:1"><h3>١. احجز في دقيقة</h3><div class="en">Book in the app</div><p>الفحوصات والوقت والدفع الإلكتروني.</p></div>
+    <div class="card" data-step="2" style="flex:1"><h3>٢. ممرض أو ممرضة</h3><div class="en">Same-gender licensed nurse</div><p>ممرض للرجال، ممرضة للنساء والأطفال.</p></div>
+    <div class="card" data-step="3" style="flex:1"><h3>٣. تبريد ٢–٨ °م</h3><div class="en">Logged cold chain</div><p>كل تسليم بالوقت والحرارة لين المختبر.</p></div>
+    <div class="card" data-step="4" style="flex:1"><h3>٤. النتيجة على جوالك</h3><div class="en">Verified report</div><p>مشروحة، ومع طبيب لو تحتاج متابعة.</p></div>
+  </div>
+</section>
+
+<!-- area (v3): 3D map of the seven wilayats -->
+<section data-k="area" class="slide" data-steps="7" data-notes="[0:50] هذي منطقتنا في المرحلة الأولى: سبع ولايات في شمال الشرقية. المركز في إبراء، فيها المختبر الشريك وقاعدة التبريد، ومنها نوصل للمضيبي وسناو غرباً، والقابل وبدية ووادي بني خالد شرقاً، ودماء والطائيين شمالاً في الجبال. اضغط على أي ولاية في الخريطة، أو اضغط التالي، والفان يروح لها، ويطلع لك بعدها عن إبراء والوقت التقريبي بالسيارة. وتقدر تدوّر الخريطة بالسحب.">
+  <span class="eyebrow in">منطقتنا · Our area</span>
+  <h1 class="in" style="--d:.1">سبع ولايات في شمال الشرقية<small>Seven wilayats of North Al Sharqiyah</small></h1>
+  <div class="row in" style="--d:.2;margin-top:18px;align-items:stretch;gap:24px">
+    <div class="d3map"><div class="d3hint">اسحب لتدوير الخريطة · اضغط على ولاية</div></div>
+    <div class="mapinfo card"></div>
+  </div>
+</section>
+
+<!-- 4 app -->
+<section data-k="app" class="slide" data-steps="0" data-notes="[0:40] هذا البرنامج نفسه، يشتغل على الجوال والكمبيوتر مثل التطبيق. المريض يشوف الفان يتحرك على الطريق مع كل خطوة، والنتيجة تجي بألوان واضحة: الأخضر طبيعي ويطلع له احتفال وحكمة أو آية عن الصحة، والأحمر يحتاج انتباه ويراجعه طبيب. والبرنامج سريع: درجة الأداء في Lighthouse على الجوال 94 إلى 95.">
+  <div style="display:grid;grid-template-columns:1fr 420px;gap:50px;height:100%;align-items:center">
+    <div class="col"><span class="eyebrow in">البرنامج · The app</span><h1 class="in" style="--d:.1">تجربة سهلة مثل التطبيقات العالمية<small>Simple, fast, made for phones</small></h1>
+      <div class="row in" style="--d:.3;flex-wrap:wrap;gap:14px;margin-top:10px"><span class="pill"><i></i>تتبع مباشر للزيارة</span><span class="pill"><i></i>نتيجة مشروحة بالعربي</span><span class="pill"><i></i>يشتغل بدون نت</span><span class="pill"><i></i>Lighthouse 94–95</span></div></div>
+    <div class="in" style="--d:.2;width:420px;height:780px;border-radius:56px;background:#0b2350;padding:18px;box-shadow:0 30px 70px rgba(11,35,80,.3)">
+      <div style="background:#f5f8fd;border-radius:42px;height:100%;padding:26px 22px;display:flex;flex-direction:column;gap:16px;overflow:hidden">
+        <div class="card" style="padding:18px"><div style="font:700 20px Inter;direction:ltr">LAH-10261</div>
+          <svg viewBox="0 0 340 90" style="width:100%"><path id="apath" d="M14 62 C 90 20, 160 84, 230 46 S 320 36, 330 46" fill="none" stroke="#e3e9f4" stroke-width="9" stroke-linecap="round"/><path d="M14 62 C 90 20, 160 84, 230 46 S 320 36, 330 46" fill="none" stroke="#1257d6" stroke-width="9" stroke-linecap="round" stroke-dasharray="400" stroke-dashoffset="400" id="aprog"/><g id="avan"><rect x="-16" y="-14" width="32" height="18" rx="5" fill="#1257d6"/><circle cx="-8" cy="6" r="4" fill="#0b2350"/><circle cx="8" cy="6" r="4" fill="#0b2350"/></g></svg></div>
+        <div class="card" style="padding:18px" id="arep"></div>
+        <div class="card" style="padding:18px;text-align:center;background:linear-gradient(160deg,#fffdf6,#f3fbf7)"><div style="font:700 15px Inter;color:#5b6b88">كل شي طيب 🌿</div><div style="font:700 22px Amiri,'IBM Plex Sans Arabic';color:#5a4300;margin-top:6px">نِعْمَتَانِ مَغْبُونٌ فِيهِمَا كَثِيرٌ مِنَ النَّاسِ: الصِّحَّةُ وَالْفَرَاغُ</div><div style="font-size:14px;color:#5b6b88;margin-top:6px">رواه البخاري</div></div>
+      </div></div></div>
+</section>
+
+<!-- 5 self kits -->
+<section data-k="kits" class="slide" data-steps="2" data-notes="[0:40] جديد: عُدد الفحص الذاتي. فيه فحوصات ما تحتاج سحب دم، مثل تحليل البول وزراعته، والدم الخفي في البراز للكشف المبكر عن سرطان القولون من عمر 45، وجرثومة المعدة، والطفيليات، ومسحة HPV الذاتية اللي توصي فيها منظمة الصحة العالمية. المندوب يوصل العدة، الشخص ياخذ العينة بنفسه، والمندوب يرجع ياخذها. لأنه ما في ممرض، رسوم الزيارة أقل: 2 ريال بدل 5. والدم مثل CBC ووظائف الكلى يظل يحتاج ممرض.">
+  <span class="eyebrow teal in">جديد · New</span>
+  <h1 class="in" style="--d:.1">عُدد الفحص الذاتي، بدون ممرض<small>Self-test kits, no nurse needed</small></h1>
+  <div class="d3 in" data-scene="5" style="width:1420px;height:300px;margin-top:16px"></div>
+  <div class="row" style="margin-top:24px;align-items:stretch">
+    <div class="card" data-step="1" style="flex:1.3"><h3>بدون ممرض · Self-collect</h3><p>بول · زراعة بول · دم خفي في البراز (FIT) · جرثومة المعدة · طفيليات · مسحة HPV · مسحة إنفلونزا/كوفيد</p></div>
+    <div class="card" data-step="1" style="flex:1"><h3>يحتاج ممرض · Nurse</h3><p>صورة الدم CBC · الكلى RFT · الكبد · الدهون · الغدة · الفيتامينات</p></div>
+    <div class="card" data-step="2" style="flex:.9;text-align:center"><h3>رسوم الزيارة</h3><div class="row" style="justify-content:center;gap:40px;margin-top:8px"><div><div class="big" style="font-size:72px;color:#5b6b88"><span class="cnt" data-to="5">0</span></div><div class="note-ar">ممرض</div></div><div><div class="big" style="font-size:72px;color:var(--teal)"><span class="cnt" data-to="2">0</span></div><div class="note-ar">عدة ذاتية</div></div></div><div class="note-ar">ر.ع · OMR</div></div>
+  </div>
+</section>
+
+<!-- 6 results & doctor -->
+<section data-k="results" class="slide" data-steps="2" data-notes="[0:40] قراءة النتائج مبنية على النطاقات الطبية المعتمدة، وأي نتيجة خطيرة تطلع رسالة طوارئ مع رقم 9999. النتيجة الطبيعية لها احتفال صغير وحكمة. النتيجة اللي تحتاج متابعة تتعلّم بالأحمر وتروح لطبيب يراجعها ويكتب توصية. وفيه استشارة طبيب أونلاين بالفيديو أو الصوت أو الرسائل، قبل الفحص أو بعد النتيجة، مع طبيبة وطبيب، وطب أسنان. والمريض يقدر يشارك نتيجته مع طبيبه برابط خاص ينتهي بعد مدة.">
+  <span class="eyebrow in">النتائج والطبيب · Results & doctor</span>
+  <h1 class="in" style="--d:.1">نتائج واضحة، وطبيب لما تحتاجه<small>Clear results, a doctor when you need one</small></h1>
+  <div class="risk" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="flip" data-step="1"><div class="fi"><div class="fa" style="background:#f6f9ff;border-color:#d7e5ff"><span class="tag" style="color:var(--blue)">Normal</span><h3>النتيجة طبيعية</h3><p>…</p></div><div class="fb"><span class="tag" style="color:var(--teal)">✓ All clear</span><h3>احتفال صغير وحكمة</h3><ul><li>رسالة واضحة: كل شي طيب</li><li>آية أو حديث أو حكمة عن الصحة</li><li>رسم يبين تطور أرقامك</li></ul></div></div></div>
+    <div class="flip" data-step="2"><div class="fi"><div class="fa" style="background:#f6f9ff;border-color:#d7e5ff"><span class="tag" style="color:var(--blue)">Needs attention</span><h3>تحتاج متابعة</h3><p>…</p></div><div class="fb" style="background:#fff4f4;border-color:#f3c6ca"><span class="tag" style="color:var(--red)">! Attention</span><h3>بالأحمر، وطبيب يراجعها</h3><ul><li>توصية مكتوبة من الطبيب</li><li>فحوصات مقترحة بضغطة</li><li>طوارئ 9999 للنتائج الحرجة</li></ul></div></div></div>
+    <div class="card in" style="--d:.3;display:flex;flex-direction:column;gap:14px;justify-content:center"><h3>طبيب أونلاين</h3><div class="en">Video · Voice · Messages</div><div class="row" style="gap:12px;flex-wrap:wrap"><span class="pill">🎥 فيديو</span><span class="pill">📞 صوت</span><span class="pill">💬 رسائل</span></div><p>قبل الفحص أو بعد النتيجة · طبيبة وطبيب · أسنان</p></div>
+  </div>
+</section>
+
+<!-- 7 loyalty -->
+<section data-k="loyalty" class="slide" data-steps="5" data-notes="[0:30] عشان الناس ترجع لنا: بطاقة ولاء. كل طلب ياخذ ختم، والزيارة الخامسة مجانية. وكود دعوة: الصديق ياخذ خصم 1 ريال على أول طلب، واللي دعاه ياخذ ختم إضافي لما تطلع نتيجة صديقه. وفيه كوبونات خصم، مثل WELCOME10 لأول طلب. كل الخصومات تنحسب في قاعدة البيانات، فما أحد يقدر يغير السعر من جواله.">
+  <div style="display:grid;grid-template-columns:1fr 720px;gap:40px;align-items:center;height:100%">
+    <div class="col"><span class="eyebrow in">الولاء · Loyalty</span><h1 class="in" style="--d:.1">كل طلب ختم، والخامسة مجانية<small>Every order a stamp, the 5th visit free</small></h1>
+      <div class="row in" style="--d:.3;flex-wrap:wrap;gap:14px"><span class="pill"><i></i>ادعُ صديق: خصم 1 ر.ع + ختم إضافي</span><span class="pill"><i style="background:#f2a516"></i>كوبونات: WELCOME10 · ILAB2</span></div></div>
+    <div class="lcard in" style="--d:.2"><div style="display:flex;align-items:center;gap:14px;direction:ltr"><div style="width:64px;height:64px"><svg width="100%" height="100%" class="mark holo-mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  
+  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="#ffffff" stroke-width="3.2"/>
+  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="#ffffff" stroke-width="1.6" opacity=".9"/>
+  <g transform="rotate(-32 32 34)" stroke="#ffffff" stroke-width="2.2"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/><circle cx="29.6" cy="40.4" r="1.6" stroke="#ffffff" stroke-width="1.4"/><circle cx="34.6" cy="39.4" r="1" stroke="#ffffff" stroke-width="1.4"/></g>
+  <circle cx="20.6" cy="20.2" r="1.3" stroke="#ffffff" stroke-width="1.4"/><circle cx="17.6" cy="15.6" r=".9" stroke="#ffffff" stroke-width="1.2"/>
+  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="#ffffff" stroke-width="1.3"></path></svg></div><div><div style="font:800 30px Inter">iLab@home</div><div style="font:700 20px 'IBM Plex Sans Arabic';opacity:.85">بطاقة الولاء</div></div></div>
+      <div style="display:flex;gap:18px;margin:40px 0 26px;direction:ltr"><div class="stamp"><b><svg style="width:66%;height:66%" width="100%" height="100%" class="mark holo-mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  
+  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="#ffffff" stroke-width="3.2"/>
+  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="#ffffff" stroke-width="1.6" opacity=".9"/>
+  <g transform="rotate(-32 32 34)" stroke="#ffffff" stroke-width="2.2"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/><circle cx="29.6" cy="40.4" r="1.6" stroke="#ffffff" stroke-width="1.4"/><circle cx="34.6" cy="39.4" r="1" stroke="#ffffff" stroke-width="1.4"/></g>
+  <circle cx="20.6" cy="20.2" r="1.3" stroke="#ffffff" stroke-width="1.4"/><circle cx="17.6" cy="15.6" r=".9" stroke="#ffffff" stroke-width="1.2"/>
+  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="#ffffff" stroke-width="1.3"></path></svg></b></div><div class="stamp"><b><svg style="width:66%;height:66%" width="100%" height="100%" class="mark holo-mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  
+  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="#ffffff" stroke-width="3.2"/>
+  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="#ffffff" stroke-width="1.6" opacity=".9"/>
+  <g transform="rotate(-32 32 34)" stroke="#ffffff" stroke-width="2.2"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/><circle cx="29.6" cy="40.4" r="1.6" stroke="#ffffff" stroke-width="1.4"/><circle cx="34.6" cy="39.4" r="1" stroke="#ffffff" stroke-width="1.4"/></g>
+  <circle cx="20.6" cy="20.2" r="1.3" stroke="#ffffff" stroke-width="1.4"/><circle cx="17.6" cy="15.6" r=".9" stroke="#ffffff" stroke-width="1.2"/>
+  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="#ffffff" stroke-width="1.3"></path></svg></b></div><div class="stamp"><b><svg style="width:66%;height:66%" width="100%" height="100%" class="mark holo-mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  
+  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="#ffffff" stroke-width="3.2"/>
+  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="#ffffff" stroke-width="1.6" opacity=".9"/>
+  <g transform="rotate(-32 32 34)" stroke="#ffffff" stroke-width="2.2"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/><circle cx="29.6" cy="40.4" r="1.6" stroke="#ffffff" stroke-width="1.4"/><circle cx="34.6" cy="39.4" r="1" stroke="#ffffff" stroke-width="1.4"/></g>
+  <circle cx="20.6" cy="20.2" r="1.3" stroke="#ffffff" stroke-width="1.4"/><circle cx="17.6" cy="15.6" r=".9" stroke="#ffffff" stroke-width="1.2"/>
+  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="#ffffff" stroke-width="1.3"></path></svg></b></div><div class="stamp"><b><svg style="width:66%;height:66%" width="100%" height="100%" class="mark holo-mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  
+  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="#ffffff" stroke-width="3.2"/>
+  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="#ffffff" stroke-width="1.6" opacity=".9"/>
+  <g transform="rotate(-32 32 34)" stroke="#ffffff" stroke-width="2.2"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/><circle cx="29.6" cy="40.4" r="1.6" stroke="#ffffff" stroke-width="1.4"/><circle cx="34.6" cy="39.4" r="1" stroke="#ffffff" stroke-width="1.4"/></g>
+  <circle cx="20.6" cy="20.2" r="1.3" stroke="#ffffff" stroke-width="1.4"/><circle cx="17.6" cy="15.6" r=".9" stroke="#ffffff" stroke-width="1.2"/>
+  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="#ffffff" stroke-width="1.3"></path></svg></b></div><div class="stamp gift"><b><svg style="width:66%;height:66%" width="100%" height="100%" class="mark holo-mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  
+  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="#ffffff" stroke-width="3.2"/>
+  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="#ffffff" stroke-width="1.6" opacity=".9"/>
+  <g transform="rotate(-32 32 34)" stroke="#ffffff" stroke-width="2.2"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/><circle cx="29.6" cy="40.4" r="1.6" stroke="#ffffff" stroke-width="1.4"/><circle cx="34.6" cy="39.4" r="1" stroke="#ffffff" stroke-width="1.4"/></g>
+  <circle cx="20.6" cy="20.2" r="1.3" stroke="#ffffff" stroke-width="1.4"/><circle cx="17.6" cy="15.6" r=".9" stroke="#ffffff" stroke-width="1.2"/>
+  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="#ffffff" stroke-width="1.3"></path></svg></b><span style="font:800 18px Inter;color:#ffd166">FREE</span></div></div><div style="font:700 26px 'IBM Plex Sans Arabic'">الزيارة الخامسة مجانية · <span style="color:#ffd166;font-family:Inter">5th visit free</span></div></div></div>
+</section>
+
+<!-- 8 companies -->
+<section data-k="companies" class="slide" data-steps="3" data-notes="[0:40] للعمالة والشركات: الشركة ترفع قائمة العمال، تختار الباقة والتاريخ، وفريقنا يزور السكن. الشركة تشوف لكل عامل: لائق أو يحتاج متابعة، وما تشوف التفاصيل الطبية أبداً. وفيه فحص العاملة المنزلية في البيت للأسر. مهم: شهادة اللياقة الرسمية للإقامة تصدر عن طريق نظام وزارة الصحة وسند في مراكز معتمدة، ونحن ما نصدرها؛ خدمتنا فحص مبدئي يساعد يعرفون مبكراً. والوزارة أضافت فحص السل الكامن، واللي نتيجته إيجابية يسوي أشعة صدر.">
+  <span class="eyebrow in" style="color:#7c3aed;background:#f1eaff">العمالة والشركات · Workers & companies</span>
+  <h1 class="in" style="--d:.1">زيارة سكن العمال، بخصوصية كاملة<small>Camp visits, full privacy</small></h1>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:34px;margin-top:34px">
+    <div class="card" data-step="1"><h3>كيف تشتغل</h3><ol style="font-size:23px;line-height:1.9;margin:0;color:#33415c"><li>الشركة ترفع قائمة العمال (Excel/CSV)</li><li>تختار الباقة والتاريخ والموقع</li><li>فريق ممرضين يزور السكن</li><li>النتيجة لكل عامل: لائق / يحتاج متابعة</li></ol></div>
+    <div class="card" data-step="2"><h3>ما تشوفه الشركة</h3><div class="col" style="gap:12px;margin-top:8px;font-size:23px">
+      <div style="display:flex;justify-content:space-between"><span class="ltr">Ram K. ••4567</span><span class="pill" style="padding:4px 16px;font-size:20px;color:#0b8f7f">لائق</span></div>
+      <div style="display:flex;justify-content:space-between"><span class="ltr">Ali K. ••4321</span><span class="pill" style="padding:4px 16px;font-size:20px;color:#0b8f7f">لائق</span></div>
+      <div style="display:flex;justify-content:space-between"><span class="ltr">Joseph D. ••8810</span><span class="pill" style="padding:4px 16px;font-size:20px;color:#9a6400">يحتاج متابعة</span></div>
+      <div class="note-ar">🔒 التفاصيل الطبية يشوفها العامل والطبيب فقط</div></div></div>
+  </div>
+  <div class="card" data-step="3" style="margin-top:26px;background:#fff4dc"><p style="color:#5a4300"><b>مهم:</b> شهادة اللياقة الرسمية تصدر عن طريق وزارة الصحة (البوابة الإلكترونية أو سند) في مراكز معتمدة. خدمتنا فحص مبدئي ما يغني عن الشهادة.</p></div>
+</section>
+
+<!-- 9 risks (v2: risk first, then the fix) -->
+<section data-k="risks" class="slide" data-steps="8" data-notes="[1:00] أي فكرة لها سلبيات، وهذي أهم ثلاث وكيف نحلها. (اضغط: الخطر، ثم اضغط: الحل.) أولاً نقل العينات وتخزينها في حر عمان والمسافات. الحل: صناديق مبردة 2 إلى 8 درجات، والحرارة تتسجل في البرنامج مع تنبيه لو خرجت عن المدى، وباركود يتمسح عند كل تسليم، وعداد وقت للعينة، وإعادة الفحص مجاناً لو تخربت. ثانياً التراخيص. الحل: نبدأ بشراكة مع مختبر وجهة رعاية منزلية مرخصة، والممرضين لازم ترخيص وزارة الصحة. ثالثاً الخصوصية. الحل: قانون حماية البيانات العماني 6/2022 يعتبر البيانات الصحية حساسة؛ عندنا موافقة مسجلة، وسجل يبين مين فتح التقرير، وتنزيل البيانات وطلب الحذف، وخروج تلقائي لحسابات الموظفين. رابعاً لو تخربت العينة في الطريق: المستخدم ما يتحمّل شي أبداً؛ نعيد السحب مجاناً أو نرجّع المبلغ كامل مع هدية اعتذار، وبعدها نتحاسب مع الممرض أو المندوب أو المختبر حسب العقود وتأمين المسؤولية المهنية. والسياسة مكتوبة بوضوح في صفحة ضمان العينة، ومعها الأشياء اللي ما نتحمّلها مثل عدم الالتزام بالصيام أو عدم التواجد في الموعد.">
+  <span class="eyebrow amber in">المخاطر والحلول · Risks & fixes</span>
+  <h1 class="in" style="--d:.1">نعرف المخاطر، وعندنا الحلول<small>First the risk, then the fix</small></h1>
+  <div class="risk r4">
+    <div class="flip" data-step="1" data-flip="2"><div class="fi">
+      <div class="fa"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 6 60 56H4Z" fill="#e2474f"/><path d="M32 24v14" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="47" r="3.6" fill="#fff"/></svg><span class="tag" style="color:var(--red)">Risk 1 · الخطر</span></div><h3>نقل العينات وتخزينها</h3><div class="rill"><svg viewBox="0 0 220 90"><circle cx="50" cy="44" r="22" fill="#f2a516"/><g stroke="#f2a516" stroke-width="5" stroke-linecap="round"><path d="M50 8v8M50 72v8M14 44h8M78 44h8M24 18l6 6M70 64l6 6M24 70l6-6M70 24l6-6"/></g><rect x="128" y="14" width="18" height="60" rx="9" fill="#fff" stroke="#e2474f" stroke-width="4"/><rect x="133" y="26" width="8" height="44" rx="4" fill="#e2474f"/><text x="160" y="52" font-size="26" font-weight="800" fill="#e2474f" font-family="Inter">45°</text></svg></div><ul><li>الحرارة والوقت قبل المختبر</li><li>حر عمان والمسافات</li></ul><div class="rnext">اضغط للحل ←</div></div>
+      <div class="fb"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 4 56 13v18c0 15-10 25-24 30C18 56 8 46 8 31V13Z" fill="#0fae9b"/><path d="M21 32l8 8 15-16" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tag" style="color:var(--teal)">Fix 1 · الحل</span></div><h3>سلسلة باردة مسجّلة</h3><div class="rill"><svg viewBox="0 0 220 90"><rect x="20" y="22" width="110" height="60" rx="10" fill="#fff" stroke="#1257d6" stroke-width="4"/><rect x="20" y="12" width="110" height="18" rx="7" fill="#1257d6"/><path d="M58 46l8 8 8-8M66 38v16M88 46l8 8 8-8M96 38v16" stroke="#7fb4ff" stroke-width="4" fill="none"/><rect x="142" y="30" width="70" height="36" rx="12" fill="#0fae9b"/><text x="177" y="54" text-anchor="middle" font-size="18" font-weight="800" fill="#fff" font-family="Inter">4.5°C</text></svg></div><ul><li>صندوق مبرد 2–8 °م وتسجيل الحرارة</li><li>باركود عند كل تسليم</li><li>عداد وقت وتنبيه بعد 4 ساعات</li><li>إعادة السحب مجاناً أو استرجاع المبلغ</li></ul></div></div></div>
+    <div class="flip" data-step="3" data-flip="4"><div class="fi">
+      <div class="fa"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 6 60 56H4Z" fill="#e2474f"/><path d="M32 24v14" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="47" r="3.6" fill="#fff"/></svg><span class="tag" style="color:var(--red)">Risk 2 · الخطر</span></div><h3>التراخيص والموافقات</h3><div class="rill"><svg viewBox="0 0 220 90"><rect x="70" y="8" width="70" height="80" rx="8" fill="#fff" stroke="#e2474f" stroke-width="4"/><path d="M84 30h42M84 44h42M84 58h26" stroke="#f3c6ca" stroke-width="5" stroke-linecap="round"/><circle cx="150" cy="66" r="18" fill="#e2474f"/><text x="150" y="74" text-anchor="middle" font-size="24" font-weight="800" fill="#fff">?</text></svg></div><ul><li>ترخيص الممرض والمنشأة</li><li>الطب عن بعد</li></ul><div class="rnext">اضغط للحل ←</div></div>
+      <div class="fb"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 4 56 13v18c0 15-10 25-24 30C18 56 8 46 8 31V13Z" fill="#0fae9b"/><path d="M21 32l8 8 15-16" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tag" style="color:var(--teal)">Fix 2 · الحل</span></div><h3>شراكة ثم ترخيصنا</h3><div class="rill"><svg viewBox="0 0 220 90"><rect x="40" y="10" width="140" height="76" rx="10" fill="#fff" stroke="#0fae9b" stroke-width="4"/><circle cx="75" cy="44" r="16" fill="#0fae9b"/><path d="M68 44l5 5 10-11" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M100 34h60M100 48h60M100 62h40" stroke="#bfe9e1" stroke-width="5" stroke-linecap="round"/><text x="110" y="28" font-size="11" font-weight="800" fill="#0b8f7f" font-family="Inter">MOH LICENCE</text></svg></div><ul><li>البداية تحت ترخيص مختبر/رعاية منزلية</li><li>ممرضين بترخيص وزارة الصحة فقط</li><li>تأمين ضد الأخطاء الطبية</li></ul></div></div></div>
+    <div class="flip" data-step="5" data-flip="6"><div class="fi">
+      <div class="fa"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 6 60 56H4Z" fill="#e2474f"/><path d="M32 24v14" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="47" r="3.6" fill="#fff"/></svg><span class="tag" style="color:var(--red)">Risk 3 · الخطر</span></div><h3>خصوصية البيانات</h3><div class="rill"><svg viewBox="0 0 220 90"><rect x="72" y="30" width="76" height="54" rx="10" fill="#e2474f"/><path d="M86 32v-8a24 24 0 0 1 40-17" fill="none" stroke="#e2474f" stroke-width="7" stroke-linecap="round"/><circle cx="110" cy="56" r="7" fill="#fff"/><g fill="#f3c6ca"><circle cx="40" cy="30" r="6"/><circle cx="26" cy="52" r="5"/><circle cx="180" cy="34" r="6"/><circle cx="196" cy="58" r="5"/></g></svg></div><ul><li>بيانات صحية حساسة</li><li>التسريب والوصول غير المصرح</li></ul><div class="rnext">اضغط للحل ←</div></div>
+      <div class="fb"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 4 56 13v18c0 15-10 25-24 30C18 56 8 46 8 31V13Z" fill="#0fae9b"/><path d="M21 32l8 8 15-16" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tag" style="color:var(--teal)">Fix 3 · الحل</span></div><h3>حسب القانون 6/2022</h3><div class="rill"><svg viewBox="0 0 220 90"><path d="M110 4 146 16v26c0 22-15 36-36 44-21-8-36-22-36-44V16Z" fill="#effbf8" stroke="#0fae9b" stroke-width="4"/><rect x="92" y="40" width="36" height="28" rx="6" fill="#0b2350"/><path d="M98 40v-7a12 12 0 0 1 24 0v7" fill="none" stroke="#0b2350" stroke-width="5"/><circle cx="110" cy="53" r="4" fill="#fff"/></svg></div><ul><li>موافقة مسجلة وسجل لمن فتح التقرير</li><li>تنزيل البيانات وطلب الحذف</li><li>صلاحيات وخروج تلقائي للموظفين</li></ul></div></div></div>
+      <div class="flip" data-step="7" data-flip="8"><div class="fi">
+      <div class="fa"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 6 60 56H4Z" fill="#e2474f"/><path d="M32 24v14" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="47" r="3.6" fill="#fff"/></svg><span class="tag" style="color:var(--red)">Risk 4 · الخطر</span></div><h3>عينة تخربت في الطريق</h3><div class="rill"><svg viewBox="0 0 220 90"><rect x="96" y="10" width="28" height="70" rx="14" fill="#fff" stroke="#e2474f" stroke-width="4"/><rect x="101" y="40" width="18" height="34" rx="8" fill="#e2474f"/><path d="M84 30l52 30M136 30L84 60" stroke="#0b2350" stroke-width="5" stroke-linecap="round"/></svg></div><ul><li>منو يتحمّل المسؤولية؟</li><li>المستخدم أكيد لا</li></ul><div class="rnext">اضغط للحل ←</div></div>
+      <div class="fb"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 4 56 13v18c0 15-10 25-24 30C18 56 8 46 8 31V13Z" fill="#0fae9b"/><path d="M21 32l8 8 15-16" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tag" style="color:var(--teal)">Fix 4 · الحل</span></div><h3>ضمان العينة</h3><div class="rill"><svg viewBox="0 0 220 90"><path d="M110 4 146 16v26c0 22-15 36-36 44-21-8-36-22-36-44V16Z" fill="#effbf8" stroke="#0fae9b" stroke-width="4"/><path d="M94 44l11 11 22-24" stroke="#0fae9b" stroke-width="7" fill="none" stroke-linecap="round"/></svg></div><ul><li>نحن نتحمّل، مو المستخدم</li><li>إعادة سحب مجانية أو استرجاع كامل</li><li>هدية اعتذار: الزيارة القادمة بدون رسوم</li><li>نتحاسب مع الشريك حسب العقد والتأمين</li></ul></div></div></div>
+</div>
+</section>
+
+<!-- 10 licensing -->
+<section data-k="licensing" class="slide" data-steps="4" data-notes="[0:40] مسار الترخيص على مراحل. المرحلة الأولى نشتغل تحت شراكة مع مختبر معتمد وجهة رعاية منزلية مرخصة. الثانية سجل تجاري وترخيص منشأة صحية خاصة من وزارة الصحة. الممرضين: شهادة معترف فيها، التحقق عن طريق DataFlow، وامتحان Prometric، وخبرة. والطب عن بعد يحتاج موافقة للاستشارات. كل هذا لازم نتأكد منه مع الوزارة لأن الأنظمة تتغير.">
+  <span class="eyebrow in">التراخيص · Licensing path</span>
+  <h1 class="in" style="--d:.1">مسار الترخيص على مراحل<small>A step-by-step licensing path</small></h1>
+  <svg viewBox="0 0 1420 120" style="width:1420px;margin-top:40px" class="in"><path d="M1340 60 H80" stroke="#1257d6" stroke-width="8" stroke-linecap="round" stroke-dasharray="1300" stroke-dashoffset="1300" class="draw"/><circle class="tdot" cx="1340" cy="60" r="22" fill="#cfe0ff" stroke="#1257d6" stroke-width="5"/><circle class="tdot" cx="920" cy="60" r="22" fill="#cfe0ff" stroke="#1257d6" stroke-width="5"/><circle class="tdot" cx="500" cy="60" r="22" fill="#cfe0ff" stroke="#1257d6" stroke-width="5"/><circle class="tdot" cx="80" cy="60" r="22" fill="#cfe0ff" stroke="#1257d6" stroke-width="5"/></svg>
+  <div class="row" style="margin-top:16px">
+    <div class="card" data-step="1" style="flex:1"><h3>١. شراكة</h3><p>العمل تحت ترخيص مختبر معتمد وجهة رعاية منزلية</p></div>
+    <div class="card" data-step="2" style="flex:1"><h3>٢. المنشأة</h3><p>سجل تجاري + ترخيص منشأة صحية خاصة (وزارة الصحة)</p></div>
+    <div class="card" data-step="3" style="flex:1"><h3>٣. الممرضين</h3><p>ترخيص وزارة الصحة: DataFlow + Prometric + خبرة</p></div>
+    <div class="card" data-step="4" style="flex:1"><h3>٤. الطب عن بعد</h3><p>موافقة الاستشارات الأونلاين · نتأكد من الوزارة</p></div>
+  </div>
+</section>
+
+<!-- 11 numbers -->
+<section data-k="money" class="slide" data-steps="2" data-notes="[0:50] الأرقام تجريبية للتخطيط، مو أرقام حقيقية. مثال طلب باقة أساسية 25 ريال مع رسوم زيارة 5: المختبر ياخذ 65 بالمية من سعر الفحوصات، 16.25. الممرض 3 ريال، المندوب ريال، أدوات السحب نص ريال، ورسوم الدفع الإلكتروني 2.5 بالمية، والباقي للمنصة تقريباً 8.5 ريال. مثال العدة الذاتية: 9.5 ريال مع رسوم 2: المختبر 6.18، المندوب ريال، العدة نص ريال، رسوم الدفع، والمنصة تقريباً 3.5 ريال. سؤال متوقع: ليش رسوم العدة أقل؟ لأنه ما في وقت ممرض.">
+  <span class="eyebrow in">الأرقام · Unit economics (demo values)</span>
+  <h1 class="in" style="--d:.1">كيف يتوزع مبلغ الطلب<small>How one order is split · planning values</small></h1>
+  <div data-step="1" style="margin-top:34px"><div style="font:700 26px 'IBM Plex Sans Arabic';margin-bottom:10px">طلب الباقة الأساسية · 25 + 5 = <span class="ltr">30.000</span> ر.ع</div>
+    <div class="bar" id="bar1"><div data-w="54.17" style="background:#0fae9b" title="lab 16.25">16.25</div><div data-w="10.00" style="background:#1257d6" title="nurse 3.00">3.00</div><div data-w="3.33" style="background:#f2a516" title="courier 1.00"></div><div data-w="1.67" style="background:#7a5af8" title="kit 0.50"></div><div data-w="2.50" style="background:#94a3b8" title="card 0.75"></div><div data-w="28.33" style="background:#0b2350" title="platform 8.50">8.50</div></div></div>
+  <div data-step="2" style="margin-top:30px"><div style="font:700 26px 'IBM Plex Sans Arabic';margin-bottom:10px">العدة الذاتية · 9.5 + 2 = <span class="ltr">11.500</span> ر.ع</div>
+    <div class="bar" id="bar2"><div data-w="53.70" style="background:#0fae9b" title="lab 6.17">6.17</div><div data-w="8.70" style="background:#f2a516" title="courier 1.00">1.00</div><div data-w="4.35" style="background:#7a5af8" title="kit 0.50"></div><div data-w="2.50" style="background:#94a3b8" title="card 0.29"></div><div data-w="30.76" style="background:#0b2350" title="platform 3.54">3.54</div></div></div>
+  <div class="legend in" style="--d:.3"><span><i style="background:#0fae9b"></i>المختبر 65%</span><span><i style="background:#1257d6"></i>الممرض</span><span><i style="background:#f2a516"></i>المندوب</span><span><i style="background:#7a5af8"></i>الأدوات</span><span><i style="background:#94a3b8"></i>رسوم الدفع 2.5%</span><span><i style="background:#0b2350"></i>المنصة</span></div>
+</section>
+
+<!-- 12 team -->
+<section data-k="team" class="slide" data-steps="0" data-notes="[0:30] الفريق: بلعرب المسلمي مطوّر المنصة، جوخة الرواحية الأمن السيبراني، أنسام النعمانية وتسنيم الحسنية الموارد البشرية، رهف الوردية والزهراء البوسعيدية التمريض، وبإشراف د. سالم الراشدي.">
+  <span class="eyebrow in">الفريق · The team</span><h1 class="in" style="--d:.1">الفريق<small>The team</small></h1>
+  <div class="team"><div class="mem in lead" style="--d:0.10"><div class="av" style="background:#1257d6">BA</div><b>Bilarab Al Musallami</b><span>مطوّر المنصة ★</span></div><div class="mem in" style="--d:0.18"><div class="av" style="background:#7c3aed">JR</div><b>Jokha Al Rawahi</b><span>الأمن السيبراني</span></div><div class="mem in" style="--d:0.26"><div class="av" style="background:#0fae9b">AN</div><b>Ansam Al Noumani</b><span>الموارد البشرية</span></div><div class="mem in" style="--d:0.34"><div class="av" style="background:#0fae9b">TH</div><b>Tasnim Al Hasani</b><span>الموارد البشرية</span></div><div class="mem in" style="--d:0.42"><div class="av" style="background:#db2777">RW</div><b>Rahaf Al Wardi</b><span>التمريض</span></div><div class="mem in" style="--d:0.50"><div class="av" style="background:#db2777">AB</div><b>Alzahraa Al Busaidi</b><span>التمريض</span></div><div class="mem in" style="--d:0.58"><div class="av" style="background:#f2a516">SR</div><b>Dr. Salim Al Rashdi</b><span>المشرف</span></div></div>
+</section>
+
+<!-- 13 references -->
+<section data-k="refs" class="slide" data-steps="0" data-notes="[0:20] هذي المراجع اللي اعتمدنا عليها: نطاقات النتائج، والكشف المبكر، ونقل العينات، وأنظمة عمان، وقانون حماية البيانات، والنصوص المعروضة مع النتائج. كلها موجودة أيضاً في صفحة المصادر داخل البرنامج.">
+  <span class="eyebrow in">المراجع · References</span><h1 class="in" style="--d:.1">المصادر والمراجع<small>Sources & references</small></h1>
+  <ol class="refs in" style="--d:.2"><li><a href="https://kdigo.org/guidelines/ckd-evaluation-and-management/" target="_blank" rel="noopener">KDIGO 2024 CKD guideline (eGFR, albumin/creatinine)</a><small>kdigo.org</small></li><li><a href="https://professional.diabetes.org/standards-of-care" target="_blank" rel="noopener">ADA · Standards of Care in Diabetes</a><small>professional.diabetes.org</small></li><li><a href="https://ods.od.nih.gov/factsheets/VitaminD-HealthProfessional/" target="_blank" rel="noopener">NIH ODS · Vitamin D fact sheet</a><small>ods.od.nih.gov</small></li><li><a href="https://www.cancer.org/cancer/types/colon-rectal-cancer/detection-diagnosis-staging/acs-recommendations.html" target="_blank" rel="noopener">American Cancer Society · Colorectal screening from 45 (FIT)</a><small>www.cancer.org</small></li><li><a href="https://www.who.int/publications/i/item/9789240030824" target="_blank" rel="noopener">WHO · Cervical screening guideline (HPV self-sampling)</a><small>www.who.int</small></li><li><a href="https://www.who.int/publications/i/item/9789240011311" target="_blank" rel="noopener">WHO · Laboratory biosafety manual, 4th ed.</a><small>www.who.int</small></li><li><a href="https://moh.gov.om/media/tklpor0j/licensing-and-assessing-nursing-categories.pdf" target="_blank" rel="noopener">MOH Oman · Licensing and assessing nursing categories</a><small>moh.gov.om</small></li><li><a href="https://omsb.gov.om" target="_blank" rel="noopener">Oman Medical Specialty Board (OMSB)</a><small>omsb.gov.om</small></li><li><a href="https://www.omanobserver.om/article/1147865/oman/health/new-guidelines-for-visa-medical-certification" target="_blank" rel="noopener">Oman Observer · New guidelines for visa medical certification</a><small>www.omanobserver.om</small></li><li><a href="https://www.omanobserver.om/article/1157277/oman/health/visa-medical-to-include-latent-tb-screening-moh" target="_blank" rel="noopener">Oman Observer · Visa medical to include latent TB screening</a><small>www.omanobserver.om</small></li><li><a href="https://decree.om/2022/rd20220006/" target="_blank" rel="noopener">Royal Decree 6/2022 · Personal Data Protection Law</a><small>decree.om</small></li><li><a href="https://quran.com/26/80" target="_blank" rel="noopener">Qur’an 26:80 and 7:31 · quran.com</a><small>quran.com</small></li><li><a href="https://sunnah.com/bukhari:6412" target="_blank" rel="noopener">Sahih al-Bukhari 6412, 5678, 1975 · sunnah.com</a><small>sunnah.com</small></li><li><a href="https://sunnah.com/tirmidhi:2346" target="_blank" rel="noopener">Jami at-Tirmidhi 2346 · sunnah.com</a><small>sunnah.com</small></li></ol>
+</section>
+
+<!-- 14 thanks -->
+<section data-k="thanks" class="slide thanks3d" data-steps="0" data-notes="[0:20] شكراً لكم. تقدرون تجربون البرنامج الحين على الرابط، وحساب التجربة كلمة المرور Demo@2026. نسعد بأسئلتكم.">
+  <div class="d3 d3bg" data-scene="0"></div><div class="d3veil"></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:22px;text-align:center">
+    <div class="in" style="width:220px;height:220px"><svg width="100%" height="100%" class="mark holo-mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <defs><linearGradient id="hz1" x1="0" y1="0" x2="1" y2="1" spreadMethod="reflect"><stop offset="0" stop-color="#3b82f6"/><stop offset=".35" stop-color="#22d3ee"/><stop offset=".55" stop-color="#60a5fa"/><stop offset=".75" stop-color="#a78bfa"/><stop offset="1" stop-color="#3b82f6"/><animateTransform attributeName="gradientTransform" type="translate" from="-1 -1" to="1 1" dur="3.2s" repeatCount="indefinite"/></linearGradient></defs>
+  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="url(#hz1)" stroke-width="3.2"/>
+  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="url(#hz1)" stroke-width="1.6" opacity=".9"/>
+  <g transform="rotate(-32 32 34)" stroke="url(#hz1)" stroke-width="2.2"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/><circle cx="29.6" cy="40.4" r="1.6" stroke="url(#hz1)" stroke-width="1.4"><animate attributeName="cy" values="40.4;33.4;40.4" dur="2.6s" begin="0s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.25;1" dur="2.6s" begin="0s" repeatCount="indefinite"/></circle><circle cx="34.6" cy="39.4" r="1" stroke="url(#hz1)" stroke-width="1.4"><animate attributeName="cy" values="39.4;32.4;39.4" dur="2.1s" begin="0.7s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.25;1" dur="2.1s" begin="0.7s" repeatCount="indefinite"/></circle></g>
+  <circle cx="20.6" cy="20.2" r="1.3" stroke="url(#hz1)" stroke-width="1.4"><animate attributeName="cy" values="20.2;13.2;20.2" dur="3s" begin="0.3s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.25;1" dur="3s" begin="0.3s" repeatCount="indefinite"/></circle><circle cx="17.6" cy="15.6" r=".9" stroke="url(#hz1)" stroke-width="1.2"/>
+  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="url(#hz1)" stroke-width="1.3"><animate attributeName="opacity" values="1;.2;1" dur="1.8s" repeatCount="indefinite"/></path></svg></div>
+    <div class="in" style="--d:.15;font:800 104px Poppins,Inter;direction:ltr;letter-spacing:-3px">iLab<span style="color:var(--blue)">@</span>home</div>
+    <h1 class="in" style="--d:.3">شكراً لكم<small style="text-align:center">Thank you</small></h1>
+    <div class="in pill" style="--d:.45;font:700 30px Inter;direction:ltr">labathome-oman.vercel.app · @ilabathome</div>
+  </div>
+</section>
+
+</div></div>
+<div id="ctl"><button id="bp">◀</button><span id="pg">1 / 15</span><button id="bn">▶</button><button id="bnote">N · Notes</button><button id="bfs">F · Full screen</button><a href="deck.html">English</a></div><div id="rot"><span>اقلب الجوال بالعرض عشان يكبر العرض</span><button type="button" onclick="this.parentNode.remove()">×</button></div>
+<div id="notes"></div>
+<script>
+const S = [...document.querySelectorAll('.slide')]; let cur = 0, step = 0; const stage = document.getElementById('stage');
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const WRAP = document.getElementById('wrap'); function fit(){ const W = WRAP.clientWidth || innerWidth, Hh = WRAP.clientHeight || innerHeight; const s = Math.min(W / 1600, Hh / 900); stage.style.transform = `scale(${s})`; } addEventListener('resize', fit); fit();
+function show(i, dir){ i = Math.max(0, Math.min(S.length - 1, i)); if (i !== cur) { S[cur].classList.remove('on'); S[cur].classList.add('out'); const o = S[cur]; setTimeout(() => o.classList.remove('out'), 700); }
+  cur = i; step = 0; S[cur].classList.add('on'); S[cur].querySelectorAll('[data-step]').forEach(e => e.classList.remove('shown', 'done'));
+  if (dir < 0) { step = +S[cur].dataset.steps || 0; S[cur].querySelectorAll('[data-step]').forEach(e => { e.classList.add('shown'); if (e.classList.contains('flip')) e.classList.add('done'); }); }
+  resetScene(S[cur]);
+  document.getElementById('prog').style.width = ((cur + 1) / S.length * 100) + '%'; document.getElementById('pg').textContent = (cur + 1) + ' / ' + S.length;
+  notes(); onEnter(S[cur]); if (dir < 0) onStepAll(S[cur]); if (window.D3enter) D3enter(S[cur]); }
+function next(){ const n = +S[cur].dataset.steps || 0; if (step < n) { step++; S[cur].querySelectorAll(`[data-step="${step}"]`).forEach(e => { e.classList.add('shown'); if (e.classList.contains('flip') && !e.dataset.flip) setTimeout(() => e.classList.add('done'), 500); }); S[cur].querySelectorAll(`[data-flip="${step}"]`).forEach(e => e.classList.add('done')); onStep(S[cur], step); } else show(cur + 1, 1); }
+function prev(){ if (step > 0) { S[cur].querySelectorAll(`[data-step="${step}"]`).forEach(e => e.classList.remove('shown', 'done')); S[cur].querySelectorAll(`[data-flip="${step}"]`).forEach(e => e.classList.remove('done')); onBack(S[cur], step); step--; } else show(cur - 1, -1); }
+const NEXTK = document.documentElement.dir === 'rtl' ? 'ArrowLeft' : 'ArrowRight', PREVK = document.documentElement.dir === 'rtl' ? 'ArrowRight' : 'ArrowLeft';
+addEventListener('keydown', e => { if ([NEXTK,'ArrowDown',' ','PageDown','Enter'].includes(e.key)) { e.preventDefault(); next(); } else if ([PREVK,'ArrowUp','PageUp','Backspace'].includes(e.key)) { e.preventDefault(); prev(); }
+  else if (e.key.toLowerCase() === 'n') toggleNotes(); else if (e.key.toLowerCase() === 'f') fs(); });
+let sw = null; WRAP.addEventListener('touchstart', e => { sw = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() }; }, { passive: true });
+WRAP.addEventListener('touchend', e => { if (!sw) return; const dx = e.changedTouches[0].clientX - sw.x, dy = e.changedTouches[0].clientY - sw.y; const quick = Date.now() - sw.t < 700; sw = null;
+  if (quick && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) { WRAP._swiped = Date.now(); const fwd = document.documentElement.dir === 'rtl' ? dx > 0 : dx < 0; fwd ? next() : prev(); } }, { passive: true });
+WRAP.addEventListener('click', e => { if (Date.now() - (WRAP._swiped || 0) < 400) return; next(); });
+window.CUR_SLIDE = () => S[cur]; document.getElementById('bn').onclick = next; document.getElementById('bp').onclick = prev;
+document.getElementById('bnote').onclick = () => toggleNotes(); document.getElementById('bfs').onclick = () => fs();
+function fs(){ if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {}); else document.exitFullscreen(); }
+function toggleNotes(){ document.getElementById('notes').classList.toggle('show'); }
+function notes(){ document.getElementById('notes').innerHTML = `<h4>Slide ${cur + 1} · Speaker notes</h4>` + (S[cur].dataset.notes || ''); }
+let it; addEventListener('mousemove', () => { document.body.classList.remove('idle'); clearTimeout(it); it = setTimeout(() => document.body.classList.add('idle'), 2500); });
+/* moving pictures */
+const loops = {}; function loop(key, fn){ cancelAnimationFrame(loops[key]); const t0 = performance.now(); const f = now => { fn((now - t0) / 1000); loops[key] = requestAnimationFrame(f); }; loops[key] = requestAnimationFrame(f); }
+function along(path, el, p){ const L = path.getTotalLength(); const pt = path.getPointAtLength(L * p); el.setAttribute('transform', `translate(${pt.x},${pt.y})`); }
+function count(el){ const to = +el.dataset.to; const t0 = performance.now(); const f = now => { const k = Math.min(1, (now - t0) / 1200); el.textContent = (to * (1 - Math.pow(1 - k, 3))).toFixed(to % 1 ? 2 : 0); if (k < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); }
+function onEnter(sl){ const id = sl.dataset.k;
+  sl.querySelectorAll('.draw').forEach(p => { p.style.transition = 'none'; p.style.strokeDashoffset = p.getAttribute('stroke-dasharray'); requestAnimationFrame(() => requestAnimationFrame(() => { p.style.transition = 'stroke-dashoffset 1.8s cubic-bezier(.4,.1,.2,1)'; p.style.strokeDashoffset = 0; })); });
+  if (id === 'problem') { const p = document.getElementById('jpath'), c = document.getElementById('jcar'), ck = document.getElementById('jclock'); loop('j', t => { const k = (t % 6) / 6; along(p, c, k < .5 ? k * 2 : 2 - k * 2); const m = Math.min(210, Math.floor(t * 30)); ck.textContent = Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0'); }); }
+  if (id === 'app') { const p = document.getElementById('apath'), v = document.getElementById('avan'), pr = document.getElementById('aprog'); const rep = document.getElementById('arep');
+    rep.innerHTML = [['Haemoglobin', .55, '#0fae9b'], ['Vitamin D', .22, '#f2a516'], ['HbA1c', .5, '#0fae9b']].map(([n, x, c]) => `<div style="font:700 16px Inter;direction:ltr;display:flex;justify-content:space-between"><span>${n}</span></div><div style="height:10px;border-radius:5px;background:#e3e9f4;position:relative;margin:6px 0 12px;direction:ltr"><i class="mk" style="position:absolute;top:-4px;width:18px;height:18px;border-radius:50%;background:${c};left:50%;transition:left 1.4s cubic-bezier(.3,1.5,.5,1)" data-x="${x}"></i></div>`).join('');
+    setTimeout(() => rep.querySelectorAll('.mk').forEach(m => m.style.left = (m.dataset.x * 92) + '%'), 300);
+    loop('a', t => { const k = Math.min(1, (t % 7) / 5); along(p, v, k); pr.style.strokeDashoffset = 400 * (1 - k); }); }
+  if (id === 'kits' && document.getElementById('knodes')) { const g = document.getElementById('knodes'); if (!g.childNodes.length) g.innerHTML = [[1280, 'المندوب يوصل العدة'], [700, 'تاخذ العينة بنفسك'], [140, 'المختبر']].map(([x, n], i) => `<g transform="translate(${x},130)"><circle r="46" fill="#fff" stroke="#0fae9b" stroke-width="6"/><text y="12" text-anchor="middle" font-size="34" font-weight="800" fill="#0fae9b" font-family="Poppins">${i + 1}</text><text y="88" text-anchor="middle" font-size="24" font-weight="700" fill="#0b2350">${n}</text></g>`).join('');
+    const p = document.getElementById('kpath'), d = document.getElementById('kdot'); loop('k', t => along(p, d, (t % 5) / 5)); }
+}
+function onStep(sl, n){ const id = sl.dataset.k;
+  if (id === 'kits' && n === 2) sl.querySelectorAll('.cnt').forEach(count);
+  if (id === 'loyalty') { const st = sl.querySelectorAll('.stamp b'); if (st[n - 1]) st[n - 1].classList.add('on'); }
+  if (id === 'money') sl.querySelectorAll(`#bar${n} div`).forEach(d => d.style.width = d.dataset.w + '%');
+  if (id === 'licensing') { const dots = sl.querySelectorAll('.tdot'); if (dots[n - 1]) dots[n - 1].setAttribute('fill', '#0fae9b'); } }
+
+/* v2: characters you can click, and the scenes of the goal / how-it-works slides */
+function say(svgId, bubId, el){ if (!el) return; el.classList.remove('jump'); void el.getBoundingClientRect(); el.classList.add('jump'); setTimeout(() => el.classList.remove('jump'), 650);
+  const b = document.getElementById(bubId); const host = el.parentNode.getAttribute('transform') || ''; const m = host.match(/translate\(([-\d.]+),\s*([-\d.]+)\)/);
+  if (!b || !m || !svgId) return; b.querySelector('text').textContent = el.dataset.say; const x = Math.max(200, Math.min(1220, +m[1])); b.setAttribute('transform', `translate(${x},${+m[2] - 290})`); b.style.transition = 'opacity .25s'; b.setAttribute('opacity', 1); clearTimeout(b._t); b._t = setTimeout(() => b.setAttribute('opacity', 0), 2600); }
+document.querySelectorAll('.ch-hit').forEach(el => el.addEventListener('click', e => { e.stopPropagation(); const svg = el.closest('svg'); say(svg.id, svg.id === 'gsvg' ? 'gbub' : 'hbub', el); }));
+function anim(el, kf, o){ if (!el || RM) return null; try { return el.animate(kf, Object.assign({ duration: 900, easing: 'cubic-bezier(.3,.8,.3,1)', fill: 'forwards' }, o)); } catch(e) { return null; } }
+function resetScene(sl){ const k = sl.dataset.k;
+  if (k === 'how') { const n = +step; const v = document.querySelector('#hvan .mv'), nu = document.querySelector('#hnurse .mv');
+    [v, nu, document.getElementById('hcold'), document.getElementById('hbook'), document.getElementById('hrep')].forEach(x => x && x.getAnimations && x.getAnimations().forEach(a => a.cancel()));
+    document.getElementById('hcold').style.transform = n >= 3 ? 'translate(305px,236px)' : '';
+    document.getElementById('hbook').setAttribute('opacity', n >= 1 ? 1 : 0); document.getElementById('hrep').setAttribute('opacity', n >= 4 ? 1 : 0); document.getElementById('hcold').setAttribute('opacity', n >= 3 ? 1 : 0);
+    nu.style.opacity = n >= 2 ? 1 : 0; if (n >= 3) v.style.transform = 'translateX(-430px)'; else v.style.transform = ''; }
+  if (k === 'goal') sl.querySelectorAll('.gok').forEach(g => g.classList.toggle('shown', step >= 1)); }
+function onBack(sl, n){ if (sl.dataset.k === 'how') { step = n - 1; resetScene(sl); step = n; } }
+const _onEnter = onEnter; onEnter = function(sl){ _onEnter(sl); const k = sl.dataset.k;
+  if (k === 'how') resetScene(sl);
+  if (k === 'goal') { sl.querySelectorAll('.cnt').forEach(c => c.textContent = '0'); sl.querySelectorAll('.ch-hit').forEach((c, i) => { const m = c.querySelector('.mv'); anim(m, [{ transform: 'translateY(40px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 700, delay: 300 + i * 140 }); }); } };
+const _onStep = onStep; onStep = function(sl, n){ _onStep(sl, n); areaStep(sl, n); const k = sl.dataset.k; if (window._all) { if (k === 'how' || k === 'goal') resetScene(sl); return; }
+  if (k === 'goal' && n === 1) sl.querySelectorAll('.ch-hit').forEach((c, i) => setTimeout(() => { c.classList.remove('jump'); void c.getBoundingClientRect(); c.classList.add('jump'); }, i * 120));
+  if (k === 'goal' && n === 2) sl.querySelectorAll('.cnt').forEach(count);
+  if (k === 'how') { const book = document.getElementById('hbook'), rep = document.getElementById('hrep'), cold = document.getElementById('hcold'), v = document.querySelector('#hvan .mv'), nuG = document.getElementById('hnurse'), nu = nuG.querySelector('.mv');
+    if (n === 1) { book.setAttribute('opacity', 1); anim(book, [{ transform: 'scale(.6)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 600, easing: 'cubic-bezier(.3,1.6,.5,1)' }); }
+    if (n === 2) { nu.style.opacity = 1; nuG.classList.add('walking'); const a = anim(nu, [{ transform: 'translateX(-200px)' }, { transform: 'none' }], { duration: 1800, easing: 'ease-out' }); setTimeout(() => { nuG.classList.remove('walking'); say('hsc', 'hbub', nuG); }, 1800); }
+    if (n === 3) { cold.setAttribute('opacity', 1); anim(v, [{ transform: 'none' }, { transform: 'translateX(-430px)' }], { duration: 2600, easing: 'cubic-bezier(.5,0,.3,1)' }); anim(cold, [{ transform: 'translate(735px,236px)' }, { transform: 'translate(305px,236px)' }], { duration: 2600, easing: 'cubic-bezier(.5,0,.3,1)' }); }
+    if (n === 4) { rep.setAttribute('opacity', 1); anim(rep, [{ transform: 'translateY(30px) scale(.7)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 700, easing: 'cubic-bezier(.3,1.6,.5,1)' }); } } };
+function areaStep(sl, n){ if (sl.dataset.k === 'area' && window.MAP && MAP.r) MAP.select(Math.max(0, n - 1)); }
+function onStepAll(sl){ window._all = true; try { for (let n = 1; n <= (+sl.dataset.steps || 0); n++) onStep(sl, n); } finally { window._all = false; } }
+/* living background */
+const cv = document.getElementById('bgc'), cx = cv.getContext('2d'); let P = [];
+function bgInit(){ cv.width = innerWidth; cv.height = innerHeight; P = Array.from({ length: 34 }, () => ({ x: Math.random() * cv.width, y: Math.random() * cv.height, vx: (Math.random() - .5) * .25, vy: (Math.random() - .5) * .25, r: 2 + Math.random() * 2 })); }
+function bg(){ cx.clearRect(0, 0, cv.width, cv.height); for (const a of P) { a.x += a.vx; a.y += a.vy; if (a.x < 0 || a.x > cv.width) a.vx *= -1; if (a.y < 0 || a.y > cv.height) a.vy *= -1; }
+  for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) { const d = Math.hypot(P[i].x - P[j].x, P[i].y - P[j].y); if (d < 180) { cx.strokeStyle = `rgba(18,87,214,${.08 * (1 - d / 180)})`; cx.beginPath(); cx.moveTo(P[i].x, P[i].y); cx.lineTo(P[j].x, P[j].y); cx.stroke(); } }
+  for (const a of P) { cx.fillStyle = 'rgba(18,87,214,.18)'; cx.beginPath(); cx.arc(a.x, a.y, a.r, 0, 7); cx.fill(); } if (!RM) requestAnimationFrame(bg); }
+bgInit(); addEventListener('resize', bgInit); bg();
+document.querySelectorAll('.spin').forEach(el => { if (!RM) el.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], { duration: 40000, iterations: Infinity }); el.style.transformOrigin = '260px 260px'; });
+show(0, 1);
+</script>
+<script type="module">
+/* iLab@home – real-time 3D banners and the opening splash (three.js, physically based materials, ACES tone mapping). */
+import * as THREE from '../js/vendor/three.module.min.js';
+
+const R = {}; // renderer state
+const TAU = Math.PI * 2;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const eo = x => 1 - Math.pow(1 - x, 3);
+const eio = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+let seed = 11; const rnd = () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const MC = {};
+const std = (c, o) => { const k = 's' + c + JSON.stringify(o || {}); return MC[k] || (MC[k] = new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: .8, metalness: 0 }, o || {}))); };
+const phys = (c, o) => { const k = 'p' + c + JSON.stringify(o || {}); return MC[k] || (MC[k] = new THREE.MeshPhysicalMaterial(Object.assign({ color: c, roughness: .4, metalness: 0 }, o || {}))); };
+const mesh = (g, m, p, sh = true) => { const x = new THREE.Mesh(g, m); if (p) x.position.set(p[0], p[1], p[2]); x.castShadow = sh; x.receiveShadow = true; return x; };
+function ctex(w, h, draw){ const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); draw(x, w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
+function rr(x, X, Y, w, h, r){ x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+function roundShape(w, h, r){ const s = new THREE.Shape(); const x = -w / 2, y = -h / 2; s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r); s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h); s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r); s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y); return s; }
+function rbox(w, h, d, r, bevel = .04){ const g = new THREE.ExtrudeGeometry(roundShape(w, h, r), { depth: d - bevel * 2, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 4, curveSegments: 10 }); g.translate(0, 0, -(d - bevel * 2) / 2); return g; }
+function hexMark(x, X, Y, s, col){ x.save(); x.translate(X, Y); x.scale(s / 64, s / 64); x.strokeStyle = col; x.lineCap = 'round'; x.lineJoin = 'round';
+  x.lineWidth = 3.4; x.stroke(new Path2D('M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2')); x.lineWidth = 1.7; x.stroke(new Path2D('M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9'));
+  x.translate(32, 34); x.rotate(-32 * Math.PI / 180); x.translate(-32, -34); x.lineWidth = 2.4; x.stroke(new Path2D('M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1')); x.stroke(new Path2D('M27 20.5h10')); x.lineWidth = 1.9; x.stroke(new Path2D('M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2')); x.restore(); }
+function wordmark(x, X, Y, size, col, at, align){ x.font = `800 ${size}px Inter, Arial`; x.textBaseline = 'middle'; const p = ['i', 'Lab', '@', 'home']; const ws = p.map(s => x.measureText(s).width); let px = align === 'center' ? X - (ws[0] + ws[1] + ws[2] + ws[3]) / 2 : X; p.forEach((s, i) => { x.fillStyle = i === 0 || i === 2 ? at : col; x.fillText(s, px, Y); px += ws[i]; }); }
+const bg = (stops) => ctex(16, 512, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); stops.forEach(([o, c]) => g.addColorStop(o, c)); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+const radialBg = (inner, outer) => ctex(512, 512, (x, w, h) => { const g = x.createRadialGradient(w * .62, h * .42, 10, w * .55, h * .5, w * .75); g.addColorStop(0, inner); g.addColorStop(1, outer); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+function shadowDisc(r, o = .28){ const t = ctex(128, 128, (x, w, h) => { const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, `rgba(10,20,40,${o})`); g.addColorStop(1, 'rgba(10,20,40,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(r * 2, r * 2), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false })); m.rotation.x = -Math.PI / 2; return m; }
+
+/* ---------- studio environment for reflections ---------- */
+function studioEnv(renderer){
+  const s = new THREE.Scene(); const sky = new THREE.Mesh(new THREE.SphereGeometry(50, 32, 16), new THREE.MeshBasicMaterial({ side: THREE.BackSide, map: bg([[0, '#cfe0ff'], [.45, '#f7fbff'], [.55, '#b9c6dc'], [1, '#2b3346']]) })); s.add(sky);
+  const panel = (w, h, p, c, i) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(c).multiplyScalar(i), side: THREE.DoubleSide })); m.position.set(...p); m.lookAt(0, 0, 0); s.add(m); };
+  panel(30, 10, [0, 30, 10], '#ffffff', 4); panel(14, 24, [-30, 6, 8], '#ffe6c4', 2.2); panel(14, 24, [30, 6, -6], '#cfe2ff', 2.6); panel(20, 6, [0, 4, -30], '#ffffff', 1.4);
+  const pm = new THREE.PMREMGenerator(renderer); const env = pm.fromScene(s, .04).texture; pm.dispose(); return env;
+}
+
+/* ---------- models ---------- */
+function vanSideTex(){ return ctex(2048, 512, (x, w, h) => {
+  hexMark(x, 40, 110, 290, '#ffffff'); wordmark(x, 360, 200, 190, '#ffffff', '#7cc0ff');
+  x.font = '600 92px "IBM Plex Sans Arabic", Arial'; x.fillStyle = '#cfe0ff'; x.textBaseline = 'middle'; x.fillText('آي لاب@هوم · فحوصات منزلية', 370, 360);
+  x.strokeStyle = 'rgba(124,192,255,.9)'; x.lineWidth = 10; x.beginPath(); x.moveTo(1620, 420); x.bezierCurveTo(1700, 300, 1820, 520, 1990, 380); x.stroke(); }); }
+function vanRearTex(){ return ctex(512, 512, (x, w, h) => { hexMark(x, 156, 70, 200, '#ffffff'); wordmark(x, 256, 330, 76, '#ffffff', '#7cc0ff', 'center'); x.font = '600 34px Inter, Arial'; x.fillStyle = '#9fc4ff'; x.textAlign = 'center'; x.fillText('labathome-oman.vercel.app', 256, 410); }); }
+function wheel(){
+  const g = new THREE.Group();
+  const prof = []; for (let i = 0; i <= 16; i++) { const a = -Math.PI / 2 + i / 16 * Math.PI; prof.push(new THREE.Vector2(.3 + Math.cos(a) * .14, Math.sin(a) * .16)); }
+  const tire = new THREE.Mesh(new THREE.LatheGeometry(prof, 36), std('#15171c', { roughness: .92 })); tire.rotation.x = Math.PI / 2; tire.castShadow = true; g.add(tire);
+  const side = mesh(new THREE.CylinderGeometry(.31, .31, .3, 36), std('#1b1e24', { roughness: .9 })); side.rotation.x = Math.PI / 2; g.add(side);
+  const rim = mesh(new THREE.CylinderGeometry(.24, .24, .32, 30), phys('#c9d2de', { metalness: 1, roughness: .22 })); rim.rotation.x = Math.PI / 2; g.add(rim);
+  const hub = mesh(new THREE.CylinderGeometry(.08, .08, .34, 16), phys('#6b7686', { metalness: 1, roughness: .3 })); hub.rotation.x = Math.PI / 2; g.add(hub);
+  for (let i = 0; i < 6; i++) { const sp = mesh(new THREE.BoxGeometry(.05, .2, .02), phys('#8892a2', { metalness: 1, roughness: .3 }), [0, 0, .165]); sp.rotation.z = i / 6 * TAU; sp.position.x = Math.sin(i / 6 * TAU) * .12; sp.position.y = Math.cos(i / 6 * TAU) * .12; g.add(sp); const sp2 = sp.clone(); sp2.position.z = -.165; g.add(sp2); }
+  return g;
+}
+function van(){
+  const g = new THREE.Group(); const body = new THREE.Group(); g.add(body);
+  const s = new THREE.Shape();
+  s.moveTo(-2.3, .5); s.lineTo(2.32, .5); s.quadraticCurveTo(2.5, .52, 2.5, .72); s.lineTo(2.5, 1.0); s.quadraticCurveTo(2.48, 1.2, 2.2, 1.3);
+  s.lineTo(1.82, 1.38); s.quadraticCurveTo(1.55, 1.9, 1.2, 2.28); s.quadraticCurveTo(1.05, 2.42, .8, 2.42); s.lineTo(-2.15, 2.44); s.quadraticCurveTo(-2.36, 2.44, -2.36, 2.2); s.lineTo(-2.36, .64); s.quadraticCurveTo(-2.36, .5, -2.3, .5);
+  const D = 1.72, BT = .13; const geo = new THREE.ExtrudeGeometry(s, { depth: D, bevelEnabled: true, bevelThickness: BT, bevelSize: .12, bevelSegments: 5, curveSegments: 14 }); geo.translate(0, 0, -D / 2);
+  const paint = phys('#13254b', { metalness: .45, roughness: .32, clearcoat: 1, clearcoatRoughness: .06 });
+  body.add(mesh(geo, paint));
+  const half = D / 2 + BT;
+  // lower skirt + blue stripe
+  body.add(mesh(new THREE.BoxGeometry(4.86, .2, half * 2 + .02), phys('#2563eb', { metalness: .3, roughness: .35, clearcoat: 1, clearcoatRoughness: .1 }), [.05, 1.0, 0]));
+  body.add(mesh(new THREE.BoxGeometry(4.9, .22, half * 2 + .04), std('#20242c', { roughness: .7 }), [.05, .56, 0]));
+  // glass
+  const glass = phys('#0a1222', { metalness: .1, roughness: .04, clearcoat: 1, envMapIntensity: 1.6, side: THREE.DoubleSide });
+  const ws = mesh(new THREE.PlaneGeometry(half * 2 - .22, 1.1), glass, [0, 0, 0], false); ws.rotation.set(0, Math.PI / 2, 0); ws.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), .6);
+  ws.position.set(1.51 + Math.cos(.6) * .14, 1.83 + Math.sin(.6) * .14, 0); body.add(ws);
+  const sideWin = new THREE.ShapeGeometry((() => { const q = new THREE.Shape(); q.moveTo(.55, 1.42); q.lineTo(1.62, 1.42); q.quadraticCurveTo(1.45, 1.85, 1.12, 2.2); q.lineTo(.55, 2.2); q.closePath(); return q; })());
+  for (const z of [-1, 1]) {
+    body.add(mesh(sideWin, glass, [0, 0, z * (half + .004)], false));
+    const w2 = mesh(new THREE.PlaneGeometry(.8, .5), glass, [-1.75, 2.0, z * (half + .004)], false); if (z < 0) w2.rotation.y = Math.PI; body.add(w2);
+    const dec = new THREE.Mesh(new THREE.PlaneGeometry(3.3, .82), new THREE.MeshPhysicalMaterial({ map: R.texVan, transparent: true, roughness: .3, clearcoat: 1, metalness: 0 }));
+    dec.position.set(-.95, 1.55, z * (half + .006)); if (z < 0) dec.rotation.y = Math.PI; body.add(dec);
+    const handle = mesh(new THREE.BoxGeometry(.22, .05, .03), phys('#c0c8d4', { metalness: 1, roughness: .25 }), [.75, 1.3, z * (half + .02)], false); body.add(handle);
+    const mirror = new THREE.Group(); mirror.position.set(1.72, 1.55, z * (half + .1)); mirror.add(mesh(new THREE.BoxGeometry(.08, .26, .2), paint)); mirror.add(mesh(new THREE.BoxGeometry(.02, .2, .15), phys('#cfe0ff', { metalness: 1, roughness: .05 }), [.045, 0, 0], false)); body.add(mirror);
+  }
+  const rear = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.2), new THREE.MeshBasicMaterial({ map: R.texRear, transparent: true })); rear.position.set(-2.37 - .13, 1.55, 0); rear.rotation.y = -Math.PI / 2; body.add(rear);
+  // lights + grille
+  const head = phys('#ffffff', { emissive: '#fff6dc', emissiveIntensity: 2.2, roughness: .1 });
+  for (const z of [-.68, .68]) { body.add(mesh(new THREE.BoxGeometry(.06, .16, .38), head, [2.6, 1.08, z], false)); body.add(mesh(new THREE.BoxGeometry(.06, .3, .12), phys('#ff3b3b', { emissive: '#ff2a2a', emissiveIntensity: 1.6 }), [-2.5, 1.65, z * 1.18], false)); }
+  body.add(mesh(new THREE.BoxGeometry(.05, .26, .9), std('#0b0f17', { roughness: .5 }), [2.6, .82, 0], false));
+  const plate = new THREE.Mesh(new THREE.PlaneGeometry(.5, .14), new THREE.MeshBasicMaterial({ map: ctex(256, 72, (x, w, h) => { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.fillStyle = '#0d1628'; x.font = '800 40px Inter, Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('12345 · LH', w / 2, h / 2 + 2); x.fillStyle = '#c8102e'; x.fillRect(0, 0, 18, h); }) })); plate.position.set(2.64, .62, 0); plate.rotation.y = Math.PI / 2; body.add(plate);
+  // roof: cold unit + light bar
+  body.add(mesh(rbox(1.2, .22, 1.1, .08, .03), std('#eef2f8', { roughness: .4 }), [-1.2, 2.6, 0]));
+  const bar = new THREE.Group(); bar.position.set(.55, 2.53, 0); body.add(bar);
+  bar.add(mesh(rbox(.36, .14, 1.0, .06, .02), std('#1c2433', { roughness: .4 })));
+  R.beacon = [mesh(new THREE.BoxGeometry(.3, .1, .4), phys('#ff2b2b', { emissive: '#ff2020', emissiveIntensity: 1, transparent: true, opacity: .95 }), [0, .09, -.25], false), mesh(new THREE.BoxGeometry(.3, .1, .4), phys('#2b6bff', { emissive: '#2a62ff', emissiveIntensity: 1, transparent: true, opacity: .95 }), [0, .09, .25], false)];
+  R.beacon.forEach(b => bar.add(b));
+  // wheel arches + wheels
+  const arch = std('#0d1118', { roughness: .8, side: THREE.DoubleSide });
+  const wheels = [];
+  for (const [x, z] of [[1.48, -1], [1.48, 1], [-1.45, -1], [-1.45, 1]]) {
+    const a = mesh(new THREE.CircleGeometry(.56, 32, 0, Math.PI), arch, [x, .5, z * (half + .003)], false); body.add(a);
+    const w = wheel(); w.position.set(x, .45, z * (half - .1)); g.add(w); wheels.push(w);
+  }
+  const sh = shadowDisc(3.4, .55); sh.scale.set(1.0, .55, 1); sh.position.y = .012; g.add(sh);
+  g.userData = { body, wheels }; return g;
+}
+function tube(cap, fill){ const g = new THREE.Group();
+  g.add(mesh(new THREE.CylinderGeometry(.11, .11, .9, 28, 1, true), phys('#ffffff', { transmission: 0, transparent: true, opacity: .32, roughness: .05, clearcoat: 1, side: THREE.DoubleSide }), [0, 0, 0], false));
+  g.add(mesh(new THREE.SphereGeometry(.11, 20, 10, 0, TAU, Math.PI / 2, Math.PI / 2), phys('#ffffff', { transparent: true, opacity: .32, roughness: .05 }), [0, -.45, 0], false));
+  g.add(mesh(new THREE.CylinderGeometry(.095, .095, .5, 22), phys(fill, { roughness: .25, clearcoat: .6 }), [0, -.17, 0], false));
+  g.add(mesh(new THREE.CylinderGeometry(.13, .13, .22, 28), phys(cap, { roughness: .35, clearcoat: .8 }), [0, .53, 0]));
+  const lab = new THREE.Mesh(new THREE.CylinderGeometry(.113, .113, .36, 28, 1, true, -1.2, 2.4), new THREE.MeshStandardMaterial({ map: R.texLabel, roughness: .6, transparent: true })); lab.position.y = .05; g.add(lab);
+  return g; }
+function kitBag(){
+  const g = new THREE.Group(); const fab = phys('#14264d', { roughness: .72, sheen: 1, sheenColor: new THREE.Color('#3d6fd6'), sheenRoughness: .5 });
+  const b = mesh(rbox(2.4, 1.5, 1.3, .32, .1), fab, [0, .85, 0]); g.add(b);
+  g.add(mesh(new THREE.BoxGeometry(2.42, .1, 1.32), phys('#2563eb', { roughness: .4 }), [0, 1.35, 0]));
+  const zip = mesh(new THREE.TorusGeometry(.62, .04, 10, 40, Math.PI), phys('#c9d2de', { metalness: 1, roughness: .25 }), [0, 1.6, 0]); g.add(zip);
+  const handle = mesh(new THREE.TorusGeometry(.42, .07, 14, 40, Math.PI), phys('#0d1628', { roughness: .5 }), [0, 1.62, 0]); g.add(handle);
+  const cross = new THREE.Group(); cross.position.set(-.55, .95, .66); g.add(cross);
+  cross.add(mesh(new THREE.CircleGeometry(.36, 40), phys('#ffffff', { roughness: .4 }), [0, 0, .001], false));
+  cross.add(mesh(new THREE.BoxGeometry(.14, .44, .03), phys('#e2474f', { roughness: .35 }), [0, 0, .02], false)); cross.add(mesh(new THREE.BoxGeometry(.44, .14, .03), phys('#e2474f', { roughness: .35 }), [0, 0, .02], false));
+  const lab = new THREE.Mesh(new THREE.PlaneGeometry(1.0, .34), new THREE.MeshStandardMaterial({ map: R.texBagLabel, transparent: true, roughness: .5 })); lab.position.set(.42, .95, .66); g.add(lab);
+  const sh = shadowDisc(2, .45); sh.scale.set(1.1, .7, 1); sh.position.y = .01; g.add(sh);
+  return g;
+}
+function phone(){
+  const g = new THREE.Group();
+  g.add(mesh(rbox(1.5, 3.05, .16, .24, .05), phys('#d6dce6', { metalness: 1, roughness: .2 })));
+  g.add(mesh(rbox(1.42, 2.97, .17, .2, .03), phys('#0b0f17', { roughness: .1, clearcoat: 1 })));
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(1.32, 2.86), new THREE.MeshBasicMaterial({ map: R.texScreen, toneMapped: false })); scr.position.z = .092; g.add(scr);
+  return g;
+}
+function card(tex, w, h){ const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, transparent: true, toneMapped: false, depthWrite: false })); return m; }
+function stethoscope(){ const g = new THREE.Group(); const pts = []; for (let i = 0; i <= 40; i++) { const u = i / 40; pts.push(new THREE.Vector3(Math.sin(u * TAU * .9) * (1.1 - u * .4), 0, Math.cos(u * TAU * .9) * (.9 - u * .3) - u * .8)); }
+  g.add(mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 120, .045, 10), std('#1f2633', { roughness: .45 })));
+  const cp = mesh(new THREE.CylinderGeometry(.24, .26, .1, 32), phys('#d9e0ea', { metalness: 1, roughness: .18 }), [pts[40].x, .03, pts[40].z]); g.add(cp); g.add(mesh(new THREE.CylinderGeometry(.18, .18, .02, 32), std('#111827'), [pts[40].x, .09, pts[40].z], false)); return g; }
+function bpMonitor(){ const g = new THREE.Group(); g.add(mesh(rbox(1.6, 1.15, .7, .22, .06), phys('#f6f8fb', { roughness: .32, clearcoat: .8 }), [0, .6, 0]));
+  const lcd = new THREE.Mesh(new THREE.PlaneGeometry(1.15, .62), new THREE.MeshBasicMaterial({ map: R.texBP, toneMapped: false })); lcd.position.set(0, .72, .356); g.add(lcd);
+  for (const [x, c] of [[-.4, '#2563eb'], [0, '#0fae9b'], [.4, '#e2474f']]) g.add(mesh(new THREE.CylinderGeometry(.07, .07, .05, 20), phys(c, { roughness: .3 }), [x, .28, .36], false).rotateX(Math.PI / 2));
+  const cuff = mesh(new THREE.TorusGeometry(.55, .2, 20, 50, Math.PI * 1.5), phys('#16305e', { roughness: .7, sheen: 1, sheenColor: new THREE.Color('#5b8cff') }), [1.65, .4, -.2]); cuff.rotation.set(Math.PI / 2, 0, .4); g.add(cuff);
+  const pts = [new THREE.Vector3(.8, .5, 0), new THREE.Vector3(1.1, .25, .3), new THREE.Vector3(1.4, .3, .1)]; g.add(mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 30, .03, 8), std('#1f2633')));
+  const sh = shadowDisc(1.6, .4); sh.scale.set(1.5, .7, 1); sh.position.y = .01; g.add(sh); return g; }
+function vial(){ const g = new THREE.Group(); g.add(mesh(new THREE.CylinderGeometry(.32, .32, .9, 32), phys('#ffffff', { transparent: true, opacity: .35, roughness: .04, clearcoat: 1 }), [0, .45, 0], false));
+  g.add(mesh(new THREE.CylinderGeometry(.28, .28, .55, 30), phys('#9fd8ff', { roughness: .1, transparent: true, opacity: .85 }), [0, .32, 0], false));
+  g.add(mesh(new THREE.CylinderGeometry(.2, .2, .16, 24), phys('#c9d2de', { metalness: 1, roughness: .25 }), [0, .98, 0])); g.add(mesh(new THREE.CylinderGeometry(.34, .34, .14, 32), phys('#0fae9b', { roughness: .4 }), [0, 1.12, 0]));
+  const l = new THREE.Mesh(new THREE.CylinderGeometry(.325, .325, .4, 32, 1, true, -1.3, 2.6), new THREE.MeshStandardMaterial({ map: R.texVial, transparent: true })); l.position.y = .5; g.add(l); return g; }
+function syringe(){ const g = new THREE.Group(); g.add(mesh(new THREE.CylinderGeometry(.13, .13, 1.6, 28), phys('#ffffff', { transparent: true, opacity: .4, roughness: .05, clearcoat: 1 }), [0, 0, 0], false));
+  g.add(mesh(new THREE.CylinderGeometry(.11, .11, .7, 24), phys('#9fd8ff', { transparent: true, opacity: .8 }), [0, -.4, 0], false)); g.add(mesh(new THREE.CylinderGeometry(.05, .05, .9, 12), std('#e2e8f0'), [0, 1.1, 0])); g.add(mesh(new THREE.CylinderGeometry(.25, .25, .05, 24), std('#e2e8f0'), [0, 1.55, 0]));
+  g.add(mesh(new THREE.CylinderGeometry(.01, .01, .7, 8), phys('#d9e0ea', { metalness: 1, roughness: .2 }), [0, -1.15, 0])); g.add(mesh(new THREE.BoxGeometry(.5, .04, .16), std('#e2e8f0'), [0, .8, 0])); return g; }
+function house(){ const g = new THREE.Group(); const wall = std('#f5efe2', { roughness: .9 });
+  g.add(mesh(new THREE.BoxGeometry(3, 1.8, 2.2), wall, [0, .9, 0])); for (let i = 0; i < 5; i++) if (i % 2 === 0) { g.add(mesh(new THREE.BoxGeometry(.5, .3, .25), wall, [-1.2 + i * .6, 1.95, 1])); g.add(mesh(new THREE.BoxGeometry(.5, .3, .25), wall, [-1.2 + i * .6, 1.95, -1])); }
+  g.add(mesh(new THREE.BoxGeometry(3.1, .1, 2.3), std('#e2d3b5'), [0, 1.78, 0])); g.add(mesh(new THREE.BoxGeometry(.7, 1.2, .08), std('#7a4a26', { roughness: .6 }), [0, .6, 1.12]));
+  const ar = mesh(new THREE.CylinderGeometry(.35, .35, .08, 16, 1, false, 0, Math.PI), std('#7a4a26', { roughness: .6 }), [0, 1.2, 1.12]); ar.rotation.set(Math.PI / 2, Math.PI / 2, Math.PI / 2); g.add(ar);
+  for (const x of [-1, 1]) { g.add(mesh(new THREE.BoxGeometry(.5, .55, .06), std('#ffffff'), [x, 1.0, 1.12], false)); g.add(mesh(new THREE.BoxGeometry(.38, .42, .08), phys('#2a4a7a', { roughness: .2 }), [x, 1.0, 1.13], false)); }
+  return g; }
+function palm(h = 2.6){ const g = new THREE.Group(); let y = 0, x = 0; const lean = (rnd() - .5) * .3; for (let i = 0; i < 6; i++) { const s = mesh(new THREE.CylinderGeometry(.09 - i * .007, .11 - i * .007, h / 6 + .04, 7), std('#8a6a45'), [x, y + h / 12, 0]); s.rotation.z = -lean; g.add(s); y += h / 6; x += lean * h / 6; }
+  const top = new THREE.Group(); top.position.set(x, y, 0); g.add(top); for (let i = 0; i < 9; i++) { const f = mesh(new THREE.ConeGeometry(.2, 1.5, 4), std(i % 2 ? '#3f9b5a' : '#2f7d47', { flatShading: true })); f.scale.set(1, 1, .3); f.position.set(Math.cos(i / 9 * TAU) * .55, -.15, Math.sin(i / 9 * TAU) * .55); f.rotation.set(0, -i / 9 * TAU, 0); f.rotateZ(-Math.PI / 2 + .45); top.add(f); } return g; }
+
+/* ---------- textures ---------- */
+function makeTextures(){
+  R.texVan = vanSideTex(); R.texRear = vanRearTex();
+  R.texLabel = ctex(256, 128, (x, w, h) => { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); for (let i = 0; i < 46; i++) { x.fillStyle = '#111'; x.fillRect(18 + i * 4.6, 18, (i * 7 % 3) + 1, 60); } x.fillStyle = '#0d1628'; x.font = '700 22px Inter, Arial'; x.fillText('LAH-10254', 20, 106); });
+  R.texBagLabel = ctex(512, 170, (x, w, h) => { wordmark(x, 24, 70, 92, '#ffffff', '#7cc0ff'); x.font = '600 40px "IBM Plex Sans Arabic", Arial'; x.fillStyle = '#9fc4ff'; x.textBaseline = 'middle'; x.fillText('آي لاب@هوم', 30, 140); });
+  R.texBP = ctex(512, 280, (x, w, h) => { x.fillStyle = '#c9e7dc'; rr(x, 0, 0, w, h, 26); x.fill(); x.fillStyle = '#0c2b22'; x.font = '800 116px Inter, Arial'; x.textBaseline = 'alphabetic'; x.fillText('120', 30, 128); x.font = '800 92px Inter, Arial'; x.fillText('80', 60, 238); x.font = '700 26px Inter, Arial'; x.fillText('SYS mmHg', 270, 60); x.fillText('DIA mmHg', 270, 170);
+    x.fillStyle = '#e2474f'; x.font = '800 54px Inter, Arial'; x.fillText('♥ 72', 300, 250); });
+  R.texVial = ctex(512, 160, (x, w, h) => { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.fillStyle = '#0fae9b'; x.fillRect(0, 0, w, 34); x.fillStyle = '#0d1628'; x.font = '800 44px Inter, Arial'; x.fillText('VACCINE', 24, 96); x.font = '600 26px Inter, Arial'; x.fillStyle = '#56657f'; x.fillText('iLab@home · soon', 24, 136); });
+  R.texScreen = ctex(660, 1430, (x, w, h) => {
+    x.fillStyle = '#f4f7fc'; x.fillRect(0, 0, w, h); x.fillStyle = '#0d1628'; x.fillRect(0, 0, w, 230); hexMark(x, 34, 70, 96, '#7cc0ff'); wordmark(x, 146, 118, 58, '#ffffff', '#7cc0ff');
+    x.fillStyle = '#9fb3d6'; x.font = '600 26px Inter, Arial'; x.fillText('LAH-10254 · Report', 148, 176);
+    const card = (y, hh) => { x.fillStyle = '#ffffff'; x.shadowColor = 'rgba(13,22,40,.08)'; x.shadowBlur = 18; rr(x, 30, y, w - 60, hh, 26); x.fill(); x.shadowBlur = 0; };
+    card(260, 170); x.fillStyle = '#e3f7f4'; rr(x, 30, 260, w - 60, 170, 26); x.fill(); x.fillStyle = '#0fae9b'; x.beginPath(); x.arc(100, 345, 40, 0, TAU); x.fill(); x.strokeStyle = '#fff'; x.lineWidth = 9; x.lineCap = 'round'; x.beginPath(); x.moveTo(82, 346); x.lineTo(96, 360); x.lineTo(120, 330); x.stroke();
+    x.fillStyle = '#0b5c52'; x.font = '800 34px Inter, Arial'; x.fillText('Mostly normal', 160, 335); x.font = '500 25px Inter, Arial'; x.fillStyle = '#2d6f66'; x.fillText('1 result needs review', 160, 378);
+    const rows = [['Haemoglobin', '14.2', 'g/dL', .55, '#0fae9b', 'Normal'], ['Vitamin D', '22.1', 'ng/mL', .18, '#f2a516', 'Low'], ['HbA1c', '5.2', '%', .45, '#0fae9b', 'Normal'], ['TSH', '1.9', 'mIU/L', .5, '#0fae9b', 'Normal']];
+    rows.forEach((r, i) => { const y = 470 + i * 150; card(y, 130); x.fillStyle = '#0d1628'; x.font = '700 30px Inter, Arial'; x.fillText(r[0], 60, y + 50); x.font = '800 34px Inter, Arial'; x.textAlign = 'right'; x.fillText(r[1], w - 160, y + 52); x.font = '500 22px Inter, Arial'; x.fillStyle = '#56657f'; x.fillText(r[2], w - 60, y + 52); x.textAlign = 'left';
+      x.fillStyle = '#e6ecf5'; rr(x, 60, y + 84, w - 260, 12, 6); x.fill(); x.fillStyle = r[4]; x.beginPath(); x.arc(60 + (w - 260) * r[3], y + 90, 13, 0, TAU); x.fill();
+      x.fillStyle = r[4] === '#0fae9b' ? '#e3f7f4' : '#fff4dc'; rr(x, w - 180, y + 72, 120, 38, 19); x.fill(); x.fillStyle = r[4]; x.font = '700 22px Inter, Arial'; x.textAlign = 'center'; x.fillText(r[5], w - 120, y + 99); x.textAlign = 'left'; });
+    card(1080, 230); x.fillStyle = '#0d7c6c'; x.font = '800 28px Inter, Arial'; x.fillText('🩺  Doctor’s advice', 60, 1135); x.fillStyle = '#3b4a66'; x.font = '500 24px Inter, Arial'; ['Vitamin D is low. 15 minutes of', 'morning sun + supplement.', 'Retest in 3 months.'].forEach((l, i) => x.fillText(l, 60, 1185 + i * 36));
+    x.fillStyle = '#2563eb'; rr(x, 30, 1340, w - 60, 66, 33); x.fill(); x.fillStyle = '#fff'; x.font = '800 28px Inter, Arial'; x.textAlign = 'center'; x.fillText('Download PDF', w / 2, 1383); x.textAlign = 'left'; });
+  const chip = (icon, t1, t2, col, bgc) => ctex(640, 200, (x, w, h) => { x.shadowColor = 'rgba(13,22,40,.25)'; x.shadowBlur = 30; x.shadowOffsetY = 10; x.fillStyle = '#ffffff'; rr(x, 20, 16, w - 40, h - 44, 40); x.fill(); x.shadowBlur = 0; x.shadowOffsetY = 0;
+    x.fillStyle = bgc; x.beginPath(); x.arc(100, 94, 50, 0, TAU); x.fill(); x.fillStyle = col; x.font = '700 52px Inter, Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(icon, 100, 98); x.textAlign = 'left'; x.fillStyle = '#0d1628'; x.font = '800 40px Inter, Arial'; x.fillText(t1, 172, 74); x.fillStyle = '#56657f'; x.font = '500 30px Inter, Arial'; x.fillText(t2, 172, 122); });
+  R.chips = [chip('✓', 'Normal', 'Haemoglobin 14.2', '#0fae9b', '#e3f7f4'), chip('!', 'Review', 'Vitamin D 22.1', '#b77a00', '#fff4dc'), chip('+', 'Ibra Hospital', '6.7 km · open 24 h', '#e2474f', '#fdecec'), chip('♥', 'Doctor', 'Advice in 24 h', '#0d7c6c', '#dff5ef')];
+}
+
+/* ---------- scenes ---------- */
+function dunes(){ const g = new THREE.PlaneGeometry(260, 140, 160, 80); const p = g.attributes.position; const col = []; const c1 = new THREE.Color('#e7c58f'), c2 = new THREE.Color('#d9a96a'), c3 = new THREE.Color('#f3dcb0'); const c = new THREE.Color();
+  for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i); const d = Math.abs(y) < 5 ? 0 : (Math.sin(x * .08 + y * .05) * 1.6 + Math.sin(x * .19 - y * .13) * .7 + Math.sin(y * .07) * 1.2) * clamp((Math.abs(y) - 5) / 12); p.setZ(i, d); c.copy(c1).lerp(d > 0 ? c3 : c2, clamp(Math.abs(d) / 2.5)); col.push(c.r, c.g, c.b); }
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.computeVertexNormals(); const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 })); m.rotation.x = -Math.PI / 2; m.receiveShadow = true; return m; }
+function ridge(col, z, h, rough, seedOff){ const N = 220, pos = [], idx = []; for (let i = 0; i <= N; i++) { const x = -170 + i / N * 340; const u = x * .045 + seedOff; let y = h * (.55 + .25 * Math.sin(u) + .14 * Math.sin(u * 2.7 + 1.3) + .07 * Math.sin(u * 6.1 + .4) * rough + .04 * Math.sin(u * 13.7) * rough);
+    pos.push(x, Math.max(1, y), z, x, -2, z); if (i < N) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: col, side: THREE.DoubleSide })); }
+function skyDome(stops){ const m = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false, uniforms: { a: { value: new THREE.Color(stops[0]) }, b: { value: new THREE.Color(stops[1]) }, c: { value: new THREE.Color(stops[2]) }, d: { value: new THREE.Color(stops[3]) } },
+    vertexShader: 'varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader: 'uniform vec3 a,b,c,d; varying vec3 vP; void main(){ float y = vP.y; vec3 col = y > .25 ? mix(b, a, smoothstep(.25,.75,y)) : y > .04 ? mix(c, b, smoothstep(.04,.25,y)) : mix(d, c, smoothstep(-.05,.04,y)); gl_FragColor = vec4(col,1.0); }' });
+  return new THREE.Mesh(new THREE.SphereGeometry(300, 32, 16), m); }
+function mountains(col, z, n, h){ const g = new THREE.Group(); for (let i = 0; i < n; i++) { const r = 8 + rnd() * 10, hh = h * (.6 + rnd() * .6); const geo = new THREE.ConeGeometry(r, hh, 6, 2); const p = geo.attributes.position; for (let k = 0; k < p.count; k++) if (p.getY(k) < hh / 2 - .1) { p.setX(k, p.getX(k) * (1 + (rnd() - .5) * .4)); p.setZ(k, p.getZ(k) * (1 + (rnd() - .5) * .4)); } geo.computeVertexNormals(); const m = new THREE.Mesh(geo, std(col, { flatShading: true, roughness: 1 })); m.position.set(-120 + i * (240 / n) + rnd() * 10, hh / 2 - 1, z - rnd() * 10); g.add(m); } return g; }
+function sceneVan(){
+  const s = new THREE.Scene(); s.add(skyDome(['#3a5596', '#a9a3c9', '#f7c28e', '#ffe6bd'])); s.fog = new THREE.Fog('#f4c999', 40, 210);
+  s.add(new THREE.HemisphereLight('#ffe7c9', '#a77a4a', 1.1));
+  const sun = new THREE.DirectionalLight('#ffd2a1', 3.4); sun.position.set(-30, 14, -24); sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, { left: -10, right: 10, top: 8, bottom: -8, near: 1, far: 80 }); sun.shadow.bias = -.0005; sun.shadow.normalBias = .03; s.add(sun);
+  const rim = new THREE.DirectionalLight('#9cc2ff', 1.2); rim.position.set(20, 10, 20); s.add(rim);
+  const sunDisc = new THREE.Mesh(new THREE.CircleGeometry(11, 48), new THREE.MeshBasicMaterial({ color: '#fff3d6', fog: false, toneMapped: false })); sunDisc.position.set(-70, 22, -200); s.add(sunDisc);
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(140, 140), new THREE.MeshBasicMaterial({ map: ctex(256, 256, (x, w, h) => { const g = x.createRadialGradient(128, 128, 0, 128, 128, 128); g.addColorStop(0, 'rgba(255,230,180,.9)'); g.addColorStop(1, 'rgba(255,190,120,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }), transparent: true, depthWrite: false, fog: false, toneMapped: false })); glow.position.set(-70, 22, -199); s.add(glow);
+  s.add(ridge('#c9a08c', -160, 34, 1, 0)); s.add(ridge('#a98068', -120, 24, 1.2, 4)); s.add(ridge('#8f6a55', -85, 13, 1.5, 9));
+  const world = new THREE.Group(); s.add(world); const d = dunes(); world.add(d);
+  const road = new THREE.Mesh(new THREE.PlaneGeometry(260, 6.4), std('#3b414d', { roughness: .85 })); road.rotation.x = -Math.PI / 2; road.position.y = .02; road.receiveShadow = true; s.add(road);
+  const edge = (z) => { const e = new THREE.Mesh(new THREE.PlaneGeometry(260, .14), std('#f2efe6', { roughness: .6 })); e.rotation.x = -Math.PI / 2; e.position.set(0, .03, z); s.add(e); }; edge(3); edge(-3);
+  const dashT = ctex(256, 16, (x, w, h) => { x.fillStyle = '#f6c544'; x.fillRect(0, 0, w * .5, h); }); dashT.wrapS = THREE.RepeatWrapping; dashT.repeat.set(52, 1);
+  const dash = new THREE.Mesh(new THREE.PlaneGeometry(260, .16), new THREE.MeshStandardMaterial({ map: dashT, transparent: true, roughness: .6 })); dash.rotation.x = -Math.PI / 2; dash.position.y = .031; s.add(dash);
+  const v = van(); v.position.set(0, 0, .2); s.add(v);
+  const palms = new THREE.Group(); s.add(palms); for (let i = 0; i < 14; i++) { const p = palm(2.4 + rnd() * 1.6); p.position.set(-60 + i * 9 + rnd() * 3, 0, -(5.5 + rnd() * 9)); palms.add(p); }
+  const dust = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(90 * 3), 3)), new THREE.PointsMaterial({ color: '#ead3ab', size: .26, transparent: true, opacity: .6, depthWrite: false, map: ctex(64, 64, (x) => { const g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); }) })); s.add(dust);
+  const dp = dust.geometry.attributes.position; const life = Array.from({ length: 90 }, () => rnd());
+  const cam = new THREE.PerspectiveCamera(30, 2, .1, 400);
+  return { s, cam, update(t, dt, mode){
+      const sp = 9; dashT.offset.x = (t * sp / 5) % 1; d.position.x = -((t * sp) % 40); palms.children.forEach(p => { p.position.x -= dt * sp; if (p.position.x < -70) p.position.x += 126; });
+      v.userData.wheels.forEach(w => w.rotation.z = -t * sp / .45); v.userData.body.position.y = Math.sin(t * 9) * .012 + Math.sin(t * 2.3) * .01; v.userData.body.rotation.z = Math.sin(t * 1.7) * .004;
+      R.beacon.forEach((b, i) => b.material.emissiveIntensity = (Math.sin(t * 10 + i * Math.PI) > 0 ? 2.4 : .3));
+      for (let i = 0; i < 90; i++) { life[i] += dt * .9; if (life[i] > 1) life[i] -= 1; const l = life[i]; dp.setXYZ(i, -2.6 - l * 6 + Math.sin(i) * .3, .15 + l * 1.1 + (i % 5) * .05, (i % 2 ? .9 : -.9) * (1 + l * .6) + Math.cos(i * 3) * .3); } dp.needsUpdate = true;
+      if (mode === 'splash') { const k = eo(clamp(t / 2.2)); v.position.x = -16 + k * 16; const far = R.portrait ? 15.5 : 10.5; cam.position.set(4.8 - k * 1.2, 1.9, far); cam.lookAt(v.position.x * .3 + (R.portrait ? -1.3 : 0), R.portrait ? 3.4 : 2.2, 0); }
+      else { const a = Math.sin(t * .18) * .22; cam.position.set(8.4 * Math.cos(.62 + a), 1.5 + Math.sin(t * .25) * .12, 8.4 * Math.sin(.62 + a) + 3.4); cam.lookAt(-.3, 1.15, 0); }
+    } };
+}
+function sceneKit(){
+  const s = new THREE.Scene(); s.background = radialBg('#eaf2ff', '#b9cdf0');
+  s.add(new THREE.HemisphereLight('#ffffff', '#9bb0d6', 1.1)); const key = new THREE.DirectionalLight('#ffffff', 2.6); key.position.set(4, 8, 6); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5 }); key.shadow.normalBias = .03; s.add(key);
+  const rim = new THREE.DirectionalLight('#9cc2ff', 1.6); rim.position.set(-6, 4, -4); s.add(rim);
+  const ped = mesh(new THREE.CylinderGeometry(2.6, 2.75, .4, 64), phys('#ffffff', { roughness: .25, clearcoat: 1 }), [0, -.2, 0]); s.add(ped);
+  s.add(mesh(new THREE.TorusGeometry(2.62, .035, 8, 90), phys('#2563eb', { roughness: .3, emissive: '#1d4ed8', emissiveIntensity: .4 }), [0, 0, 0], false)); s.children.at(-1).rotation.x = Math.PI / 2;
+  const bag = kitBag(); s.add(bag);
+  const caps = [['#7a5af8', '#a21d2d'], ['#f2a516', '#b0242f'], ['#8a94a6', '#9d1d28'], ['#e2474f', '#a8202b'], ['#0fae9b', '#a3212c']];
+  const tubes = caps.map(([c, f], i) => { const tb = tube(c, f); s.add(tb); return tb; });
+  const cam = new THREE.PerspectiveCamera(30, 2, .1, 100);
+  return { s, cam, update(t){ bag.rotation.y = -.45 + Math.sin(t * .4) * .18; tubes.forEach((tb, i) => { const a = t * .45 + i / tubes.length * TAU; tb.position.set(Math.cos(a) * 2.25, 1.6 + Math.sin(t * 1.3 + i) * .25 + (i % 2) * .4, Math.sin(a) * 1.6); tb.rotation.set(Math.sin(t + i) * .35, a, .25 + Math.cos(t * .8 + i) * .2); });
+      cam.position.set(Math.sin(t * .15) * 1.2, 3.0, 9.6); cam.lookAt(0, 1.0, 0); } };
+}
+function scenePhone(){
+  const s = new THREE.Scene(); s.background = radialBg('#e8fbf7', '#a9dccf');
+  s.add(new THREE.HemisphereLight('#ffffff', '#88b7aa', 1.2)); const key = new THREE.DirectionalLight('#ffffff', 2.4); key.position.set(3, 7, 6); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.normalBias = .03; s.add(key);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: .18 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -1.9; floor.receiveShadow = true; s.add(floor);
+  const ph = phone(); s.add(ph); const st = stethoscope(); st.position.set(-1.3, -1.86, .6); st.scale.setScalar(.9); s.add(st);
+  const cards = R.chips.map((tx, i) => { const c = card(tx, 1.7, .53); s.add(c); return c; });
+  const cam = new THREE.PerspectiveCamera(30, 2, .1, 100);
+  return { s, cam, update(t){ ph.rotation.set(-.12 + Math.sin(t * .6) * .04, -.38 + Math.sin(t * .35) * .14, .05); ph.position.y = Math.sin(t * .9) * .08;
+      cards.forEach((c, i) => { const a = t * .32 + i / cards.length * TAU; c.position.set(Math.cos(a) * 2.0, Math.sin(a * 1.0) * .2 + 1.15 - i * .75, Math.sin(a) * .9 + .6); c.lookAt(cam.position); });
+      cam.position.set(Math.sin(t * .12) * .6, .3, 9.2); cam.lookAt(0, 0, 0); } };
+}
+function sceneSeniors(){
+  const s = new THREE.Scene(); s.background = radialBg('#fff4e4', '#f1c99b');
+  s.add(new THREE.HemisphereLight('#fff6e8', '#c99a6e', 1.15)); const key = new THREE.DirectionalLight('#ffe2bf', 2.8); key.position.set(-5, 8, 6); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -7, right: 7, top: 7, bottom: -7 }); key.shadow.normalBias = .03; s.add(key);
+  const island = new THREE.Group(); s.add(island);
+  island.add(mesh(new THREE.CylinderGeometry(4.2, 3.6, .7, 6), std('#ecd6ad', { roughness: 1 }), [0, -.35, 0])); island.add(mesh(new THREE.CylinderGeometry(4.25, 4.25, .08, 6), std('#d9b98a', { roughness: 1 }), [0, .02, 0]));
+  const h = house(); h.position.set(-1.2, 0, -1.2); h.rotation.y = .5; island.add(h); const p1 = palm(2.8); p1.position.set(1.6, 0, -2); island.add(p1); const p2 = palm(2.2); p2.position.set(-3, 0, .4); island.add(p2);
+  const bp = bpMonitor(); bp.position.set(.9, .05, 1.2); bp.rotation.y = -.35; island.add(bp);
+  const heart = new THREE.Group(); const hs = new THREE.Shape(); hs.moveTo(0, -.5); hs.bezierCurveTo(-.9, .1, -.5, .9, 0, .45); hs.bezierCurveTo(.5, .9, .9, .1, 0, -.5);
+  heart.add(mesh(new THREE.ExtrudeGeometry(hs, { depth: .2, bevelEnabled: true, bevelSize: .06, bevelThickness: .06, bevelSegments: 4 }), phys('#e2474f', { roughness: .3, clearcoat: 1 }))); heart.position.set(2.4, 3.1, .4); s.add(heart);
+  const pts = []; for (let i = 0; i <= 60; i++) { const u = i / 60; const k = u > .4 && u < .6 ? [0, .5, -.35, 1, -.6, .2, 0][Math.floor((u - .4) / .2 * 6)] : 0; pts.push(new THREE.Vector3(-3 + u * 6, 3.4 + k * .9, -.5)); }
+  const line = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .05), 200, .045, 8), phys('#e2474f', { emissive: '#e2474f', emissiveIntensity: .5 })); s.add(line);
+  const cam = new THREE.PerspectiveCamera(30, 2, .1, 100);
+  return { s, cam, update(t){ island.rotation.y = .3 + Math.sin(t * .2) * .25; const b = 1 + Math.max(0, Math.sin(t * 6)) * .12; heart.scale.setScalar(b); heart.rotation.y = Math.sin(t) * .4; line.material.emissiveIntensity = .4 + Math.max(0, Math.sin(t * 6)) * 1.2;
+      cam.position.set(Math.sin(t * .1) * 1.5, 5.6, 14); cam.lookAt(0, 1.3, 0); } };
+}
+function sceneSoon(){
+  const s = new THREE.Scene(); s.background = radialBg('#f1ecff', '#c8bbf6');
+  s.add(new THREE.HemisphereLight('#ffffff', '#a99ad6', 1.2)); const key = new THREE.DirectionalLight('#ffffff', 2.6); key.position.set(4, 7, 5); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.normalBias = .03; s.add(key);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: .16 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -.02; floor.receiveShadow = true; s.add(floor);
+  const v1 = vial(); v1.position.set(-.6, 0, 0); s.add(v1); const v2 = vial(); v2.position.set(.5, 0, -.8); v2.scale.setScalar(.8); s.add(v2);
+  const sy = syringe(); sy.position.set(1.5, 1.5, .4); sy.scale.setScalar(.7); s.add(sy); v1.scale.setScalar(1.25);
+  const stars = []; for (let i = 0; i < 14; i++) { const st = mesh(new THREE.OctahedronGeometry(.08 + rnd() * .08), phys(i % 3 ? '#ffffff' : '#7a5af8', { emissive: i % 3 ? '#ffffff' : '#7a5af8', emissiveIntensity: .8 }), [(rnd() - .5) * 5, .4 + rnd() * 3, (rnd() - .5) * 3], false); s.add(st); stars.push(st); }
+  const cam = new THREE.PerspectiveCamera(30, 2, .1, 100);
+  return { s, cam, update(t){ v1.rotation.y = t * .5; v2.rotation.y = -t * .4; sy.rotation.set(.3, t * .3, -.6 + Math.sin(t) * .1); sy.position.y = 1.5 + Math.sin(t * 1.2) * .15; stars.forEach((st, i) => { st.rotation.y = t * 2 + i; st.scale.setScalar(.6 + Math.abs(Math.sin(t * 2 + i)) * .8); });
+      cam.position.set(Math.sin(t * .15) * 1, 2.4, 7.6); cam.lookAt(.3, 1.0, 0); } };
+}
+
+/* ---------- v32 banner scenes: self-collection kits, loyalty card, doctor online, companies & workers ---------- */
+function chipTex(icon, t1, t2, col, bgc){ return ctex(640, 200, (x, w, h) => { x.shadowColor = 'rgba(13,22,40,.25)'; x.shadowBlur = 30; x.shadowOffsetY = 10; x.fillStyle = '#ffffff'; rr(x, 20, 16, w - 40, h - 44, 40); x.fill(); x.shadowBlur = 0; x.shadowOffsetY = 0;
+  x.fillStyle = bgc; x.beginPath(); x.arc(100, 94, 50, 0, TAU); x.fill(); x.fillStyle = col; x.font = '700 52px Inter, Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(icon, 100, 98); x.textAlign = 'left'; x.fillStyle = '#0d1628'; x.font = '800 40px Inter, Arial'; x.fillText(t1, 172, 74); x.fillStyle = '#56657f'; x.font = '500 30px Inter, Arial'; x.fillText(t2, 172, 122); }); }
+function studio(bgIn, bgOut, hemi){ const s = new THREE.Scene(); s.background = radialBg(bgIn, bgOut);
+  s.add(new THREE.HemisphereLight('#ffffff', hemi, 1.15)); const key = new THREE.DirectionalLight('#ffffff', 2.6); key.position.set(4, 8, 6); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -6, right: 6, top: 6, bottom: -6 }); key.shadow.normalBias = .03; s.add(key);
+  const rim = new THREE.DirectionalLight('#cfe0ff', 1.3); rim.position.set(-6, 4, -4); s.add(rim);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: .16 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -.01; floor.receiveShadow = true; s.add(floor); return s; }
+function pedestal(s, ring){ s.add(mesh(new THREE.CylinderGeometry(2.6, 2.75, .4, 64), phys('#ffffff', { roughness: .25, clearcoat: 1 }), [0, -.2, 0]));
+  const r = mesh(new THREE.TorusGeometry(2.62, .035, 8, 90), phys(ring, { roughness: .3, emissive: ring, emissiveIntensity: .4 }), [0, 0, 0], false); r.rotation.x = Math.PI / 2; s.add(r); }
+function sceneSelfKit(){
+  const s = studio('#e6f7fd', '#9fd3ea', '#8fb9cf'); pedestal(s, '#18b5d8');
+  const box = new THREE.Group(); s.add(box); const white = phys('#ffffff', { roughness: .35, clearcoat: .7 });
+  box.add(mesh(rbox(2.6, 1.0, 1.7, .12, .05), white, [0, .5, 0])); box.position.x = -.2;
+  box.add(mesh(new THREE.BoxGeometry(2.42, .06, 1.52), std('#e6eef8'), [0, .98, 0], false));
+  const side = new THREE.Mesh(new THREE.PlaneGeometry(2.3, .7), new THREE.MeshStandardMaterial({ map: ctex(768, 232, (x, w, h) => { hexMark(x, 24, 40, 150, '#1257d6'); wordmark(x, 196, 96, 70, '#0d1628', '#18b5d8'); x.font = '600 40px "IBM Plex Sans Arabic", Arial'; x.fillStyle = '#18b5d8'; x.textBaseline = 'middle'; x.fillText('Self-Kit · عدّة ذاتية', 200, 178); }), transparent: true, roughness: .5 }));
+  side.position.set(0, .5, .862); box.add(side);
+  const lid = new THREE.Group(); lid.position.set(0, 1.0, -.85); box.add(lid);
+  lid.add(mesh(rbox(2.6, .12, 1.7, .06, .03), phys('#18b5d8', { roughness: .35, clearcoat: .8 }), [0, 0, .85]));
+  const cup = new THREE.Group(); cup.add(mesh(new THREE.CylinderGeometry(.34, .28, .8, 32), phys('#ffffff', { transparent: true, opacity: .5, roughness: .05, clearcoat: 1 }), [0, .4, 0], false));
+  cup.add(mesh(new THREE.CylinderGeometry(.37, .37, .16, 32), phys('#0fae9b', { roughness: .35 }), [0, .86, 0]));
+  const cl = new THREE.Mesh(new THREE.CylinderGeometry(.315, .3, .34, 32, 1, true, -1.1, 2.2), new THREE.MeshStandardMaterial({ map: R.texLabel, transparent: true })); cl.position.y = .42; cup.add(cl); s.add(cup);
+  const swab = new THREE.Group(); swab.add(mesh(new THREE.CylinderGeometry(.13, .13, 1.4, 24, 1, true), phys('#ffffff', { transparent: true, opacity: .35, roughness: .05, side: THREE.DoubleSide }), [0, 0, 0], false));
+  swab.add(mesh(new THREE.CylinderGeometry(.03, .03, 1.2, 10), std('#f1f5f9'), [0, 0, 0])); swab.add(mesh(new THREE.SphereGeometry(.07, 14, 10), std('#ffffff', { roughness: 1 }), [0, -.62, 0]));
+  swab.add(mesh(new THREE.CylinderGeometry(.15, .15, .2, 24), phys('#7a5af8', { roughness: .35 }), [0, .78, 0])); s.add(swab);
+  const tb = tube('#f2a516', '#c9a27a'); s.add(tb);
+  const bag = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.3), phys('#ffffff', { transparent: true, opacity: .35, roughness: .1, side: THREE.DoubleSide, clearcoat: 1 })); s.add(bag);
+  const stripe = new THREE.Mesh(new THREE.PlaneGeometry(1.1, .12), phys('#e2474f', { roughness: .4, side: THREE.DoubleSide })); bag.add(stripe); stripe.position.set(0, .5, .001);
+  const cards = [chipTex('✓', 'No nurse needed', 'Collect in private', '#0fae9b', '#e3f7f4'), chipTex('→', 'Courier 2.000', 'Kit to your door', '#1257d6', '#eaf2ff'), chipTex('°C', '2–8 °C', 'Back to the lab', '#18b5d8', '#e0f6fc')].map(tx => { const c = card(tx, 1.7, .53); s.add(c); return c; });
+  const cam = new THREE.PerspectiveCamera(30, 2, .1, 100);
+  return { s, cam, update(t){
+      box.rotation.y = -.35 + Math.sin(t * .35) * .15; const open = .5 + .5 * Math.sin(t * .9 - 1.2); lid.rotation.x = -(.15 + eio(clamp(open)) * 1.75);
+      const up = eio(clamp(open * 1.2 - .1));
+      cup.position.set(-.75, 1.0 + up * 1.15 + Math.sin(t * 1.4) * .06, .1); cup.rotation.set(Math.sin(t) * .12, t * .4, Math.sin(t * .8) * .1);
+      swab.position.set(.15, 1.2 + up * 1.45 + Math.sin(t * 1.2 + 1) * .06, .05); swab.rotation.set(.2, 0, -.5 + Math.sin(t * .9) * .15);
+      tb.position.set(.95, 1.1 + up * 1.2 + Math.sin(t * 1.5 + 2) * .06, .2); tb.rotation.set(.1, t * .5, .35);
+      bag.position.set(1.65, 1.6 + Math.sin(t * .8) * .12, -.6); bag.rotation.set(0, -.6 + Math.sin(t * .5) * .2, .1);
+      cards.forEach((c, i) => { const a = t * .3 + i / cards.length * TAU; c.position.set(Math.cos(a) * 2.7, 2.7 - i * .62 + Math.sin(a) * .12, Math.sin(a) * 1.1 + .4); c.lookAt(cam.position); });
+      cam.position.set(Math.sin(t * .14) * 1.1, 3.2, 10.4); cam.lookAt(0, 1.25, 0); } };
+}
+function sceneLoyalty(){
+  const s = studio('#fff6e3', '#f2cd85', '#d2a768');
+  const face = ctex(1024, 640, (x, w, h) => { const g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#2f7bff'); g.addColorStop(.45, '#1257d6'); g.addColorStop(1, '#0b2350'); x.fillStyle = g; rr(x, 0, 0, w, h, 60); x.fill();
+    x.globalAlpha = .12; x.fillStyle = '#ffffff'; x.beginPath(); x.arc(w * .92, h * .05, 300, 0, TAU); x.fill(); x.globalAlpha = 1;
+    hexMark(x, 54, 46, 110, '#ffffff'); wordmark(x, 180, 104, 64, '#ffffff', '#7cc0ff'); x.font = '700 40px "IBM Plex Sans Arabic", Arial'; x.fillStyle = '#cfe0ff'; x.textAlign = 'right'; x.textBaseline = 'middle'; x.fillText('بطاقة الأختام', w - 60, 100); x.textAlign = 'left';
+    for (let i = 0; i < 5; i++) { const cx = 132 + i * 190, cy = 380; x.strokeStyle = i === 4 ? '#ffd166' : 'rgba(255,255,255,.55)'; x.lineWidth = 6; x.setLineDash(i === 4 ? [14, 10] : []); x.beginPath(); x.arc(cx, cy, 72, 0, TAU); x.stroke(); x.setLineDash([]); }
+    x.fillStyle = '#ffd166'; x.font = '800 34px Inter, Arial'; x.textAlign = 'center'; x.fillText('FREE', 132 + 4 * 190, 490); x.fillStyle = '#cfe0ff'; x.font = '600 32px Inter, Arial'; x.fillText('Every 5th home visit is free', w / 2, 570); x.textAlign = 'left'; });
+  const stampTex = ctex(256, 256, (x, w, h) => { x.fillStyle = '#ffffff'; x.beginPath(); x.arc(128, 128, 120, 0, TAU); x.fill(); hexMark(x, 48, 44, 160, '#1257d6'); });
+  const cardG = new THREE.Group(); s.add(cardG);
+  cardG.add(mesh(rbox(4.0, 2.5, .09, .24, .03), phys('#0b2350', { roughness: .3, clearcoat: 1, metalness: .2 })));
+  const front = new THREE.Mesh(new THREE.PlaneGeometry(3.94, 2.46), new THREE.MeshPhysicalMaterial({ map: face, roughness: .28, clearcoat: 1, clearcoatRoughness: .1 })); front.position.z = .047; cardG.add(front);
+  const stamps = []; for (let i = 0; i < 4; i++) { const st = new THREE.Mesh(new THREE.CircleGeometry(.27, 40), new THREE.MeshBasicMaterial({ map: stampTex, transparent: true, toneMapped: false })); st.position.set(-1.97 + (132 + i * 190) / 1024 * 3.94, 1.23 - 380 / 640 * 2.46, .05); cardG.add(st); stamps.push(st); }
+  const stamper = new THREE.Group(); s.add(stamper);
+  stamper.add(mesh(new THREE.CylinderGeometry(.34, .38, .22, 36), phys('#e2474f', { roughness: .35, clearcoat: .8 }), [0, .11, 0]));
+  stamper.add(mesh(new THREE.CylinderGeometry(.12, .16, .55, 24), phys('#f6f8fb', { roughness: .3 }), [0, .5, 0])); stamper.add(mesh(new THREE.SphereGeometry(.24, 28, 18), phys('#0b2350', { roughness: .3, clearcoat: 1 }), [0, .9, 0]));
+  const gift = new THREE.Group(); s.add(gift);
+  gift.add(mesh(rbox(1.0, .8, 1.0, .08, .03), phys('#0fae9b', { roughness: .35, clearcoat: .7 }), [0, .4, 0]));
+  const glid = mesh(rbox(1.12, .22, 1.12, .06, .03), phys('#0fae9b', { roughness: .35, clearcoat: .7 }), [0, .9, 0]); gift.add(glid);
+  const gold = phys('#ffd166', { roughness: .25, metalness: .6, clearcoat: 1 });
+  gift.add(mesh(new THREE.BoxGeometry(.16, .82, 1.02), gold, [0, .4, 0], false)); gift.add(mesh(new THREE.BoxGeometry(1.02, .82, .16), gold, [0, .4, 0], false));
+  const bow = new THREE.Group(); bow.position.y = 1.05; gift.add(bow); for (const r of [.5, -.5]) { const l = mesh(new THREE.TorusGeometry(.16, .05, 10, 24), gold); l.rotation.set(0, r * 2, .6 * Math.sign(r)); l.position.x = r * .28; bow.add(l); }
+  const sh = shadowDisc(.9, .35); sh.position.y = .01; gift.add(sh);
+  const sparks = []; for (let i = 0; i < 16; i++) { const sp = mesh(new THREE.OctahedronGeometry(.07 + rnd() * .07), phys(i % 2 ? '#ffd166' : '#ffffff', { emissive: i % 2 ? '#ffb703' : '#ffffff', emissiveIntensity: .9 }), [(rnd() - .5) * 6, .4 + rnd() * 3.2, (rnd() - .5) * 2.6], false); s.add(sp); sparks.push(sp); }
+  const cam = new THREE.PerspectiveCamera(30, 2, .1, 100);
+  return { s, cam, update(t){
+      cardG.position.set(.05, 1.7 + Math.sin(t * .8) * .06, 0); cardG.scale.setScalar(.8); cardG.rotation.set(-.32 + Math.sin(t * .5) * .04, .28 + Math.sin(t * .3) * .12, .04);
+      const c = (t % 3.2) / 3.2; const k = c < .4 ? eio(c / .4) : c < .55 ? 1 : 1 - eio((c - .55) / .45);
+      const target = new THREE.Vector3(); stamps[3].getWorldPosition(target); const n = new THREE.Vector3(0, 0, 1).applyQuaternion(cardG.quaternion);
+      stamper.position.copy(target).addScaledVector(n, .06 + (1 - k) * 1.1); stamper.quaternion.copy(cardG.quaternion); stamper.rotateX(Math.PI / 2);
+      const pressed = c > .4; stamps[3].scale.setScalar(pressed ? 1 : .001); stamps[3].material.opacity = pressed ? Math.min(1, (c - .4) * 12) : 0;
+      gift.position.set(1.75, 0, 1.0); gift.rotation.y = -.5 + Math.sin(t * .6) * .2; glid.position.y = .9 + Math.max(0, Math.sin(t * 2.2)) * .18; bow.position.y = 1.05 + Math.max(0, Math.sin(t * 2.2)) * .18;
+      sparks.forEach((sp, i) => { sp.rotation.y = t * 2 + i; sp.scale.setScalar(.5 + Math.abs(Math.sin(t * 2 + i)) * .9); });
+      cam.position.set(Math.sin(t * .13) * .8 + .4, 2.6, 9.6); cam.lookAt(.45, 1.35, 0); } };
+}
+function sceneDoctor(){
+  const s = studio('#eef0ff', '#b9c1f3', '#9aa3d8'); pedestal(s, '#7a5af8');
+  const call = ctex(1024, 640, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#dfe9ff'); g.addColorStop(1, '#b9cdf6'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+    x.fillStyle = '#c9d8f5'; x.fillRect(0, 430, w, 210);
+    x.fillStyle = '#ffffff'; x.beginPath(); x.moveTo(330, 640); x.quadraticCurveTo(340, 400, 512, 390); x.quadraticCurveTo(684, 400, 694, 640); x.fill();
+    x.fillStyle = '#7aa7ff'; x.beginPath(); x.moveTo(482, 398); x.lineTo(512, 470); x.lineTo(542, 398); x.fill();
+    x.fillStyle = '#e9b48f'; x.fillRect(486, 330, 52, 70); x.beginPath(); x.ellipse(512, 270, 82, 96, 0, 0, TAU); x.fill();
+    x.fillStyle = '#2a2523'; x.beginPath(); x.ellipse(512, 210, 86, 50, 0, Math.PI, TAU); x.fill(); x.fillRect(426, 205, 172, 26);
+    x.fillStyle = '#1d2433'; x.beginPath(); x.arc(482, 270, 9, 0, TAU); x.arc(542, 270, 9, 0, TAU); x.fill();
+    x.strokeStyle = '#8a3f33'; x.lineWidth = 7; x.lineCap = 'round'; x.beginPath(); x.moveTo(486, 312); x.quadraticCurveTo(512, 330, 538, 312); x.stroke();
+    x.strokeStyle = '#1f2633'; x.lineWidth = 9; x.beginPath(); x.moveTo(440, 430); x.quadraticCurveTo(430, 540, 500, 560); x.stroke(); x.fillStyle = '#c9d2de'; x.beginPath(); x.arc(505, 562, 18, 0, TAU); x.fill();
+    x.fillStyle = 'rgba(13,22,40,.55)'; rr(x, 30, 30, 330, 64, 32); x.fill(); x.fillStyle = '#22c55e'; x.beginPath(); x.arc(66, 62, 10, 0, TAU); x.fill(); x.fillStyle = '#fff'; x.font = '700 30px Inter, Arial'; x.textBaseline = 'middle'; x.fillText('Dr. Hilal · 04:12', 90, 63);
+    x.fillStyle = '#0d1628'; rr(x, w - 250, h - 190, 220, 160, 22); x.fill(); x.fillStyle = '#33507d'; x.beginPath(); x.ellipse(w - 140, h - 100, 40, 46, 0, 0, TAU); x.fill(); x.fillStyle = '#e9b48f'; x.beginPath(); x.ellipse(w - 140, h - 96, 22, 26, 0, 0, TAU); x.fill();
+    const btn = (cx, col) => { x.fillStyle = col; x.beginPath(); x.arc(cx, h - 70, 34, 0, TAU); x.fill(); }; btn(w / 2 - 90, '#334155'); btn(w / 2, '#e2474f'); btn(w / 2 + 90, '#334155'); });
+  const lap = new THREE.Group(); s.add(lap); const alu = phys('#d6dce6', { metalness: 1, roughness: .24 });
+  lap.add(mesh(rbox(3.6, .12, 2.4, .1, .03), alu, [0, .06, 0]));
+  lap.add(mesh(new THREE.PlaneGeometry(3.2, 1.4), std('#1f2633', { roughness: .6 }), [0, .125, -.25]).rotateX(-Math.PI / 2));
+  const hinge = new THREE.Group(); hinge.position.set(0, .12, -1.15); lap.add(hinge);
+  hinge.add(mesh(rbox(3.6, 2.3, .1, .12, .03), alu, [0, 1.15, 0])); hinge.add(mesh(rbox(3.46, 2.16, .11, .08, .02), phys('#0b0f17', { roughness: .1, clearcoat: 1 }), [0, 1.15, .005]));
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(3.3, 2.0), new THREE.MeshBasicMaterial({ map: call, toneMapped: false })); scr.position.set(0, 1.15, .063); hinge.add(scr); hinge.rotation.x = -.22;
+  const st = stethoscope(); st.position.set(-1.9, .02, 1.5); st.scale.setScalar(.75); s.add(st);
+  const pts = []; for (let i = 0; i <= 60; i++) { const u = i / 60; const k = u > .4 && u < .6 ? [0, .5, -.35, 1, -.6, .2, 0][Math.floor((u - .4) / .2 * 6)] : 0; pts.push(new THREE.Vector3(-2.2 + u * 4.4, 3.05 + k * .6, -1.8)); }
+  const line = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .05), 200, .04, 8), phys('#7a5af8', { emissive: '#7a5af8', emissiveIntensity: .5 })); s.add(line);
+  const cards = [chipTex('▶', 'Video or voice', 'Doctor or dentist', '#7a5af8', '#efeaff'), chipTex('✓', 'Free follow-up', 'When results need it', '#0fae9b', '#e3f7f4'), chipTex('…', 'Messages', 'Ask after the call', '#1257d6', '#eaf2ff')].map(tx => { const c = card(tx, 1.7, .53); s.add(c); return c; });
+  const cam = new THREE.PerspectiveCamera(30, 2, .1, 100);
+  return { s, cam, update(t){ lap.rotation.y = -.42 + Math.sin(t * .3) * .14; lap.position.y = .02;
+      line.material.emissiveIntensity = .35 + Math.max(0, Math.sin(t * 5)) * 1.1;
+      cards.forEach((c, i) => { const a = t * .28 + i / cards.length * TAU; c.position.set(Math.cos(a) * 2.9, 2.6 - i * .62 + Math.sin(a) * .12, Math.sin(a) * 1.0 + .8); c.lookAt(cam.position); });
+      cam.position.set(Math.sin(t * .12) * 1.2, 3.4, 10.2); cam.lookAt(0, 1.2, 0); } };
+}
+function sceneCompany(){
+  const s = studio('#eef7e9', '#b4d79c', '#94b77d');
+  const site = new THREE.Group(); s.add(site); site.position.set(-1.0, 0, -1.7); site.scale.setScalar(.85);
+  const wall = std('#f7f9fc', { roughness: .8 }); site.add(mesh(new THREE.BoxGeometry(3.4, 2.0, 1.8), wall, [0, 1.0, 0]));
+  site.add(mesh(new THREE.BoxGeometry(3.6, .14, 2.0), std('#1257d6', { roughness: .5 }), [0, 2.07, 0]));
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) site.add(mesh(new THREE.BoxGeometry(.5, .42, .06), phys('#2a4a7a', { roughness: .15, clearcoat: 1 }), [-1.2 + c * .8, .75 + r * .7, .91], false));
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.0, .42), new THREE.MeshBasicMaterial({ map: ctex(640, 136, (x, w, h) => { x.fillStyle = '#0b2350'; rr(x, 0, 0, w, h, 24); x.fill(); hexMark(x, 18, 14, 108, '#7cc0ff'); x.fillStyle = '#fff'; x.font = '800 46px Inter, Arial'; x.textBaseline = 'middle'; x.fillText('Site health day', 140, 70); }), toneMapped: false }));
+  sign.position.set(0, 2.45, .5); site.add(sign);
+  const board = new THREE.Group(); s.add(board);
+  board.add(mesh(rbox(1.9, 2.5, .08, .1, .02), std('#9a6b3f', { roughness: .7 })));
+  const paper = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 2.2), new THREE.MeshStandardMaterial({ roughness: .9, map: ctex(512, 660, (x, w, h) => { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.fillStyle = '#0d1628'; x.font = '800 40px Inter, Arial'; x.fillText('Workers · 12', 30, 64);
+    const rows = [['#0fae9b', 'Fit'], ['#0fae9b', 'Fit'], ['#f2a516', 'Follow-up'], ['#0fae9b', 'Fit'], ['#0fae9b', 'Fit'], ['#18b5d8', 'Retest']];
+    rows.forEach(([c, l], i) => { const y = 120 + i * 88; x.fillStyle = '#e6ecf5'; rr(x, 30, y, 250, 22, 11); x.fill(); x.fillStyle = c; rr(x, 300, y - 16, 180, 54, 27); x.globalAlpha = .16; x.fill(); x.globalAlpha = 1; x.font = '700 28px Inter, Arial'; x.textAlign = 'center'; x.fillText(l, 390, y + 20); x.textAlign = 'left'; }); }) }));
+  paper.position.z = .045; board.add(paper); board.add(mesh(rbox(.8, .22, .14, .06, .02), phys('#c9d2de', { metalness: 1, roughness: .25 }), [0, 1.22, .06]));
+  const people = []; const suit = ['#1e40af', '#0f766e', '#334155', '#1e40af', '#0f766e'];
+  for (let i = 0; i < 5; i++) { const p = new THREE.Group(); p.add(mesh(new THREE.CapsuleGeometry(.22, .5, 6, 16), phys(suit[i], { roughness: .55 }), [0, .5, 0])); p.add(mesh(new THREE.SphereGeometry(.2, 24, 16), phys('#c98d63', { roughness: .6 }), [0, 1.12, 0]));
+    p.add(mesh(new THREE.SphereGeometry(.205, 24, 12, 0, TAU, 0, Math.PI / 2.2), phys('#f2a516', { roughness: .4, clearcoat: .6 }), [0, 1.16, 0]));
+    const ok = i !== 2; const badge = new THREE.Mesh(new THREE.CircleGeometry(.2, 32), new THREE.MeshBasicMaterial({ map: ctex(128, 128, (x) => { x.fillStyle = ok ? '#0fae9b' : '#f2a516'; x.beginPath(); x.arc(64, 64, 60, 0, TAU); x.fill(); x.strokeStyle = '#fff'; x.lineWidth = 13; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath(); if (ok) { x.moveTo(36, 66); x.lineTo(56, 86); x.lineTo(92, 44); } else { x.moveTo(64, 30); x.lineTo(64, 72); x.moveTo(64, 96); x.lineTo(64, 97); } x.stroke(); }), transparent: true, toneMapped: false }));
+    badge.position.y = 1.7; p.add(badge); p.userData.badge = badge; const sh = shadowDisc(.4, .35); sh.position.y = .01; p.add(sh);
+    p.position.set(-1.25 + i * .56, 0, 1.3 - Math.abs(i - 2) * .12); s.add(p); people.push(p); }
+  const cam = new THREE.PerspectiveCamera(30, 2, .1, 100);
+  return { s, cam, update(t){
+      board.position.set(1.65, 1.5 + Math.sin(t * .9) * .06, .9); board.scale.setScalar(.88); board.rotation.set(-.08, -.5 + Math.sin(t * .4) * .1, .05);
+      people.forEach((p, i) => { const k = clamp((t % 6) / 6 * 5 - i * .6); p.userData.badge.scale.setScalar(.001 + eo(clamp(k * 3)) * (1 + Math.sin(t * 3 + i) * .04)); p.userData.badge.lookAt(cam.position); p.position.y = Math.abs(Math.sin(t * 2 + i)) * .03; });
+      site.rotation.y = .25 + Math.sin(t * .2) * .05;
+      cam.position.set(Math.sin(t * .12) * 1.3, 3.0, 10.6); cam.lookAt(.2, 1.15, 0); } };
+}
+
+/* ---------- renderer ---------- */
+async function fonts(){ try { await Promise.race([Promise.all(['800 100px Inter', '600 60px Inter', '600 60px "IBM Plex Sans Arabic"'].map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 1500))]); } catch(e) {} }
+function makeRenderer(canvas){
+  const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
+  r.setPixelRatio(Math.min(window.devicePixelRatio || 1, innerWidth < 700 ? 1.6 : 1.5)); r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+  r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05; r.outputColorSpace = THREE.SRGBColorSpace; return r;
+}
+const BUILD = [sceneVan, sceneKit, scenePhone, sceneSeniors, sceneSoon, sceneSelfKit, sceneLoyalty, sceneDoctor, sceneCompany];
+async function ensure(canvas){
+  if (R.canvas === canvas && R.r) return;
+  if (R.r) { R.r.dispose(); R.r.forceContextLoss(); R.r = null; }
+  await fonts();
+  R.canvas = canvas; R.r = makeRenderer(canvas); if (!R.env) R.env = studioEnv(R.r); else { R.env = studioEnv(R.r); }
+  if (!R.texVan) makeTextures();
+  if (!R.scenes) R.scenes = [];
+}
+function scene(i){ if (!R.scenes[i]) R.scenes[i] = BUILD[i](); R.scenes[i].s.environment = R.env; return R.scenes[i]; }
+function size(){ const c = R.canvas; const w = c.clientWidth || 1, h = c.clientHeight || 1; if (c.width !== Math.round(w * R.r.getPixelRatio()) || c.height !== Math.round(h * R.r.getPixelRatio())) R.r.setSize(w, h, false); return [w, h]; }
+function frame(sc, w, h, shift){
+  const a = w / h; sc.cam.aspect = a; sc.cam.fov = a < 1 ? 42 : a < 1.5 ? 34 : 30;
+  /* the text sits on the reading side: in Arabic (right-to-left) the scene moves to the left half, in English to the right half */
+  if (shift && a > 1.25) sc.cam.setViewOffset(w, h, (document.documentElement.dir === 'rtl' ? 1 : -1) * w * .2, 0, w, h); else if (shift && a <= 1.25) sc.cam.setViewOffset(w, h, 0, -h * .12, w, h); else sc.cam.clearViewOffset();
+  sc.cam.updateProjectionMatrix();
+}
+let loopOn = false, last = 0, T0 = performance.now();
+function loop(now){
+  if (!R.r || !R.canvas || !R.canvas.isConnected) { loopOn = false; if (R.r) { R.r.dispose(); R.r.forceContextLoss(); R.r = null; R.canvas = null; } return; }
+  requestAnimationFrame(loop);
+  /* while the page is scrolling, keep the last frame: the scroll gets the whole machine and stays smooth */
+  if (document.hidden || R.offscreen || now - (R.scrollT || 0) < 180) { last = now; return; }
+  const dt = Math.min(.05, (now - last) / 1000 || .016); last = now; const t = (now - T0) / 1000;
+  const sc = scene(R.cur || 0); const [w, h] = size(); frame(sc, w, h, true); sc.update(t, dt, 'banner'); R.r.render(sc.s, sc.cam);
+}
+async function init(canvas){
+  await ensure(canvas); scene(0);
+  if ('IntersectionObserver' in window) { const io = new IntersectionObserver(es => { R.offscreen = !es[0].isIntersecting; }); io.observe(canvas); }
+  if (!R.scrollHook) { R.scrollHook = true; addEventListener('scroll', () => { R.scrollT = performance.now(); }, { passive: true }); addEventListener('wheel', () => { R.scrollT = performance.now(); }, { passive: true }); }
+  /* build the other banner scenes in spare moments, so a slide change never has to build one on the spot */
+  const idle = window.requestIdleCallback || (f => setTimeout(f, 300)); let k = 1;
+  const pre = () => { if (!R.r || k >= BUILD.length) return; scene(k++); idle(pre, { timeout: 2000 }); }; idle(pre, { timeout: 2000 });
+  if (!loopOn) { loopOn = true; last = performance.now(); requestAnimationFrame(loop); }
+  return true;
+}
+function show(i){ R.cur = i; scene(i); }
+function count(){ return BUILD.length; }
+/* opening splash: the van drives in, then the caller fades the overlay */
+async function splash(canvas, ms = 2600){
+  await fonts(); const r = makeRenderer(canvas); const env = studioEnv(r); if (!R.texVan) makeTextures(); const sc = sceneVan(); sc.s.environment = env;
+  const t0 = performance.now(); let lastT = t0;
+  return new Promise(res => { const step = now => { const t = (now - t0) / 1000; const dt = Math.min(.05, (now - lastT) / 1000); lastT = now;
+      const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight; R.portrait = w / h < 1; if (canvas.width !== Math.round(w * r.getPixelRatio())) r.setSize(w, h, false);
+      frame(sc, w, h, false); sc.cam.fov = w / h < 1 ? 40 : 30; sc.cam.updateProjectionMatrix(); sc.update(t, dt, 'splash'); r.render(sc.s, sc.cam);
+      if (now - t0 < ms && canvas.isConnected) requestAnimationFrame(step); else { res(); setTimeout(() => { r.dispose(); r.forceContextLoss(); }, 800); } };
+    requestAnimationFrame(step); });
+}
+/* film mode: fixed-size, frame-by-frame rendering for the explainer video */
+async function filmSetup(canvas, w, h){
+  await fonts(); const r = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true }); r.setPixelRatio(1); r.setSize(w, h, false);
+  r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap; r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05; r.outputColorSpace = THREE.SRGBColorSpace;
+  R.r = r; R.canvas = null; R.env = studioEnv(r); if (!R.texVan) makeTextures(); R.scenes = []; R.fw = w; R.fh = h;
+}
+function filmRender(i, t, ox = 0, oy = 0, fov = 30){
+  const sc = scene(i); const w = R.fw, h = R.fh; sc.cam.aspect = w / h; sc.cam.fov = fov;
+  if (ox || oy) sc.cam.setViewOffset(w, h, -w * ox, -h * oy, w, h); else sc.cam.clearViewOffset(); sc.cam.updateProjectionMatrix();
+  sc.update(t, 1 / 30, 'banner'); R.r.render(sc.s, sc.cam);
+}
+
+/* ---------- deck 3D: the banner scenes (hero3d) on some slides, and the 3D map of our seven wilayats ---------- */
+const LANG = document.documentElement.lang === 'ar' ? 'ar' : 'en';
+const D3 = { canvas: document.createElement('canvas'), on: null };
+D3.canvas.className = 'd3c';
+/* a slide with <div class="d3" data-scene="N"> shows banner scene N while it is the current slide */
+window.D3enter = async sl => {
+  const box = sl.querySelector('.d3'); D3leave();
+  if (box) { box.appendChild(D3.canvas); D3.on = box; try { await init(D3.canvas); show(+box.dataset.scene || 0); } catch (e) { box.classList.add('d3-off'); } }
+  if (sl.dataset.k === 'area') MAP.start(sl); else MAP.stop();
+};
+function D3leave(){ if (D3.canvas.parentNode) D3.canvas.parentNode.removeChild(D3.canvas); D3.on = null; }
+/* drag a 3D scene to turn it a little (and never advance the slide) */
+['pointerdown', 'click'].forEach(ev => D3.canvas.addEventListener(ev, e => e.stopPropagation()));
+
+/* ---------- the map ---------- */
+const WL = [
+  ['Ibra', 'إبراء', 22.6906, 58.5334, { en: 'Our hub: partner lab and cold-chain base', ar: 'مركزنا: المختبر الشريك وقاعدة التبريد' }],
+  ['Al Mudhaybi', 'المضيبي', 22.5686, 58.1192, { en: 'Large wilayat west of Ibra', ar: 'ولاية كبيرة غرب إبراء' }],
+  ['Sinaw', 'سناو', 22.5006, 58.0328, { en: 'Known for its traditional souq', ar: 'معروفة بسوقها الشعبي' }],
+  ['Al Qabil', 'القابل', 22.5634, 58.6914, { en: 'Between Ibra and Bidiyah', ar: 'بين إبراء وبدية' }],
+  ['Bidiyah', 'بدية', 22.4539, 58.8022, { en: 'At the edge of the Wahiba Sands', ar: 'على طرف رمال الشرقية (وهيبة)' }],
+  ['Wadi Bani Khalid', 'وادي بني خالد', 22.6119, 59.0897, { en: 'Famous for its wadi pools', ar: 'مشهورة ببرك الوادي' }],
+  ['Dima Wa At Taiyyin', 'دماء والطائيين', 22.9856, 58.6719, { en: 'Villages in the Hajar mountains', ar: 'قرى في جبال الحجر' }]
+];
+const KM = (a, b) => { const R0 = 6371, t = x => x * Math.PI / 180; const dLa = t(b[2] - a[2]), dLo = t(b[3] - a[3]); const h = Math.sin(dLa / 2) ** 2 + Math.cos(t(a[2])) * Math.cos(t(b[2])) * Math.sin(dLo / 2) ** 2; return 2 * R0 * Math.asin(Math.sqrt(h)); };
+const LX = lng => (lng - 58.55) * 18, LZ = lat => -(lat - 22.72) * 18;
+function hAt(x, z){ /* Hajar mountains to the north, Wahiba dunes to the south-east, wadis between */
+  const ridge = Math.max(0, 1 - Math.abs(z + 6.2 - Math.sin(x * .35) * 1.2) / 3.2) * (2.2 + Math.sin(x * 1.3) * .6 + Math.sin(x * 2.9 + 1) * .35);
+  const hills = Math.max(0, Math.sin(x * .9 + 2) * Math.sin(z * .8 - 1)) * .35;
+  const dunes = Math.max(0, (z - 3) / 6) * Math.max(0, (x + 1) / 8) * (.25 + .18 * Math.sin(x * 2.4 + z * .7));
+  return ridge + hills + dunes;
+}
+const MAP = { r: null, raf: 0 };
+const at = (o, x, y, z) => { o.position.set(x, y, z); return o; };
+MAP.build = function(sl){
+  const box = sl.querySelector('.d3map'); const cv = document.createElement('canvas'); box.appendChild(cv);
+  const r = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); r.setPixelRatio(Math.min(devicePixelRatio || 1, 1.6)); r.outputColorSpace = THREE.SRGBColorSpace; r.shadowMap.enabled = true;
+  const s = new THREE.Scene(); s.fog = new THREE.Fog('#eaf2ff', 30, 70);
+  s.add(new THREE.HemisphereLight('#ffffff', '#c9a878', 1.25)); const sun = new THREE.DirectionalLight('#fff1d8', 2.2); sun.position.set(-12, 18, 10); sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 12, bottom: -12 }); s.add(sun);
+  const g = new THREE.PlaneGeometry(36, 22, 180, 110); g.rotateX(-Math.PI / 2); const pos = g.attributes.position; const col = [];
+  const sand = new THREE.Color('#f0d9a8'), rock = new THREE.Color('#b58a62'), dark = new THREE.Color('#8a6448'), dune = new THREE.Color('#f5c980'), green = new THREE.Color('#9cc48a'); const c = new THREE.Color();
+  for (let i = 0; i < pos.count; i++) { const x = pos.getX(i), z = pos.getZ(i); const h = hAt(x, z); pos.setY(i, h);
+    c.copy(sand); if (h > .5) c.lerp(rock, Math.min(1, (h - .5) / 1.2)); if (h > 1.8) c.lerp(dark, Math.min(1, (h - 1.8))); if (z > 3 && x > 0) c.lerp(dune, Math.min(.7, (z - 3) / 6));
+    for (const w of WL) { const d = Math.hypot(x - LX(w[3]), z - LZ(w[2])); if (d < 1.2) c.lerp(green, (1.2 - d) / 1.2 * .8); }
+    col.push(c.r, c.g, c.b); }
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.computeVertexNormals();
+  const land = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95, flatShading: false })); land.receiveShadow = true; s.add(land);
+  const base = new THREE.Mesh(new THREE.BoxGeometry(36, 1.2, 22), new THREE.MeshStandardMaterial({ color: '#d8c39a', roughness: 1 })); base.position.y = -.62; s.add(base);
+  const label = (txt, sub, big) => { const cv2 = document.createElement('canvas'); cv2.width = 512; cv2.height = 160; const x = cv2.getContext('2d'); x.fillStyle = 'rgba(255,255,255,.95)'; const w = 40 + Math.max(x.measureText ? 0 : 0, 0); x.beginPath(); x.roundRect ? x.roundRect(8, 8, 496, 120, 60) : x.rect(8, 8, 496, 120); x.fill();
+    x.fillStyle = big ? '#1257d6' : '#0b2350'; x.font = `800 ${LANG === 'ar' ? 52 : 46}px ${LANG === 'ar' ? '"IBM Plex Sans Arabic"' : 'Inter'}, sans-serif`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(txt, 256, sub ? 54 : 68); if (sub) { x.font = '600 30px Inter, sans-serif'; x.fillStyle = '#5b6b88'; x.fillText(sub, 256, 104); }
+    const t = new THREE.CanvasTexture(cv2); t.colorSpace = THREE.SRGBColorSpace; const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, transparent: true })); sp.scale.set(4.4, 1.38, 1); sp.renderOrder = 5; return sp; };
+  const hub = WL[0]; const hubP = new THREE.Vector3(LX(hub[3]), hAt(LX(hub[3]), LZ(hub[2])), LZ(hub[2]));
+  const pins = WL.map((w, i) => { const x = LX(w[3]), z = LZ(w[2]), y = hAt(x, z); const p = new THREE.Group(); p.position.set(x, y, z);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(i ? .32 : .45, 24, 16), new THREE.MeshStandardMaterial({ color: i ? '#0fae9b' : '#1257d6', roughness: .35, emissive: i ? '#0fae9b' : '#1257d6', emissiveIntensity: .25 })); head.position.y = 1.2; head.castShadow = true; p.add(head);
+    p.add(at(new THREE.Mesh(new THREE.CylinderGeometry(.06, .06, 1.2, 10), new THREE.MeshStandardMaterial({ color: '#0b2350' })), 0, .6, 0));
+    const ring = new THREE.Mesh(new THREE.RingGeometry(.5, .62, 40), new THREE.MeshBasicMaterial({ color: i ? '#0fae9b' : '#1257d6', transparent: true, opacity: .55, side: THREE.DoubleSide })); ring.rotation.x = -Math.PI / 2; ring.position.y = .05; p.add(ring);
+    const lb = label(LANG === 'ar' ? w[1] : w[0], null, !i); lb.position.y = 2.25; p.add(lb);
+    p.userData = { i, head, ring }; s.add(p); return p; });
+  /* roads from the hub */
+  const routes = WL.map((w, i) => { if (!i) return null; const a = hubP.clone(), b = pins[i].position.clone(); const m = a.clone().lerp(b, .5); m.y = Math.max(hAt(m.x, m.z), (a.y + b.y) / 2) + 1.2;
+    const pts = []; const cu = new THREE.QuadraticBezierCurve3(a, m, b); for (let k = 0; k <= 40; k++) { const p = cu.getPoint(k / 40); p.y = Math.max(p.y * .3, hAt(p.x, p.z)) + .12; pts.push(p); }
+    const curve = new THREE.CatmullRomCurve3(pts); s.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 80, .05, 6), new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: .85 }))); return curve; });
+  /* a small iLab@home van */
+  const van = new THREE.Group(); const white = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: .4 }), blue = new THREE.MeshStandardMaterial({ color: '#1257d6', roughness: .4 });
+  van.add(at(new THREE.Mesh(new THREE.BoxGeometry(.9, .42, .46), white), -.1, .32, 0)); van.add(at(new THREE.Mesh(new THREE.BoxGeometry(.36, .32, .44), blue), .5, .27, 0));
+  van.add(at(new THREE.Mesh(new THREE.BoxGeometry(.92, .07, .47), blue), -.1, .2, 0));
+  for (const [x, z] of [[-.38, .24], [.38, .24], [-.38, -.24], [.38, -.24]]) { const wh = new THREE.Mesh(new THREE.CylinderGeometry(.11, .11, .08, 16), new THREE.MeshStandardMaterial({ color: '#1d2433' })); wh.rotation.x = Math.PI / 2; wh.position.set(x, .11, z); van.add(wh); }
+  van.traverse(o => { o.castShadow = true; }); van.scale.setScalar(1.3); van.position.copy(hubP); s.add(van);
+  const cam = new THREE.PerspectiveCamera(36, 1, .1, 200);
+  const st = { theta: 0, phi: .9, dist: 27, auto: true, sel: -1, ride: null, t0: performance.now() };
+  const place = () => { const tx = 0, tz = 1; cam.position.set(tx + st.dist * Math.sin(st.theta) * Math.sin(st.phi), st.dist * Math.cos(st.phi), tz + st.dist * Math.cos(st.theta) * Math.sin(st.phi)); cam.lookAt(tx, 0, tz); };
+  let drag = null; cv.addEventListener('pointerdown', e => { e.stopPropagation(); drag = { x: e.clientX, y: e.clientY, th: st.theta, ph: st.phi, moved: false }; cv.setPointerCapture(e.pointerId); st.auto = false; });
+  cv.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.hypot(dx, dy) > 4) drag.moved = true; st.theta = drag.th - dx * .008; st.phi = Math.min(1.25, Math.max(.45, drag.ph - dy * .005)); });
+  cv.addEventListener('pointerup', e => { e.stopPropagation(); const moved = drag && drag.moved; drag = null; if (moved) return; const rc = cv.getBoundingClientRect(); const v = new THREE.Vector2((e.clientX - rc.left) / rc.width * 2 - 1, -((e.clientY - rc.top) / rc.height) * 2 + 1);
+    const ray = new THREE.Raycaster(); ray.setFromCamera(v, cam); const hit = ray.intersectObjects(pins.map(p => p.userData.head)); if (hit.length) MAP.select(pins.findIndex(p => p.userData.head === hit[0].object)); });
+  cv.addEventListener('click', e => e.stopPropagation());
+  const size = () => { const w = box.clientWidth, h = box.clientHeight; if (cv.width !== Math.round(w * r.getPixelRatio()) || cv.height !== Math.round(h * r.getPixelRatio())) { r.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); } };
+  MAP.r = r; MAP.s = s; MAP.cam = cam; MAP.pins = pins; MAP.routes = routes; MAP.van = van; MAP.st = st; MAP.size = size; MAP.place = place; MAP.box = box; MAP.info = sl.querySelector('.mapinfo'); MAP.hubP = hubP;
+};
+MAP.select = function(i){ if (!MAP.r || i < 0 || i >= WL.length) return; const st = MAP.st; st.sel = i; const w = WL[i];
+  MAP.pins.forEach((p, k) => { p.userData.head.material.emissiveIntensity = k === i ? .9 : .25; p.userData.head.scale.setScalar(k === i ? 1.35 : 1); });
+  if (i && MAP.routes[i]) st.ride = { curve: MAP.routes[i], t0: performance.now() }; else { st.ride = null; MAP.van.position.copy(MAP.hubP); }
+  st.target = Math.max(-.55, Math.min(.55, MAP.pins[i].position.x * .045)); st.auto = false; /* always seen from the south, a gentle turn toward the wilayat */
+  const km = i ? KM(WL[0], w) : 0; const min = Math.round(km * 1.35 / 60 * 60 / 5) * 5; const ar = LANG === 'ar';
+  MAP.info.innerHTML = `<div class="mi-k">${ar ? 'الولاية ' + (i + 1) + ' من 7' : 'Wilayat ' + (i + 1) + ' of 7'}</div><div class="mi-n">${ar ? w[1] : w[0]}</div><div class="mi-s">${ar ? w[0] : w[1]}</div><p>${w[4][LANG]}</p>
+    <div class="mi-row">${i ? `<span><b>${Math.round(km)}</b> ${ar ? 'كم من إبراء (خط مستقيم)' : 'km from Ibra (straight line)'}</span><span><b>≈ ${Math.max(10, min)}</b> ${ar ? 'دقيقة بالسيارة (تقريبي)' : 'min drive (approx.)'}</span>` : `<span><b>${ar ? 'المختبر' : 'Lab'}</b> ${ar ? '+ قاعدة التبريد' : '+ cold-chain base'}</span>`}</div>
+    <div class="mi-tags"><span>${ar ? 'ممرض للرجال' : 'Male nurse for men'}</span><span>${ar ? 'ممرضة للنساء والأطفال' : 'Female nurse for women & children'}</span><span>${ar ? 'عُدد ذاتية' : 'Self-kits'}</span></div>`;
+  MAP.info.classList.remove('pop'); void MAP.info.offsetWidth; MAP.info.classList.add('pop'); };
+MAP.start = function(sl){ if (!MAP.r) { try { MAP.build(sl); } catch (e) { sl.querySelector('.d3map').classList.add('d3-off'); return; } MAP.select(0); }
+  cancelAnimationFrame(MAP.raf); let last = performance.now();
+  const tick = now => { MAP.raf = requestAnimationFrame(tick); const dt = Math.min(.05, (now - last) / 1000); last = now; const st = MAP.st;
+    if (st.auto) st.theta = Math.sin(now / 6000) * .35; else if (st.target != null) { let d = st.target - st.theta; d = Math.atan2(Math.sin(d), Math.cos(d)); st.theta += d * Math.min(1, dt * 2.5); if (Math.abs(d) < .002) st.target = null; }
+    if (st.ride) { const k = Math.min(1, (now - st.ride.t0) / 2600); const e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; const p = st.ride.curve.getPoint(e), q = st.ride.curve.getPoint(Math.min(1, e + .01)); MAP.van.position.copy(p); MAP.van.lookAt(q.x, p.y, q.z); MAP.van.rotateY(-Math.PI / 2); if (k >= 1) st.ride = null; }
+    MAP.pins.forEach((p, k) => { const s2 = 1 + .25 * Math.sin(now / 300 + k); p.userData.ring.scale.setScalar(k === st.sel ? 1.2 + .3 * Math.sin(now / 200) : s2 * .9); });
+    MAP.size(); MAP.place(); MAP.r.render(MAP.s, MAP.cam); };
+  MAP.raf = requestAnimationFrame(tick); };
+MAP.stop = function(){ cancelAnimationFrame(MAP.raf); };
+window.MAP = MAP;
+
+if (window.CUR_SLIDE) D3enter(CUR_SLIDE());
+</script></body></html>

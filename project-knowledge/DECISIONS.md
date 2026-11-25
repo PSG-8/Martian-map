@@ -25,3 +25,6 @@
 - **Noor is SVG, not 3D** (v32) — the owner asked for a light 3D-feel character that never slows the site; SVG + CSS transforms gives that at a few KB.
 - **Arabic layout puts the banner scene on the left** (v32) — the text sits on the reading side and never covers the picture.
 - **Three videos, one job each** (v32) — idea, how to use the app (real screens), and a cinematic day-in-the-life film; no real actors or AI video (no paid credits), all drawn with the site's own characters.
+- **Nurse gender rule** (v33, owner): male nurse → men; female nurse → women and children under 12. Enforced in the booking screen and in the database (trigger, order_create, auto-assign).
+- **The customer never pays for our mistakes** (v33): damaged/lost samples → free re-collection or full refund + apology gift; iLab@home is the single responsible party and settles with partners afterwards. What we do not cover is written plainly on `#/guarantee`.
+- **Spoken names use phonemes** (v33): English TTS mispronounces Arabic names (Noor→"Nor", Maryam→"Merry-am"), so names are fed as IPA and checked by transcription.
