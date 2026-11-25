@@ -59,13 +59,29 @@ body.idle #ctl{opacity:0}
 #notes.show{transform:none}#notes h4{margin:0 0 6px;color:#ffd166;font:700 18px Inter}
 .brandtop{position:absolute;top:40px;left:60px;display:flex;align-items:center;gap:12px;font:800 28px Inter;direction:ltr}.brandtop b{color:var(--blue)}
 .brandtop svg{width:44px;height:44px}
+
+.scene .mv{transform-box:fill-box}
+.ch-hit{cursor:pointer}.ch-hit .mv{transition:transform .2s}.ch-hit:hover .mv{transform:translateY(-6px)}
+.jump .mv{animation:jump .6s cubic-bezier(.3,1.6,.5,1)}@keyframes jump{0%{transform:none}40%{transform:translateY(-34px) scale(1.04,.97)}100%{transform:none}}
+.slide.on .scene .bob,.slide.on .ch-hit .bob{animation:bob 2.6s ease-in-out infinite;transform-box:fill-box}@keyframes bob{50%{transform:translateY(-5px)}}
+.walking .ll{animation:leg .32s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 0}.walking .lr{animation:leg .32s ease-in-out infinite alternate-reverse;transform-box:fill-box;transform-origin:50% 0}@keyframes leg{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+.wave .ar{animation:wave 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 6%}@keyframes wave{0%,40%,100%{transform:none}10%,30%{transform:rotate(-150deg)}20%{transform:rotate(-120deg)}}
+.gok{opacity:0;transform:scale(0);transform-box:fill-box;transform-origin:center;transition:opacity .3s,transform .5s cubic-bezier(.3,1.6,.5,1)}.gok.shown{opacity:1;transform:none}
+.goals .gcard{flex:1;text-align:center;padding:18px 24px}.goals .gcard h3{font-size:24px}
+.hcards .card{padding:18px 22px}.hcards .card h3{font-size:24px}.hcards .card p{font-size:19px}
+.risk{margin-top:26px}.flip{height:520px}.flip.shown:not(.done) .fa{animation:pulseR 1.6s ease-in-out 2}@keyframes pulseR{50%{box-shadow:0 0 0 14px rgba(226,71,79,.12)}}
+.rhead{display:flex;align-items:center;gap:12px}.ricon{width:46px;height:46px;flex:none}
+.flip.shown .fa .ricon{animation:shake .6s ease .2s 2}@keyframes shake{25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+.flip.done .fb .ricon{animation:pop .6s cubic-bezier(.3,1.6,.5,1) .5s both}@keyframes pop{from{transform:scale(0)}to{transform:none}}
+.rill{height:96px;display:flex;justify-content:center}.rill svg{height:100%;width:auto}
+.rnext{margin-top:auto;font:700 19px "IBM Plex Sans Arabic";color:#b4535a;opacity:.8}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style></head><body>
 <noscript><div style="position:fixed;inset:auto 0 0 0;background:#0b2350;color:#fff;padding:14px;text-align:center;z-index:9;font:600 18px sans-serif">افتح الملف في متصفح Chrome أو Edge ليشتغل العرض · Open this file in Chrome or Edge</div></noscript><canvas id="bgc"></canvas><div id="prog"></div>
 <div id="wrap"><div id="stage">
 
 <!-- 1 title -->
-<section class="slide on" data-steps="0" data-notes="[0:30] السلام عليكم. نحن فريق آي لاب@هوم. فكرتنا بسيطة: الفحص المخبري يجي لك البيت بدل ما تروح أنت للمختبر، في ولايات شمال الشرقية. خلال العرض بنشرح المشكلة والحل وكيف يشتغل البرنامج، والمخاطر وكيف نحلها، والأرقام والفريق.">
+<section data-k="title" class="slide on" data-steps="0" data-notes="[0:30] السلام عليكم. نحن فريق آي لاب@هوم. فكرتنا بسيطة: الفحص المخبري يجي لك البيت بدل ما تروح أنت للمختبر، في ولايات شمال الشرقية. خلال العرض بنشرح المشكلة والحل وكيف يشتغل البرنامج، والمخاطر وكيف نحلها، والأرقام والفريق.">
   <div style="display:grid;grid-template-columns:1fr 520px;align-items:center;height:100%">
     <div class="col">
       <span class="eyebrow in" style="--d:.1">North Al Sharqiyah · Oman</span>
@@ -82,11 +98,19 @@ body.idle #ctl{opacity:0}
   <g transform="rotate(-32 32 34)" stroke="url(#hg1)" stroke-width="2.2"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/><circle cx="29.6" cy="40.4" r="1.6" stroke="url(#hg1)" stroke-width="1.4"><animate attributeName="cy" values="40.4;33.4;40.4" dur="2.6s" begin="0s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.25;1" dur="2.6s" begin="0s" repeatCount="indefinite"/></circle><circle cx="34.6" cy="39.4" r="1" stroke="url(#hg1)" stroke-width="1.4"><animate attributeName="cy" values="39.4;32.4;39.4" dur="2.1s" begin="0.7s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.25;1" dur="2.1s" begin="0.7s" repeatCount="indefinite"/></circle></g>
   <circle cx="20.6" cy="20.2" r="1.3" stroke="url(#hg1)" stroke-width="1.4"><animate attributeName="cy" values="20.2;13.2;20.2" dur="3s" begin="0.3s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.25;1" dur="3s" begin="0.3s" repeatCount="indefinite"/></circle><circle cx="17.6" cy="15.6" r=".9" stroke="url(#hg1)" stroke-width="1.2"/>
   <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="url(#hg1)" stroke-width="1.3"><animate attributeName="opacity" values="1;.2;1" dur="1.8s" repeatCount="indefinite"/></path></svg></div>
+      <svg viewBox="-60 -250 120 260" style="position:absolute;left:-40px;bottom:-10px;width:150px;overflow:visible"><g class="ch-hit wave" data-say="أهلاً فيكم!" data-tip="t1"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><g class="lg ll"><rect x="-20" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="-12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g>
+  <g class="lg lr"><rect x="4" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g><path d="M-34 -150 Q-38 -82 -30 -68 L30 -68 Q38 -82 34 -150 Q0 -164 -34 -150Z" fill="#0fae9b"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="-40" cy="-86" r="8" fill="#e9b48f"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="40" cy="-86" r="8" fill="#e9b48f"/></g><path d="M-42 -148 Q-46 -200 0 -232 Q46 -200 42 -148 Q22 -134 0 -132 Q-22 -134 -42 -148Z" fill="#33507d"/>
+  <ellipse cx="0" cy="-198" rx="34" ry="37" fill="#33507d"/><path d="M-22 -206 Q0 -224 22 -206" stroke="#24406b" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#e9b48f"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><rect x="10" y="-128" width="16" height="10" rx="2" fill="#fff"/><path d="M18 -126v6M15 -123h6" stroke="#0fae9b" stroke-width="2"/></g></g></svg>
     </div></div>
 </section>
 
 <!-- 2 problem -->
-<section class="slide" data-steps="2" data-notes="[0:40] المشكلة: عشان فحص دم واحد، الشخص يسوق للمختبر وينتظر في الطابور، وأحياناً يرجع مرة ثانية ياخذ النتيجة. هذا ياخذ ساعات من يومه. وأكثر الناس تعباً: كبار السن، والأمهات مع الأطفال، والعمال اللي ما عندهم وقت، ومرضى الأمراض المزمنة اللي يحتاجون فحص دوري. (الأرقام توضيحية من تجربة الزيارة المعتادة، مو إحصائية رسمية.)">
+<section data-k="problem" class="slide" data-steps="2" data-notes="[0:40] المشكلة: عشان فحص دم واحد، الشخص يسوق للمختبر وينتظر في الطابور، وأحياناً يرجع مرة ثانية ياخذ النتيجة. هذا ياخذ ساعات من يومه. وأكثر الناس تعباً: كبار السن، والأمهات مع الأطفال، والعمال اللي ما عندهم وقت، ومرضى الأمراض المزمنة اللي يحتاجون فحص دوري. (الأرقام توضيحية من تجربة الزيارة المعتادة، مو إحصائية رسمية.)">
   <span class="eyebrow amber in">المشكلة · The problem</span>
   <h1 class="in" style="--d:.1">ساعات تضيع عشان فحص واحد<small>Hours lost for one test</small></h1>
   <svg viewBox="0 0 1420 420" style="width:1420px;margin-top:30px" class="in" id="jsvg">
@@ -102,24 +126,112 @@ body.idle #ctl{opacity:0}
     <span class="pill" data-step="2"><i style="background:#1257d6"></i>العمال والمشغولين</span><span class="pill" data-step="2"><i></i>مرضى السكر والضغط</span></div>
 </section>
 
-<!-- 3 solution / how it works -->
-<section class="slide" data-steps="4" data-notes="[0:50] الحل: المختبر يجي لك. الخطوة الأولى تحجز من التطبيق في دقيقة. الثانية ممرضة أو ممرض مرخّص من نفس الجنس يزورك. الثالثة المندوب ينقل العينة في صندوق مبرد من 2 إلى 8 درجات، وكل تسليم ينحفظ بالوقت والحرارة. الرابعة النتيجة المعتمدة توصل جوالك مشروحة بالعربي والإنجليزي. سؤال متوقع: كم ياخذ وقت؟ الجواب: أغلب الفحوصات النتيجة خلال 12 إلى 24 ساعة حسب نوع الفحص.">
+<!-- goal (v2) -->
+<section data-k="goal" class="slide" data-steps="2" data-notes="[0:40] هدفنا واضح: أي شخص في شمال الشرقية يقدر يسوي فحصه وهو في بيته، بدون مشوار ولا طابور. نبدأ بسبع ولايات في المرحلة الأولى، وهدفنا النتيجة خلال 48 ساعة لأغلب الفحوصات، ورسوم الزيارة 5 ريال، والعدة الذاتية 2 ريال. وأكثر ناس نفكر فيهم: كبار السن، والأمهات مع الأطفال، والعمال. (اضغط على أي شخصية عشان تتكلم.)">
+  <span class="eyebrow teal in">الهدف · Our goal</span>
+  <h1 class="in" style="--d:.1">الفحص يجيك لين البيت، بدون مشوار<small>The lab comes home, no trip, no queue</small></h1>
+  <svg viewBox="0 0 1420 400" class="in scene" style="--d:.2;width:1420px;margin-top:10px" id="gsvg">
+    <defs><radialGradient id="gglow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#dff5ef"/><stop offset="1" stop-color="#dff5ef" stop-opacity="0"/></radialGradient></defs>
+    <ellipse cx="710" cy="330" rx="620" ry="40" fill="#e9eff9"/>
+    <circle cx="710" cy="190" r="190" fill="url(#gglow)"/>
+    <g transform="translate(590,330)"><g class="house" transform="translate(0,0)"><path d="M0 -150 L120 -230 L240 -150Z" fill="#f2a516"/><rect x="18" y="-152" width="204" height="152" rx="8" fill="#fff" stroke="#dfe6f2" stroke-width="3"/>
+    <g class="door"><rect x="94" y="-96" width="52" height="96" rx="6" fill="#1257d6"/><circle cx="136" cy="-48" r="4" fill="#fff"/></g><rect x="36" y="-120" width="40" height="36" rx="5" fill="#cfe0ff"/><rect x="164" y="-120" width="40" height="36" rx="5" fill="#cfe0ff"/></g></g>
+    <g transform="translate(250,336)"><g class="ch-hit" data-say="ما أحتاج أسوق للمستشفى، الممرضة تجيني" data-tip="g1"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><path d="M-36 -150 Q-42 -60 -38 -4 L38 -4 Q42 -60 36 -150 Q0 -164 -36 -150Z" fill="#fff" stroke="#dfe6f2" stroke-width="2"/><path d="M0 -150 V-110" stroke="#c9b48a" stroke-width="3"/><circle cx="0" cy="-106" r="4" fill="#c9b48a"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#fff"/><circle cx="-40" cy="-86" r="8" fill="#c98d63"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#fff"/><circle cx="40" cy="-86" r="8" fill="#c98d63"/></g><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#c98d63"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  <path d="M-19 -186 Q-18 -160 0 -156 Q18 -160 19 -186 Q12 -175 0 -174 Q-12 -175 -19 -186Z" fill="#d8d8d8"/>
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M-23 -210 Q0 -238 23 -210 L23 -203 L-23 -203Z" fill="#fff" stroke="#e1e7f1"/><path d="M-19 -210h38" stroke="#1257d6" stroke-width="2" stroke-dasharray="3 3"/><path d="M-14 -219h28" stroke="#0fae9b" stroke-width="2" stroke-dasharray="2 4"/></g></g></g>
+    <g transform="translate(450,336)"><g class="ch-hit" data-say="الأطفال يرتاحون في بيتهم" data-tip="g2"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><path d="M-38 -150 Q-46 -60 -42 -2 L42 -2 Q46 -60 38 -150 Q0 -164 -38 -150Z" fill="#22252e"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#22252e"/><circle cx="-40" cy="-86" r="8" fill="#e9b48f"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#22252e"/><circle cx="40" cy="-86" r="8" fill="#e9b48f"/></g><path d="M-42 -148 Q-46 -200 0 -232 Q46 -200 42 -148 Q22 -134 0 -132 Q-22 -134 -42 -148Z" fill="#2b2f3a"/>
+  <ellipse cx="0" cy="-198" rx="34" ry="37" fill="#2b2f3a"/><path d="M-22 -206 Q0 -224 22 -206" stroke="#1b1d24" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#e9b48f"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/></g></g></g>
+    <g transform="translate(530,336)"><g class="ch-hit" data-say="ما خفت أبداً!" data-tip="g3"><g class="mv"><ellipse cx="0" cy="0" rx="28" ry="6" fill="#0b2350" opacity=".12"/><g transform="scale(.62)"><g class="lg ll"><rect x="-20" y="-72" width="16" height="70" rx="7" fill="#33507d"/><ellipse cx="-12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g>
+  <g class="lg lr"><rect x="4" y="-72" width="16" height="70" rx="7" fill="#33507d"/><ellipse cx="12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g><path d="M-30 -150 Q-34 -84 -28 -70 L28 -70 Q34 -84 30 -150 Q0 -162 -30 -150Z" fill="#f2a516"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#f2a516"/><circle cx="-40" cy="-86" r="8" fill="#c98d63"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#f2a516"/><circle cx="40" cy="-86" r="8" fill="#c98d63"/></g><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#c98d63"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M-20 -212 Q0 -228 20 -212 Q14 -220 0 -221 Q-14 -220 -20 -212Z" fill="#2a1d14"/></g></g></g></g>
+    <g transform="translate(1000,336)"><g class="ch-hit" data-say="الشركة تحجز لنا في موقع العمل" data-tip="g4"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><g class="lg ll"><rect x="-20" y="-72" width="16" height="70" rx="7" fill="#e07b1a"/><ellipse cx="-12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g>
+  <g class="lg lr"><rect x="4" y="-72" width="16" height="70" rx="7" fill="#e07b1a"/><ellipse cx="12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g><path d="M-34 -150 Q-38 -82 -30 -68 L30 -68 Q38 -82 34 -150 Q0 -164 -34 -150Z" fill="#e07b1a"/><path d="M-34 -110h68" stroke="#e8f04a" stroke-width="6"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#e07b1a"/><circle cx="-40" cy="-86" r="8" fill="#c98d63"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#e07b1a"/><circle cx="40" cy="-86" r="8" fill="#c98d63"/></g><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#c98d63"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  <path d="M-19 -186 Q-18 -160 0 -156 Q18 -160 19 -186 Q12 -175 0 -174 Q-12 -175 -19 -186Z" fill="#3a2a20"/>
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M-25 -206 Q0 -236 25 -206Z" fill="#ffd34d"/><rect x="-28" y="-208" width="56" height="6" rx="3" fill="#f2b705"/></g></g></g>
+    <g transform="translate(1180,336)"><g class="ch-hit" data-say="أنا أوصل لكم لين الباب" data-tip="g5"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><g class="lg ll"><rect x="-20" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="-12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g>
+  <g class="lg lr"><rect x="4" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g><path d="M-34 -150 Q-38 -82 -30 -68 L30 -68 Q38 -82 34 -150 Q0 -164 -34 -150Z" fill="#0fae9b"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="-40" cy="-86" r="8" fill="#e9b48f"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="40" cy="-86" r="8" fill="#e9b48f"/></g><path d="M-42 -148 Q-46 -200 0 -232 Q46 -200 42 -148 Q22 -134 0 -132 Q-22 -134 -42 -148Z" fill="#33507d"/>
+  <ellipse cx="0" cy="-198" rx="34" ry="37" fill="#33507d"/><path d="M-22 -206 Q0 -224 22 -206" stroke="#24406b" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#e9b48f"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><rect x="10" y="-128" width="16" height="10" rx="2" fill="#fff"/><path d="M18 -126v6M15 -123h6" stroke="#0fae9b" stroke-width="2"/></g></g></g>
+    <g transform="translate(250,60)"><g class="gok" data-step="1"><g class="ok" transform="translate(0,0)"><circle r="22" fill="#0fae9b"/><path d="M-8.8 0 l6.6 6.6 l12.100000000000001 -12.100000000000001" stroke="#fff" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></g></g><g transform="translate(490,60)"><g class="gok" data-step="1"><g class="ok" transform="translate(0,0)"><circle r="22" fill="#0fae9b"/><path d="M-8.8 0 l6.6 6.6 l12.100000000000001 -12.100000000000001" stroke="#fff" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></g></g><g transform="translate(1000,60)"><g class="gok" data-step="1"><g class="ok" transform="translate(0,0)"><circle r="22" fill="#0fae9b"/><path d="M-8.8 0 l6.6 6.6 l12.100000000000001 -12.100000000000001" stroke="#fff" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></g></g>
+    <g id="gbub" opacity="0" transform="translate(710,40)"><rect x="-190" y="-34" width="380" height="58" rx="29" fill="#fff" stroke="#c9d8f5" stroke-width="3"/><text x="0" y="6" text-anchor="middle" font-size="24" font-weight="700" fill="#0b2350"></text></g>
+  </svg>
+  <div class="row goals" style="margin-top:4px">
+    <div class="card gcard" data-step="2"><div class="big cnt" data-to="7" style="font-size:72px">0</div><h3>ولايات في المرحلة الأولى</h3><div class="en">Pilot wilayats</div></div>
+    <div class="card gcard" data-step="2"><div class="big" style="font-size:72px">48h</div><h3>هدف ظهور النتيجة</h3><div class="en">Results target, most tests</div></div>
+    <div class="card gcard" data-step="2"><div class="big" style="font-size:72px">5 · 2</div><h3>ر.ع زيارة الممرضة · العدّة الذاتية</h3><div class="en">OMR nurse visit · self-kit</div></div>
+  </div>
+</section>
+
+<!-- 3 solution / how it works (v2) -->
+<section data-k="how" class="slide" data-steps="4" data-notes="[0:50] الحل: المختبر يجي لك، في أربع خطوات. أولاً تحجز من البرنامج في دقيقة وتدفع إلكترونياً. ثانياً ممرضة مرخّصة توصل البيت وتتأكد من الهوية وتسحب العينة. ثالثاً العينة تنتقل في صندوق مبرد من 2 إلى 8 درجات، وكل تسليم ينسجّل بالوقت والحرارة لين المختبر. رابعاً التقرير المعتمد يوصل الجوال مشروح، ولو يحتاج متابعة نوصلك بطبيب. سؤال متوقع: كم ياخذ وقت؟ هدفنا خلال 48 ساعة لأغلب الفحوصات.">
   <span class="eyebrow in">الحل · How it works</span>
   <h1 class="in" style="--d:.1">المختبر يجي لك، في أربع خطوات<small>The lab comes to you, in four steps</small></h1>
-  <svg viewBox="0 0 1420 300" style="width:1420px;margin-top:40px" class="in" style="--d:.2">
-    <path id="hpath" d="M1260 150 H160" stroke="#1257d6" stroke-width="10" stroke-linecap="round" fill="none" stroke-dasharray="1100" stroke-dashoffset="1100" class="draw"/>
-    <g id="hnodes"></g><circle id="hdot" r="16" fill="#0fae9b"/>
+  <svg viewBox="0 0 1420 400" class="in scene" style="--d:.2;width:1420px;margin-top:6px" id="hsc">
+    <path d="M60 352 H1360" stroke="#dfe6f2" stroke-width="22" stroke-linecap="round"/><path d="M60 352 H1360" stroke="#fff" stroke-width="3" stroke-dasharray="26 22"/>
+    <g transform="translate(70,348)"><g class="lab" transform="translate(0,0)"><rect x="0" y="-170" width="210" height="170" rx="12" fill="#fff" stroke="#dfe6f2" stroke-width="3"/><rect x="0" y="-196" width="210" height="34" rx="10" fill="#0fae9b"/>
+    <text x="105" y="-172" text-anchor="middle" font-family="Inter" font-weight="800" font-size="18" fill="#fff">LAB</text><path d="M92 -130h26M98 -130v26l-14 26a6 6 0 0 0 5 9h32a6 6 0 0 0 5-9l-14-26v-26" stroke="#0fae9b" stroke-width="5" fill="none" stroke-linejoin="round"/>
+    <rect x="22" y="-60" width="44" height="60" rx="5" fill="#cfe0ff"/><rect x="144" y="-60" width="44" height="60" rx="5" fill="#cfe0ff"/></g></g>
+    <g transform="translate(860,348)"><g class="house" transform="translate(0,0)"><path d="M0 -150 L120 -230 L240 -150Z" fill="#f2a516"/><rect x="18" y="-152" width="204" height="152" rx="8" fill="#fff" stroke="#dfe6f2" stroke-width="3"/>
+    <g class="door"><rect x="94" y="-96" width="52" height="96" rx="6" fill="#1257d6"/><circle cx="136" cy="-48" r="4" fill="#fff"/></g><rect x="36" y="-120" width="40" height="36" rx="5" fill="#cfe0ff"/><rect x="164" y="-120" width="40" height="36" rx="5" fill="#cfe0ff"/></g></g>
+    <g transform="translate(1180,40)"><g id="hphone"><rect width="190" height="300" rx="30" fill="#0b2350"/><rect x="10" y="10" width="170" height="280" rx="22" fill="#f5f8fd"/>
+      <g id="hbook" opacity="0"><rect x="22" y="40" width="146" height="70" rx="16" fill="#fff"/><circle cx="50" cy="75" r="16" fill="#1257d6"/><path d="M43 75l5 5 9-10" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round"/><text x="160" y="70" text-anchor="end" direction="ltr" font-size="18" font-weight="800" fill="#0b2350">تم الحجز</text><text x="160" y="94" text-anchor="end" direction="ltr" font-size="14" fill="#5b6b88">7:30 ص</text></g>
+      <g id="hrep" opacity="0"><rect x="22" y="130" width="146" height="130" rx="16" fill="#e3f7f4"/><circle cx="95" cy="172" r="24" fill="#0fae9b"/><path d="M84 172l8 8 14-15" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/><text x="95" y="226" text-anchor="middle" font-size="19" font-weight="800" fill="#0b5c52">النتيجة جاهزة</text><text x="95" y="248" text-anchor="middle" font-size="14" fill="#2d6f66">طبيعي · نصائح</text></g></g></g>
+    <g id="hvan" transform="translate(600,352)"><g class="mv"><g class="van" transform="translate(0,0) scale(1)"><g class="vbody" ><rect x="0" y="-86" width="190" height="70" rx="16" fill="#fff" stroke="#dfe6f2" stroke-width="3"/><path d="M190 -76h46l34 36v24h-80z" fill="#1257d6"/><rect x="200" y="-68" width="34" height="24" rx="5" fill="#cfe0ff"/>
+    <rect x="0" y="-44" width="270" height="10" fill="#1257d6" opacity=".85"/><g transform="translate(40,-80)"><svg width="50" height="50" class="mark holo-mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <defs><linearGradient id="hv1" x1="0" y1="0" x2="1" y2="1" spreadMethod="reflect"><stop offset="0" stop-color="#3b82f6"/><stop offset=".35" stop-color="#22d3ee"/><stop offset=".55" stop-color="#60a5fa"/><stop offset=".75" stop-color="#a78bfa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs>
+  <path d="M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2" stroke="url(#hv1)" stroke-width="3.2"/>
+  <path d="M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9" stroke="url(#hv1)" stroke-width="1.6" opacity=".9"/>
+  <g transform="rotate(-32 32 34)" stroke="url(#hv1)" stroke-width="2.2"><path d="M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1"/><path d="M27 20.5h10"/><path d="M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2" stroke-width="1.8"/><circle cx="29.6" cy="40.4" r="1.6" stroke="url(#hv1)" stroke-width="1.4"/><circle cx="34.6" cy="39.4" r="1" stroke="url(#hv1)" stroke-width="1.4"/></g>
+  <circle cx="20.6" cy="20.2" r="1.3" stroke="url(#hv1)" stroke-width="1.4"/><circle cx="17.6" cy="15.6" r=".9" stroke="url(#hv1)" stroke-width="1.2"/>
+  <path d="M41.5 13.2v3.4M39.8 14.9h3.4M38.9 12.3l1 1M44.1 12.3l-1 1" stroke="url(#hv1)" stroke-width="1.3"></path></svg></g><text x="94" y="-54" font-family="Inter" font-weight="800" font-size="17" fill="#0b2350">iLab<tspan fill="#1257d6">@</tspan>home</text>
+    <g class="wheel" transform="translate(56,-14)"><circle r="22" fill="#1d2433"/><circle r="9" fill="#cfd8e8"/><path d="M0 -9V9M-9 0H9" stroke="#1d2433" stroke-width="3"/></g>
+    <g class="wheel" transform="translate(216,-14)"><circle r="22" fill="#1d2433"/><circle r="9" fill="#cfd8e8"/><path d="M0 -9V9M-9 0H9" stroke="#1d2433" stroke-width="3"/></g></g></g></g></g>
+    <g id="hcold" transform="translate(735,236)" opacity="0"><rect x="-70" y="-30" width="140" height="52" rx="26" fill="#0fae9b"/><text x="0" y="5" text-anchor="middle" font-size="24" font-weight="800" fill="#fff" font-family="Inter" direction="ltr">4.5 °C ✓</text></g>
+    <g transform="translate(860,352)"><g id="hnurse" class="ch-hit" data-say="السلام عليكم، أنا الممرضة" data-tip="h1"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><g class="lg ll"><rect x="-20" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="-12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g>
+  <g class="lg lr"><rect x="4" y="-72" width="16" height="70" rx="7" fill="#123d8a"/><ellipse cx="12" cy="-3" rx="12" ry="6" fill="#1d2433"/></g><path d="M-34 -150 Q-38 -82 -30 -68 L30 -68 Q38 -82 34 -150 Q0 -164 -34 -150Z" fill="#0fae9b"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="-40" cy="-86" r="8" fill="#e9b48f"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#0fae9b"/><circle cx="40" cy="-86" r="8" fill="#e9b48f"/></g><path d="M-42 -148 Q-46 -200 0 -232 Q46 -200 42 -148 Q22 -134 0 -132 Q-22 -134 -42 -148Z" fill="#33507d"/>
+  <ellipse cx="0" cy="-198" rx="34" ry="37" fill="#33507d"/><path d="M-22 -206 Q0 -224 22 -206" stroke="#24406b" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#e9b48f"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><rect x="10" y="-128" width="16" height="10" rx="2" fill="#fff"/><path d="M18 -126v6M15 -123h6" stroke="#0fae9b" stroke-width="2"/></g></g></g>
+    <g transform="translate(1060,352)"><g class="ch-hit" data-say="الحمد لله، بدون مشوار" data-tip="h2"><g class="mv"><ellipse cx="0" cy="0" rx="48" ry="9" fill="#0b2350" opacity=".12"/><path d="M-36 -150 Q-42 -60 -38 -4 L38 -4 Q42 -60 36 -150 Q0 -164 -36 -150Z" fill="#fff" stroke="#dfe6f2" stroke-width="2"/><path d="M0 -150 V-110" stroke="#c9b48a" stroke-width="3"/><circle cx="0" cy="-106" r="4" fill="#c9b48a"/><g class="arm al"><rect x="-48" y="-150" width="15" height="64" rx="7" fill="#fff"/><circle cx="-40" cy="-86" r="8" fill="#c98d63"/></g>
+  <g class="arm ar"><rect x="33" y="-150" width="15" height="64" rx="7" fill="#fff"/><circle cx="40" cy="-86" r="8" fill="#c98d63"/></g><ellipse cx="0" cy="-192" rx="21" ry="25" fill="#c98d63"/>
+  <g class="eyes"><ellipse cx="-8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/><ellipse cx="8" cy="-195" rx="2.7" ry="3.5" fill="#1d2433"/></g>
+  <circle cx="-13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/><circle cx="13" cy="-184" r="4" fill="#f08a8a" opacity=".28"/>
+  <path d="M-19 -186 Q-18 -160 0 -156 Q18 -160 19 -186 Q12 -175 0 -174 Q-12 -175 -19 -186Z" fill="#d8d8d8"/>
+  <path d="M-7 -180 Q0 -175 7 -180" stroke="#8a3f33" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M-23 -210 Q0 -238 23 -210 L23 -203 L-23 -203Z" fill="#fff" stroke="#e1e7f1"/><path d="M-19 -210h38" stroke="#1257d6" stroke-width="2" stroke-dasharray="3 3"/><path d="M-14 -219h28" stroke="#0fae9b" stroke-width="2" stroke-dasharray="2 4"/></g></g></g>
+    <g id="hbub" opacity="0" transform="translate(710,40)"><rect x="-170" y="-32" width="340" height="56" rx="28" fill="#fff" stroke="#c9d8f5" stroke-width="3"/><text x="0" y="7" text-anchor="middle" font-size="23" font-weight="700" fill="#0b2350"></text></g>
   </svg>
-  <div class="row" style="margin-top:20px;flex-direction:row">
-    <div class="card" data-step="1" style="flex:1"><h3>١. احجز في دقيقة</h3><div class="en">Book in the app</div><p>اختيار الفحوصات والوقت والدفع الإلكتروني.</p></div>
-    <div class="card" data-step="2" style="flex:1"><h3>٢. زيارة ممرضة مرخّصة</h3><div class="en">Licensed nurse visit</div><p>نفس الجنس، تتأكد من الهوية وتسحب العينة بلطف.</p></div>
-    <div class="card" data-step="3" style="flex:1"><h3>٣. سلسلة باردة</h3><div class="en">Cold chain 2–8 °C</div><p>كل تسليم يتسجل بالوقت والحرارة حتى المختبر.</p></div>
-    <div class="card" data-step="4" style="flex:1"><h3>٤. النتيجة على جوالك</h3><div class="en">Verified report</div><p>مشروحة ببساطة، ومع طبيب لو تحتاج متابعة.</p></div>
+  <div class="row hcards" style="margin-top:6px">
+    <div class="card" data-step="1" style="flex:1"><h3>١. احجز في دقيقة</h3><div class="en">Book in the app</div><p>الفحوصات والوقت والدفع الإلكتروني.</p></div>
+    <div class="card" data-step="2" style="flex:1"><h3>٢. ممرضة مرخّصة</h3><div class="en">Licensed nurse visit</div><p>تتأكد من الهوية وتسحب العينة بلطف.</p></div>
+    <div class="card" data-step="3" style="flex:1"><h3>٣. تبريد ٢–٨ °م</h3><div class="en">Logged cold chain</div><p>كل تسليم بالوقت والحرارة لين المختبر.</p></div>
+    <div class="card" data-step="4" style="flex:1"><h3>٤. النتيجة على جوالك</h3><div class="en">Verified report</div><p>مشروحة، ومع طبيب لو تحتاج متابعة.</p></div>
   </div>
 </section>
 
 <!-- 4 app -->
-<section class="slide" data-steps="0" data-notes="[0:40] هذا البرنامج نفسه، يشتغل على الجوال والكمبيوتر مثل التطبيق. المريض يشوف الفان يتحرك على الطريق مع كل خطوة، والنتيجة تجي بألوان واضحة: الأخضر طبيعي ويطلع له احتفال وحكمة أو آية عن الصحة، والأحمر يحتاج انتباه ويراجعه طبيب. والبرنامج سريع: درجة الأداء في Lighthouse على الجوال 94 إلى 95.">
+<section data-k="app" class="slide" data-steps="0" data-notes="[0:40] هذا البرنامج نفسه، يشتغل على الجوال والكمبيوتر مثل التطبيق. المريض يشوف الفان يتحرك على الطريق مع كل خطوة، والنتيجة تجي بألوان واضحة: الأخضر طبيعي ويطلع له احتفال وحكمة أو آية عن الصحة، والأحمر يحتاج انتباه ويراجعه طبيب. والبرنامج سريع: درجة الأداء في Lighthouse على الجوال 94 إلى 95.">
   <div style="display:grid;grid-template-columns:1fr 420px;gap:50px;height:100%;align-items:center">
     <div class="col"><span class="eyebrow in">البرنامج · The app</span><h1 class="in" style="--d:.1">تجربة سهلة مثل التطبيقات العالمية<small>Simple, fast, made for phones</small></h1>
       <div class="row in" style="--d:.3;flex-wrap:wrap;gap:14px;margin-top:10px"><span class="pill"><i></i>تتبع مباشر للزيارة</span><span class="pill"><i></i>نتيجة مشروحة بالعربي</span><span class="pill"><i></i>يشتغل بدون نت</span><span class="pill"><i></i>Lighthouse 94–95</span></div></div>
@@ -133,7 +245,7 @@ body.idle #ctl{opacity:0}
 </section>
 
 <!-- 5 self kits -->
-<section class="slide" data-steps="2" data-notes="[0:40] جديد: عُدد الفحص الذاتي. فيه فحوصات ما تحتاج سحب دم، مثل تحليل البول وزراعته، والدم الخفي في البراز للكشف المبكر عن سرطان القولون من عمر 45، وجرثومة المعدة، والطفيليات، ومسحة HPV الذاتية اللي توصي فيها منظمة الصحة العالمية. المندوب يوصل العدة، الشخص ياخذ العينة بنفسه، والمندوب يرجع ياخذها. لأنه ما في ممرض، رسوم الزيارة أقل: 2 ريال بدل 5. والدم مثل CBC ووظائف الكلى يظل يحتاج ممرض.">
+<section data-k="kits" class="slide" data-steps="2" data-notes="[0:40] جديد: عُدد الفحص الذاتي. فيه فحوصات ما تحتاج سحب دم، مثل تحليل البول وزراعته، والدم الخفي في البراز للكشف المبكر عن سرطان القولون من عمر 45، وجرثومة المعدة، والطفيليات، ومسحة HPV الذاتية اللي توصي فيها منظمة الصحة العالمية. المندوب يوصل العدة، الشخص ياخذ العينة بنفسه، والمندوب يرجع ياخذها. لأنه ما في ممرض، رسوم الزيارة أقل: 2 ريال بدل 5. والدم مثل CBC ووظائف الكلى يظل يحتاج ممرض.">
   <span class="eyebrow teal in">جديد · New</span>
   <h1 class="in" style="--d:.1">عُدد الفحص الذاتي، بدون ممرض<small>Self-test kits, no nurse needed</small></h1>
   <svg viewBox="0 0 1420 260" style="width:1420px;margin-top:30px" class="in">
@@ -148,7 +260,7 @@ body.idle #ctl{opacity:0}
 </section>
 
 <!-- 6 results & doctor -->
-<section class="slide" data-steps="2" data-notes="[0:40] قراءة النتائج مبنية على النطاقات الطبية المعتمدة، وأي نتيجة خطيرة تطلع رسالة طوارئ مع رقم 9999. النتيجة الطبيعية لها احتفال صغير وحكمة. النتيجة اللي تحتاج متابعة تتعلّم بالأحمر وتروح لطبيب يراجعها ويكتب توصية. وفيه استشارة طبيب أونلاين بالفيديو أو الصوت أو الرسائل، قبل الفحص أو بعد النتيجة، مع طبيبة وطبيب، وطب أسنان. والمريض يقدر يشارك نتيجته مع طبيبه برابط خاص ينتهي بعد مدة.">
+<section data-k="results" class="slide" data-steps="2" data-notes="[0:40] قراءة النتائج مبنية على النطاقات الطبية المعتمدة، وأي نتيجة خطيرة تطلع رسالة طوارئ مع رقم 9999. النتيجة الطبيعية لها احتفال صغير وحكمة. النتيجة اللي تحتاج متابعة تتعلّم بالأحمر وتروح لطبيب يراجعها ويكتب توصية. وفيه استشارة طبيب أونلاين بالفيديو أو الصوت أو الرسائل، قبل الفحص أو بعد النتيجة، مع طبيبة وطبيب، وطب أسنان. والمريض يقدر يشارك نتيجته مع طبيبه برابط خاص ينتهي بعد مدة.">
   <span class="eyebrow in">النتائج والطبيب · Results & doctor</span>
   <h1 class="in" style="--d:.1">نتائج واضحة، وطبيب لما تحتاجه<small>Clear results, a doctor when you need one</small></h1>
   <div class="risk" style="grid-template-columns:1fr 1fr 1fr">
@@ -159,7 +271,7 @@ body.idle #ctl{opacity:0}
 </section>
 
 <!-- 7 loyalty -->
-<section class="slide" data-steps="5" data-notes="[0:30] عشان الناس ترجع لنا: بطاقة ولاء. كل طلب ياخذ ختم، والزيارة الخامسة مجانية. وكود دعوة: الصديق ياخذ خصم 1 ريال على أول طلب، واللي دعاه ياخذ ختم إضافي لما تطلع نتيجة صديقه. وفيه كوبونات خصم، مثل WELCOME10 لأول طلب. كل الخصومات تنحسب في قاعدة البيانات، فما أحد يقدر يغير السعر من جواله.">
+<section data-k="loyalty" class="slide" data-steps="5" data-notes="[0:30] عشان الناس ترجع لنا: بطاقة ولاء. كل طلب ياخذ ختم، والزيارة الخامسة مجانية. وكود دعوة: الصديق ياخذ خصم 1 ريال على أول طلب، واللي دعاه ياخذ ختم إضافي لما تطلع نتيجة صديقه. وفيه كوبونات خصم، مثل WELCOME10 لأول طلب. كل الخصومات تنحسب في قاعدة البيانات، فما أحد يقدر يغير السعر من جواله.">
   <div style="display:grid;grid-template-columns:1fr 720px;gap:40px;align-items:center;height:100%">
     <div class="col"><span class="eyebrow in">الولاء · Loyalty</span><h1 class="in" style="--d:.1">كل طلب ختم، والخامسة مجانية<small>Every order a stamp, the 5th visit free</small></h1>
       <div class="row in" style="--d:.3;flex-wrap:wrap;gap:14px"><span class="pill"><i></i>ادعُ صديق: خصم 1 ر.ع + ختم إضافي</span><span class="pill"><i style="background:#f2a516"></i>كوبونات: WELCOME10 · ILAB2</span></div></div>
@@ -204,7 +316,7 @@ body.idle #ctl{opacity:0}
 </section>
 
 <!-- 8 companies -->
-<section class="slide" data-steps="3" data-notes="[0:40] للعمالة والشركات: الشركة ترفع قائمة العمال، تختار الباقة والتاريخ، وفريقنا يزور السكن. الشركة تشوف لكل عامل: لائق أو يحتاج متابعة، وما تشوف التفاصيل الطبية أبداً. وفيه فحص العاملة المنزلية في البيت للأسر. مهم: شهادة اللياقة الرسمية للإقامة تصدر عن طريق نظام وزارة الصحة وسند في مراكز معتمدة، ونحن ما نصدرها؛ خدمتنا فحص مبدئي يساعد يعرفون مبكراً. والوزارة أضافت فحص السل الكامن، واللي نتيجته إيجابية يسوي أشعة صدر.">
+<section data-k="companies" class="slide" data-steps="3" data-notes="[0:40] للعمالة والشركات: الشركة ترفع قائمة العمال، تختار الباقة والتاريخ، وفريقنا يزور السكن. الشركة تشوف لكل عامل: لائق أو يحتاج متابعة، وما تشوف التفاصيل الطبية أبداً. وفيه فحص العاملة المنزلية في البيت للأسر. مهم: شهادة اللياقة الرسمية للإقامة تصدر عن طريق نظام وزارة الصحة وسند في مراكز معتمدة، ونحن ما نصدرها؛ خدمتنا فحص مبدئي يساعد يعرفون مبكراً. والوزارة أضافت فحص السل الكامن، واللي نتيجته إيجابية يسوي أشعة صدر.">
   <span class="eyebrow in" style="color:#7c3aed;background:#f1eaff">العمالة والشركات · Workers & companies</span>
   <h1 class="in" style="--d:.1">زيارة سكن العمال، بخصوصية كاملة<small>Camp visits, full privacy</small></h1>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:34px;margin-top:34px">
@@ -218,19 +330,25 @@ body.idle #ctl{opacity:0}
   <div class="card" data-step="3" style="margin-top:26px;background:#fff4dc"><p style="color:#5a4300"><b>مهم:</b> شهادة اللياقة الرسمية تصدر عن طريق وزارة الصحة (البوابة الإلكترونية أو سند) في مراكز معتمدة. خدمتنا فحص مبدئي ما يغني عن الشهادة.</p></div>
 </section>
 
-<!-- 9 risks -->
-<section class="slide" data-steps="3" data-notes="[1:00] أي فكرة لها سلبيات، وهذي أهم ثلاث وكيف نحلها. أولاً نقل العينات وتخزينها: نستخدم صناديق مبردة 2 إلى 8 درجات، والحرارة تتسجل في البرنامج مع تنبيه لو خرجت عن المدى، وباركود يتمسح عند كل تسليم، وعداد وقت للعينة، وإعادة الفحص مجاناً لو تخربت. ثانياً التراخيص: نبدأ بشراكة مع مختبر وجهة رعاية منزلية مرخصة، والممرضين لازم ترخيص وزارة الصحة. ثالثاً الخصوصية: قانون حماية البيانات العماني 6/2022 يعتبر البيانات الصحية حساسة؛ عندنا موافقة مسجلة، وسجل يبين مين فتح التقرير، وتنزيل البيانات وطلب الحذف، وخروج تلقائي لحسابات الموظفين.">
+<!-- 9 risks (v2: risk first, then the fix) -->
+<section data-k="risks" class="slide" data-steps="6" data-notes="[1:00] أي فكرة لها سلبيات، وهذي أهم ثلاث وكيف نحلها. (اضغط: الخطر، ثم اضغط: الحل.) أولاً نقل العينات وتخزينها في حر عمان والمسافات. الحل: صناديق مبردة 2 إلى 8 درجات، والحرارة تتسجل في البرنامج مع تنبيه لو خرجت عن المدى، وباركود يتمسح عند كل تسليم، وعداد وقت للعينة، وإعادة الفحص مجاناً لو تخربت. ثانياً التراخيص. الحل: نبدأ بشراكة مع مختبر وجهة رعاية منزلية مرخصة، والممرضين لازم ترخيص وزارة الصحة. ثالثاً الخصوصية. الحل: قانون حماية البيانات العماني 6/2022 يعتبر البيانات الصحية حساسة؛ عندنا موافقة مسجلة، وسجل يبين مين فتح التقرير، وتنزيل البيانات وطلب الحذف، وخروج تلقائي لحسابات الموظفين.">
   <span class="eyebrow amber in">المخاطر والحلول · Risks & fixes</span>
-  <h1 class="in" style="--d:.1">نعرف المخاطر، وعندنا الحلول<small>We know the risks, and how to fix them</small></h1>
+  <h1 class="in" style="--d:.1">نعرف المخاطر، وعندنا الحلول<small>First the risk, then the fix</small></h1>
   <div class="risk">
-    <div class="flip" data-step="1"><div class="fi"><div class="fa"><span class="tag" style="color:var(--red)">Risk 1</span><h3>نقل العينات وتخزينها</h3><ul><li>الحرارة والوقت قبل المختبر</li><li>حر عمان والمسافات</li></ul></div><div class="fb"><span class="tag" style="color:var(--teal)">Fix</span><h3>سلسلة باردة مسجّلة</h3><ul><li>صندوق مبرد 2–8 °م وتسجيل الحرارة</li><li>باركود عند كل تسليم</li><li>عداد وقت وتنبيه بعد 4 ساعات</li><li>إعادة الفحص مجاناً</li></ul></div></div></div>
-    <div class="flip" data-step="2"><div class="fi"><div class="fa"><span class="tag" style="color:var(--red)">Risk 2</span><h3>التراخيص والموافقات</h3><ul><li>ترخيص الممرض والمنشأة</li><li>الطب عن بعد</li></ul></div><div class="fb"><span class="tag" style="color:var(--teal)">Fix</span><h3>شراكة ثم ترخيصنا</h3><ul><li>البداية تحت ترخيص مختبر/رعاية منزلية</li><li>ممرضين بترخيص وزارة الصحة فقط</li><li>تأمين ضد الأخطاء الطبية</li></ul></div></div></div>
-    <div class="flip" data-step="3"><div class="fi"><div class="fa"><span class="tag" style="color:var(--red)">Risk 3</span><h3>خصوصية البيانات</h3><ul><li>بيانات صحية حساسة</li><li>التسريب والوصول غير المصرح</li></ul></div><div class="fb"><span class="tag" style="color:var(--teal)">Fix</span><h3>حسب القانون 6/2022</h3><ul><li>موافقة مسجلة وسجل لمن فتح التقرير</li><li>تنزيل البيانات وطلب الحذف</li><li>صلاحيات وخروج تلقائي للموظفين</li></ul></div></div></div>
+    <div class="flip" data-step="1" data-flip="2"><div class="fi">
+      <div class="fa"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 6 60 56H4Z" fill="#e2474f"/><path d="M32 24v14" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="47" r="3.6" fill="#fff"/></svg><span class="tag" style="color:var(--red)">Risk 1 · الخطر</span></div><h3>نقل العينات وتخزينها</h3><div class="rill"><svg viewBox="0 0 220 90"><circle cx="50" cy="44" r="22" fill="#f2a516"/><g stroke="#f2a516" stroke-width="5" stroke-linecap="round"><path d="M50 8v8M50 72v8M14 44h8M78 44h8M24 18l6 6M70 64l6 6M24 70l6-6M70 24l6-6"/></g><rect x="128" y="14" width="18" height="60" rx="9" fill="#fff" stroke="#e2474f" stroke-width="4"/><rect x="133" y="26" width="8" height="44" rx="4" fill="#e2474f"/><text x="160" y="52" font-size="26" font-weight="800" fill="#e2474f" font-family="Inter">45°</text></svg></div><ul><li>الحرارة والوقت قبل المختبر</li><li>حر عمان والمسافات</li></ul><div class="rnext">اضغط للحل ←</div></div>
+      <div class="fb"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 4 56 13v18c0 15-10 25-24 30C18 56 8 46 8 31V13Z" fill="#0fae9b"/><path d="M21 32l8 8 15-16" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tag" style="color:var(--teal)">Fix 1 · الحل</span></div><h3>سلسلة باردة مسجّلة</h3><div class="rill"><svg viewBox="0 0 220 90"><rect x="20" y="22" width="110" height="60" rx="10" fill="#fff" stroke="#1257d6" stroke-width="4"/><rect x="20" y="12" width="110" height="18" rx="7" fill="#1257d6"/><path d="M58 46l8 8 8-8M66 38v16M88 46l8 8 8-8M96 38v16" stroke="#7fb4ff" stroke-width="4" fill="none"/><rect x="142" y="30" width="70" height="36" rx="12" fill="#0fae9b"/><text x="177" y="54" text-anchor="middle" font-size="18" font-weight="800" fill="#fff" font-family="Inter">4.5°C</text></svg></div><ul><li>صندوق مبرد 2–8 °م وتسجيل الحرارة</li><li>باركود عند كل تسليم</li><li>عداد وقت وتنبيه بعد 4 ساعات</li><li>إعادة الفحص مجاناً</li></ul></div></div></div>
+    <div class="flip" data-step="3" data-flip="4"><div class="fi">
+      <div class="fa"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 6 60 56H4Z" fill="#e2474f"/><path d="M32 24v14" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="47" r="3.6" fill="#fff"/></svg><span class="tag" style="color:var(--red)">Risk 2 · الخطر</span></div><h3>التراخيص والموافقات</h3><div class="rill"><svg viewBox="0 0 220 90"><rect x="70" y="8" width="70" height="80" rx="8" fill="#fff" stroke="#e2474f" stroke-width="4"/><path d="M84 30h42M84 44h42M84 58h26" stroke="#f3c6ca" stroke-width="5" stroke-linecap="round"/><circle cx="150" cy="66" r="18" fill="#e2474f"/><text x="150" y="74" text-anchor="middle" font-size="24" font-weight="800" fill="#fff">?</text></svg></div><ul><li>ترخيص الممرض والمنشأة</li><li>الطب عن بعد</li></ul><div class="rnext">اضغط للحل ←</div></div>
+      <div class="fb"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 4 56 13v18c0 15-10 25-24 30C18 56 8 46 8 31V13Z" fill="#0fae9b"/><path d="M21 32l8 8 15-16" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tag" style="color:var(--teal)">Fix 2 · الحل</span></div><h3>شراكة ثم ترخيصنا</h3><div class="rill"><svg viewBox="0 0 220 90"><rect x="40" y="10" width="140" height="76" rx="10" fill="#fff" stroke="#0fae9b" stroke-width="4"/><circle cx="75" cy="44" r="16" fill="#0fae9b"/><path d="M68 44l5 5 10-11" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M100 34h60M100 48h60M100 62h40" stroke="#bfe9e1" stroke-width="5" stroke-linecap="round"/><text x="110" y="28" font-size="11" font-weight="800" fill="#0b8f7f" font-family="Inter">MOH LICENCE</text></svg></div><ul><li>البداية تحت ترخيص مختبر/رعاية منزلية</li><li>ممرضين بترخيص وزارة الصحة فقط</li><li>تأمين ضد الأخطاء الطبية</li></ul></div></div></div>
+    <div class="flip" data-step="5" data-flip="6"><div class="fi">
+      <div class="fa"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 6 60 56H4Z" fill="#e2474f"/><path d="M32 24v14" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="47" r="3.6" fill="#fff"/></svg><span class="tag" style="color:var(--red)">Risk 3 · الخطر</span></div><h3>خصوصية البيانات</h3><div class="rill"><svg viewBox="0 0 220 90"><rect x="72" y="30" width="76" height="54" rx="10" fill="#e2474f"/><path d="M86 32v-8a24 24 0 0 1 40-17" fill="none" stroke="#e2474f" stroke-width="7" stroke-linecap="round"/><circle cx="110" cy="56" r="7" fill="#fff"/><g fill="#f3c6ca"><circle cx="40" cy="30" r="6"/><circle cx="26" cy="52" r="5"/><circle cx="180" cy="34" r="6"/><circle cx="196" cy="58" r="5"/></g></svg></div><ul><li>بيانات صحية حساسة</li><li>التسريب والوصول غير المصرح</li></ul><div class="rnext">اضغط للحل ←</div></div>
+      <div class="fb"><div class="rhead"><svg class="ricon" viewBox="0 0 64 64"><path d="M32 4 56 13v18c0 15-10 25-24 30C18 56 8 46 8 31V13Z" fill="#0fae9b"/><path d="M21 32l8 8 15-16" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tag" style="color:var(--teal)">Fix 3 · الحل</span></div><h3>حسب القانون 6/2022</h3><div class="rill"><svg viewBox="0 0 220 90"><path d="M110 4 146 16v26c0 22-15 36-36 44-21-8-36-22-36-44V16Z" fill="#effbf8" stroke="#0fae9b" stroke-width="4"/><rect x="92" y="40" width="36" height="28" rx="6" fill="#0b2350"/><path d="M98 40v-7a12 12 0 0 1 24 0v7" fill="none" stroke="#0b2350" stroke-width="5"/><circle cx="110" cy="53" r="4" fill="#fff"/></svg></div><ul><li>موافقة مسجلة وسجل لمن فتح التقرير</li><li>تنزيل البيانات وطلب الحذف</li><li>صلاحيات وخروج تلقائي للموظفين</li></ul></div></div></div>
   </div>
 </section>
 
 <!-- 10 licensing -->
-<section class="slide" data-steps="4" data-notes="[0:40] مسار الترخيص على مراحل. المرحلة الأولى نشتغل تحت شراكة مع مختبر معتمد وجهة رعاية منزلية مرخصة. الثانية سجل تجاري وترخيص منشأة صحية خاصة من وزارة الصحة. الممرضين: شهادة معترف فيها، التحقق عن طريق DataFlow، وامتحان Prometric، وخبرة. والطب عن بعد يحتاج موافقة للاستشارات. كل هذا لازم نتأكد منه مع الوزارة لأن الأنظمة تتغير.">
+<section data-k="licensing" class="slide" data-steps="4" data-notes="[0:40] مسار الترخيص على مراحل. المرحلة الأولى نشتغل تحت شراكة مع مختبر معتمد وجهة رعاية منزلية مرخصة. الثانية سجل تجاري وترخيص منشأة صحية خاصة من وزارة الصحة. الممرضين: شهادة معترف فيها، التحقق عن طريق DataFlow، وامتحان Prometric، وخبرة. والطب عن بعد يحتاج موافقة للاستشارات. كل هذا لازم نتأكد منه مع الوزارة لأن الأنظمة تتغير.">
   <span class="eyebrow in">التراخيص · Licensing path</span>
   <h1 class="in" style="--d:.1">مسار الترخيص على مراحل<small>A step-by-step licensing path</small></h1>
   <svg viewBox="0 0 1420 120" style="width:1420px;margin-top:40px" class="in"><path d="M1340 60 H80" stroke="#1257d6" stroke-width="8" stroke-linecap="round" stroke-dasharray="1300" stroke-dashoffset="1300" class="draw"/><circle class="tdot" cx="1340" cy="60" r="22" fill="#cfe0ff" stroke="#1257d6" stroke-width="5"/><circle class="tdot" cx="920" cy="60" r="22" fill="#cfe0ff" stroke="#1257d6" stroke-width="5"/><circle class="tdot" cx="500" cy="60" r="22" fill="#cfe0ff" stroke="#1257d6" stroke-width="5"/><circle class="tdot" cx="80" cy="60" r="22" fill="#cfe0ff" stroke="#1257d6" stroke-width="5"/></svg>
@@ -243,7 +361,7 @@ body.idle #ctl{opacity:0}
 </section>
 
 <!-- 11 numbers -->
-<section class="slide" data-steps="2" data-notes="[0:50] الأرقام تجريبية للتخطيط، مو أرقام حقيقية. مثال طلب باقة أساسية 25 ريال مع رسوم زيارة 5: المختبر ياخذ 65 بالمية من سعر الفحوصات، 16.25. الممرض 3 ريال، المندوب ريال، أدوات السحب نص ريال، ورسوم الدفع الإلكتروني 2.5 بالمية، والباقي للمنصة تقريباً 8.5 ريال. مثال العدة الذاتية: 9.5 ريال مع رسوم 2: المختبر 6.18، المندوب ريال، العدة نص ريال، رسوم الدفع، والمنصة تقريباً 3.5 ريال. سؤال متوقع: ليش رسوم العدة أقل؟ لأنه ما في وقت ممرض.">
+<section data-k="money" class="slide" data-steps="2" data-notes="[0:50] الأرقام تجريبية للتخطيط، مو أرقام حقيقية. مثال طلب باقة أساسية 25 ريال مع رسوم زيارة 5: المختبر ياخذ 65 بالمية من سعر الفحوصات، 16.25. الممرض 3 ريال، المندوب ريال، أدوات السحب نص ريال، ورسوم الدفع الإلكتروني 2.5 بالمية، والباقي للمنصة تقريباً 8.5 ريال. مثال العدة الذاتية: 9.5 ريال مع رسوم 2: المختبر 6.18، المندوب ريال، العدة نص ريال، رسوم الدفع، والمنصة تقريباً 3.5 ريال. سؤال متوقع: ليش رسوم العدة أقل؟ لأنه ما في وقت ممرض.">
   <span class="eyebrow in">الأرقام · Unit economics (demo values)</span>
   <h1 class="in" style="--d:.1">كيف يتوزع مبلغ الطلب<small>How one order is split · planning values</small></h1>
   <div data-step="1" style="margin-top:34px"><div style="font:700 26px 'IBM Plex Sans Arabic';margin-bottom:10px">طلب الباقة الأساسية · 25 + 5 = <span class="ltr">30.000</span> ر.ع</div>
@@ -254,19 +372,19 @@ body.idle #ctl{opacity:0}
 </section>
 
 <!-- 12 team -->
-<section class="slide" data-steps="0" data-notes="[0:30] الفريق: بلعرب المسلمي مطوّر المنصة، جوخة الرواحية الأمن السيبراني، أنسام النعمانية وتسنيم الحسنية الموارد البشرية، رهف الوردية والزهراء البوسعيدية التمريض، وبإشراف د. سالم الراشدي.">
+<section data-k="team" class="slide" data-steps="0" data-notes="[0:30] الفريق: بلعرب المسلمي مطوّر المنصة، جوخة الرواحية الأمن السيبراني، أنسام النعمانية وتسنيم الحسنية الموارد البشرية، رهف الوردية والزهراء البوسعيدية التمريض، وبإشراف د. سالم الراشدي.">
   <span class="eyebrow in">الفريق · The team</span><h1 class="in" style="--d:.1">الفريق<small>The team</small></h1>
   <div class="team"><div class="mem in lead" style="--d:0.10"><div class="av" style="background:#1257d6">BA</div><b>Bilarab Al Musallami</b><span>مطوّر المنصة ★</span></div><div class="mem in" style="--d:0.18"><div class="av" style="background:#7c3aed">JR</div><b>Jokha Al Rawahi</b><span>الأمن السيبراني</span></div><div class="mem in" style="--d:0.26"><div class="av" style="background:#0fae9b">AN</div><b>Ansam Al Noumani</b><span>الموارد البشرية</span></div><div class="mem in" style="--d:0.34"><div class="av" style="background:#0fae9b">TH</div><b>Tasnim Al Hasani</b><span>الموارد البشرية</span></div><div class="mem in" style="--d:0.42"><div class="av" style="background:#db2777">RW</div><b>Rahaf Al Wardi</b><span>التمريض</span></div><div class="mem in" style="--d:0.50"><div class="av" style="background:#db2777">AB</div><b>Alzahraa Al Busaidi</b><span>التمريض</span></div><div class="mem in" style="--d:0.58"><div class="av" style="background:#f2a516">SR</div><b>Dr. Salim Al Rashdi</b><span>المشرف</span></div></div>
 </section>
 
 <!-- 13 references -->
-<section class="slide" data-steps="0" data-notes="[0:20] هذي المراجع اللي اعتمدنا عليها: نطاقات النتائج، والكشف المبكر، ونقل العينات، وأنظمة عمان، وقانون حماية البيانات، والنصوص المعروضة مع النتائج. كلها موجودة أيضاً في صفحة المصادر داخل البرنامج.">
+<section data-k="refs" class="slide" data-steps="0" data-notes="[0:20] هذي المراجع اللي اعتمدنا عليها: نطاقات النتائج، والكشف المبكر، ونقل العينات، وأنظمة عمان، وقانون حماية البيانات، والنصوص المعروضة مع النتائج. كلها موجودة أيضاً في صفحة المصادر داخل البرنامج.">
   <span class="eyebrow in">المراجع · References</span><h1 class="in" style="--d:.1">المصادر والمراجع<small>Sources & references</small></h1>
   <ol class="refs in" style="--d:.2"><li><a href="https://kdigo.org/guidelines/ckd-evaluation-and-management/" target="_blank" rel="noopener">KDIGO 2024 CKD guideline (eGFR, albumin/creatinine)</a><small>kdigo.org</small></li><li><a href="https://professional.diabetes.org/standards-of-care" target="_blank" rel="noopener">ADA · Standards of Care in Diabetes</a><small>professional.diabetes.org</small></li><li><a href="https://ods.od.nih.gov/factsheets/VitaminD-HealthProfessional/" target="_blank" rel="noopener">NIH ODS · Vitamin D fact sheet</a><small>ods.od.nih.gov</small></li><li><a href="https://www.cancer.org/cancer/types/colon-rectal-cancer/detection-diagnosis-staging/acs-recommendations.html" target="_blank" rel="noopener">American Cancer Society · Colorectal screening from 45 (FIT)</a><small>www.cancer.org</small></li><li><a href="https://www.who.int/publications/i/item/9789240030824" target="_blank" rel="noopener">WHO · Cervical screening guideline (HPV self-sampling)</a><small>www.who.int</small></li><li><a href="https://www.who.int/publications/i/item/9789240011311" target="_blank" rel="noopener">WHO · Laboratory biosafety manual, 4th ed.</a><small>www.who.int</small></li><li><a href="https://moh.gov.om/media/tklpor0j/licensing-and-assessing-nursing-categories.pdf" target="_blank" rel="noopener">MOH Oman · Licensing and assessing nursing categories</a><small>moh.gov.om</small></li><li><a href="https://omsb.gov.om" target="_blank" rel="noopener">Oman Medical Specialty Board (OMSB)</a><small>omsb.gov.om</small></li><li><a href="https://www.omanobserver.om/article/1147865/oman/health/new-guidelines-for-visa-medical-certification" target="_blank" rel="noopener">Oman Observer · New guidelines for visa medical certification</a><small>www.omanobserver.om</small></li><li><a href="https://www.omanobserver.om/article/1157277/oman/health/visa-medical-to-include-latent-tb-screening-moh" target="_blank" rel="noopener">Oman Observer · Visa medical to include latent TB screening</a><small>www.omanobserver.om</small></li><li><a href="https://decree.om/2022/rd20220006/" target="_blank" rel="noopener">Royal Decree 6/2022 · Personal Data Protection Law</a><small>decree.om</small></li><li><a href="https://quran.com/26/80" target="_blank" rel="noopener">Qur’an 26:80 and 7:31 · quran.com</a><small>quran.com</small></li><li><a href="https://sunnah.com/bukhari:6412" target="_blank" rel="noopener">Sahih al-Bukhari 6412, 5678, 1975 · sunnah.com</a><small>sunnah.com</small></li><li><a href="https://sunnah.com/tirmidhi:2346" target="_blank" rel="noopener">Jami at-Tirmidhi 2346 · sunnah.com</a><small>sunnah.com</small></li></ol>
 </section>
 
 <!-- 14 thanks -->
-<section class="slide" data-steps="0" data-notes="[0:20] شكراً لكم. تقدرون تجربون البرنامج الحين على الرابط، وحساب التجربة كلمة المرور Demo@2026. نسعد بأسئلتكم.">
+<section data-k="thanks" class="slide" data-steps="0" data-notes="[0:20] شكراً لكم. تقدرون تجربون البرنامج الحين على الرابط، وحساب التجربة كلمة المرور Demo@2026. نسعد بأسئلتكم.">
   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:22px;text-align:center">
     <div class="in" style="width:220px;height:220px"><svg width="100%" height="100%" class="mark holo-mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <defs><linearGradient id="hz1" x1="0" y1="0" x2="1" y2="1" spreadMethod="reflect"><stop offset="0" stop-color="#3b82f6"/><stop offset=".35" stop-color="#22d3ee"/><stop offset=".55" stop-color="#60a5fa"/><stop offset=".75" stop-color="#a78bfa"/><stop offset="1" stop-color="#3b82f6"/><animateTransform attributeName="gradientTransform" type="translate" from="-1 -1" to="1 1" dur="3.2s" repeatCount="indefinite"/></linearGradient></defs>
@@ -282,7 +400,7 @@ body.idle #ctl{opacity:0}
 </section>
 
 </div></div>
-<div id="ctl"><button id="bp">◀</button><span id="pg">1 / 14</span><button id="bn">▶</button><button id="bnote">N · Notes</button><button id="bfs">F · Full screen</button></div>
+<div id="ctl"><button id="bp">◀</button><span id="pg">1 / 15</span><button id="bn">▶</button><button id="bnote">N · Notes</button><button id="bfs">F · Full screen</button></div>
 <div id="notes"></div>
 <script>
 const S = [...document.querySelectorAll('.slide')]; let cur = 0, step = 0; const stage = document.getElementById('stage');
@@ -291,10 +409,11 @@ function fit(){ const s = Math.min(innerWidth / 1600, innerHeight / 900); stage.
 function show(i, dir){ i = Math.max(0, Math.min(S.length - 1, i)); if (i !== cur) { S[cur].classList.remove('on'); S[cur].classList.add('out'); const o = S[cur]; setTimeout(() => o.classList.remove('out'), 700); }
   cur = i; step = 0; S[cur].classList.add('on'); S[cur].querySelectorAll('[data-step]').forEach(e => e.classList.remove('shown', 'done'));
   if (dir < 0) { step = +S[cur].dataset.steps || 0; S[cur].querySelectorAll('[data-step]').forEach(e => { e.classList.add('shown'); if (e.classList.contains('flip')) e.classList.add('done'); }); }
+  resetScene(S[cur]);
   document.getElementById('prog').style.width = ((cur + 1) / S.length * 100) + '%'; document.getElementById('pg').textContent = (cur + 1) + ' / ' + S.length;
   notes(); onEnter(S[cur]); if (dir < 0) onStepAll(S[cur]); }
-function next(){ const n = +S[cur].dataset.steps || 0; if (step < n) { step++; S[cur].querySelectorAll(`[data-step="${step}"]`).forEach(e => { e.classList.add('shown'); if (e.classList.contains('flip')) setTimeout(() => e.classList.add('done'), 500); }); onStep(S[cur], step); } else show(cur + 1, 1); }
-function prev(){ if (step > 0) { S[cur].querySelectorAll(`[data-step="${step}"]`).forEach(e => e.classList.remove('shown', 'done')); step--; } else show(cur - 1, -1); }
+function next(){ const n = +S[cur].dataset.steps || 0; if (step < n) { step++; S[cur].querySelectorAll(`[data-step="${step}"]`).forEach(e => { e.classList.add('shown'); if (e.classList.contains('flip') && !e.dataset.flip) setTimeout(() => e.classList.add('done'), 500); }); S[cur].querySelectorAll(`[data-flip="${step}"]`).forEach(e => e.classList.add('done')); onStep(S[cur], step); } else show(cur + 1, 1); }
+function prev(){ if (step > 0) { S[cur].querySelectorAll(`[data-step="${step}"]`).forEach(e => e.classList.remove('shown', 'done')); S[cur].querySelectorAll(`[data-flip="${step}"]`).forEach(e => e.classList.remove('done')); onBack(S[cur], step); step--; } else show(cur - 1, -1); }
 addEventListener('keydown', e => { if (['ArrowLeft','ArrowDown',' ','PageDown','Enter'].includes(e.key)) { e.preventDefault(); next(); } else if (['ArrowRight','ArrowUp','PageUp','Backspace'].includes(e.key)) { e.preventDefault(); prev(); }
   else if (e.key.toLowerCase() === 'n') toggleNotes(); else if (e.key.toLowerCase() === 'f') fs(); });
 document.getElementById('wrap').addEventListener('click', next); document.getElementById('bn').onclick = next; document.getElementById('bp').onclick = prev;
@@ -307,24 +426,48 @@ let it; addEventListener('mousemove', () => { document.body.classList.remove('id
 const loops = {}; function loop(key, fn){ cancelAnimationFrame(loops[key]); const t0 = performance.now(); const f = now => { fn((now - t0) / 1000); loops[key] = requestAnimationFrame(f); }; loops[key] = requestAnimationFrame(f); }
 function along(path, el, p){ const L = path.getTotalLength(); const pt = path.getPointAtLength(L * p); el.setAttribute('transform', `translate(${pt.x},${pt.y})`); }
 function count(el){ const to = +el.dataset.to; const t0 = performance.now(); const f = now => { const k = Math.min(1, (now - t0) / 1200); el.textContent = (to * (1 - Math.pow(1 - k, 3))).toFixed(to % 1 ? 2 : 0); if (k < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); }
-function onEnter(sl){ const id = S.indexOf(sl);
+function onEnter(sl){ const id = sl.dataset.k;
   sl.querySelectorAll('.draw').forEach(p => { p.style.transition = 'none'; p.style.strokeDashoffset = p.getAttribute('stroke-dasharray'); requestAnimationFrame(() => requestAnimationFrame(() => { p.style.transition = 'stroke-dashoffset 1.8s cubic-bezier(.4,.1,.2,1)'; p.style.strokeDashoffset = 0; })); });
-  if (id === 1) { const p = document.getElementById('jpath'), c = document.getElementById('jcar'), ck = document.getElementById('jclock'); loop('j', t => { const k = (t % 6) / 6; along(p, c, k < .5 ? k * 2 : 2 - k * 2); const m = Math.min(210, Math.floor(t * 30)); ck.textContent = Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0'); }); }
-  if (id === 2) { const g = document.getElementById('hnodes'); if (!g.childNodes.length) g.innerHTML = [1260, 893, 527, 160].map((x, i) => `<g transform="translate(${x},150)"><circle r="52" fill="#fff" stroke="${['#1257d6','#0fae9b','#f2a516','#7a5af8'][i]}" stroke-width="6"/><text y="13" text-anchor="middle" font-size="38" font-weight="800" fill="#0b2350" font-family="Poppins">${i + 1}</text></g>`).join('');
-    const p = document.getElementById('hpath'), d = document.getElementById('hdot'); loop('h', t => along(p, d, (t % 4) / 4)); }
-  if (id === 3) { const p = document.getElementById('apath'), v = document.getElementById('avan'), pr = document.getElementById('aprog'); const rep = document.getElementById('arep');
+  if (id === 'problem') { const p = document.getElementById('jpath'), c = document.getElementById('jcar'), ck = document.getElementById('jclock'); loop('j', t => { const k = (t % 6) / 6; along(p, c, k < .5 ? k * 2 : 2 - k * 2); const m = Math.min(210, Math.floor(t * 30)); ck.textContent = Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0'); }); }
+  if (id === 'app') { const p = document.getElementById('apath'), v = document.getElementById('avan'), pr = document.getElementById('aprog'); const rep = document.getElementById('arep');
     rep.innerHTML = [['Haemoglobin', .55, '#0fae9b'], ['Vitamin D', .22, '#f2a516'], ['HbA1c', .5, '#0fae9b']].map(([n, x, c]) => `<div style="font:700 16px Inter;direction:ltr;display:flex;justify-content:space-between"><span>${n}</span></div><div style="height:10px;border-radius:5px;background:#e3e9f4;position:relative;margin:6px 0 12px;direction:ltr"><i class="mk" style="position:absolute;top:-4px;width:18px;height:18px;border-radius:50%;background:${c};left:50%;transition:left 1.4s cubic-bezier(.3,1.5,.5,1)" data-x="${x}"></i></div>`).join('');
     setTimeout(() => rep.querySelectorAll('.mk').forEach(m => m.style.left = (m.dataset.x * 92) + '%'), 300);
     loop('a', t => { const k = Math.min(1, (t % 7) / 5); along(p, v, k); pr.style.strokeDashoffset = 400 * (1 - k); }); }
-  if (id === 4) { const g = document.getElementById('knodes'); if (!g.childNodes.length) g.innerHTML = [[1280, 'المندوب يوصل العدة'], [700, 'تاخذ العينة بنفسك'], [140, 'المختبر']].map(([x, n], i) => `<g transform="translate(${x},130)"><circle r="46" fill="#fff" stroke="#0fae9b" stroke-width="6"/><text y="12" text-anchor="middle" font-size="34" font-weight="800" fill="#0fae9b" font-family="Poppins">${i + 1}</text><text y="88" text-anchor="middle" font-size="24" font-weight="700" fill="#0b2350">${n}</text></g>`).join('');
+  if (id === 'kits') { const g = document.getElementById('knodes'); if (!g.childNodes.length) g.innerHTML = [[1280, 'المندوب يوصل العدة'], [700, 'تاخذ العينة بنفسك'], [140, 'المختبر']].map(([x, n], i) => `<g transform="translate(${x},130)"><circle r="46" fill="#fff" stroke="#0fae9b" stroke-width="6"/><text y="12" text-anchor="middle" font-size="34" font-weight="800" fill="#0fae9b" font-family="Poppins">${i + 1}</text><text y="88" text-anchor="middle" font-size="24" font-weight="700" fill="#0b2350">${n}</text></g>`).join('');
     const p = document.getElementById('kpath'), d = document.getElementById('kdot'); loop('k', t => along(p, d, (t % 5) / 5)); }
 }
-function onStep(sl, n){ const id = S.indexOf(sl);
-  if (id === 4 && n === 2) sl.querySelectorAll('.cnt').forEach(count);
-  if (id === 6) { const st = sl.querySelectorAll('.stamp b'); if (st[n - 1]) st[n - 1].classList.add('on'); }
-  if (id === 10) sl.querySelectorAll(`#bar${n} div`).forEach(d => d.style.width = d.dataset.w + '%');
-  if (id === 9) { const dots = sl.querySelectorAll('.tdot'); if (dots[n - 1]) dots[n - 1].setAttribute('fill', '#0fae9b'); } }
-function onStepAll(sl){ for (let n = 1; n <= (+sl.dataset.steps || 0); n++) onStep(sl, n); }
+function onStep(sl, n){ const id = sl.dataset.k;
+  if (id === 'kits' && n === 2) sl.querySelectorAll('.cnt').forEach(count);
+  if (id === 'loyalty') { const st = sl.querySelectorAll('.stamp b'); if (st[n - 1]) st[n - 1].classList.add('on'); }
+  if (id === 'money') sl.querySelectorAll(`#bar${n} div`).forEach(d => d.style.width = d.dataset.w + '%');
+  if (id === 'licensing') { const dots = sl.querySelectorAll('.tdot'); if (dots[n - 1]) dots[n - 1].setAttribute('fill', '#0fae9b'); } }
+
+/* v2: characters you can click, and the scenes of the goal / how-it-works slides */
+function say(svgId, bubId, el){ if (!el) return; el.classList.remove('jump'); void el.getBoundingClientRect(); el.classList.add('jump'); setTimeout(() => el.classList.remove('jump'), 650);
+  const b = document.getElementById(bubId); const host = el.parentNode.getAttribute('transform') || ''; const m = host.match(/translate\(([-\d.]+),\s*([-\d.]+)\)/);
+  if (!b || !m || !svgId) return; b.querySelector('text').textContent = el.dataset.say; const x = Math.max(200, Math.min(1220, +m[1])); b.setAttribute('transform', `translate(${x},${+m[2] - 290})`); b.style.transition = 'opacity .25s'; b.setAttribute('opacity', 1); clearTimeout(b._t); b._t = setTimeout(() => b.setAttribute('opacity', 0), 2600); }
+document.querySelectorAll('.ch-hit').forEach(el => el.addEventListener('click', e => { e.stopPropagation(); const svg = el.closest('svg'); say(svg.id, svg.id === 'gsvg' ? 'gbub' : 'hbub', el); }));
+function anim(el, kf, o){ if (!el || RM) return null; try { return el.animate(kf, Object.assign({ duration: 900, easing: 'cubic-bezier(.3,.8,.3,1)', fill: 'forwards' }, o)); } catch(e) { return null; } }
+function resetScene(sl){ const k = sl.dataset.k;
+  if (k === 'how') { const n = +step; const v = document.querySelector('#hvan .mv'), nu = document.querySelector('#hnurse .mv');
+    [v, nu, document.getElementById('hcold'), document.getElementById('hbook'), document.getElementById('hrep')].forEach(x => x && x.getAnimations && x.getAnimations().forEach(a => a.cancel()));
+    document.getElementById('hcold').style.transform = n >= 3 ? 'translate(305px,236px)' : '';
+    document.getElementById('hbook').setAttribute('opacity', n >= 1 ? 1 : 0); document.getElementById('hrep').setAttribute('opacity', n >= 4 ? 1 : 0); document.getElementById('hcold').setAttribute('opacity', n >= 3 ? 1 : 0);
+    nu.style.opacity = n >= 2 ? 1 : 0; if (n >= 3) v.style.transform = 'translateX(-430px)'; else v.style.transform = ''; }
+  if (k === 'goal') sl.querySelectorAll('.gok').forEach(g => g.classList.toggle('shown', step >= 1)); }
+function onBack(sl, n){ if (sl.dataset.k === 'how') { step = n - 1; resetScene(sl); step = n; } }
+const _onEnter = onEnter; onEnter = function(sl){ _onEnter(sl); const k = sl.dataset.k;
+  if (k === 'how') resetScene(sl);
+  if (k === 'goal') { sl.querySelectorAll('.cnt').forEach(c => c.textContent = '0'); sl.querySelectorAll('.ch-hit').forEach((c, i) => { const m = c.querySelector('.mv'); anim(m, [{ transform: 'translateY(40px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 700, delay: 300 + i * 140 }); }); } };
+const _onStep = onStep; onStep = function(sl, n){ _onStep(sl, n); const k = sl.dataset.k; if (window._all) { if (k === 'how' || k === 'goal') resetScene(sl); return; }
+  if (k === 'goal' && n === 1) sl.querySelectorAll('.ch-hit').forEach((c, i) => setTimeout(() => { c.classList.remove('jump'); void c.getBoundingClientRect(); c.classList.add('jump'); }, i * 120));
+  if (k === 'goal' && n === 2) sl.querySelectorAll('.cnt').forEach(count);
+  if (k === 'how') { const book = document.getElementById('hbook'), rep = document.getElementById('hrep'), cold = document.getElementById('hcold'), v = document.querySelector('#hvan .mv'), nuG = document.getElementById('hnurse'), nu = nuG.querySelector('.mv');
+    if (n === 1) { book.setAttribute('opacity', 1); anim(book, [{ transform: 'scale(.6)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 600, easing: 'cubic-bezier(.3,1.6,.5,1)' }); }
+    if (n === 2) { nu.style.opacity = 1; nuG.classList.add('walking'); const a = anim(nu, [{ transform: 'translateX(-200px)' }, { transform: 'none' }], { duration: 1800, easing: 'ease-out' }); setTimeout(() => { nuG.classList.remove('walking'); say('hsc', 'hbub', nuG); }, 1800); }
+    if (n === 3) { cold.setAttribute('opacity', 1); anim(v, [{ transform: 'none' }, { transform: 'translateX(-430px)' }], { duration: 2600, easing: 'cubic-bezier(.5,0,.3,1)' }); anim(cold, [{ transform: 'translate(735px,236px)' }, { transform: 'translate(305px,236px)' }], { duration: 2600, easing: 'cubic-bezier(.5,0,.3,1)' }); }
+    if (n === 4) { rep.setAttribute('opacity', 1); anim(rep, [{ transform: 'translateY(30px) scale(.7)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 700, easing: 'cubic-bezier(.3,1.6,.5,1)' }); } } };
+function onStepAll(sl){ window._all = true; try { for (let n = 1; n <= (+sl.dataset.steps || 0); n++) onStep(sl, n); } finally { window._all = false; } }
 /* living background */
 const cv = document.getElementById('bgc'), cx = cv.getContext('2d'); let P = [];
 function bgInit(){ cv.width = innerWidth; cv.height = innerHeight; P = Array.from({ length: 34 }, () => ({ x: Math.random() * cv.width, y: Math.random() * cv.height, vx: (Math.random() - .5) * .25, vy: (Math.random() - .5) * .25, r: 2 + Math.random() * 2 })); }
