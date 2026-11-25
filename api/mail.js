@@ -64,6 +64,8 @@ function transport() {
   return tx;
 }
 async function send(to, m) {
+  // team and demo logins use made-up addresses on labathome.om (no mailbox exists) — never send there
+  if (/@(demo\.)?labathome\.om$/i.test(String(to || '').trim())) return;
   const t = transport(); if (!t) { const e = new Error('NO_MAIL'); e.code = 'NO_MAIL'; throw e; }
   await t.sendMail({ from: process.env.MAIL_FROM || `"iLab@home" <${process.env.MAIL_USER}>`, to, subject: m.subject, html: m.html, text: m.text });
 }
