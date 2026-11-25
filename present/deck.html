@@ -526,7 +526,9 @@ function bg(){ cx.clearRect(0, 0, cv.width, cv.height); for (const a of P) { a.x
   for (const a of P) { cx.fillStyle = 'rgba(18,87,214,.18)'; cx.beginPath(); cx.arc(a.x, a.y, a.r, 0, 7); cx.fill(); } if (!RM) requestAnimationFrame(bg); }
 bgInit(); addEventListener('resize', bgInit); bg();
 document.querySelectorAll('.spin').forEach(el => { if (!RM) el.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], { duration: 40000, iterations: Infinity }); el.style.transformOrigin = '260px 260px'; });
-show(0, 1);
+show(Math.max(0, Math.min(document.querySelectorAll('.slide').length - 1, (+((location.hash.match(/s=(\d+)/) || [])[1] || 1)) - 1)), 1);
+try { localStorage.setItem('lah_deck_lang', 'en'); } catch (e) {}
+document.querySelectorAll('#ctl a[href="deck-ar.html"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); try { localStorage.setItem('lah_deck_lang', 'ar'); } catch (x) {} location.href = 'deck-ar.html#s=' + (cur + 1); }));
 </script>
 <script type="module">
 /* iLab@home – real-time 3D banners and the opening splash (three.js, physically based materials, ACES tone mapping). */
