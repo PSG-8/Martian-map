@@ -1263,3 +1263,7 @@ body:has(#app .auth) #bot{display:none}
 @media (max-width:899px){#app{padding-bottom:76px}}
 #nurse.beside,#nurse.beside:not(.rtl){transform:translateY(40px);opacity:0;transition:transform .8s cubic-bezier(.25,.8,.3,1),opacity .6s}
 #nurse.beside.in{transform:none;opacity:1}
+/* trial-version notices (student project pilot) */
+.pilot{display:flex;gap:8px;align-items:flex-start;margin:12px 0;padding:10px 14px;border-radius:12px;background:#fff7e6;color:#7a4b00;font-size:.88rem;line-height:1.55;border:1px solid #ffe0a3}
+.pilot svg{flex:none;margin-top:3px}.pilot.strong{font-weight:600;font-size:.95rem}
+@media print{.pilot{border:1px solid #c98a00}}
