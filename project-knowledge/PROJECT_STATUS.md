@@ -1,5 +1,10 @@
 # Project status — last updated 2026-11-25
 
+## v35 (LIVE since 2026-11-25, deployment dpl_GFQu7AQWh9tsjGKiUnKGyUMnK1c2)
+- Film: the owner found the Arabic hadith voice artificial and wanted full i'rab; local TTS could not do the endings reliably (Arabic transcription kept missing words), so per the owner's fallback the female English voice says "The Prophet Muhammad, peace be upon him, said: ..." and the fully vowelled Arabic stays on screen. New original score (`vid32f/music2.py`): e-piano, plucked strings, soft Gulf frame-drum groove, simple melody; drums rest at the hadith.
+- Presentation: one link `/present/` (opens in the last-used or phone language; the language button keeps the slide).
+- Team roles: Rahaf + Alzahraa nurses, Jokha + Ansam customer service (staff), Tasnim doctor (`tasnim@labathome.om`, works on demo data, not listed for public booking). Passwords given in chat only.
+
 ## v34 (LIVE since 2026-11-25, deployment dpl_5DtHHLQzkVPm67nbhx9rHtzpryKb; live-checked phone + desktop)
 - Tidy layout: banner text on its own glass panel; Noor waits until the banner is out from under her and stands beside the app side bar; help-bot button hidden on sign-in screens; phone tests page no longer scrolls sideways; banner prices fill in after the catalog loads. New automatic check `overlap.js` (scratch harness): every screen, phone + desktop, AR + EN, every role — text on pictures/characters/other text = 0.
 - Presentation fixed on phones and laptops (the slide drifted off-screen below 1600 px); compact controls.
