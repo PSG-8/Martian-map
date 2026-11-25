@@ -13,3 +13,9 @@
 - **Videos & pictures (v29)** — Pixar/Disney style, realistic lighting; still pictures with camera moves (no AI video, so no animation glitches); English narration (Kokoro) + Arabic subtitles + light music.
 - **Modesty rules for all art** — full Gulf-style hijab for women; no kumma with medical uniforms; no people printed on merchandise.
 - **Logo (v29)** — the approved hexagon + flask is the only logo (the v28 roof/drop logo was dropped). Animated as a hologram on the site.
+- **GSAP loaded after the first paint** (v31) — rich motion without slowing phones; if GSAP is slow or reduced motion is on, the page works without it.
+- **Kits only when every item is self-collected** (v31) — one blood test in the cart means a nurse visit; keeps the flow simple and safe.
+- **Discounts only on the server** (v31) — stamps, coupons and referral rewards are computed in `order_create`; the phone only shows a preview.
+- **Companies never see medical values** (v31) — camp results are fit / needs follow-up / retest only.
+- **Official residency medical stays with MOH** (v31) — iLab@home offers pre-checks and yearly checks, and says so on every related screen.
+- **Explainer narration now female** (v31, user's request; men's voice felt harsh): Kokoro `af_heart`.

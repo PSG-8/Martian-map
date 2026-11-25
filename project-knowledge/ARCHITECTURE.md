@@ -22,3 +22,9 @@
 ## Other pages
 - `present/index.html` — fixed 1600x900 stage scaled to the window; keyboard/swipe; N notes, F fullscreen.
 - `questions/index.html` — same engine, 9 slides.
+
+## v31 additions
+- Front end: `js/motion.js` (window.FX: scan, flyToCart, celebrate, stamp, alert, ride), `vendor/gsap/*`, `vendor/confetti/*`. New routes: `#/sources`, `#/expat`, `#/r/<token>`, `#/app/loyalty`, `#/app/privacy`, `#/app/camps`, `#/app/admin/safety|coupons|camps`.
+- Tables: `coupons`, `coupon_uses`, `report_views`, `privacy_requests`, `sample_scans`, `sos_alerts`, `incidents`, `share_links`, `camp_requests`; columns `tests.collection`, `orders.mode`, `orders.disc`.
+- RPCs: `my_loyalty`, `referral_apply`, `coupon_check`, `admin_coupons`, `admin_coupon_save`, `my_privacy`, `privacy_request`, `my_data_export`, `admin_privacy`, `admin_privacy_done`, `sample_log`, `sos_raise`, `incident_report`, `admin_safety`, `admin_safety_close`, `share_create`, `share_revoke`, `share_get` (anon), `my_trends`, `camp_create`, `camps_mine`, `admin_camps`, `camp_update`. Internal: `_loyalty`, `_coupon_amount`, trigger `_order_event_after`.
+- SQL files: `project-knowledge/sql/v31_a_schema.sql`, `v31_b_core.sql`, `v31_c_rpcs.sql`, `v31_d_go_live.sql`.
