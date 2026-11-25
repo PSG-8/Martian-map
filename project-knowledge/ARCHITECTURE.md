@@ -28,3 +28,11 @@
 - Tables: `coupons`, `coupon_uses`, `report_views`, `privacy_requests`, `sample_scans`, `sos_alerts`, `incidents`, `share_links`, `camp_requests`; columns `tests.collection`, `orders.mode`, `orders.disc`.
 - RPCs: `my_loyalty`, `referral_apply`, `coupon_check`, `admin_coupons`, `admin_coupon_save`, `my_privacy`, `privacy_request`, `my_data_export`, `admin_privacy`, `admin_privacy_done`, `sample_log`, `sos_raise`, `incident_report`, `admin_safety`, `admin_safety_close`, `share_create`, `share_revoke`, `share_get` (anon), `my_trends`, `camp_create`, `camps_mine`, `admin_camps`, `camp_update`. Internal: `_loyalty`, `_coupon_amount`, trigger `_order_event_after`.
 - SQL files: `project-knowledge/sql/v31_a_schema.sql`, `v31_b_core.sql`, `v31_c_rpcs.sql`, `v31_d_go_live.sql`.
+
+## v32 additions
+- `js/mascot.js` (window.LAHMascot: show, hide, cheer, place) — loaded by `mascotSync()` in app.js on `#/` and the patient home only.
+- `js/motion.js` no longer loads ScrollTrigger; reveals, counters and line drawings use one IntersectionObserver (`watch()`), content is never pre-hidden.
+- `js/api.js`: `API.abortReads()` cancels in-flight reads (not catalog / auth_me) when a new render starts; such calls fail with code `ABORTED`, which `errMsg()` / `toast()` ignore.
+- Hero: `heroSlides()` items carry `a` = picture / clip / 3D scene number; `js/hero3d.js` BUILD has 9 scenes (5 self-kit, 6 loyalty, 7 doctor online, 8 companies) and mirrors the camera offset for `dir=rtl`. Pictures: `img/hero/h{n}d|r|m.(webp|jpg)`, phone loops `clip{n}.mp4`.
+- Home extras: `journeyBlock()`, `featBlock()`, `faqBlock()`, `ctaBlock()`, `bindHomeFx()`; `placeMenu()` positions the desktop dropdown; `copyText()`; `holoWake()/holoCalm()` rest the logo animation.
+- Videos: `VIDS` = story (idea), how (guide), film.

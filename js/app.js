@@ -2337,14 +2337,27 @@ Object.assign(I18N.ar, { ig_follow:'تابعنا على إنستغرام', ig_sc
   nw17e:'نسيت كلمة المرور', nw17ed:'استعد كلمة المرور عبر رابط يوصلك على الإيميل.' });
 const MEDIA = 'https://ufykiqxsegyuyablrjsq.supabase.co/storage/v1/object/public/media/';
 const HOW_READY = true;
-const NEWS = [['steth','nw28a','v28'],['flask','nw28b','v28'],['ring','nw28c','v28'],['spark','nw28d','v28'],['phone','nw25','v25'],['users','nw25b','v25'],['spark','nw18','v18'],['check','nw17a','v17'],['steth','nw17b','v17'],['hosp','nw17c','v17'],['flask','nw17d','v17'],['lock','nw17e','v17']];
-const VIDS = { story: ['media/iLabAtHome_Explainer.mp4', 'media/explainer_poster.jpg', 'new_vid3', 'new_sub3', '1:41'], how: ['media/iLabAtHome_HowItWorks.mp4', 'media/how_poster.jpg', 'new_vid', 'new_sub', '1:04'], cast: ['media/iLabAtHome_Characters.mp4', 'media/cast_poster.jpg', 'new_vid2', 'new_sub2', '0:55'] };
+const NEWS = [['heart','nw32a','v32'],['spark','nw32b','v32'],['video','nw32c','v32'],['check','nw32d','v32'],['steth','nw28a','v28'],['flask','nw28b','v28'],['ring','nw28c','v28'],['spark','nw28d','v28'],['phone','nw25','v25'],['users','nw25b','v25'],['spark','nw18','v18'],['check','nw17a','v17'],['steth','nw17b','v17'],['hosp','nw17c','v17'],['flask','nw17d','v17'],['lock','nw17e','v17']];
+Object.assign(I18N.en, { nw32a:'Meet Noor, your guide', nw32ad:'A small nurse on the home screen greets you, shares health tips and takes you where you need to go.',
+  nw32b:'A new home page', nw32bd:'New banners for self-kits, the stamp card, doctor online and companies, your order journey step by step, and answers to common questions.',
+  nw32c:'Three new films', nw32cd:'The idea of iLab@home, how to sign up and use the app, and a short film: a day with iLab@home.',
+  nw32d:'Faster and smoother', nw32dd:'Every button checked on phone and computer. The doctor button after results and the More menu are fixed, and a slow screen never holds up the next one.' });
+Object.assign(I18N.ar, { nw32a:'تعرّف على نور، مرشدتك', nw32ad:'ممرضة صغيرة في الصفحة الرئيسية تسلّم عليك، وتعطيك نصائح صحية، وتوديك للي تحتاجه.',
+  nw32b:'صفحة رئيسية جديدة', nw32bd:'بنرات جديدة للعُدد الذاتية وبطاقة الأختام والطبيب أونلاين والشركات، ورحلة طلبك خطوة بخطوة، وأجوبة الأسئلة الشائعة.',
+  nw32c:'ثلاث أفلام جديدة', nw32cd:'فكرة آي لاب@هوم، وطريقة التسجيل واستخدام البرنامج، وفلم قصير: يوم مع آي لاب@هوم.',
+  nw32d:'أسرع وأسلس', nw32dd:'فحصنا كل زر على الجوال والكمبيوتر، وصلّحنا زر الطبيب بعد النتائج وقائمة المزيد، وما عادت صفحة بطيئة تأخّر اللي بعدها.' });
+/* v32: three films, each with one job: the idea (story), how to sign up and use the app (how, real screens), a day with iLab@home (film) */
+const VIDS = { story: ['media/iLabAtHome_Explainer.mp4', 'media/explainer_poster.jpg', 'new_vid3', 'new_sub3', '1:41'], how: ['media/iLabAtHome_Guide.mp4', 'media/guide_poster.jpg', 'vid_how', 'vid_how_s', '1:28'], film: ['media/iLabAtHome_Film.mp4', 'media/film_poster.jpg', 'vid_film', 'vid_film_s', '1:53'] };
+Object.assign(I18N.en, { vid_how:'How to sign up and use the app', vid_how_s:'Real app screens, step by step · English voice, Arabic subtitles', vid_film:'A day with iLab@home (film)', vid_film_s:'From the first light to the report: nurse, lab, dentist and doctor online · Arabic subtitles',
+  new_vid3:'The idea of iLab@home, in 100 seconds' });
+Object.assign(I18N.ar, { vid_how:'طريقة التسجيل واستخدام البرنامج', vid_how_s:'شاشات البرنامج الحقيقية خطوة بخطوة · صوت إنجليزي مع ترجمة عربية', vid_film:'يوم مع آي لاب@هوم (فلم)', vid_film_s:'من أول الصبح لين التقرير: الممرضة والمختبر وطبيبة الأسنان والطبيب أونلاين · ترجمة عربية',
+  new_vid3:'فكرة آي لاب@هوم في 100 ثانية' });
 function vidCard(k){ const [src, poster, tt, st, dur] = VIDS[k]; return `<div class="card pad-lg vid-card"><div class="row between wrap" style="gap:8px;margin-bottom:12px"><div><h3 style="margin:0">${t(tt)}</h3><div class="small muted">${t(st)}</div></div><span class="chip teal">${ic('play',14)} ${dur}</span></div>
   <video class="vid" controls playsinline preload="none" poster="${poster}"><source src="${src}" type="video/mp4"></video></div>`; }
 function newBlock(short){
   const items = short ? NEWS.slice(0, 4) : NEWS;
   return `<div class="stack-lg"><div class="row between wrap" style="gap:8px"><h2 class="hm-h" style="margin:0">${t('m_new')}</h2>${short ? `<a class="b small" href="#/new">${t('see_all')}</a>` : ''}</div>
-    ${vidCard('story')}<div class="grid g2 collapse">${HOW_READY ? vidCard('how') : ''}${vidCard('cast')}</div>
+    ${vidCard('film')}<div class="grid g2 collapse">${vidCard('story')}${HOW_READY ? vidCard('how') : ''}</div>
     <div class="stack" style="--g:10px">${items.map(([i, k, v]) => `<div class="card row" style="gap:14px;align-items:flex-start"><span class="qi" style="color:var(--blue);background:#eaf2ff;flex:none">${ic(i, 24, 2)}</span><div class="grow"><div class="row between"><b>${t(k)}</b><span class="chip gray">${v}</span></div><div class="small muted">${t(k + 'd')}</div></div></div>`).join('')}</div></div>`;
 }
 Object.assign(I18N.en, { new_vid:'How iLab@home works, and how to sign up', new_sub:'English narration with Arabic subtitles', new_vid2:'Meet the iLab@home family', new_sub2:'Eleven people, one journey · Arabic subtitles',

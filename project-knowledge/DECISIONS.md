@@ -19,3 +19,9 @@
 - **Companies never see medical values** (v31) — camp results are fit / needs follow-up / retest only.
 - **Official residency medical stays with MOH** (v31) — iLab@home offers pre-checks and yearly checks, and says so on every related screen.
 - **Explainer narration now female** (v31, user's request; men's voice felt harsh): Kokoro `af_heart`.
+- **Never hide content ahead of time** (v32) — animations start only when an element reaches the screen; anything that never gets there is simply visible. ScrollTrigger pre-hiding and `content-visibility` left whole sections blank on some computers.
+- **Decorative animation must rest** (v32) — the hologram logo plays a few seconds and stops; endless SVG/box-shadow animations cost the main thread on weak phones.
+- **The newest tap wins** (v32) — leaving a screen cancels its pending reads instead of waiting up to ~20 s.
+- **Noor is SVG, not 3D** (v32) — the owner asked for a light 3D-feel character that never slows the site; SVG + CSS transforms gives that at a few KB.
+- **Arabic layout puts the banner scene on the left** (v32) — the text sits on the reading side and never covers the picture.
+- **Three videos, one job each** (v32) — idea, how to use the app (real screens), and a cinematic day-in-the-life film; no real actors or AI video (no paid credits), all drawn with the site's own characters.

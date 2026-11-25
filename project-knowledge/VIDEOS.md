@@ -1,5 +1,12 @@
 # Videos
 
+## v32 — three films, one job each (on the What's new page)
+1. **The idea** — `media/iLabAtHome_Explainer.mp4` (v31, 1:41).
+2. **How to sign up and use the app** — `media/iLabAtHome_Guide.mp4` (1:28): real app screens recorded on an iPhone-sized screen (sign up, choose tests, self-kits, booking and payment, booked, tracking, report, talk to a doctor, stamp card). English female narration (Kokoro `af_heart`), Arabic + English subtitles, soft original music.
+3. **A day with iLab@home** — `media/iLabAtHome_Film.mp4` (1:53): cinematic animated story with the site's characters (letterbox, film grain, camera moves, morning-to-night light): dawn over the mountains → grandfather Hamad needs a sugar/kidney check → Maryam books → nurse Noor on the road with the 2–8 °C box → licence at the door → gentle sample, star sticker for Sara → scanned cold chain → accredited lab → online dentist for Sara → report (vitamin D a little low) → Dr. Hilal by video → hadith card at sunset (Sahih al-Bukhari 6412) → stamp card and workers → logo and credits. Names are illustrative.
+- Old films kept in `project-knowledge/videos/old/` (HowItWorks, Characters).
+
+
 ## Story film (v29) — `media/iLabAtHome_Story.mp4`
 v29: each scene is a Pixar-style picture (Figma AI) with a slow camera move, headline card, info chips and the hologram logo; light music composed in code (piano-style arpeggios + pad, C–Am–F–G, 92 bpm) under the narration.
 v28 (replaced): flat motion graphics drawn from the site's own illustrations; every frame is computed from time `t` in an HTML page and captured with Playwright at 30 fps, then encoded with ffmpeg.

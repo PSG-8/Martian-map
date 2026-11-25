@@ -27,3 +27,8 @@ No internet from the shell (only GitHub), so rendering was done through GitHub A
 - Deploy order: push → Vercel production deploy → run `project-knowledge/sql/v31_d_go_live.sql` → live check (phone + desktop).
 - Local harness: the scratch mock gained v31 RPCs (`mock_v31.cjs`); the sweep visits the new screens for every role.
 - Video build: HTML + GSAP timeline rendered frame by frame with Playwright (30 fps), Kokoro narration per scene, music synthesised in Python, ffmpeg loudnorm −16 LUFS.
+## v32 notes
+- Button sweep: `clicksweep.js` (scratch harness) taps every button/link on every screen per role, phone + desktop; `menucheck.js`, `cspost.js`, `jumpcheck.js`, `idlecpu.js` cover the reported bugs. Re-run before deploys that touch the UI.
+- Banner pictures and phone loops come from the 3D scenes: `hb/snap32.mjs` (SETS m / d / r) and `hb/clips32.mjs` (780×1200, 7 s, 30 fps), then WebP/JPEG via Pillow.
+- Guide video: TTS clips first (`vid32w/tts.py`), the screen recording uses their lengths as time budgets (`record.js`, Chrome screencast at 2× with `--force-device-scale-factor=2`), then `compose.py` (ffmpeg overlays + music + loudnorm).
+- Film: `vid32f/` — `script.json` → `tts.py` → `film.js` (GSAP timeline, letterbox, grain, vignette) → `render.js` frames → `music.py` → ffmpeg.
