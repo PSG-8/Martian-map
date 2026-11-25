@@ -1835,7 +1835,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 33;
+const APP_V = 34;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -2150,7 +2150,7 @@ function heroSlides(){
 }
 function heroHtml(compact){
   const sl = heroSlides(); const D = S.lang === 'ar' ? 'r' : 'd'; /* desktop pictures: 'r' has the scene on the left for Arabic */
-  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=33" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=33" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=33"><img ${a}src="img/hero/h${n}${D}.jpg?v=33" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=34" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=34" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=34"><img ${a}src="img/hero/h${n}${D}.jpg?v=34" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
     <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
       <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
     <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
@@ -2347,12 +2347,14 @@ Object.assign(I18N.ar, { ig_follow:'تابعنا على إنستغرام', ig_sc
   nw17e:'نسيت كلمة المرور', nw17ed:'استعد كلمة المرور عبر رابط يوصلك على الإيميل.' });
 const MEDIA = 'https://ufykiqxsegyuyablrjsq.supabase.co/storage/v1/object/public/media/';
 const HOW_READY = true;
-const NEWS = [['heart','nw32a','v32'],['spark','nw32b','v32'],['video','nw32c','v32'],['check','nw32d','v32'],['steth','nw28a','v28'],['flask','nw28b','v28'],['ring','nw28c','v28'],['spark','nw28d','v28'],['phone','nw25','v25'],['users','nw25b','v25'],['spark','nw18','v18'],['check','nw17a','v17'],['steth','nw17b','v17'],['hosp','nw17c','v17'],['flask','nw17d','v17'],['lock','nw17e','v17']];
-Object.assign(I18N.en, { nw32a:'Meet Noor, your guide', nw32ad:'A small nurse on the home screen greets you, shares health tips and takes you where you need to go.',
+const NEWS = [['lock','nw34a','v34'],['shield','nw33a','v33'],['steth','nw33b','v33'],['heart','nw32a','v32'],['spark','nw32b','v32'],['video','nw32c','v32'],['check','nw32d','v32'],['steth','nw28a','v28'],['flask','nw28b','v28'],['ring','nw28c','v28'],['spark','nw28d','v28'],['phone','nw25','v25'],['users','nw25b','v25'],['spark','nw18','v18'],['check','nw17a','v17'],['steth','nw17b','v17'],['hosp','nw17c','v17'],['flask','nw17d','v17'],['lock','nw17e','v17']];
+Object.assign(I18N.en, { nw34a:'Stronger protection for your data', nw34ad:'A full security review before launch: your requests, results and chats are visible only to you and the people caring for you, every partner is approved by our team, and the site blocks outside scripts.', nw33a:'Our sample guarantee', nw33ad:'If a sample is damaged or lost on our side, you never pay: a free home re-collection or a full refund, plus an apology gift.', nw33b:'The right nurse for every family member', nw33bd:'A male nurse visits men, a female nurse visits women and children under 12.',
+  nw32a:'Meet Noor, your guide', nw32ad:'A small nurse on the home screen greets you, shares health tips and takes you where you need to go.',
   nw32b:'A new home page', nw32bd:'New banners for self-kits, the stamp card, doctor online and companies, your order journey step by step, and answers to common questions.',
   nw32c:'Three new films', nw32cd:'The idea of iLab@home, how to sign up and use the app, and a short film: a day with iLab@home.',
   nw32d:'Faster and smoother', nw32dd:'Every button checked on phone and computer. The doctor button after results and the More menu are fixed, and a slow screen never holds up the next one.' });
-Object.assign(I18N.ar, { nw32a:'تعرّف على نور، مرشدتك', nw32ad:'ممرضة صغيرة في الصفحة الرئيسية تسلّم عليك، وتعطيك نصائح صحية، وتوديك للي تحتاجه.',
+Object.assign(I18N.ar, { nw34a:'حماية أقوى لبياناتك', nw34ad:'مراجعة أمنية كاملة قبل الإطلاق: طلباتك ونتائجك ومحادثاتك ما يشوفها إلا أنت واللي يخدمونك، وكل شريك يعتمده فريقنا، والموقع يمنع أي سكربت خارجي.', nw33a:'ضمان العيّنة', nw33ad:'إذا تلفت العيّنة أو ضاعت بسببنا ما تدفع شي: إعادة سحب مجانية في البيت أو استرداد كامل، مع هدية اعتذار.', nw33b:'الممرض المناسب لكل فرد في العائلة', nw33bd:'الممرض يزور الرجال، والممرضة تزور النساء والأطفال تحت ١٢ سنة.',
+  nw32a:'تعرّف على نور، مرشدتك', nw32ad:'ممرضة صغيرة في الصفحة الرئيسية تسلّم عليك، وتعطيك نصائح صحية، وتوديك للي تحتاجه.',
   nw32b:'صفحة رئيسية جديدة', nw32bd:'بنرات جديدة للعُدد الذاتية وبطاقة الأختام والطبيب أونلاين والشركات، ورحلة طلبك خطوة بخطوة، وأجوبة الأسئلة الشائعة.',
   nw32c:'ثلاث أفلام جديدة', nw32cd:'فكرة آي لاب@هوم، وطريقة التسجيل واستخدام البرنامج، وفلم قصير: يوم مع آي لاب@هوم.',
   nw32d:'أسرع وأسلس', nw32dd:'فحصنا كل زر على الجوال والكمبيوتر، وصلّحنا زر الطبيب بعد النتائج وقائمة المزيد، وما عادت صفحة بطيئة تأخّر اللي بعدها.' });
