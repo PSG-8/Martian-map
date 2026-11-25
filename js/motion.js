@@ -13,8 +13,8 @@ let G = null, gP = null, cP = null;
 function gsapReady(){
   if (RM) return Promise.reject(new Error('reduced motion'));
   if (!gP) gP = load('vendor/gsap/gsap.min.js')
-    .then(() => Promise.all(['ScrollTrigger', 'MotionPathPlugin', 'DrawSVGPlugin'].map(n => load('vendor/gsap/' + n + '.min.js'))))
-    .then(() => { const g = window.gsap; g.registerPlugin(window.ScrollTrigger, window.MotionPathPlugin, window.DrawSVGPlugin); g.defaults({ ease: 'power3.out', duration: .6 }); window.ScrollTrigger.config({ ignoreMobileResize: true }); G = g; return g; })
+    .then(() => Promise.all(['MotionPathPlugin', 'DrawSVGPlugin'].map(n => load('vendor/gsap/' + n + '.min.js'))))
+    .then(() => { const g = window.gsap; g.registerPlugin(window.MotionPathPlugin, window.DrawSVGPlugin); g.defaults({ ease: 'power3.out', duration: .6 }); G = g; return g; })
     .catch(e => { gP = null; throw e; });
   return gP;
 }
@@ -25,18 +25,38 @@ const idle = window.requestIdleCallback || (f => setTimeout(f, 700));
 const REVEAL = '.card:not(.flat):not(.report .card), .tcard, .pkg, .oitem, .kpi, .qa a, .feat, .step-c, .doc-card, .loyal, .why, .trend, .sec-in, [data-fx="rise"]';
 const inView = el => { const r = el.getBoundingClientRect(); return r.top < innerHeight * .96 && r.bottom > 0; };
 
+/* v32: nothing is ever hidden ahead of time. An element is watched with IntersectionObserver (always measured live, so page height
+   changes can never leave it stuck invisible) and only animated at the moment it reaches the bottom edge of the screen.
+   If it shows up already well inside the screen (a jump, the End key, a link) it is simply left as it is. */
+let io = null; const jobs = new Map();
+function watch(el, kind, fn){
+  if (!('IntersectionObserver' in window)) return;
+  if (!io) io = new IntersectionObserver(entries => {
+    const rise = [];
+    entries.forEach(en => {
+      if (!en.isIntersecting) return; const el = en.target; io.unobserve(el); const j = jobs.get(el); jobs.delete(el); if (!j) return;
+      const fresh = en.boundingClientRect.top > innerHeight * .72;
+      if (j.kind === 'rise') { if (fresh) rise.push(el); } else j.fn(fresh);
+    });
+    if (rise.length && G) G.from(rise, { y: SMALL() ? 16 : 24, opacity: 0, duration: .55, stagger: .06, clearProps: 'transform,opacity', overwrite: 'auto' });
+  }, { rootMargin: '0px 0px 48px 0px', threshold: 0 });
+  jobs.set(el, { kind, fn }); io.observe(el);
+}
+function sweep(){ jobs.forEach((j, el) => { if (!el.isConnected) { jobs.delete(el); if (io) io.unobserve(el); } }); }
+
 function counters(root){
   root.querySelectorAll('[data-count]:not([data-fxd])').forEach(el => {
     el.dataset.fxd = '1'; const end = parseFloat(el.dataset.count); if (!isFinite(end)) return;
     const dec = (el.dataset.count.split('.')[1] || '').length; const o = { v: 0 };
-    const run = () => G.to(o, { v: end, duration: 1.1, ease: 'power2.out', onUpdate: () => { el.textContent = o.v.toFixed(dec); } });
-    if (inView(el)) run(); else window.ScrollTrigger.create({ trigger: el, start: 'top 92%', once: true, onEnter: run });
+    const run = () => G.to(o, { v: end, duration: 1.1, ease: 'power2.out', onUpdate: () => { el.textContent = o.v.toFixed(dec); }, onComplete: () => { el.textContent = end.toFixed(dec); } });
+    if (inView(el)) run(); else watch(el, 'fn', fresh => { if (fresh) run(); });
   });
 }
 function draws(root){
   root.querySelectorAll('[data-draw]:not([data-fxd])').forEach(svg => {
     svg.dataset.fxd = '1'; const parts = svg.querySelectorAll('path,line,polyline,circle,rect,ellipse');
-    G.fromTo(parts, { drawSVG: '0%' }, { drawSVG: '100%', duration: 1.4, stagger: .08, ease: 'power1.inOut', scrollTrigger: inView(svg) ? null : { trigger: svg, start: 'top 90%', once: true } });
+    const run = () => G.fromTo(parts, { drawSVG: '0%' }, { drawSVG: '100%', duration: 1.4, stagger: .08, ease: 'power1.inOut', clearProps: 'stroke-dasharray,stroke-dashoffset' });
+    if (inView(svg)) run(); else watch(svg, 'fn', fresh => { if (fresh) run(); });
   });
 }
 function bars(root){
@@ -65,16 +85,12 @@ function words(root){
   });
 }
 function reveal(root, entrance){
-  const els = Array.from(root.querySelectorAll(REVEAL)).filter(el => !el.dataset.fxd && !el.closest('.modal-bg, .drawer-bg, .no-fx')).slice(0, 80);
+  const els = Array.from(root.querySelectorAll(REVEAL)).filter(el => !el.dataset.fxd && !el.closest('.modal-bg, .drawer-bg, .dd-bg, .no-fx')).slice(0, 80);
   if (!els.length) return;
   els.forEach(el => el.dataset.fxd = '1');
-  const y = SMALL() ? 16 : 26;
   const now = els.filter(inView), later = els.filter(el => !inView(el));
-  if (entrance && now.length) G.from(now, { y, opacity: 0, duration: .55, stagger: { each: .05, from: 'start' }, clearProps: 'transform,opacity' });
-  if (later.length) {
-    G.set(later, { y, opacity: 0 });
-    window.ScrollTrigger.batch(later, { start: 'top 94%', once: true, onEnter: b => G.to(b, { y: 0, opacity: 1, duration: .6, stagger: .07, overwrite: true, clearProps: 'transform,opacity' }) });
-  }
+  if (entrance && now.length) G.from(now.slice(0, 14), { y: SMALL() ? 14 : 22, opacity: 0, duration: .5, stagger: .045, clearProps: 'transform,opacity' });
+  later.forEach(el => watch(el, 'rise'));
 }
 
 const FX = {
@@ -85,11 +101,10 @@ const FX = {
     if (RM) return;
     const first = !G;
     const go = () => gsapReady().then(() => {
-      FX.ready = true;
-      try { window.ScrollTrigger.getAll().forEach(t => { if (!document.body.contains(t.trigger)) t.kill(); }); } catch(e) {}
+      FX.ready = true; sweep();
+      if (!root.isConnected && root !== document) return;
       /* on the very first screen the content is already visible when GSAP arrives: only animate what is still below the fold */
       reveal(root, !first); counters(root); draws(root); bars(root); tilt(root); if (!first) words(root);
-      window.ScrollTrigger.refresh();
     }).catch(() => {});
     /* first screen: wait until the browser is idle so GSAP never competes with the first paint */
     if (first) idle(go, { timeout: 1800 }); else go();
@@ -134,5 +149,5 @@ const FX = {
 };
 window.FX = FX;
 /* printing or saving the page: show everything at once */
-addEventListener('beforeprint', () => { if (G) G.set('[data-fxd]', { clearProps: 'opacity,transform' }); });
+addEventListener('beforeprint', () => { if (G) { G.globalTimeline.progress(1); G.set('[data-fxd], [data-fxd] *', { clearProps: 'opacity,transform' }); } });
 })();

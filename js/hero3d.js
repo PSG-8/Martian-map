@@ -1,4 +1,4 @@
-/* iLab@Home – real-time 3D banners and the opening splash (three.js, physically based materials, ACES tone mapping). */
+/* iLab@home – real-time 3D banners and the opening splash (three.js, physically based materials, ACES tone mapping). */
 import * as THREE from './vendor/three.module.min.js';
 
 const R = {}; // renderer state
@@ -18,7 +18,7 @@ function rbox(w, h, d, r, bevel = .04){ const g = new THREE.ExtrudeGeometry(roun
 function hexMark(x, X, Y, s, col){ x.save(); x.translate(X, Y); x.scale(s / 64, s / 64); x.strokeStyle = col; x.lineCap = 'round'; x.lineJoin = 'round';
   x.lineWidth = 3.4; x.stroke(new Path2D('M51.5 15.2 32 4 7.5 18.1v27.8L32 60l19.5-11.2')); x.lineWidth = 1.7; x.stroke(new Path2D('M47.6 18.6 32 9.6 12.2 21v22L32 54.4l15.6-9'));
   x.translate(32, 34); x.rotate(-32 * Math.PI / 180); x.translate(-32, -34); x.lineWidth = 2.4; x.stroke(new Path2D('M28.6 20.5v8.1a9.6 9.6 0 1 0 6.8 0v-8.1')); x.stroke(new Path2D('M27 20.5h10')); x.lineWidth = 1.9; x.stroke(new Path2D('M23.4 36.5c3-1.6 5.6 1.4 8.6 0s5.6-1.3 8.6.2')); x.restore(); }
-function wordmark(x, X, Y, size, col, at, align){ x.font = `800 ${size}px Inter, Arial`; x.textBaseline = 'middle'; const p = ['i', 'Lab', '@', 'Home']; const ws = p.map(s => x.measureText(s).width); let px = align === 'center' ? X - (ws[0] + ws[1] + ws[2] + ws[3]) / 2 : X; p.forEach((s, i) => { x.fillStyle = i === 0 || i === 2 ? at : col; x.fillText(s, px, Y); px += ws[i]; }); }
+function wordmark(x, X, Y, size, col, at, align){ x.font = `800 ${size}px Inter, Arial`; x.textBaseline = 'middle'; const p = ['i', 'Lab', '@', 'home']; const ws = p.map(s => x.measureText(s).width); let px = align === 'center' ? X - (ws[0] + ws[1] + ws[2] + ws[3]) / 2 : X; p.forEach((s, i) => { x.fillStyle = i === 0 || i === 2 ? at : col; x.fillText(s, px, Y); px += ws[i]; }); }
 const bg = (stops) => ctex(16, 512, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); stops.forEach(([o, c]) => g.addColorStop(o, c)); x.fillStyle = g; x.fillRect(0, 0, w, h); });
 const radialBg = (inner, outer) => ctex(512, 512, (x, w, h) => { const g = x.createRadialGradient(w * .62, h * .42, 10, w * .55, h * .5, w * .75); g.addColorStop(0, inner); g.addColorStop(1, outer); x.fillStyle = g; x.fillRect(0, 0, w, h); });
 function shadowDisc(r, o = .28){ const t = ctex(128, 128, (x, w, h) => { const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, `rgba(10,20,40,${o})`); g.addColorStop(1, 'rgba(10,20,40,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
@@ -155,7 +155,7 @@ function makeTextures(){
   R.texBagLabel = ctex(512, 170, (x, w, h) => { wordmark(x, 24, 70, 92, '#ffffff', '#7cc0ff'); x.font = '600 40px "IBM Plex Sans Arabic", Arial'; x.fillStyle = '#9fc4ff'; x.textBaseline = 'middle'; x.fillText('آي لاب@هوم', 30, 140); });
   R.texBP = ctex(512, 280, (x, w, h) => { x.fillStyle = '#c9e7dc'; rr(x, 0, 0, w, h, 26); x.fill(); x.fillStyle = '#0c2b22'; x.font = '800 116px Inter, Arial'; x.textBaseline = 'alphabetic'; x.fillText('120', 30, 128); x.font = '800 92px Inter, Arial'; x.fillText('80', 60, 238); x.font = '700 26px Inter, Arial'; x.fillText('SYS mmHg', 270, 60); x.fillText('DIA mmHg', 270, 170);
     x.fillStyle = '#e2474f'; x.font = '800 54px Inter, Arial'; x.fillText('♥ 72', 300, 250); });
-  R.texVial = ctex(512, 160, (x, w, h) => { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.fillStyle = '#0fae9b'; x.fillRect(0, 0, w, 34); x.fillStyle = '#0d1628'; x.font = '800 44px Inter, Arial'; x.fillText('VACCINE', 24, 96); x.font = '600 26px Inter, Arial'; x.fillStyle = '#56657f'; x.fillText('iLab@Home · soon', 24, 136); });
+  R.texVial = ctex(512, 160, (x, w, h) => { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.fillStyle = '#0fae9b'; x.fillRect(0, 0, w, 34); x.fillStyle = '#0d1628'; x.font = '800 44px Inter, Arial'; x.fillText('VACCINE', 24, 96); x.font = '600 26px Inter, Arial'; x.fillStyle = '#56657f'; x.fillText('iLab@home · soon', 24, 136); });
   R.texScreen = ctex(660, 1430, (x, w, h) => {
     x.fillStyle = '#f4f7fc'; x.fillRect(0, 0, w, h); x.fillStyle = '#0d1628'; x.fillRect(0, 0, w, 230); hexMark(x, 34, 70, 96, '#7cc0ff'); wordmark(x, 146, 118, 58, '#ffffff', '#7cc0ff');
     x.fillStyle = '#9fb3d6'; x.font = '600 26px Inter, Arial'; x.fillText('LAH-10254 · Report', 148, 176);
@@ -263,6 +263,137 @@ function sceneSoon(){
       cam.position.set(Math.sin(t * .15) * 1, 2.4, 7.6); cam.lookAt(.3, 1.0, 0); } };
 }
 
+/* ---------- v32 banner scenes: self-collection kits, loyalty card, doctor online, companies & workers ---------- */
+function chipTex(icon, t1, t2, col, bgc){ return ctex(640, 200, (x, w, h) => { x.shadowColor = 'rgba(13,22,40,.25)'; x.shadowBlur = 30; x.shadowOffsetY = 10; x.fillStyle = '#ffffff'; rr(x, 20, 16, w - 40, h - 44, 40); x.fill(); x.shadowBlur = 0; x.shadowOffsetY = 0;
+  x.fillStyle = bgc; x.beginPath(); x.arc(100, 94, 50, 0, TAU); x.fill(); x.fillStyle = col; x.font = '700 52px Inter, Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(icon, 100, 98); x.textAlign = 'left'; x.fillStyle = '#0d1628'; x.font = '800 40px Inter, Arial'; x.fillText(t1, 172, 74); x.fillStyle = '#56657f'; x.font = '500 30px Inter, Arial'; x.fillText(t2, 172, 122); }); }
+function studio(bgIn, bgOut, hemi){ const s = new THREE.Scene(); s.background = radialBg(bgIn, bgOut);
+  s.add(new THREE.HemisphereLight('#ffffff', hemi, 1.15)); const key = new THREE.DirectionalLight('#ffffff', 2.6); key.position.set(4, 8, 6); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -6, right: 6, top: 6, bottom: -6 }); key.shadow.normalBias = .03; s.add(key);
+  const rim = new THREE.DirectionalLight('#cfe0ff', 1.3); rim.position.set(-6, 4, -4); s.add(rim);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: .16 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -.01; floor.receiveShadow = true; s.add(floor); return s; }
+function pedestal(s, ring){ s.add(mesh(new THREE.CylinderGeometry(2.6, 2.75, .4, 64), phys('#ffffff', { roughness: .25, clearcoat: 1 }), [0, -.2, 0]));
+  const r = mesh(new THREE.TorusGeometry(2.62, .035, 8, 90), phys(ring, { roughness: .3, emissive: ring, emissiveIntensity: .4 }), [0, 0, 0], false); r.rotation.x = Math.PI / 2; s.add(r); }
+function sceneSelfKit(){
+  const s = studio('#e6f7fd', '#9fd3ea', '#8fb9cf'); pedestal(s, '#18b5d8');
+  const box = new THREE.Group(); s.add(box); const white = phys('#ffffff', { roughness: .35, clearcoat: .7 });
+  box.add(mesh(rbox(2.6, 1.0, 1.7, .12, .05), white, [0, .5, 0])); box.position.x = -.2;
+  box.add(mesh(new THREE.BoxGeometry(2.42, .06, 1.52), std('#e6eef8'), [0, .98, 0], false));
+  const side = new THREE.Mesh(new THREE.PlaneGeometry(2.3, .7), new THREE.MeshStandardMaterial({ map: ctex(768, 232, (x, w, h) => { hexMark(x, 24, 40, 150, '#1257d6'); wordmark(x, 196, 96, 70, '#0d1628', '#18b5d8'); x.font = '600 40px "IBM Plex Sans Arabic", Arial'; x.fillStyle = '#18b5d8'; x.textBaseline = 'middle'; x.fillText('Self-Kit · عدّة ذاتية', 200, 178); }), transparent: true, roughness: .5 }));
+  side.position.set(0, .5, .862); box.add(side);
+  const lid = new THREE.Group(); lid.position.set(0, 1.0, -.85); box.add(lid);
+  lid.add(mesh(rbox(2.6, .12, 1.7, .06, .03), phys('#18b5d8', { roughness: .35, clearcoat: .8 }), [0, 0, .85]));
+  const cup = new THREE.Group(); cup.add(mesh(new THREE.CylinderGeometry(.34, .28, .8, 32), phys('#ffffff', { transparent: true, opacity: .5, roughness: .05, clearcoat: 1 }), [0, .4, 0], false));
+  cup.add(mesh(new THREE.CylinderGeometry(.37, .37, .16, 32), phys('#0fae9b', { roughness: .35 }), [0, .86, 0]));
+  const cl = new THREE.Mesh(new THREE.CylinderGeometry(.315, .3, .34, 32, 1, true, -1.1, 2.2), new THREE.MeshStandardMaterial({ map: R.texLabel, transparent: true })); cl.position.y = .42; cup.add(cl); s.add(cup);
+  const swab = new THREE.Group(); swab.add(mesh(new THREE.CylinderGeometry(.13, .13, 1.4, 24, 1, true), phys('#ffffff', { transparent: true, opacity: .35, roughness: .05, side: THREE.DoubleSide }), [0, 0, 0], false));
+  swab.add(mesh(new THREE.CylinderGeometry(.03, .03, 1.2, 10), std('#f1f5f9'), [0, 0, 0])); swab.add(mesh(new THREE.SphereGeometry(.07, 14, 10), std('#ffffff', { roughness: 1 }), [0, -.62, 0]));
+  swab.add(mesh(new THREE.CylinderGeometry(.15, .15, .2, 24), phys('#7a5af8', { roughness: .35 }), [0, .78, 0])); s.add(swab);
+  const tb = tube('#f2a516', '#c9a27a'); s.add(tb);
+  const bag = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.3), phys('#ffffff', { transparent: true, opacity: .35, roughness: .1, side: THREE.DoubleSide, clearcoat: 1 })); s.add(bag);
+  const stripe = new THREE.Mesh(new THREE.PlaneGeometry(1.1, .12), phys('#e2474f', { roughness: .4, side: THREE.DoubleSide })); bag.add(stripe); stripe.position.set(0, .5, .001);
+  const cards = [chipTex('✓', 'No nurse needed', 'Collect in private', '#0fae9b', '#e3f7f4'), chipTex('→', 'Courier 2.000', 'Kit to your door', '#1257d6', '#eaf2ff'), chipTex('°C', '2–8 °C', 'Back to the lab', '#18b5d8', '#e0f6fc')].map(tx => { const c = card(tx, 1.7, .53); s.add(c); return c; });
+  const cam = new THREE.PerspectiveCamera(30, 2, .1, 100);
+  return { s, cam, update(t){
+      box.rotation.y = -.35 + Math.sin(t * .35) * .15; const open = .5 + .5 * Math.sin(t * .9 - 1.2); lid.rotation.x = -(.15 + eio(clamp(open)) * 1.75);
+      const up = eio(clamp(open * 1.2 - .1));
+      cup.position.set(-.75, 1.0 + up * 1.15 + Math.sin(t * 1.4) * .06, .1); cup.rotation.set(Math.sin(t) * .12, t * .4, Math.sin(t * .8) * .1);
+      swab.position.set(.15, 1.2 + up * 1.45 + Math.sin(t * 1.2 + 1) * .06, .05); swab.rotation.set(.2, 0, -.5 + Math.sin(t * .9) * .15);
+      tb.position.set(.95, 1.1 + up * 1.2 + Math.sin(t * 1.5 + 2) * .06, .2); tb.rotation.set(.1, t * .5, .35);
+      bag.position.set(1.65, 1.6 + Math.sin(t * .8) * .12, -.6); bag.rotation.set(0, -.6 + Math.sin(t * .5) * .2, .1);
+      cards.forEach((c, i) => { const a = t * .3 + i / cards.length * TAU; c.position.set(Math.cos(a) * 2.7, 2.7 - i * .62 + Math.sin(a) * .12, Math.sin(a) * 1.1 + .4); c.lookAt(cam.position); });
+      cam.position.set(Math.sin(t * .14) * 1.1, 3.2, 10.4); cam.lookAt(0, 1.25, 0); } };
+}
+function sceneLoyalty(){
+  const s = studio('#fff6e3', '#f2cd85', '#d2a768');
+  const face = ctex(1024, 640, (x, w, h) => { const g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#2f7bff'); g.addColorStop(.45, '#1257d6'); g.addColorStop(1, '#0b2350'); x.fillStyle = g; rr(x, 0, 0, w, h, 60); x.fill();
+    x.globalAlpha = .12; x.fillStyle = '#ffffff'; x.beginPath(); x.arc(w * .92, h * .05, 300, 0, TAU); x.fill(); x.globalAlpha = 1;
+    hexMark(x, 54, 46, 110, '#ffffff'); wordmark(x, 180, 104, 64, '#ffffff', '#7cc0ff'); x.font = '700 40px "IBM Plex Sans Arabic", Arial'; x.fillStyle = '#cfe0ff'; x.textAlign = 'right'; x.textBaseline = 'middle'; x.fillText('بطاقة الأختام', w - 60, 100); x.textAlign = 'left';
+    for (let i = 0; i < 5; i++) { const cx = 132 + i * 190, cy = 380; x.strokeStyle = i === 4 ? '#ffd166' : 'rgba(255,255,255,.55)'; x.lineWidth = 6; x.setLineDash(i === 4 ? [14, 10] : []); x.beginPath(); x.arc(cx, cy, 72, 0, TAU); x.stroke(); x.setLineDash([]); }
+    x.fillStyle = '#ffd166'; x.font = '800 34px Inter, Arial'; x.textAlign = 'center'; x.fillText('FREE', 132 + 4 * 190, 490); x.fillStyle = '#cfe0ff'; x.font = '600 32px Inter, Arial'; x.fillText('Every 5th home visit is free', w / 2, 570); x.textAlign = 'left'; });
+  const stampTex = ctex(256, 256, (x, w, h) => { x.fillStyle = '#ffffff'; x.beginPath(); x.arc(128, 128, 120, 0, TAU); x.fill(); hexMark(x, 48, 44, 160, '#1257d6'); });
+  const cardG = new THREE.Group(); s.add(cardG);
+  cardG.add(mesh(rbox(4.0, 2.5, .09, .24, .03), phys('#0b2350', { roughness: .3, clearcoat: 1, metalness: .2 })));
+  const front = new THREE.Mesh(new THREE.PlaneGeometry(3.94, 2.46), new THREE.MeshPhysicalMaterial({ map: face, roughness: .28, clearcoat: 1, clearcoatRoughness: .1 })); front.position.z = .047; cardG.add(front);
+  const stamps = []; for (let i = 0; i < 4; i++) { const st = new THREE.Mesh(new THREE.CircleGeometry(.27, 40), new THREE.MeshBasicMaterial({ map: stampTex, transparent: true, toneMapped: false })); st.position.set(-1.97 + (132 + i * 190) / 1024 * 3.94, 1.23 - 380 / 640 * 2.46, .05); cardG.add(st); stamps.push(st); }
+  const stamper = new THREE.Group(); s.add(stamper);
+  stamper.add(mesh(new THREE.CylinderGeometry(.34, .38, .22, 36), phys('#e2474f', { roughness: .35, clearcoat: .8 }), [0, .11, 0]));
+  stamper.add(mesh(new THREE.CylinderGeometry(.12, .16, .55, 24), phys('#f6f8fb', { roughness: .3 }), [0, .5, 0])); stamper.add(mesh(new THREE.SphereGeometry(.24, 28, 18), phys('#0b2350', { roughness: .3, clearcoat: 1 }), [0, .9, 0]));
+  const gift = new THREE.Group(); s.add(gift);
+  gift.add(mesh(rbox(1.0, .8, 1.0, .08, .03), phys('#0fae9b', { roughness: .35, clearcoat: .7 }), [0, .4, 0]));
+  const glid = mesh(rbox(1.12, .22, 1.12, .06, .03), phys('#0fae9b', { roughness: .35, clearcoat: .7 }), [0, .9, 0]); gift.add(glid);
+  const gold = phys('#ffd166', { roughness: .25, metalness: .6, clearcoat: 1 });
+  gift.add(mesh(new THREE.BoxGeometry(.16, .82, 1.02), gold, [0, .4, 0], false)); gift.add(mesh(new THREE.BoxGeometry(1.02, .82, .16), gold, [0, .4, 0], false));
+  const bow = new THREE.Group(); bow.position.y = 1.05; gift.add(bow); for (const r of [.5, -.5]) { const l = mesh(new THREE.TorusGeometry(.16, .05, 10, 24), gold); l.rotation.set(0, r * 2, .6 * Math.sign(r)); l.position.x = r * .28; bow.add(l); }
+  const sh = shadowDisc(.9, .35); sh.position.y = .01; gift.add(sh);
+  const sparks = []; for (let i = 0; i < 16; i++) { const sp = mesh(new THREE.OctahedronGeometry(.07 + rnd() * .07), phys(i % 2 ? '#ffd166' : '#ffffff', { emissive: i % 2 ? '#ffb703' : '#ffffff', emissiveIntensity: .9 }), [(rnd() - .5) * 6, .4 + rnd() * 3.2, (rnd() - .5) * 2.6], false); s.add(sp); sparks.push(sp); }
+  const cam = new THREE.PerspectiveCamera(30, 2, .1, 100);
+  return { s, cam, update(t){
+      cardG.position.set(.05, 1.7 + Math.sin(t * .8) * .06, 0); cardG.scale.setScalar(.8); cardG.rotation.set(-.32 + Math.sin(t * .5) * .04, .28 + Math.sin(t * .3) * .12, .04);
+      const c = (t % 3.2) / 3.2; const k = c < .4 ? eio(c / .4) : c < .55 ? 1 : 1 - eio((c - .55) / .45);
+      const target = new THREE.Vector3(); stamps[3].getWorldPosition(target); const n = new THREE.Vector3(0, 0, 1).applyQuaternion(cardG.quaternion);
+      stamper.position.copy(target).addScaledVector(n, .06 + (1 - k) * 1.1); stamper.quaternion.copy(cardG.quaternion); stamper.rotateX(Math.PI / 2);
+      const pressed = c > .4; stamps[3].scale.setScalar(pressed ? 1 : .001); stamps[3].material.opacity = pressed ? Math.min(1, (c - .4) * 12) : 0;
+      gift.position.set(1.75, 0, 1.0); gift.rotation.y = -.5 + Math.sin(t * .6) * .2; glid.position.y = .9 + Math.max(0, Math.sin(t * 2.2)) * .18; bow.position.y = 1.05 + Math.max(0, Math.sin(t * 2.2)) * .18;
+      sparks.forEach((sp, i) => { sp.rotation.y = t * 2 + i; sp.scale.setScalar(.5 + Math.abs(Math.sin(t * 2 + i)) * .9); });
+      cam.position.set(Math.sin(t * .13) * .8 + .4, 2.6, 9.6); cam.lookAt(.45, 1.35, 0); } };
+}
+function sceneDoctor(){
+  const s = studio('#eef0ff', '#b9c1f3', '#9aa3d8'); pedestal(s, '#7a5af8');
+  const call = ctex(1024, 640, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#dfe9ff'); g.addColorStop(1, '#b9cdf6'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+    x.fillStyle = '#c9d8f5'; x.fillRect(0, 430, w, 210);
+    x.fillStyle = '#ffffff'; x.beginPath(); x.moveTo(330, 640); x.quadraticCurveTo(340, 400, 512, 390); x.quadraticCurveTo(684, 400, 694, 640); x.fill();
+    x.fillStyle = '#7aa7ff'; x.beginPath(); x.moveTo(482, 398); x.lineTo(512, 470); x.lineTo(542, 398); x.fill();
+    x.fillStyle = '#e9b48f'; x.fillRect(486, 330, 52, 70); x.beginPath(); x.ellipse(512, 270, 82, 96, 0, 0, TAU); x.fill();
+    x.fillStyle = '#2a2523'; x.beginPath(); x.ellipse(512, 210, 86, 50, 0, Math.PI, TAU); x.fill(); x.fillRect(426, 205, 172, 26);
+    x.fillStyle = '#1d2433'; x.beginPath(); x.arc(482, 270, 9, 0, TAU); x.arc(542, 270, 9, 0, TAU); x.fill();
+    x.strokeStyle = '#8a3f33'; x.lineWidth = 7; x.lineCap = 'round'; x.beginPath(); x.moveTo(486, 312); x.quadraticCurveTo(512, 330, 538, 312); x.stroke();
+    x.strokeStyle = '#1f2633'; x.lineWidth = 9; x.beginPath(); x.moveTo(440, 430); x.quadraticCurveTo(430, 540, 500, 560); x.stroke(); x.fillStyle = '#c9d2de'; x.beginPath(); x.arc(505, 562, 18, 0, TAU); x.fill();
+    x.fillStyle = 'rgba(13,22,40,.55)'; rr(x, 30, 30, 330, 64, 32); x.fill(); x.fillStyle = '#22c55e'; x.beginPath(); x.arc(66, 62, 10, 0, TAU); x.fill(); x.fillStyle = '#fff'; x.font = '700 30px Inter, Arial'; x.textBaseline = 'middle'; x.fillText('Dr. Hilal · 04:12', 90, 63);
+    x.fillStyle = '#0d1628'; rr(x, w - 250, h - 190, 220, 160, 22); x.fill(); x.fillStyle = '#33507d'; x.beginPath(); x.ellipse(w - 140, h - 100, 40, 46, 0, 0, TAU); x.fill(); x.fillStyle = '#e9b48f'; x.beginPath(); x.ellipse(w - 140, h - 96, 22, 26, 0, 0, TAU); x.fill();
+    const btn = (cx, col) => { x.fillStyle = col; x.beginPath(); x.arc(cx, h - 70, 34, 0, TAU); x.fill(); }; btn(w / 2 - 90, '#334155'); btn(w / 2, '#e2474f'); btn(w / 2 + 90, '#334155'); });
+  const lap = new THREE.Group(); s.add(lap); const alu = phys('#d6dce6', { metalness: 1, roughness: .24 });
+  lap.add(mesh(rbox(3.6, .12, 2.4, .1, .03), alu, [0, .06, 0]));
+  lap.add(mesh(new THREE.PlaneGeometry(3.2, 1.4), std('#1f2633', { roughness: .6 }), [0, .125, -.25]).rotateX(-Math.PI / 2));
+  const hinge = new THREE.Group(); hinge.position.set(0, .12, -1.15); lap.add(hinge);
+  hinge.add(mesh(rbox(3.6, 2.3, .1, .12, .03), alu, [0, 1.15, 0])); hinge.add(mesh(rbox(3.46, 2.16, .11, .08, .02), phys('#0b0f17', { roughness: .1, clearcoat: 1 }), [0, 1.15, .005]));
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(3.3, 2.0), new THREE.MeshBasicMaterial({ map: call, toneMapped: false })); scr.position.set(0, 1.15, .063); hinge.add(scr); hinge.rotation.x = -.22;
+  const st = stethoscope(); st.position.set(-1.9, .02, 1.5); st.scale.setScalar(.75); s.add(st);
+  const pts = []; for (let i = 0; i <= 60; i++) { const u = i / 60; const k = u > .4 && u < .6 ? [0, .5, -.35, 1, -.6, .2, 0][Math.floor((u - .4) / .2 * 6)] : 0; pts.push(new THREE.Vector3(-2.2 + u * 4.4, 3.05 + k * .6, -1.8)); }
+  const line = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .05), 200, .04, 8), phys('#7a5af8', { emissive: '#7a5af8', emissiveIntensity: .5 })); s.add(line);
+  const cards = [chipTex('▶', 'Video or voice', 'Doctor or dentist', '#7a5af8', '#efeaff'), chipTex('✓', 'Free follow-up', 'When results need it', '#0fae9b', '#e3f7f4'), chipTex('…', 'Messages', 'Ask after the call', '#1257d6', '#eaf2ff')].map(tx => { const c = card(tx, 1.7, .53); s.add(c); return c; });
+  const cam = new THREE.PerspectiveCamera(30, 2, .1, 100);
+  return { s, cam, update(t){ lap.rotation.y = -.42 + Math.sin(t * .3) * .14; lap.position.y = .02;
+      line.material.emissiveIntensity = .35 + Math.max(0, Math.sin(t * 5)) * 1.1;
+      cards.forEach((c, i) => { const a = t * .28 + i / cards.length * TAU; c.position.set(Math.cos(a) * 2.9, 2.6 - i * .62 + Math.sin(a) * .12, Math.sin(a) * 1.0 + .8); c.lookAt(cam.position); });
+      cam.position.set(Math.sin(t * .12) * 1.2, 3.4, 10.2); cam.lookAt(0, 1.2, 0); } };
+}
+function sceneCompany(){
+  const s = studio('#eef7e9', '#b4d79c', '#94b77d');
+  const site = new THREE.Group(); s.add(site); site.position.set(-1.0, 0, -1.7); site.scale.setScalar(.85);
+  const wall = std('#f7f9fc', { roughness: .8 }); site.add(mesh(new THREE.BoxGeometry(3.4, 2.0, 1.8), wall, [0, 1.0, 0]));
+  site.add(mesh(new THREE.BoxGeometry(3.6, .14, 2.0), std('#1257d6', { roughness: .5 }), [0, 2.07, 0]));
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) site.add(mesh(new THREE.BoxGeometry(.5, .42, .06), phys('#2a4a7a', { roughness: .15, clearcoat: 1 }), [-1.2 + c * .8, .75 + r * .7, .91], false));
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.0, .42), new THREE.MeshBasicMaterial({ map: ctex(640, 136, (x, w, h) => { x.fillStyle = '#0b2350'; rr(x, 0, 0, w, h, 24); x.fill(); hexMark(x, 18, 14, 108, '#7cc0ff'); x.fillStyle = '#fff'; x.font = '800 46px Inter, Arial'; x.textBaseline = 'middle'; x.fillText('Site health day', 140, 70); }), toneMapped: false }));
+  sign.position.set(0, 2.45, .5); site.add(sign);
+  const board = new THREE.Group(); s.add(board);
+  board.add(mesh(rbox(1.9, 2.5, .08, .1, .02), std('#9a6b3f', { roughness: .7 })));
+  const paper = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 2.2), new THREE.MeshStandardMaterial({ roughness: .9, map: ctex(512, 660, (x, w, h) => { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.fillStyle = '#0d1628'; x.font = '800 40px Inter, Arial'; x.fillText('Workers · 12', 30, 64);
+    const rows = [['#0fae9b', 'Fit'], ['#0fae9b', 'Fit'], ['#f2a516', 'Follow-up'], ['#0fae9b', 'Fit'], ['#0fae9b', 'Fit'], ['#18b5d8', 'Retest']];
+    rows.forEach(([c, l], i) => { const y = 120 + i * 88; x.fillStyle = '#e6ecf5'; rr(x, 30, y, 250, 22, 11); x.fill(); x.fillStyle = c; rr(x, 300, y - 16, 180, 54, 27); x.globalAlpha = .16; x.fill(); x.globalAlpha = 1; x.font = '700 28px Inter, Arial'; x.textAlign = 'center'; x.fillText(l, 390, y + 20); x.textAlign = 'left'; }); }) }));
+  paper.position.z = .045; board.add(paper); board.add(mesh(rbox(.8, .22, .14, .06, .02), phys('#c9d2de', { metalness: 1, roughness: .25 }), [0, 1.22, .06]));
+  const people = []; const suit = ['#1e40af', '#0f766e', '#334155', '#1e40af', '#0f766e'];
+  for (let i = 0; i < 5; i++) { const p = new THREE.Group(); p.add(mesh(new THREE.CapsuleGeometry(.22, .5, 6, 16), phys(suit[i], { roughness: .55 }), [0, .5, 0])); p.add(mesh(new THREE.SphereGeometry(.2, 24, 16), phys('#c98d63', { roughness: .6 }), [0, 1.12, 0]));
+    p.add(mesh(new THREE.SphereGeometry(.205, 24, 12, 0, TAU, 0, Math.PI / 2.2), phys('#f2a516', { roughness: .4, clearcoat: .6 }), [0, 1.16, 0]));
+    const ok = i !== 2; const badge = new THREE.Mesh(new THREE.CircleGeometry(.2, 32), new THREE.MeshBasicMaterial({ map: ctex(128, 128, (x) => { x.fillStyle = ok ? '#0fae9b' : '#f2a516'; x.beginPath(); x.arc(64, 64, 60, 0, TAU); x.fill(); x.strokeStyle = '#fff'; x.lineWidth = 13; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath(); if (ok) { x.moveTo(36, 66); x.lineTo(56, 86); x.lineTo(92, 44); } else { x.moveTo(64, 30); x.lineTo(64, 72); x.moveTo(64, 96); x.lineTo(64, 97); } x.stroke(); }), transparent: true, toneMapped: false }));
+    badge.position.y = 1.7; p.add(badge); p.userData.badge = badge; const sh = shadowDisc(.4, .35); sh.position.y = .01; p.add(sh);
+    p.position.set(-1.25 + i * .56, 0, 1.3 - Math.abs(i - 2) * .12); s.add(p); people.push(p); }
+  const cam = new THREE.PerspectiveCamera(30, 2, .1, 100);
+  return { s, cam, update(t){
+      board.position.set(1.65, 1.5 + Math.sin(t * .9) * .06, .9); board.scale.setScalar(.88); board.rotation.set(-.08, -.5 + Math.sin(t * .4) * .1, .05);
+      people.forEach((p, i) => { const k = clamp((t % 6) / 6 * 5 - i * .6); p.userData.badge.scale.setScalar(.001 + eo(clamp(k * 3)) * (1 + Math.sin(t * 3 + i) * .04)); p.userData.badge.lookAt(cam.position); p.position.y = Math.abs(Math.sin(t * 2 + i)) * .03; });
+      site.rotation.y = .25 + Math.sin(t * .2) * .05;
+      cam.position.set(Math.sin(t * .12) * 1.3, 3.0, 10.6); cam.lookAt(.2, 1.15, 0); } };
+}
+
 /* ---------- renderer ---------- */
 async function fonts(){ try { await Promise.race([Promise.all(['800 100px Inter', '600 60px Inter', '600 60px "IBM Plex Sans Arabic"'].map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 1500))]); } catch(e) {} }
 function makeRenderer(canvas){
@@ -270,7 +401,7 @@ function makeRenderer(canvas){
   r.setPixelRatio(Math.min(window.devicePixelRatio || 1, innerWidth < 700 ? 1.6 : 1.5)); r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
   r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05; r.outputColorSpace = THREE.SRGBColorSpace; return r;
 }
-const BUILD = [sceneVan, sceneKit, scenePhone, sceneSeniors, sceneSoon];
+const BUILD = [sceneVan, sceneKit, scenePhone, sceneSeniors, sceneSoon, sceneSelfKit, sceneLoyalty, sceneDoctor, sceneCompany];
 async function ensure(canvas){
   if (R.canvas === canvas && R.r) return;
   if (R.r) { R.r.dispose(); R.r.forceContextLoss(); R.r = null; }
@@ -283,7 +414,8 @@ function scene(i){ if (!R.scenes[i]) { R.scenes[i] = BUILD[i](); R.scenes[i].s.e
 function size(){ const c = R.canvas; const w = c.clientWidth || 1, h = c.clientHeight || 1; if (c.width !== Math.round(w * R.r.getPixelRatio()) || c.height !== Math.round(h * R.r.getPixelRatio())) R.r.setSize(w, h, false); return [w, h]; }
 function frame(sc, w, h, shift){
   const a = w / h; sc.cam.aspect = a; sc.cam.fov = a < 1 ? 42 : a < 1.5 ? 34 : 30;
-  if (shift && a > 1.25) sc.cam.setViewOffset(w, h, -w * .2, 0, w, h); else if (shift && a <= 1.25) sc.cam.setViewOffset(w, h, 0, -h * .12, w, h); else sc.cam.clearViewOffset();
+  /* the text sits on the reading side: in Arabic (right-to-left) the scene moves to the left half, in English to the right half */
+  if (shift && a > 1.25) sc.cam.setViewOffset(w, h, (document.documentElement.dir === 'rtl' ? 1 : -1) * w * .2, 0, w, h); else if (shift && a <= 1.25) sc.cam.setViewOffset(w, h, 0, -h * .12, w, h); else sc.cam.clearViewOffset();
   sc.cam.updateProjectionMatrix();
 }
 let loopOn = false, last = 0, T0 = performance.now();

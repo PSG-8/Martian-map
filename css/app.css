@@ -911,8 +911,8 @@ input[type=range]{width:100%;accent-color:var(--blue);height:28px}
 @media (prefers-reduced-motion:reduce){.vs-van{animation:none;left:calc(100% - 230px)}.vs-van svg,.vs-road i,.vs-puff,.vs-sky .cloud{animation:none}.vs-msg{animation:none;opacity:1;transform:translate(-50%,0)}}
 .cs-cta{flex-wrap:wrap}.cs-cta .grow{min-width:200px}
 @media(max-width:600px){.cs-cta .btn{width:100%;justify-content:center}}
-/* v28: sections below the screen are not drawn until you scroll near them (faster first paint on phones) */
-.hm-sec,footer.site{content-visibility:auto;contain-intrinsic-size:auto 640px}
+/* v32: content-visibility:auto removed from home sections: with placeholder heights the scroll animations measured wrong
+   positions and some browsers left whole sections (Coming soon, What's new) blank on computers */
 /* v28: wide tables scroll inside their card instead of stretching the page (lab results form on phones) */
 .stack>*,.stack-lg>*{min-width:0}
 .scroll-x{max-width:100%;overflow-x:auto}
@@ -1066,3 +1066,97 @@ html.offline .app-top::after{content:"";position:absolute;inset:auto 0 0 0;heigh
 @media(min-width:900px){.dd-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}}
 @media(max-width:600px){.dd-cta{flex-direction:column;align-items:stretch}.dd-cta .row{width:100%}.dd-cta .row .btn{flex:1}}
 @media print{[data-fxd]{opacity:1!important;transform:none!important}}
+/* v32: pulsing dots use a ring that only scales and fades (done by the graphics card) instead of animating box-shadow, which repainted every frame */
+.live i,.pulse,.tl li.now .dotc,.tl2 li.now .dotc{animation:none;position:relative}
+.live i::after,.pulse::after,.tl li.now .dotc::after{content:'';position:absolute;inset:0;border-radius:50%;opacity:0;animation:ring 1.7s ease-out infinite;pointer-events:none}
+.live i::after{background:#10b981}.pulse::after{background:#f2a516}.tl li.now .dotc::after{background:#1257d6;z-index:-1}
+@keyframes ring{0%{transform:scale(1);opacity:.45}80%,100%{transform:scale(2.3);opacity:0}}
+@media (prefers-reduced-motion: reduce){.live i::after,.pulse::after,.tl li.now .dotc::after{animation:none}}
+/* v32: Noor, the home-screen nurse guide (js/mascot.js) */
+#nurse{position:fixed;z-index:57;inset-inline-start:14px;bottom:14px;width:96px;transform:translateX(150%);transition:transform 1.4s cubic-bezier(.25,.8,.3,1);-webkit-tap-highlight-color:transparent;outline:none}
+#nurse:not(.rtl){transform:translateX(-150%)}
+#nurse.in{transform:none}
+#nurse.out{transition-duration:1.3s;transition-timing-function:ease-in}
+#nurse .ns-body{cursor:pointer;transform:perspective(420px) rotateY(calc(var(--hx,0) * 16deg)) rotateX(calc(var(--hy,0) * -6deg));transition:transform .35s ease;filter:drop-shadow(0 10px 14px rgba(11,35,80,.18))}
+#nurse .ns-svg{display:block;width:100%;height:auto;overflow:visible}
+#nurse .ns-head{transform-box:fill-box;transform-origin:50% 92%;transform:translate(calc(var(--hx,0) * 2.5px),calc(var(--hy,0) * 1.5px)) rotate(calc(var(--hx,0) * 8deg));transition:transform .3s ease}
+#nurse .ns-ll,#nurse .ns-lr,#nurse .ns-ar,#nurse .ns-al{transform-box:fill-box;transform-origin:50% 4%}
+#nurse .ns-eyes{transform-box:fill-box;transform-origin:50% 50%;transition:transform .07s}
+#nurse.blink .ns-eyes{transform:scaleY(.12)}
+#nurse.walk .ns-ll{animation:nsStep .34s ease-in-out infinite alternate}
+#nurse.walk .ns-lr{animation:nsStep .34s ease-in-out infinite alternate-reverse}
+#nurse.walk .ns-fig{animation:nsBob .34s ease-in-out infinite alternate}
+#nurse.walk .ns-al{animation:nsSwing .34s ease-in-out infinite alternate}
+#nurse.wave .ns-ar{animation:nsWave 1.6s ease-in-out}
+#nurse.jump .ns-svg{animation:nsJump .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes nsStep{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}
+@keyframes nsSwing{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
+@keyframes nsBob{from{transform:translateY(0)}to{transform:translateY(-3px)}}
+@keyframes nsWave{0%{transform:rotate(0)}18%{transform:rotate(-160deg)}32%{transform:rotate(-128deg)}46%{transform:rotate(-162deg)}60%{transform:rotate(-128deg)}76%{transform:rotate(-155deg)}100%{transform:rotate(0)}}
+@keyframes nsJump{0%{transform:translateY(0) scale(1,1)}25%{transform:translateY(0) scale(1.06,.92)}55%{transform:translateY(-18px) scale(.96,1.05)}100%{transform:translateY(0) scale(1,1)}}
+#nurse .ns-bub{position:absolute;bottom:calc(100% + 6px);inset-inline-start:0;width:min(272px,calc(100vw - 28px));background:#fff;color:var(--ink,#0d1628);border-radius:18px;padding:12px 14px 12px;box-shadow:0 18px 50px rgba(11,35,80,.22);font-size:.9rem;line-height:1.55;opacity:0;transform:translateY(8px) scale(.96);transform-origin:bottom;pointer-events:none;transition:opacity .2s,transform .25s cubic-bezier(.2,.9,.3,1.3)}
+#nurse .ns-bub::after{content:'';position:absolute;top:100%;inset-inline-start:34px;border:8px solid transparent;border-top-color:#fff}
+#nurse .ns-bub.on{opacity:1;transform:none;pointer-events:auto}
+#nurse .ns-x{position:absolute;top:4px;inset-inline-end:6px;border:0;background:none;font-size:1.25rem;line-height:1;color:#8a97b0;cursor:pointer;padding:4px 6px}
+#nurse .ns-t{padding-inline-end:16px}
+#nurse .ns-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+#nurse .ns-chips a,#nurse .ns-chips button{border:0;border-radius:999px;padding:6px 11px;font:inherit;font-size:.8rem;font-weight:700;background:#eaf2ff;color:#1257d6;cursor:pointer;text-decoration:none}
+#nurse .ns-chips a:first-child{background:#1257d6;color:#fff}
+@media (min-width:900px){#nurse{width:108px;inset-inline-start:22px;bottom:20px}}
+@media (prefers-reduced-motion: reduce){#nurse,#nurse *{transition:none!important;animation:none!important}}
+@media print{#nurse{display:none!important}}
+/* v32 home: order journey */
+.jr-road{max-width:1000px;margin:6px auto 0}
+.jr-svg{width:100%;height:auto;display:block;overflow:visible}
+.jr-pin circle{transition:stroke .3s,fill .3s}.jr-pin.on circle{stroke:#0fae9b;fill:#e3f7f4}
+.jr-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;max-width:1000px;margin:8px auto 0}
+.jr-st{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:14px 10px;border-radius:18px;background:#fff;box-shadow:0 1px 0 var(--line,#e6ecf5),0 8px 24px rgba(11,35,80,.05);transition:transform .35s,box-shadow .35s}
+.jr-st .qi{color:var(--blue,#1257d6);background:#eaf2ff;transition:background .35s,color .35s,transform .35s}
+.jr-st.on{box-shadow:0 0 0 2px rgba(15,174,155,.35),0 10px 26px rgba(15,174,155,.12)}
+.jr-st.on .qi{background:#0fae9b;color:#fff;transform:scale(1.08)}
+@media(max-width:760px){.jr-steps{grid-template-columns:1fr 1fr}.jr-st:last-child{grid-column:1/-1}}
+/* v32 home: new-feature cards with small drawings that move once */
+.ft-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:900px){.ft-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.ft-grid{gap:10px}.ft-card{padding:12px}.ft-card .small{font-size:.78rem}}
+.ft-card{display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:22px;background:#fff;color:inherit;text-decoration:none;box-shadow:0 1px 0 var(--line,#e6ecf5),0 10px 28px rgba(11,35,80,.06);transition:transform .25s,box-shadow .25s}
+.ft-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(11,35,80,.12)}
+.ft-art{display:block;border-radius:16px;padding:6px 10px;margin-bottom:6px}
+.ft-art svg{display:block;width:100%;height:auto;max-height:110px;overflow:visible}
+.ft-art svg *{transform-box:fill-box}
+.ft-card.in .fa-lid,.ft-card:hover .fa-lid{animation:faLid 1.6s ease both;transform-origin:0% 100%}
+.ft-card.in .fa-rise,.ft-card:hover .fa-rise{animation:faRise 1.6s ease both}
+.ft-card.in .fa-st,.ft-card:hover .fa-st{animation:faStamp .5s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--i) * .2s + .2s);transform-origin:50% 50%}
+.ft-card.in .fa-b1,.ft-card:hover .fa-b1{animation:faPop .5s cubic-bezier(.3,1.6,.5,1) .3s both;transform-origin:20% 100%}
+.ft-card.in .fa-b2,.ft-card:hover .fa-b2{animation:faPop .5s cubic-bezier(.3,1.6,.5,1) .9s both;transform-origin:20% 0%}
+.ft-card.in .fa-ck,.ft-card:hover .fa-ck{animation:faPop .45s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--i) * .25s + .2s);transform-origin:50% 50%}
+.ft-card.in .fa-sh,.ft-card:hover .fa-sh{animation:faLock 1.2s ease both}
+.ft-card.in .fa-liq,.ft-card:hover .fa-liq{animation:faLiq 1.6s ease both;transform-origin:50% 100%}
+.ft-card.in .fa-snow,.ft-card:hover .fa-snow{animation:faSpin 1.8s ease both;transform-origin:50% 50%}
+@keyframes faLid{0%{transform:none}30%,70%{transform:rotate(-24deg) translateY(-4px)}100%{transform:none}}
+@keyframes faRise{0%{transform:translateY(16px)}35%,70%{transform:translateY(-6px)}100%{transform:none}}
+@keyframes faStamp{0%{transform:scale(2.2) rotate(-25deg);opacity:0}100%{transform:none;opacity:1}}
+@keyframes faPop{0%{transform:scale(0);opacity:0}100%{transform:none;opacity:1}}
+@keyframes faLock{0%{transform:translateY(-7px)}60%{transform:translateY(1px)}100%{transform:none}}
+@keyframes faLiq{0%{transform:scaleY(.15)}100%{transform:none}}
+@keyframes faSpin{0%{transform:rotate(-120deg) scale(.6)}100%{transform:none}}
+/* v32 home: questions */
+.faq{display:grid;gap:10px;max-width:860px;margin:0 auto}
+.fq{background:#fff;border-radius:18px;box-shadow:0 1px 0 var(--line,#e6ecf5),0 8px 22px rgba(11,35,80,.05);overflow:hidden}
+.fq summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;cursor:pointer}
+.fq summary::-webkit-details-marker{display:none}
+.fq-i{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#eaf2ff;color:var(--blue,#1257d6);font-weight:800;transition:transform .25s}
+.fq[open] .fq-i{transform:rotate(45deg)}
+.fq p{margin:0;padding:0 18px 16px;color:#3b4a66;line-height:1.7}
+/* v32 home: closing call */
+.cta-band{display:grid;grid-template-columns:1.2fr 1fr;align-items:center;gap:20px;padding:30px 34px;border-radius:28px;color:#fff;background:radial-gradient(120% 140% at 100% 0%,#2f7bff 0%,#1257d6 40%,#0b2350 100%);overflow:hidden;position:relative}
+.cta-band h2{margin:0 0 6px;font-size:1.8rem}.cta-band p{margin:0 0 16px;opacity:.85}
+.btn.white{background:#fff;color:#1257d6}.btn.ghost-w{background:rgba(255,255,255,.12);color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)}
+.cta-art svg{width:100%;height:auto;display:block}
+.cta-band.in .cta-van{animation:ctaVan 2.4s cubic-bezier(.2,.8,.3,1) both}
+.cta-band.in .cta-house{animation:faPop .6s cubic-bezier(.3,1.6,.5,1) both;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes ctaVan{0%{transform:translateX(-160px)}80%{transform:translateX(6px)}100%{transform:none}}
+[dir=rtl] .cta-art{transform:scaleX(-1)}
+@media(max-width:760px){.cta-band{grid-template-columns:1fr;padding:24px 20px;text-align:center}.cta-band .row{justify-content:center}.cta-art{max-width:300px;margin:0 auto}}
+@media (prefers-reduced-motion: reduce){.ft-card *,.cta-band *{animation:none!important}}
+@media(max-width:899px){#nurse{width:78px}#nurse .ns-bub{font-size:.84rem;padding:10px 12px;width:min(250px,calc(100vw - 110px))}#nurse .ns-chips{margin-top:8px;gap:5px}#nurse .ns-chips a,#nurse .ns-chips button{padding:5px 9px;font-size:.76rem}}

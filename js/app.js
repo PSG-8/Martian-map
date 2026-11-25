@@ -29,8 +29,15 @@ function muscatNow(){ const p = new Intl.DateTimeFormat('en-CA',{ timeZone:'Asia
 function addDays(iso, n){ const d = new Date(iso+'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); }
 function age(dob){ if (!dob) return ''; const d = new Date(dob); const n = new Date(); let a = n.getFullYear() - d.getFullYear(); if (n < new Date(n.getFullYear(), d.getMonth(), d.getDate())) a--; return a; }
 function initials(n){ return String(n||'?').replace(/[()]/g,'').trim().split(/\s+/).filter(Boolean).slice(0,2).map(x => x[0]).join('').toUpperCase() || '?'; }
-function toast(msg, bad){ const el = $('#toast'); el.textContent = msg; el.className = 'show' + (bad ? ' bad' : ''); clearTimeout(el._t); el._t = setTimeout(() => el.className = '', 3200); }
-function errMsg(e){ const c = e && e.code ? e.code : 'GENERIC'; const k = 'e_' + c; return (I18N[S.lang][k] || I18N.en[k]) ? t(k) : t('e_GENERIC'); }
+function toast(msg, bad){ if (!msg) return; const el = $('#toast'); el.textContent = msg; el.className = 'show' + (bad ? ' bad' : ''); clearTimeout(el._t); el._t = setTimeout(() => el.className = '', 3200); }
+function errMsg(e){ const c = e && e.code ? e.code : 'GENERIC'; if (c === 'ABORTED') return ''; const k = 'e_' + c; return (I18N[S.lang][k] || I18N.en[k]) ? t(k) : t('e_GENERIC'); }
+/* v32: copy that always answers within a moment (some browsers never settle the clipboard promise) */
+function copyText(txt, okKey){
+  const old = () => { try { const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;opacity:0'; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.parentNode.removeChild(ta); return ok; } catch(e) { return false; } };
+  const done = ok => toast(ok ? t(okKey || 'copied') : txt);
+  if (!navigator.clipboard || !window.isSecureContext) return done(old());
+  Promise.race([navigator.clipboard.writeText(txt).then(() => true), new Promise(r => setTimeout(() => r(null), 1200))]).then(ok => done(ok === true ? true : old())).catch(() => done(old()));
+}
 function go(h){ if (location.hash === '#/' + h) render(); else location.hash = '#/' + h; }
 function saveCart(){ localStorage.setItem('lah_cart', JSON.stringify(S.cart)); }
 function clearTimers(){ S.timers.forEach(x => clearInterval(x)); S.timers = []; }
@@ -123,7 +130,7 @@ function catalogBlock(cat, limit){
 function bindCatalog(root, rerender){
   $$('[data-cat]', root).forEach(b => b.onclick = () => rerender(b.dataset.cat));
   $$('[data-add]', root).forEach(b => b.onclick = () => { const [ty, id] = b.dataset.add.split(':'); const k = ty === 'package' ? 'packages' : 'tests'; const was = S.cart[k].includes(id);
-    const rect = b.getBoundingClientRect(); toggleCart(ty, id); rerender(); refreshCartBadges(); if (!was) { toastCart(); if (window.FX) FX.flyToCart(rect); } });
+    const rect = b.getBoundingClientRect(); toggleCart(ty, id); rerender(); refreshCartBadges(); if (!was) { toastCart(); if (window.FX) FX.flyToCart(rect); if (window.LAHMascot) LAHMascot.cheer(); } });
 }
 function cartBar(){
   const n = cartCount(); if (!n || !S.catalog) return '';
@@ -188,7 +195,7 @@ function needL(){ if (window.L || LREQ) return; LREQ = true;
   const j = document.createElement('script'); j.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; j.crossOrigin = ''; j.async = true; j.onerror = () => { LREQ = false; }; document.head.appendChild(j); }
 function covMap(){
   const el = $('#cov-map'); if (!el) return;
-  const draw = () => { if (!(needL(), window.L) || !S.catalog) return setTimeout(draw, 200);
+  const draw = () => { if (!document.body.contains(el)) return; if (!(needL(), window.L) || !S.catalog) return setTimeout(draw, 200);
     const touch = matchMedia('(pointer:coarse)').matches; const m = L.map(el, { scrollWheelZoom:false, attributionControl:true, dragging:!touch, touchZoom:!touch, doubleClickZoom:!touch, tap:false }).setView([22.72, 58.55], 9);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:18, attribution:'© OpenStreetMap' }).addTo(m);
     S.catalog.wilayats.forEach(w => { const ll = WILAYAT_LL[w]; if (!ll) return;
@@ -695,9 +702,9 @@ function drawOrder(o){
   const rs = $('.ride'); if (rs) { placeVan(rs, pct / 100); if (window.FX && !o._rode) { o._rode = 1; placeVan(rs, 0); const go = () => window.gsap ? FX.ride(rs, pct / 100) : placeVan(rs, pct / 100); setTimeout(go, FX.ready ? 60 : 900); } }
   $$('[data-party]').forEach(b => b.onclick = () => partyModal(b.dataset.party, o));
   if ($('[data-ics]')) $('[data-ics]').onclick = () => { icsDownload(o); toast(t('cal_ok')); };
-  if ($('[data-copy]')) $('[data-copy]').onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(o.code) : Promise.reject()).then(() => toast(t('copied'))).catch(() => toast(o.code)); };
+  if ($('[data-copy]')) $('[data-copy]').onclick = () => copyText(o.code);
   if ($('[data-again]')) $('[data-again]').onclick = async () => { await loadCatalog(); const ids = (o.tests || []).map(x => x.id).filter(id => S.catalog.T[id]); S.cart = { packages: [], tests: ids }; saveCart(); toast(t('again_ok')); go('app/cart'); };
-  if ($('#omap')) { const draw = () => { if (!(needL(), window.L)) return setTimeout(draw, 200); const touch = matchMedia('(pointer:coarse)').matches; const m = L.map('omap', { scrollWheelZoom:false, dragging:!touch, tap:false }).setView([o.lat, o.lng], o.address ? 15 : 12); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(m); if (o.address) L.marker([o.lat, o.lng]).addTo(m); else L.circle([o.lat, o.lng], { radius:1500, color:'#2563eb' }).addTo(m); }; draw(); }
+  if ($('#omap')) { const draw = () => { if (!document.getElementById('omap')) return; if (!(needL(), window.L)) return setTimeout(draw, 200); const touch = matchMedia('(pointer:coarse)').matches; const m = L.map('omap', { scrollWheelZoom:false, dragging:!touch, tap:false }).setView([o.lat, o.lng], o.address ? 15 : 12); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(m); if (o.address) L.marker([o.lat, o.lng]).addTo(m); else L.circle([o.lat, o.lng], { radius:1500, color:'#2563eb' }).addTo(m); }; draw(); }
 }
 
 function rateBox(o){
@@ -889,7 +896,7 @@ function shareModal(o){
     <div id="shout"></div><div class="err" id="she"></div><button class="btn block" id="shmk">${ic('share',18)} ${t('share_make')}</button>`, (el, close) => {
     $('#shmk', el).onclick = async () => { try { const r = await busy($('#shmk', el), () => API.shareCreate(o.id, +$('#shh', el).value)); const url = location.origin + location.pathname + '#/r/' + r.token;
       $('#shout', el).innerHTML = `<div class="sharebox"><input class="input ltr" readonly value="${esc(url)}"><div class="xs muted">${t('share_until',{d:fmtDT(r.expires_at)})}</div><div class="row wrap" style="gap:8px;margin-top:10px"><button class="btn sm" id="shc">${ic('copy',16)} ${t('share_copy')}</button><a class="btn sm soft" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(url)}">WhatsApp</a>${navigator.share ? `<button class="btn sm ghost" id="shn">${ic('share',16)}</button>` : ''}</div></div>`;
-      $('#shmk', el).remove(); $('#shc', el).onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => toast(t('share_copied'))).catch(() => toast(url)); };
+      $('#shmk', el).remove(); $('#shc', el).onclick = () => copyText(url, 'share_copied');
       if ($('#shn', el)) $('#shn', el).onclick = () => navigator.share({ title: 'iLab@home ' + o.code, url }).catch(() => {}); } catch(e) { $('#she', el).textContent = errMsg(e); } }; });
 }
 /* read-only report opened from a doctor link (no account needed) */
@@ -1217,7 +1224,7 @@ function menuItems(){
   return grp(t('mg_services'), sv) + grp(t('mg_account'), ac) + grp('iLab@home', co) + foot;
 }
 
-function openMenu(){
+function openMenu(from){
   const root = $('#modal-root'); if ($('.dd-bg', root)) { $('.dd-bg', root)._close(); return; }
   const bg = document.createElement('div'); bg.className = 'dd-bg';
   const u = S.user;
@@ -1226,9 +1233,10 @@ function openMenu(){
     ${u ? `<div class="me-card"><span class="avatar">${esc(initials(u.full_name))}</span><div class="grow"><b>${esc(u.full_name)}</b><div class="xs muted">${t('r_'+u.role)}</div></div></div>` : `<div class="me-card dd-cta"><div class="grow"><b>${t('hero_t1')}</b><div class="small muted">${t('hero_t2')}</div></div><div class="row"><a class="btn sm" href="#/register">${t('signup')}</a><a class="btn sm ghost" href="#/login">${t('login')}</a></div></div>`}
     <nav class="menu dd-grid">${menuItems()}</nav></div>`;
   root.appendChild(bg);
-  const dd = $('.dd', bg); const btn = document.activeElement && document.activeElement.closest ? document.activeElement.closest('[data-menu]') : null;
-  /* desktop: open under the button that was pressed */
-  if (innerWidth >= 900 && btn) { const r = btn.getBoundingClientRect(); dd.style.top = Math.round(r.bottom + 10) + 'px'; if (S.lang === 'ar') dd.style.left = Math.max(12, Math.round(r.left)) + 'px'; else dd.style.right = Math.max(12, Math.round(innerWidth - r.right)) + 'px'; }
+  const dd = $('.dd', bg); const btn = from || $('.topbar [data-menu]') || $('[data-menu]');
+  /* desktop: open next to the button that was pressed, always fully inside the window
+     (v32: the side bar's "More" sits at the bottom of the screen, so the menu opens beside the side bar and upwards) */
+  if (innerWidth >= 900 && btn) placeMenu(dd, btn);
   requestAnimationFrame(() => { bg.classList.add('open'); if (window.FX && FX.ready && window.gsap && !matchMedia('(prefers-reduced-motion: reduce)').matches) gsap.from($$('.mi', dd), { y: 10, opacity: 0, duration: .35, stagger: .018, ease: 'power2.out', clearProps: 'all' }); });
   document.body.classList.add('lock');
   const close = () => { bg.classList.remove('open'); setTimeout(() => { bg.remove(); if (!$('#modal-root .modal-bg') && !$('.dd-bg.open')) document.body.classList.remove('lock'); }, 220); };
@@ -1238,6 +1246,39 @@ function openMenu(){
   $$('[data-lang]', bg).forEach(b => b.onclick = () => { close(); setLang(S.lang === 'ar' ? 'en' : 'ar'); render(); });
   $$('[data-logout]', bg).forEach(b => b.onclick = () => { close(); doLogout(); });
   const f = $('.mi', dd); if (f && innerWidth >= 900) f.focus({ preventScroll: true });
+}
+
+function placeMenu(dd, btn){
+  const r = btn.getBoundingClientRect(), W = innerWidth, H = innerHeight, m = 12;
+  dd.style.maxHeight = (H - m * 2) + 'px';
+  const w = Math.min(dd.offsetWidth || 720, W - m * 2), h = Math.min(dd.offsetHeight || 500, H - m * 2);
+  const side = btn.closest('.side-nav');
+  let x, y;
+  if (side) { const s = side.getBoundingClientRect(); x = s.left > W / 2 ? s.left - m - w : s.right + m; y = r.bottom - h; }
+  else { x = S.lang === 'ar' ? r.left : r.right - w; y = r.bottom + 10; if (y + h > H - m) y = r.top - 10 - h; }
+  x = Math.max(m, Math.min(x, W - m - w)); y = Math.max(m, Math.min(y, H - m - h));
+  dd.style.left = Math.round(x) + 'px'; dd.style.right = 'auto'; dd.style.top = Math.round(y) + 'px';
+}
+
+/* v32: the hologram logo's SVG animations cost about 15% of the main thread for as long as they run (measured), which made weak phones stutter.
+   They now play for a few seconds after each screen and on hover, then rest. */
+let HOLO_T = 0;
+function holoSet(on){ document.querySelectorAll('svg.holo-mark').forEach(sv => { try { on ? sv.unpauseAnimations() : sv.pauseAnimations(); } catch(e) {} }); }
+function holoWake(){ HOLO_T = Date.now(); if (!document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches) holoSet(true); }
+function holoCalm(){
+  setInterval(() => { if (Date.now() - HOLO_T > 6500) holoSet(false); }, 1500);
+  document.addEventListener('visibilitychange', () => document.hidden ? holoSet(false) : holoWake());
+  document.addEventListener('pointerover', e => { if (e.target.closest && e.target.closest('.brand, .holo, .dd-head')) holoWake(); }, { passive: true });
+}
+
+/* v32: Noor the nurse guide, only on the home screens; her script loads when the browser is idle */
+let MASCOT_P = null;
+function mascotSync(){
+  const h = location.hash.split('?')[0]; const home = h === '' || h === '#/' || h === '#' || (h === '#/app' && S.user && S.user.role === 'patient');
+  if (!home) { if (window.LAHMascot) LAHMascot.hide(); return; }
+  if (!MASCOT_P) MASCOT_P = new Promise((res, rej) => { (window.requestIdleCallback || (f => setTimeout(f, 900)))(() => { const sc = document.createElement('script'); sc.src = 'js/mascot.js?v=' + APP_V; sc.async = true; sc.onload = res; sc.onerror = () => { MASCOT_P = null; rej(); }; document.head.appendChild(sc); }, { timeout: 2500 }); });
+  MASCOT_P.then(() => { const now = location.hash.split('?')[0]; if (now !== h && !(h === '' && now === '#/')) return; const u = !!S.user;
+    LAHMascot.show({ lang: S.lang, user: S.user, links: { book: u ? 'app/tests' : 'tests', kit: u ? 'app/tests?c=selfkit' : 'tests?c=selfkit', doc: u ? 'app/consult' : 'consult', cart: u ? 'app/cart' : 'register' } }); }).catch(() => {});
 }
 
 function viewStart(){
@@ -1396,7 +1437,7 @@ function botMount(){
   botHead();
 }
 function botPos(){
-  const f = $('#bot .bot-fab'); if (!f) return; const sz = f.offsetWidth || 60, m = 14;
+  const f = $('#bot .bot-fab'); if (!f) return; const sz = innerWidth <= 700 ? 52 : 60, m = 14; /* size from the CSS: reading offsetWidth forced a full page layout on every screen */
   let p = null; try { p = JSON.parse(localStorage.getItem('lah_bot_pos') || 'null'); } catch(e) {}
   const bottomGap = (S.user && innerWidth <= 900 ? 84 : 20);
   const side = p ? p.side : (document.documentElement.dir === 'rtl' ? 'l' : 'r');
@@ -1418,6 +1459,8 @@ function botDrag(){
     try { localStorage.setItem('lah_bot_pos', JSON.stringify({ side, y: r.top / innerHeight })); } catch(x) {}
     f.classList.add('snap'); botPos(); setTimeout(() => f.classList.remove('snap'), 260); };
   f.addEventListener('pointerup', end); f.addEventListener('pointercancel', end);
+  /* keyboard (Enter / Space) gives a click with no pointer: open the chat too */
+  f.addEventListener('click', e => { if (e.detail === 0) botToggle(); });
   f.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); botToggle(); } });
   addEventListener('resize', botPos); botPos();
 }
@@ -1628,7 +1671,9 @@ function bindGlobal(){
   $$('[data-lang]').forEach(b => b.onclick = () => { setLang(S.lang === 'ar' ? 'en' : 'ar'); render(); if (S.user && localStorage.getItem('lah_push') === '1') pushEnable(true).catch(() => {}); });
   $$('[data-logout]').forEach(b => b.onclick = doLogout);
   $$('[data-goback]').forEach(b => b.onclick = () => history.length > 1 ? history.back() : go('app'));
-  $$('[data-menu]').forEach(b => b.onclick = e => { e.preventDefault(); openMenu(); });
+  $$('[data-menu]').forEach(b => b.onclick = e => { e.preventDefault(); openMenu(b); });
+  /* v32: "Talk to a doctor" under a report / finished order (it had no handler before) */
+  $$('[data-cspost]').forEach(b => b.onclick = e => { e.preventDefault(); csGoBook('post', b.dataset.cspost); });
   bindGo();
 }
 let rendering = false, rerender = false, lastRoute = null;
@@ -1636,7 +1681,7 @@ function saveUser(){ try { if (S.user) localStorage.setItem('lah_user', JSON.str
 /* thin progress line at the top: shows at once that a tap was received while the next screen loads */
 function navBar(on){ let b = document.getElementById('navbar'); if (!b) { b = document.createElement('div'); b.id = 'navbar'; document.body.appendChild(b); } clearTimeout(b._t); if (on) { b._t = setTimeout(() => b.classList.add('on'), 120); } else { b.classList.remove('on'); } }
 async function render(){
-  if (rendering) { rerender = true; navBar(true); return; }
+  if (rendering) { rerender = true; navBar(true); if (API.abortReads) API.abortReads(); return; }
   rendering = true; rerender = false; navBar(true);
   try { await renderNow(); } finally { rendering = false; }
   if (rerender) render(); else navBar(false);
@@ -1700,7 +1745,7 @@ async function renderNow(){
     app.innerHTML = (S.user ? shell('', '') : topbar());
     const c = $('.content') || app; c.insertAdjacentHTML('beforeend', `<div class="card empty" style="margin:20px">${A.emptyArt}<p>${errMsg(e)}</p><button class="btn" onclick="location.reload()">${t('retry')}</button></div>`);
   }
-  bindGlobal(); botMount(); bindPush(); bindMail();
+  bindGlobal(); botMount(); bindPush(); bindMail(); holoWake(); mascotSync();
   if (window.FX) FX.scan(app);
   if (window.LAH_OFFLINE) toast(t('offline_t'));
   if (!location.hash.includes('#', 1)) window.scrollTo(0, 0); else { const el = document.getElementById(location.hash.split('#')[2]); if (el) setTimeout(() => el.scrollIntoView({ behavior:'smooth', block:'start' }), 120); }
@@ -1774,14 +1819,14 @@ async function viewInstall(){
   </section>${S.user ? '' : '</main>' + footer()}`;
   if (S.user && $('.content')) { const sec = $('.ins'); $('.content').appendChild(sec); }
   $$('[data-os]').forEach(b => b.onclick = () => { $$('[data-os]').forEach(x => x.classList.toggle('on', x === b)); $('#isteps').innerHTML = installSteps(b.dataset.os); });
-  $$('[data-copy-url]').forEach(b => b.onclick = async () => { try { await navigator.clipboard.writeText(url); toast(t('copied')); } catch(e) { prompt('', url); } });
+  $$('[data-copy-url]').forEach(b => b.onclick = () => copyText(url));
   $$('[data-share-url]').forEach(b => b.onclick = () => navigator.share({ title: 'iLab@home', text: t('ins_share_txt'), url }).catch(() => {}));
   if ($('#instNow')) $('#instNow').onclick = async () => { const ev = S.installEvt; if (!ev) return; ev.prompt(); const r = await ev.userChoice.catch(() => ({})); S.installEvt = null; if (r.outcome === 'accepted') { toast(t('ins_ok_toast')); setTimeout(render, 600); } };
 }
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 31;
+const APP_V = 32;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -2066,19 +2111,36 @@ Object.assign(I18N.ar, {
   qt_book:'احجز فحص', qt_pk:'الباقات', qt_kids:'الأطفال', qt_seniors:'كبار السن', qt_bp:'الضغط والسكر', qt_vit:'الفيتامينات', qt_results:'نتائجي', qt_help:'المساعدة',
   hm_trust_t:'رعاية موثوقة، قريبة من بيتك', hm_app_t:'آي لاب@هوم على جوالك', hm_app_p:'ثبّت البرنامج في 10 ثواني، ويتحدث تلقائياً.', prev:'السابق', next_s:'التالي', skip_intro:'تخطي'
 });
+Object.assign(I18N.en, {
+  h3_e6:'Self-collection kits', h3_t6:'Take your sample yourself, at home', h3_p6:'Urine, stool and swab kits come to your door for {f} OMR. You collect in private, a courier brings it to the lab.', h3_c6:'Order a kit',
+  h3_e7:'Loyalty card', h3_t7:'Every 5th home visit is on us', h3_p7:'A stamp for every order, 1.000 OMR off when you invite a friend, and offers like WELCOME10 on your first order.', h3_c7:'My stamp card',
+  h3_e8:'Doctor online', h3_t8:'Talk your results through with a doctor', h3_p8:'Video or voice call with a licensed doctor or dentist. Free when your results need attention.', h3_c8:'Talk to a doctor',
+  h3_e9:'Companies & workers', h3_t9:'Health checks for your workers, on site', h3_p9:'Send your workers list. Our team visits your site and you see fit, follow-up or retest for each person, nothing more.', h3_c9:'For companies',
+  h3_p5:'Vaccinations, drips, home ECG and DNA tests are on the way.' });
+Object.assign(I18N.ar, {
+  h3_e6:'عُدد السحب الذاتي', h3_t6:'خذ عينتك بنفسك وأنت في بيتك', h3_p6:'عُدد البول والبراز والمسحة توصلك لين الباب بـ {f} ر.ع. تاخذ العينة بخصوصية، والمندوب يوصلها للمختبر.', h3_c6:'اطلب عُدّة',
+  h3_e7:'بطاقة الولاء', h3_t7:'كل زيارة خامسة علينا', h3_p7:'ختم مع كل طلب، وخصم 1.000 ر.ع لما تدعو صديق، وعروض مثل WELCOME10 لأول طلب.', h3_c7:'بطاقة أختامي',
+  h3_e8:'طبيب أونلاين', h3_t8:'ناقش نتائجك مع طبيب', h3_p8:'مكالمة فيديو أو صوت مع طبيب أو طبيب أسنان مرخّص، ومجاناً إذا نتائجك تحتاج متابعة.', h3_c8:'كلّم طبيب',
+  h3_e9:'الشركات والعمالة', h3_t9:'فحوصات عمّالك في موقع العمل', h3_p9:'أرسل قائمة العمّال، وفريقنا يزور موقعك، وتشوف لكل عامل: لائق أو يحتاج متابعة أو إعادة فحص، بس.', h3_c9:'للشركات',
+  h3_p5:'التطعيمات والمغذّيات وتخطيط القلب في البيت وفحوصات الجينات قادمة قريباً.' });
 function heroSlides(){
-  const P = (S.catalog && S.catalog.P) || {}; const pr = id => P[id] ? omr(P[id].price) : '—'; const u = !!S.user;
+  const P = (S.catalog && S.catalog.P) || {}; const pr = id => P[id] ? omr(P[id].price) : '—'; const u = !!S.user; const B = (S.catalog && S.catalog.business) || {};
+  /* a = picture / 3D scene number (img/hero/h{a}, clip{a}, hero3d BUILD[a]); v32 adds 5 self-kits, 6 loyalty, 7 doctor online, 8 companies */
   return [
-    { k:'van', tone:'dark', e:'h3_e1', t:'h3_t1', p:t('h3_p1'), c:['h3_c1', u ? 'app/tests' : 'register'], c2:['nav_how', 'how'] },
-    { k:'kit', tone:'light', e:'h3_e2', t:'h3_t2', p:t('h3_p2',{k:pr('kids'), s:pr('seniors'), b:pr('bp_sugar')}), c:['h3_c2', u ? 'app/tests?c=packages' : 'tests'] },
-    { k:'phone', tone:'light', e:'h3_e3', t:'h3_t3', p:t('h3_p3'), c: u ? ['h3_c3', 'app/orders?r=1'] : ['h3_c3v', 'how'] },
-    { k:'seniors', tone:'light', e:'h3_e4', t:'h3_t4', p:t('h3_p4'), c:['h3_c4', u ? 'app/tests?c=packages' : 'tests'] },
-    { k:'soon', tone:'light', e:'h3_e5', t:'h3_t5', p:t('h3_p5'), c:['h3_c5', u ? 'app/tests#soon' : 'tests#soon'] }
+    { a:0, k:'van', tone:'dark', e:'h3_e1', t:'h3_t1', p:t('h3_p1'), c:['h3_c1', u ? 'app/tests' : 'register'], c2:['nav_how', 'how'] },
+    { a:5, k:'selfkit', tone:'light', e:'h3_e6', t:'h3_t6', p:t('h3_p6',{f:omr((S.catalog && S.catalog.self_fee) || 2)}), c:['h3_c6', u ? 'app/tests?c=selfkit' : 'tests?c=selfkit'] },
+    { a:1, k:'kit', tone:'light', e:'h3_e2', t:'h3_t2', p:t('h3_p2',{k:pr('kids'), s:pr('seniors'), b:pr('bp_sugar')}), c:['h3_c2', u ? 'app/tests?c=packages' : 'tests'] },
+    { a:7, k:'doctor', tone:'light', e:'h3_e8', t:'h3_t8', p:t('h3_p8'), c:['h3_c8', u ? 'app/consult' : 'consult'], c2:['m_dental', 'dental'] },
+    { a:2, k:'phone', tone:'light', e:'h3_e3', t:'h3_t3', p:t('h3_p3'), c: u ? ['h3_c3', 'app/orders?r=1'] : ['h3_c3v', 'how'] },
+    { a:6, k:'loyalty', tone:'light', e:'h3_e7', t:'h3_t7', p:t('h3_p7'), c:['h3_c7', u ? 'app/loyalty' : 'register'] },
+    { a:3, k:'seniors', tone:'light', e:'h3_e4', t:'h3_t4', p:t('h3_p4'), c:['h3_c4', u ? 'app/tests?c=packages' : 'tests'] },
+    { a:8, k:'company', tone:'light', e:'h3_e9', t:'h3_t9', p:t('h3_p9'), c:['h3_c9', 'expat'] },
+    { a:4, k:'soon', tone:'light', e:'h3_e5', t:'h3_t5', p:t('h3_p5'), c:['h3_c5', u ? 'app/tests#soon' : 'tests#soon'] }
   ];
 }
 function heroHtml(compact){
-  const sl = heroSlides();
-  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : ''; return `<picture class="h3-im ${i ? '' : 'on'}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${i}m.webp" type="image/webp"><source ${a}srcset="img/hero/h${i}d.webp" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${i}m.jpg"><img ${a}src="img/hero/h${i}d.jpg" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+  const sl = heroSlides(); const D = S.lang === 'ar' ? 'r' : 'd'; /* desktop pictures: 'r' has the scene on the left for Arabic */
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=32" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=32" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=32"><img ${a}src="img/hero/h${n}${D}.jpg?v=32" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
     <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
       <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
     <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
@@ -2091,7 +2153,7 @@ function webglOk(){ try { const c = document.createElement('canvas'); return !!(
 function bindHero(){
   const root = $('#h3'); if (!root) return; const n = $$('.h3-s', root).length; let i = 0, timer = null, paused = false;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; const DUR = 6500;
-  let mod = null, vids = false;
+  let mod = null, vids = false; const asset = k => +($$('.h3-im', root)[k] || {}).dataset.a || 0;
   /* phones: the same 3D scenes as the computer, as short silent loops (only the visible one plays) */
   const playV = () => { if (!vids) return; $$('.h3-v', root).forEach((v, j) => { if (j === i) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); } else if (!v.paused) v.pause(); }); };
   /* banner pictures after the first are fetched only when needed (the next one a slide ahead) */
@@ -2102,7 +2164,7 @@ function bindHero(){
     const dot = $$('.h3-dots button', root)[i]; if (dot && !reduce && !paused) requestAnimationFrame(() => requestAnimationFrame(() => dot.classList.add('run')));
     wake(i); wake(i + 1);
     $$('.h3-im', root).forEach((m, j) => m.classList.toggle('on', j === i)); playV();
-    const cv = $('.h3-c', root); if (mod) { cv.classList.add('swap'); setTimeout(() => { mod.show(i); cv.classList.remove('swap'); }, 220); } };
+    const cv = $('.h3-c', root); if (mod) { cv.classList.add('swap'); setTimeout(() => { mod.show(asset(i)); cv.classList.remove('swap'); }, 220); } };
   const arm = () => { clearInterval(timer); if (reduce) return; timer = setInterval(() => { if (!paused && !document.hidden) go3(i + 1); }, DUR); S.timers.push(timer); };
   $$('.h3-dots button', root).forEach(d => d.onclick = () => { go3(+d.dataset.d); arm(); });
   $('[data-pv]', root).onclick = () => { go3(i - 1); arm(); }; $('[data-nx]', root).onclick = () => { go3(i + 1); arm(); };
@@ -2115,10 +2177,10 @@ function bindHero(){
   if (liteMode() || !webglOk()) { root.classList.add('flat');
     const nc = navigator.connection || {};
     if (matchMedia('(max-width:760px)').matches && !reduce && !nc.saveData && !/2g/.test(nc.effectiveType || '')) { vids = true;
-      $$('.h3-im', root).forEach((m, j) => { const v = document.createElement('video'); v.className = 'h3-v'; v.muted = true; v.loop = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('muted', ''); v.preload = 'none'; v.dataset.src = 'img/hero/clip' + j + '.mp4?v=' + APP_V; v.addEventListener('playing', () => v.classList.add('ok'), { once:true }); m.appendChild(v); });
+      $$('.h3-im', root).forEach((m, j) => { const v = document.createElement('video'); v.className = 'h3-v'; v.muted = true; v.loop = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('muted', ''); v.preload = 'none'; v.dataset.src = 'img/hero/clip' + (m.dataset.a || j) + '.mp4?v=' + APP_V; v.addEventListener('playing', () => v.classList.add('ok'), { once:true }); m.appendChild(v); });
       playV(); document.addEventListener('visibilitychange', () => { if (!root.isConnected) return; if (document.hidden) $$('.h3-v', root).forEach(v => v.pause()); else playV(); }); }
     return; }
-  loadH3().then(m => m.init($('.h3-c', root)).then(() => { mod = m; m.show(i); root.classList.add('g3'); })).catch(e => { console.warn('3D off', e); root.classList.add('flat'); }); });
+  loadH3().then(m => m.init($('.h3-c', root)).then(() => { mod = m; m.show(asset(i)); root.classList.add('g3'); })).catch(e => { console.warn('3D off', e); root.classList.add('flat'); }); });
 }
 function quickTiles(){
   const u = !!S.user; const T = u ? 'app/tests' : 'tests';
@@ -2126,23 +2188,115 @@ function quickTiles(){
     ['steth','m_consult',u ? 'app/consult' : 'consult','#2563eb','#eaf2ff'],['tooth','m_dental','dental','#0ea5e9','#e0f4fd'],['ring','cat_premarital',T + '?c=premarital','#db2777','#fdeaf3'],['gauge','qt_bp',T + '?c=vitals','#0fae9b','#e3f7f4'],['file','qt_results',u ? 'app/orders?r=1' : 'login','#0d7c6c','#dff5ef'],['chat','qt_help','support','#0b2350','#e6ebf5']];
   return `<div class="qtiles">${tiles.map(([i, k, h, c, b], n) => `<a class="qt" href="#/${h}" style="--d:${n * 40}ms"><span class="qi" style="color:${c};background:${b}">${ic(i, 26, 2)}</span><span>${t(k)}</span></a>`).join('')}</div>`;
 }
+/* ---------- v32 home page: order journey, new-feature cards with small drawings, questions, closing call ---------- */
+Object.assign(I18N.en, {
+  jr_e:'Your order, step by step', jr_t:'From booking to your report', jr_p:'Every step is tracked in the app, so you always know where your sample is.',
+  jr1:'Book on your phone', jr1d:'Pick tests, a time and your location.', jr2:'Nurse or kit at your door', jr2d:'A licensed nurse takes the sample, or a courier brings a self-kit.',
+  jr3:'2–8 °C cold chain', jr3d:'Every hand-over is logged with time and temperature.', jr4:'Accredited lab', jr4d:'Tested in a partner lab and checked before release.', jr5:'Report on your phone', jr5d:'Clear results with advice and a PDF.',
+  ft_e:'New at iLab@home', ft_t:'More ways to look after your health', ft_kit:'Self-collection kits', ft_kitd:'No nurse needed: a courier brings the kit and takes it back.', ft_loy:'Stamp card', ft_loyd:'Every 5th home visit is free, and friends get 1.000 OMR off.',
+  ft_doc:'Doctor online', ft_docd:'Video or voice, plus messages after the call.', ft_co:'Companies & workers', ft_cod:'Site visits and a simple fit / follow-up list.',
+  ft_prv:'Your privacy', ft_prvd:'See who opened your report and download your data.', ft_cold:'Logged cold chain', ft_coldd:'Time and temperature for every hand-over.',
+  fq_e:'Questions', fq_t:'Good to know before you book',
+  fq1:'Who takes my sample?', fq1a:'A nurse licensed by the Ministry of Health. You see the nurse’s name and licence in the app before the visit.',
+  fq2:'When do my results come?', fq2a:'Our target is within 48 hours for most tests; a few take longer. You get a notification as soon as the report is published.',
+  fq3:'Do I need to fast?', fq3a:'Some tests, such as fasting sugar and cholesterol, need 8–12 hours without food (water is fine). Each test says if it needs fasting, and those visits are booked in the morning.',
+  fq4:'What is a self-collection kit?', fq4a:'A kit for tests such as urine, stool, a flu/COVID swab or an HPV self-swab. A courier brings it for {f} OMR, you collect the sample in private and the courier takes it to the lab.',
+  fq5:'Is my data private?', fq5a:'We follow Oman’s Personal Data Protection Law (Royal Decree 6/2022): you can see who opened your report, download your data or ask us to delete it.',
+  fq6:'How do I pay?', fq6a:'Electronically in the app, by card or Apple Pay.',
+  fq7:'Can a doctor explain my results?', fq7a:'Yes. Book a video or voice call with a doctor or dentist. It is free when your results need attention.',
+  cta_t:'Ready when you are', cta_p:'Book in two minutes and we come to you.', cta_b:'Book a test', cta_w:'WhatsApp us' });
+Object.assign(I18N.ar, {
+  jr_e:'طلبك خطوة بخطوة', jr_t:'من الحجز لين التقرير', jr_p:'كل خطوة تنسجّل في البرنامج، فتعرف دايماً وين عينتك.',
+  jr1:'احجز من جوالك', jr1d:'اختر الفحوصات والوقت وموقعك.', jr2:'ممرضة أو عُدّة عند بابك', jr2d:'ممرضة مرخّصة تسحب العينة، أو مندوب يوصل لك عُدّة ذاتية.',
+  jr3:'تبريد ٢–٨ °م', jr3d:'كل تسليم ينسجّل بالوقت والحرارة.', jr4:'مختبر معتمد', jr4d:'التحليل في مختبر شريك، ويتراجع قبل النشر.', jr5:'التقرير على جوالك', jr5d:'نتائج واضحة مع نصائح وملف PDF.',
+  ft_e:'جديد آي لاب@هوم', ft_t:'طرق أكثر تهتم فيها بصحتك', ft_kit:'عُدد السحب الذاتي', ft_kitd:'بدون ممرض: المندوب يوصّل العُدّة ويرجّعها.', ft_loy:'بطاقة الأختام', ft_loyd:'كل زيارة خامسة مجاناً، وصديقك ياخذ خصم 1.000 ر.ع.',
+  ft_doc:'طبيب أونلاين', ft_docd:'فيديو أو صوت، ورسائل بعد المكالمة.', ft_co:'الشركات والعمالة', ft_cod:'زيارات لموقع العمل وقائمة بسيطة: لائق أو متابعة.',
+  ft_prv:'خصوصيتك', ft_prvd:'تشوف مين فتح تقريرك وتنزّل بياناتك.', ft_cold:'تبريد مسجّل', ft_coldd:'الوقت والحرارة لكل تسليم.',
+  fq_e:'أسئلة', fq_t:'حلو تعرفها قبل الحجز',
+  fq1:'منو ياخذ العينة؟', fq1a:'ممرضة أو ممرض مرخّص من وزارة الصحة، وتشوف الاسم والترخيص في البرنامج قبل الزيارة.',
+  fq2:'متى توصل النتائج؟', fq2a:'هدفنا خلال 48 ساعة لأغلب الفحوصات، وبعضها ياخذ وقت أطول. يوصلك إشعار أول ما ينشر التقرير.',
+  fq3:'لازم أصوم؟', fq3a:'بعض الفحوصات مثل السكر الصائم والدهون تحتاج صيام 8 إلى 12 ساعة (الماي مسموح). كل فحص مكتوب عنده إذا يحتاج صيام، ومواعيدها تكون الصبح.',
+  fq4:'وش هي العُدّة الذاتية؟', fq4a:'عُدّة لفحوصات مثل البول والبراز ومسحة الإنفلونزا/كورونا ومسحة HPV الذاتية. يوصلها المندوب بـ {f} ر.ع، تاخذ العينة بخصوصية، والمندوب يوصلها للمختبر.',
+  fq5:'بياناتي محمية؟', fq5a:'نتبع قانون حماية البيانات الشخصية العُماني (مرسوم سلطاني 6/2022): تشوف مين فتح تقريرك، وتقدر تنزّل بياناتك أو تطلب حذفها.',
+  fq6:'كيف أدفع؟', fq6a:'إلكترونياً داخل البرنامج، بالبطاقة أو Apple Pay.',
+  fq7:'أقدر أكلّم طبيب عن نتائجي؟', fq7a:'إيه، احجز مكالمة فيديو أو صوت مع طبيب أو طبيب أسنان، ومجاناً إذا نتائجك تحتاج متابعة.',
+  cta_t:'جاهزين لك', cta_p:'احجز في دقيقتين، وإحنا نجيك.', cta_b:'احجز فحص', cta_w:'واتساب' });
+const JR_PATH = 'M40 120 C 170 40, 260 170, 400 100 S 640 40, 760 100 S 900 150, 960 90';
+function journeyBlock(){
+  const st = [['cal','jr1'],['syringe','jr2'],['thermo','jr3'],['flask','jr4'],['file','jr5']];
+  return `<section class="hm-sec jr hx-io" id="journey"><div class="wrap-w"><div class="section-h"><span class="eyebrow">${t('jr_e')}</span><h2>${t('jr_t')}</h2><p>${t('jr_p')}</p></div>
+    <div class="jr-road"><svg viewBox="0 0 1000 170" class="jr-svg" aria-hidden="true"><defs><linearGradient id="jrg" x1="0" x2="1"><stop offset="0" stop-color="#1257d6"/><stop offset="1" stop-color="#0fae9b"/></linearGradient></defs>
+      <path d="${JR_PATH}" fill="none" stroke="#e3e9f4" stroke-width="14" stroke-linecap="round"/><path class="fx-road" d="${JR_PATH}" fill="none" stroke="url(#jrg)" stroke-width="14" stroke-linecap="round" pathLength="100" style="stroke-dasharray:100 100"/>
+      <path d="${JR_PATH}" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="10 12" opacity=".8"/>
+      ${[0, .25, .5, .75, 1].map((f, i) => `<g class="jr-pin" data-f="${f}"><circle r="15" fill="#fff" stroke="#c9d6ea" stroke-width="3"/><text y="5" text-anchor="middle" font-size="14" font-weight="800" fill="#1257d6">${i + 1}</text></g>`).join('')}
+      <g class="fx-van"><g transform="translate(-30,-40) scale(1.35)"><rect x="2" y="6" width="30" height="18" rx="4" fill="#1257d6"/><path d="M32 11h7l5 6v7H32z" fill="#2f7bff"/><rect x="6" y="10" width="9" height="6" rx="1.5" fill="#cfe0ff"/><path d="M19 11h6M22 8v6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="11" cy="25" r="4" fill="#0f1b33"/><circle cx="35" cy="25" r="4" fill="#0f1b33"/><circle cx="11" cy="25" r="1.6" fill="#fff"/><circle cx="35" cy="25" r="1.6" fill="#fff"/></g></g></svg></div>
+    <div class="jr-steps">${st.map(([i, k], n) => `<div class="jr-st" data-n="${n}"><span class="qi">${ic(i, 24, 2)}</span><b>${t(k)}</b><span class="small muted">${t(k + 'd')}</span></div>`).join('')}</div>
+    <div class="row wrap" style="justify-content:center;gap:10px;margin-top:20px"><a class="btn" href="#/new">${ic('play',18)} ${t('new_watch')}</a><a class="btn ghost" href="#/how">${ic('globe',18)} ${t('hm_how_more')}</a></div></div></section>`;
+}
+const FT_ART = {
+  kit: `<ellipse cx="60" cy="82" rx="38" ry="5" fill="#0b2350" opacity=".08"/><g class="fa-rise"><rect x="53" y="20" width="12" height="36" rx="6" fill="#fff" stroke="#9fb3d6" stroke-width="2"/><rect x="52" y="15" width="14" height="9" rx="2.5" fill="#7a5af8"/><rect x="56" y="36" width="6" height="16" rx="3" fill="#18b5d8" opacity=".55"/></g><rect x="28" y="46" width="64" height="32" rx="7" fill="#fff" stroke="#c9d6ea" stroke-width="2"/><path d="M60 55v14M53 62h14" stroke="#18b5d8" stroke-width="3.4" stroke-linecap="round"/><g class="fa-lid"><rect x="25" y="39" width="70" height="10" rx="5" fill="#18b5d8"/></g>`,
+  loy: `<defs><linearGradient id="fgl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f7bff"/><stop offset="1" stop-color="#0b2350"/></linearGradient></defs><rect x="12" y="16" width="96" height="60" rx="11" fill="url(#fgl)"/><rect x="22" y="25" width="30" height="5" rx="2.5" fill="#fff" opacity=".7"/>${[0, 1, 2, 3, 4].map(i => `<circle cx="${26 + i * 17}" cy="56" r="6.5" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.6"/>`).join('')}${[0, 1, 2, 3].map(i => `<g class="fa-st" style="--i:${i}"><circle cx="${26 + i * 17}" cy="56" r="6.5" fill="#fff"/><path d="M${22.5 + i * 17} 56l2.4 2.4 4.6-4.8" stroke="#1257d6" stroke-width="2" fill="none" stroke-linecap="round"/></g>`).join('')}<g class="fa-st" style="--i:4"><circle cx="94" cy="56" r="6.5" fill="#ffd166"/><path d="M94 51.5l1.4 2.9 3.2.4-2.3 2.2.6 3.1-2.9-1.5-2.9 1.5.6-3.1-2.3-2.2 3.2-.4z" fill="#b77a00"/></g>`,
+  doc: `<rect x="20" y="14" width="66" height="46" rx="6" fill="#0b0f17"/><rect x="24" y="18" width="58" height="38" rx="3" fill="#dfe9ff"/><circle cx="53" cy="32" r="7" fill="#e9b48f"/><path d="M46 28a7 6 0 0 1 14 0z" fill="#2a2523"/><path d="M41 56c1-9 6-12 12-12s11 3 12 12z" fill="#fff"/><rect x="14" y="60" width="78" height="6" rx="3" fill="#c9d2de"/><g class="fa-b1"><rect x="66" y="8" width="44" height="18" rx="9" fill="#7a5af8"/><circle cx="78" cy="17" r="2" fill="#fff"/><circle cx="88" cy="17" r="2" fill="#fff"/><circle cx="98" cy="17" r="2" fill="#fff"/></g><g class="fa-b2"><rect x="62" y="66" width="48" height="18" rx="9" fill="#0fae9b"/><path d="M76 75l4 4 8-8" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>`,
+  co: `<rect x="10" y="30" width="44" height="46" rx="4" fill="#eef3fb" stroke="#c9d6ea" stroke-width="2"/>${[0, 1].map(r => [0, 1, 2].map(c => `<rect x="${16 + c * 13}" y="${38 + r * 16}" width="8" height="8" rx="1.5" fill="#2a4a7a"/>`).join('')).join('')}${[0, 1, 2].map(i => `<g transform="translate(${66 + i * 17},0)"><rect x="-6" y="52" width="12" height="24" rx="6" fill="${['#1e40af', '#0f766e', '#334155'][i]}"/><circle cy="45" r="6" fill="#c98d63"/><path d="M-6.5 44a6.5 6 0 0 1 13 0z" fill="#f2a516"/><g class="fa-ck" style="--i:${i}"><circle cy="28" r="7" fill="${i === 2 ? '#f2a516' : '#0fae9b'}"/>${i === 2 ? '<path d="M0 24v4.5M0 31.5v.2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>' : '<path d="M-3 28l2 2 4-4.5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>'}</g></g>`).join('')}`,
+  prv: `<path d="M60 10l32 12v22c0 20-14 32-32 38-18-6-32-18-32-38V22z" fill="#eaf2ff" stroke="#1257d6" stroke-width="3"/><g class="fa-sh"><path d="M50 44v-7a10 10 0 0 1 20 0v7" fill="none" stroke="#0b2350" stroke-width="4" stroke-linecap="round"/></g><rect x="45" y="43" width="30" height="24" rx="5" fill="#0b2350"/><circle cx="60" cy="53" r="3.4" fill="#fff"/><path d="M60 55v6" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>`,
+  cold: `<rect x="30" y="14" width="16" height="54" rx="8" fill="#fff" stroke="#9fb3d6" stroke-width="2.5"/><circle cx="38" cy="72" r="11" fill="#18b5d8"/><rect class="fa-liq" x="34" y="34" width="8" height="38" rx="4" fill="#18b5d8"/><path d="M50 30h8M50 42h8" stroke="#0fae9b" stroke-width="2.4" stroke-linecap="round"/><text x="62" y="40" font-size="11" font-weight="800" fill="#0fae9b">2–8°</text><g transform="translate(88 62)"><g class="fa-snow"><path d="M0-13v26M-11-6.5l22 13M-11 6.5l22-13" stroke="#18b5d8" stroke-width="2.6" stroke-linecap="round"/><circle r="3" fill="#18b5d8"/></g></g>`
+};
+function featBlock(){
+  const u = !!S.user;
+  const F = [['kit','ft_kit', u ? 'app/tests?c=selfkit' : 'tests?c=selfkit', '#e0f6fc'], ['loy','ft_loy', u ? 'app/loyalty' : 'register', '#eaf2ff'], ['doc','ft_doc', u ? 'app/consult' : 'consult', '#efeaff'],
+    ['co','ft_co', 'expat', '#eef7e9'], ['prv','ft_prv', 'app/privacy', '#eaf2ff'], ['cold','ft_cold', 'how', '#e0f6fc']];
+  return `<section class="hm-sec"><div class="wrap-w"><div class="section-h"><span class="eyebrow">${t('ft_e')}</span><h2>${t('ft_t')}</h2></div>
+    <div class="ft-grid">${F.map(([k, l, h, bg]) => `<a class="ft-card hx-io" href="#/${h}"><span class="ft-art" style="background:${bg}"><svg viewBox="0 0 120 90" aria-hidden="true">${FT_ART[k]}</svg></span><b>${t(l)}</b><span class="small muted">${t(l + 'd')}</span></a>`).join('')}</div></div></section>`;
+}
+function faqBlock(){
+  const f = omr((S.catalog && S.catalog.self_fee) || 2);
+  return `<section class="hm-sec alt" id="faq"><div class="wrap-w"><div class="section-h"><span class="eyebrow">${t('fq_e')}</span><h2>${t('fq_t')}</h2></div>
+    <div class="faq">${[1, 2, 3, 4, 5, 6, 7].map(i => `<details class="fq"><summary><b>${t('fq' + i)}</b><span class="fq-i" aria-hidden="true">+</span></summary><p>${t('fq' + i + 'a', { f })}</p></details>`).join('')}</div></div></section>`;
+}
+function ctaBlock(){
+  return `<section class="hm-sec"><div class="wrap-w"><div class="cta-band hx-io"><div class="cta-txt"><h2>${t('cta_t')}</h2><p>${t('cta_p')}</p><div class="row wrap" style="gap:10px"><a class="btn white" href="#/${S.user ? 'app/tests' : 'register'}">${ic('flask',18)} ${t('cta_b')}</a><a class="btn ghost-w" href="https://wa.me/${CONTACT.wa}" target="_blank" rel="noopener">${ic('chat',18)} ${t('cta_w')}</a></div></div>
+    <div class="cta-art" aria-hidden="true"><svg viewBox="0 0 300 150"><path d="M0 128h300" stroke="rgba(255,255,255,.35)" stroke-width="3" stroke-dasharray="14 12" class="cta-road"/><g class="cta-house"><rect x="206" y="66" width="70" height="56" rx="4" fill="#f5efe2"/><path d="M198 70l43-30 43 30z" fill="#e2d3b5"/><rect x="232" y="92" width="18" height="30" rx="2" fill="#7a4a26"/><rect x="212" y="80" width="14" height="12" rx="2" fill="#2a4a7a"/><rect x="256" y="80" width="14" height="12" rx="2" fill="#2a4a7a"/></g>
+      <g class="cta-van"><rect x="20" y="78" width="96" height="44" rx="10" fill="#fff"/><path d="M116 88h22l16 18v16h-38z" fill="#dbe7ff"/><rect x="122" y="92" width="16" height="12" rx="2" fill="#2a4a7a"/><rect x="30" y="88" width="34" height="18" rx="3" fill="#cfe0ff"/><path d="M84 92v18M75 101h18" stroke="#e2474f" stroke-width="5" stroke-linecap="round"/><circle cx="46" cy="124" r="10" fill="#0f1b33"/><circle cx="130" cy="124" r="10" fill="#0f1b33"/><circle cx="46" cy="124" r="4" fill="#c9d2de"/><circle cx="130" cy="124" r="4" fill="#c9d2de"/></g></svg></div></div></div></section>`;
+}
+/* everything here is visible from the start; the drawings only move once, when they reach the screen */
+function bindHomeFx(root){
+  const els = $$('.hx-io', root || app); if (!els.length) return;
+  const jr = $('.jr', root || app); if (jr) rideJourney(jr, false, true);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const run = el => { el.classList.add('in'); if (el.classList.contains('jr')) rideJourney(el, reduce); };
+  if (reduce || !('IntersectionObserver' in window)) { els.forEach(run); return; }
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { io.unobserve(e.target); run(e.target); } }), { threshold: .3 });
+  els.forEach(el => io.observe(el));
+}
+function rideJourney(sec, reduce, still){
+  const svg = $('.jr-svg', sec); if (!svg) return; const path = $('.fx-road', svg); let L = 0; try { L = path.getTotalLength(); } catch(e) { return; }
+  $$('.jr-pin', svg).forEach(g => { const pt = path.getPointAtLength(L * +g.dataset.f); g.setAttribute('transform', `translate(${pt.x},${pt.y})`); });
+  const steps = $$('.jr-st', sec), pins = $$('.jr-pin', svg); sec._set = null;
+  const set = p => { placeVan(svg, p); path.style.strokeDasharray = `${(p * 100).toFixed(1)} 100`; const n = Math.floor(p * 4 + .02); steps.forEach((s, i) => s.classList.toggle('on', i <= n)); pins.forEach((g, i) => g.classList.toggle('on', i <= n)); };
+  if (still) { set(0); return; }
+  if (reduce) { set(1); return; }
+  const D = 5200, t0 = performance.now(); const ease = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  const step = now => { if (!sec.isConnected) return; const k = Math.min(1, (now - t0) / D); set(ease(k)); if (k < 1) requestAnimationFrame(step); };
+  set(0); requestAnimationFrame(step);
+}
 async function viewLanding(){
   await loadCatalog().catch(() => null); const C = S.catalog;
   const steps = [['cal','hm_st1'],['syringe','hm_st2'],['file','hm_st3']];
   app.innerHTML = `${topbar()}${heroHtml(false)}
   <section class="hm-sec"><div class="wrap-w"><h2 class="hm-h">${t('hm_quick')}</h2>${quickTiles()}</div></section>
   ${C ? `<section class="hm-sec alt"><div class="wrap-w"><div class="row between"><h2 class="hm-h">${t('hm_pk')}</h2><a class="b small" href="#/tests">${t('view_all_tests')}</a></div><div class="hscroll" id="lp">${C.packages.map(p => pkgCard(p, S.cart.packages.includes(p.id))).join('')}</div></div></section>` : ''}
-  <section class="hm-sec"><div class="wrap-w"><h2 class="hm-h">${t('hm_steps')}</h2><div class="steps3">${steps.map(([i, k], n) => `<div class="st3"><span class="n">${n + 1}</span><span class="qi" style="color:var(--blue);background:#eaf2ff">${ic(i, 26, 2)}</span><b>${t(k)}</b><span class="small muted">${t(k + 'd')}</span></div>`).join('')}</div>
-    <div class="row wrap" style="justify-content:center;gap:10px;margin-top:18px"><a class="btn" href="#/new">${ic('play',18)} ${t('new_watch')}</a><a class="btn ghost" href="#/how">${ic('globe',18)} ${t('hm_how_more')}</a></div></div></section>
+  ${featBlock()}
+  ${journeyBlock()}
   <section class="hm-sec"><div class="wrap-w"><div class="band">
       <div><b>48 h</b><span>${t('band1')}</span></div><div><b>${omr(fee())}</b><span>${t('band2')} (${t('omr')})</span></div>
-      <div><b>${C ? C.wilayats.length : 7}</b><span>${t('band3')}</span></div><div><b>${C ? C.tests.length + C.packages.length : 30}</b><span>${t('band4')}</span></div></div></div></section>
+      <div><b data-count="${C ? C.wilayats.length : 7}">${C ? C.wilayats.length : 7}</b><span>${t('band3')}</span></div><div><b data-count="${C ? C.tests.length + C.packages.length : 30}">${C ? C.tests.length + C.packages.length : 30}</b><span>${t('band4')}</span></div></div></div></section>
   <section class="hm-sec alt"><div class="wrap-w">${soonBlock()}</div></section>
   <section class="hm-sec alt" id="whatsnew"><div class="wrap-w">${newBlock(true)}</div></section>
+  ${faqBlock()}${ctaBlock()}
   <section class="hm-sec" id="contact"><div class="wrap-w">${contactCard(false)}</div></section>
   <section class="hm-sec alt"><div class="wrap-w"><div class="hm-app"><div class="grow"><h2>${t('hm_app_t')}</h2><p>${t('hm_app_p')}</p><div class="row wrap" style="gap:10px"><a class="btn" href="#/install">${ic('download',18)} ${t('ins_cta')}</a><a class="btn ghost" href="#/contact">${ic('phone',18)} ${t('m_contact')}</a></div></div><div class="hm-app-qr" id="hqr"></div></div></div></section>
   ${footer()}${cartBar()}`;
-  bindHero();
+  bindHero(); bindHomeFx();
   const lp = $('#lp'); if (lp) { const rer = () => { lp.innerHTML = C.packages.map(p => pkgCard(p, S.cart.packages.includes(p.id))).join(''); bind(); refreshCartBadges(); const cb = $('.cart-bar'); const nb = cartBar(); if (cb) cb.outerHTML = nb || '<span></span>'; else if (nb) app.insertAdjacentHTML('beforeend', nb); bindGo(); };
     const bind = () => $$('[data-add]', lp).forEach(b => b.onclick = () => { const [ty, id] = b.dataset.add.split(':'); const was = S.cart.packages.includes(id); toggleCart(ty, id); rer(); if (!was) toastCart(); }); bind(); }
   try { if (window.LAHQR && $('#hqr')) $('#hqr').innerHTML = window.LAHQR.svg({ size: 132 }); } catch(e) {}
@@ -2475,7 +2629,7 @@ async function viewConsultPublic(dental){
 async function viewConsultNew(){
   const q = new URLSearchParams((location.hash.split('?')[1] || ''));
   const kind = ['pre','post','dental','dental_home'].includes(q.get('kind')) ? q.get('kind') : 'pre';
-  if (!S.cb || S.cb.kind !== kind) S.cb = { kind, step: 1, doctor: null, gf: 'any', mode: kind === 'dental_home' ? 'home' : 'video', date: null, time: null, reason: '', order: q.get('order') || null, pay: 'card', address: (S.user && S.user.address) || '' };
+  if (!S.cb || S.cb.kind !== kind || (q.get('order') && S.cb.order !== q.get('order'))) S.cb = { kind, step: 1, doctor: null, gf: 'any', mode: kind === 'dental_home' ? 'home' : 'video', date: null, time: null, reason: '', order: q.get('order') || null, pay: 'card', address: (S.user && S.user.address) || '' };
   const b = S.cb; const B = await bizLoad();
   if (!b.docs) { loading(t('cs_book_t')); try { b.docs = await API.doctors(/dental/.test(kind) ? 'dental' : 'pre'); } catch(e) { app.innerHTML = shell(t('cs_book_t'), emptyBox(errMsg(e))); return; } }
   if (kind === 'post' && !b.orders) { try { b.orders = (await API.orders('mine')).filter(o => o.status === 'completed'); } catch(e) { b.orders = []; } }
@@ -2695,7 +2849,7 @@ async function viewLoyalty(){
     <div class="card"><h3>${t('loy_hist')}</h3>${(L.history || []).length ? `<div class="stack" style="--g:8px">${L.history.map(h => `<div class="vline"><div><b class="ltr">${esc(h.code)}</b><div class="xs muted">${fmtDate(h.at)}</div></div>${h.free ? `<span class="chip teal">${ic('star',13)} ${t('loy_free')}</span>` : stChip(h.status)}</div>`).join('')}</div>` : `<p class="muted small" style="margin:0">${t('none_orders')}</p>`}</div>
   </div>`);
   const card = $('#lcard'); card.onclick = card.onkeydown = e => { if (e.type === 'keydown' && !['Enter',' '].includes(e.key)) return; card.classList.toggle('flip'); };
-  $('#rcopy').onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(L.ref_code) : Promise.reject()).then(() => toast(t('copied'))).catch(() => toast(L.ref_code)); };
+  $('#rcopy').onclick = () => copyText(L.ref_code);
   if ($('#rshare')) $('#rshare').onclick = () => navigator.share({ title: 'iLab@home', text: msg }).catch(() => {});
   if ($('#rapply')) $('#rapply').onclick = async () => { try { await busy($('#rapply'), () => API.referralApply($('#rin').value)); toast(t('ref_ok', { x: rw })); S.loy = undefined; viewLoyalty(); } catch(e) { $('#rerr').textContent = errMsg(e); } };
   /* stamps land one by one */
@@ -2884,6 +3038,8 @@ async function boot(){
     else await check;
   }
   window.addEventListener('hashchange', render);
+  document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('a[href^="#/"]'); if (a && !e.defaultPrevented && a.getAttribute('href') === location.hash && !a.hasAttribute('data-menu')) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
+  holoCalm();
   appFeel();
   splashIntro();
   render();

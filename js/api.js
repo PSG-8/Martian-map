@@ -12,16 +12,21 @@ const offKey = (fn, args) => 'lah_off_' + fn + '_' + (args && (args.p_id || args
 function offSave(fn, args, data){ try { localStorage.setItem(offKey(fn, args), JSON.stringify(data)); } catch(e) {} }
 function offGet(fn, args){ try { const v = localStorage.getItem(offKey(fn, args)); return v ? JSON.parse(v) : undefined; } catch(e) { return undefined; } }
 function offClear(){ try { Object.keys(localStorage).filter(k => k.startsWith('lah_off_')).forEach(k => localStorage.removeItem(k)); } catch(e) {} }
+/* v32: reads of the screen being left are cancelled when the person taps somewhere else, so a slow answer never holds up the next screen */
+const LIVE = new Set();
 async function send(fn, args, ms){
   const ctl = typeof AbortController === 'function' ? new AbortController() : null;
   const timer = ctl ? setTimeout(() => ctl.abort(), ms) : null;
+  const mine = ctl && READS.test(fn) && !/^(catalog|auth_me)$/.test(fn) ? ctl : null; if (mine) LIVE.add(mine);
   try { return await fetch(URL + fn, { method:'POST', headers:{ 'apikey':KEY, 'Authorization':'Bearer '+KEY, 'Content-Type':'application/json', 'Accept':'application/json' }, body: JSON.stringify(args||{}), signal: ctl ? ctl.signal : undefined }); }
-  finally { if (timer) clearTimeout(timer); }
+  catch(e) { if (ctl && ctl._nav) throw new ApiError('ABORTED'); throw e; }
+  finally { if (timer) clearTimeout(timer); if (mine) LIVE.delete(mine); }
 }
 async function rpc(fn, args){
   let res; const read = READS.test(fn);
   try { res = await send(fn, args, read ? 9000 : 20000); }
   catch(e){
+    if (e && e.code === 'ABORTED') throw e;
     if (!read) throw new ApiError(e && e.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK');
     try { await new Promise(r => setTimeout(r, 600)); res = await send(fn, args, 12000); } catch(e2){
       if (OFFLINE.test(fn)) { const c = offGet(fn, args); if (c !== undefined) { window.LAH_OFFLINE = true; document.documentElement.classList.add('offline'); return c; } }
@@ -41,6 +46,7 @@ async function rpc(fn, args){
 const tok = () => localStorage.getItem('lah_token');
 window.API = {
   ApiError,
+  abortReads: () => { LIVE.forEach(c => { c._nav = true; try { c.abort(); } catch(e) {} }); LIVE.clear(); },
   catalog: () => rpc('catalog'),
   register: (p) => rpc('auth_register', { p }),
   login: (l, pw) => rpc('auth_login', { p_login:l, p_password:pw }),
