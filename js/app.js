@@ -60,7 +60,7 @@ function confirmBox(msg, yes, no){ return new Promise(r => modal(`<h3>${esc(msg)
 function setLang(l){ S.lang = l; localStorage.setItem('lah_lang', l); document.documentElement.lang = l; document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr'; document.title = 'iLab@home · ' + t('brand_sub'); }
 /* catalog: shown at once from the copy saved on this device, then refreshed from the server in the background */
 let CATF = null; const CAT_KEY = 'lah_cat_v2';
-function setCatalog(c){ c.T = {}; c.tests.forEach(x => c.T[x.id] = x); c.P = {}; c.packages.forEach(x => c.P[x.id] = x); S.catalog = c;
+function setCatalog(c){ c.T = {}; c.tests.forEach(x => c.T[x.id] = x); c.P = {}; c.packages.forEach(x => c.P[x.id] = x); S.catalog = c; try { const h3 = document.getElementById('h3'); if (h3) { const sl = heroSlides(); h3.querySelectorAll('.h3-s').forEach((e, i) => { const p = e.querySelector('p'); if (p && sl[i] && p.textContent !== sl[i].p) p.textContent = sl[i].p; }); } } catch(e) {}
   /* drop cart items that no longer exist (an old item made the cart look full but open empty) */
   const pk = S.cart.packages.filter(id => c.P[id]), ts = S.cart.tests.filter(id => c.T[id]);
   if (pk.length !== S.cart.packages.length || ts.length !== S.cart.tests.length) { S.cart = { packages: pk, tests: ts }; saveCart(); } }
@@ -2359,7 +2359,7 @@ Object.assign(I18N.ar, { nw34a:'حماية أقوى لبياناتك', nw34ad:'�
   nw32c:'ثلاث أفلام جديدة', nw32cd:'فكرة آي لاب@هوم، وطريقة التسجيل واستخدام البرنامج، وفلم قصير: يوم مع آي لاب@هوم.',
   nw32d:'أسرع وأسلس', nw32dd:'فحصنا كل زر على الجوال والكمبيوتر، وصلّحنا زر الطبيب بعد النتائج وقائمة المزيد، وما عادت صفحة بطيئة تأخّر اللي بعدها.' });
 /* v32: three films, each with one job: the idea (story), how to sign up and use the app (how, real screens), a day with iLab@home (film) */
-const VIDS = { story: ['media/iLabAtHome_Explainer.mp4', 'media/explainer_poster.jpg', 'new_vid3', 'new_sub3', '1:41'], how: ['media/iLabAtHome_Guide.mp4', 'media/guide_poster.jpg', 'vid_how', 'vid_how_s', '1:28'], film: ['media/iLabAtHome_Film.mp4', 'media/film_poster.jpg', 'vid_film', 'vid_film_s', '2:09'] };
+const VIDS = { story: ['media/iLabAtHome_Explainer.mp4', 'media/explainer_poster.jpg', 'new_vid3', 'new_sub3', '1:41'], how: ['media/iLabAtHome_Guide.mp4', 'media/guide_poster.jpg', 'vid_how', 'vid_how_s', '1:28'], film: ['media/iLabAtHome_Film.mp4', 'media/film_poster.jpg', 'vid_film', 'vid_film_s', '2:16'] };
 Object.assign(I18N.en, { vid_how:'How to sign up and use the app', vid_how_s:'Real app screens, step by step · English voice, Arabic subtitles', vid_film:'A day with iLab@home (film)', vid_film_s:'From the first light to the report: male and female nurses, the lab, a dentist and a doctor online · Arabic subtitles',
   new_vid3:'The idea of iLab@home, in 100 seconds' });
 Object.assign(I18N.ar, { vid_how:'طريقة التسجيل واستخدام البرنامج', vid_how_s:'شاشات البرنامج الحقيقية خطوة بخطوة · صوت إنجليزي مع ترجمة عربية', vid_film:'يوم مع آي لاب@هوم (فلم)', vid_film_s:'من أول الصبح لين التقرير: الممرض والممرضة والمختبر وطبيبة الأسنان والطبيب أونلاين · ترجمة عربية',

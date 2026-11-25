@@ -23,7 +23,7 @@ p{margin:0 0 .8em}
 .stack>*+*{margin-top:12px} .stack-lg>*+*{margin-top:22px}
 .grid{display:grid;gap:16px} .g2{grid-template-columns:repeat(2,minmax(0,1fr))} .g3{grid-template-columns:repeat(3,minmax(0,1fr))} .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:900px){.g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:560px){.g2.collapse,.g3,.g4.collapse{grid-template-columns:1fr}}
+@media(max-width:560px){.g2.collapse,.g3,.g4.collapse{grid-template-columns:minmax(0,1fr)}}
 .wrap-w{max-width:1180px;margin:0 auto;padding:0 20px}
 
 /* buttons */
@@ -118,7 +118,7 @@ html[lang=ar] .section-h .eyebrow{letter-spacing:0;text-transform:none;font-size
 .cats::-webkit-scrollbar{display:none}
 .cats button{flex:none;border:0;background:#fff;border-radius:999px;padding:9px 16px;font-weight:600;cursor:pointer;box-shadow:inset 0 0 0 1.5px var(--line);color:#3b4a66;display:inline-flex;gap:8px;align-items:center}
 .cats button.on{background:var(--blue);color:#fff;box-shadow:none}
-.tcard{background:#fff;border-radius:var(--r);padding:16px;box-shadow:var(--sh);display:flex;gap:14px;align-items:flex-start}
+.tcard{min-width:0;background:#fff;border-radius:var(--r);padding:16px;box-shadow:var(--sh);display:flex;gap:14px;align-items:flex-start}
 .ti{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;flex:none}
 .ti svg{width:26px;height:26px}
 .tcard h4{font-size:1rem;margin:0 0 2px}
@@ -1253,3 +1253,13 @@ a.nudge{display:inline-block;animation:nudge .7s ease 2;color:var(--blue)}
 .gu-n{display:flex;flex-direction:column;gap:4px;padding:10px 0;border-bottom:1px dashed #f0dfb8}
 @media(max-width:760px){.gu-hero{flex-direction:column;text-align:center}.gu-steps{grid-template-columns:1fr 1fr}.gu-shield svg{width:84px}}
 @media (prefers-reduced-motion: reduce){.gu-ck{animation:none;stroke-dashoffset:0}}
+.tcard .grow{min-width:0}
+/* v34: banner text sits on its own soft glass panel, so it never runs over the 3D scene */
+.h3-s{padding:20px 24px 22px;margin-inline-start:-24px;border-radius:26px;background:rgba(255,255,255,.6);-webkit-backdrop-filter:blur(12px) saturate(1.15);backdrop-filter:blur(12px) saturate(1.15);box-shadow:0 12px 40px rgba(11,35,80,.08)}
+.h3-s.dark{background:rgba(12,22,48,.42);box-shadow:0 12px 40px rgba(0,0,0,.18)}
+@media (max-width:899px){.h3-s{padding:14px 16px 16px;margin-inline-start:-16px;border-radius:20px}}
+/* v34: no floating help button on the sign-in / sign-up / password screens (it covered buttons on phones); pages leave room for it */
+body:has(#app .auth) #bot{display:none}
+@media (max-width:899px){#app{padding-bottom:76px}}
+#nurse.beside,#nurse.beside:not(.rtl){transform:translateY(40px);opacity:0;transition:transform .8s cubic-bezier(.25,.8,.3,1),opacity .6s}
+#nurse.beside.in{transform:none;opacity:1}

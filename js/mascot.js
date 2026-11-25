@@ -80,7 +80,10 @@ function leave(){ if (!el) return; clearT(); el.classList.remove('in'); el.class
 function place(){ if (!el) return; const tab = document.querySelector('.tabbar'); const cart = document.querySelector('.cart-bar');
   const vis = x => { if (!x) return 0; const r = x.getBoundingClientRect(); return r.height > 0 && r.top < innerHeight && getComputedStyle(x).display !== 'none' ? r.height : 0; };
   let b = 14; const th = vis(tab), ch = vis(cart); if (th) b = th + 10; if (ch) b += ch + 8;
-  el.style.bottom = `calc(${b}px + env(safe-area-inset-bottom, 0px))`; }
+  el.style.bottom = `calc(${b}px + env(safe-area-inset-bottom, 0px))`;
+  // v34: in the app on a computer, stand beside the side bar, never on top of its account block
+  const nav = document.querySelector('.side-nav'); const nr = nav && getComputedStyle(nav).display !== 'none' ? nav.getBoundingClientRect() : null;
+  el.style.insetInlineStart = nr && nr.width > 0 ? `${Math.round(nr.width) + 18}px` : ''; el.classList.toggle('beside', !!(nr && nr.width > 0)); }
 
 window.LAHMascot = {
   /* o: { lang, user, links:{book,kit,doc} } */
@@ -95,12 +98,16 @@ window.LAHMascot = {
     const first = bye !== 'seen';
     try { if (!bye) sessionStorage.setItem('lah_noor', 'seen'); } catch(e) {}
     if (RM) { el.classList.add('in'); if (first) say(true); return; }
-    later(() => { if (!el) return; el.classList.add('walk', 'in'); later(() => { el.classList.remove('walk'); if (first) say(true); else wave(); blink(); }, 1450); }, first ? 1600 : 500);
-    if (!small && first) later(() => { if (el && bub && bub.classList.contains('on') && !el.matches(':hover')) bub.classList.remove('on'); }, 14000);
-    if (small && first) { const sc = () => { if (scrollY > 260) { removeEventListener('scroll', sc); if (bub && bub.classList.contains('on')) hideBub(); } }; addEventListener('scroll', sc, { passive: true }); }
-    if (small && first) later(() => { if (el && bub && bub.classList.contains('on') && !el.matches(':hover')) hideBub(); }, 11000);
+    // v34: Noor never stands on top of the home banner: she walks in once the banner has scrolled out from under her
+    const clear = () => { const h = document.querySelector('.h3'); if (!h || !h.isConnected) return true; return h.getBoundingClientRect().bottom < innerHeight - (small ? 250 : 300); };
+    const enter = () => { if (!el || el.style.display === 'none') return;
+      el.classList.add('walk', 'in'); later(() => { el.classList.remove('walk'); if (first) say(true); else wave(); blink(); }, 1450);
+      if (first) later(() => { if (el && bub && bub.classList.contains('on') && !el.matches(':hover')) { if (small) hideBub(); else bub.classList.remove('on'); } }, small ? 9000 : 14000); };
+    if (st.wait) { removeEventListener('scroll', st.wait); st.wait = null; }
+    if (clear()) later(enter, first ? 1600 : 500);
+    else { st.wait = () => { if (!el || el.style.display === 'none') { removeEventListener('scroll', st.wait); st.wait = null; return; } if (clear()) { removeEventListener('scroll', st.wait); st.wait = null; later(enter, 250); } }; addEventListener('scroll', st.wait, { passive: true }); }
   },
-  hide(){ clearT(); if (el) { el.classList.remove('in', 'walk'); el.style.display = 'none'; if (bub) bub.classList.remove('on'); } },
+  hide(){ clearT(); if (st.wait) { removeEventListener('scroll', st.wait); st.wait = null; } if (el) { el.classList.remove('in', 'walk'); el.style.display = 'none'; if (bub) bub.classList.remove('on'); } },
   cheer(){ if (!el || el.style.display === 'none' || !el.classList.contains('in')) return; jump(); bub.innerHTML = bubHtml(L().cheer, `<a href="#/${st.links.cart || 'app/cart'}">🛒</a>`); bub.classList.add('on'); later(() => bub && bub.classList.remove('on'), 3200); },
   place
 };
