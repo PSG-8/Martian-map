@@ -300,7 +300,7 @@ Object.assign(window.I18N.en, {
   /* bot */
   bot_name:'iLab@home Assistant', bot_status:'Online · replies instantly', bot_ph:'Ask about booking, fasting, results…',
   bot_hi:'Hi{n}! 👋 I’m the iLab@home assistant. I can check your request status, explain fasting and prices, or connect you with our team.',
-  bot_greet:'Hello! How can I help you today?', bot_thanks:'You’re welcome! Stay healthy 💙',
+  bot_greet:'Hello! How can I help you today?', bot_thanks:'You’re welcome! Stay healthy 💙', bot_maker:'I’m the iLab@home assistant, made by Bilarab Suwailam (Mr_Psg), the developer of the iLab@home platform. I’m an automatic assistant; if you’d like to talk to someone from the team, just ask.',
   bot_track_guest:'Log in and I can show the live status of your requests. Or start a booking now.', bot_track_staff:'Your jobs are on your home screen. Need help from the team?',
   bot_track_hdr:'Here is the latest on your requests:', bot_track_none:'You have no active requests right now.', bot_track_none_code:'I couldn’t find that request number on your account.',
   bot_fasting:'For fasting tests (sugar, lipids), don’t eat for 8–12 hours. Water is fine. To make this easy, fasting bookings are only offered in the morning, up to {t}. Tests that need fasting:',
@@ -352,7 +352,7 @@ Object.assign(window.I18N.ar, {
   add_cal:'أضف للتقويم', cal_ok:'تم تنزيل ملف التقويم', copy_code:'نسخ الرقم', copied:'تم النسخ', book_again:'احجز مرة أخرى', again_ok:'أُضيفت الفحوصات إلى سلتك', updated_x:'آخر تحديث {x}',
   bot_name:'مساعد آي لاب@هوم', bot_status:'متصل · يرد فوراً', bot_ph:'اسأل عن الحجز، الصيام، النتائج…',
   bot_hi:'هلا{n}! 👋 أنا مساعد آي لاب@هوم. أقدر أعرض لك حالة طلبك، وأشرح الصيام والأسعار، أو أوصلك بفريقنا.',
-  bot_greet:'أهلاً وسهلاً! كيف أقدر أساعدك اليوم؟', bot_thanks:'العفو! دمت بصحة 💙',
+  bot_greet:'أهلاً وسهلاً! كيف أقدر أساعدك اليوم؟', bot_maker:'أنا مساعد آي لاب@هوم، سوّاني بلعرب سويلم (Mr_Psg)، مطوّر منصة آي لاب@هوم. أنا مساعد آلي، وإذا تبي تكلم أحد من الفريق قولي.', bot_thanks:'العفو! دمت بصحة 💙',
   bot_track_guest:'سجّل دخولك وأعرض لك حالة طلباتك مباشرة، أو ابدأ حجزاً الآن.', bot_track_staff:'مهامك موجودة في الصفحة الرئيسية. تحتاج مساعدة من الفريق؟',
   bot_track_hdr:'هذا آخر تحديث لطلباتك:', bot_track_none:'لا توجد لديك طلبات نشطة حالياً.', bot_track_none_code:'لم أجد رقم الطلب هذا في حسابك.',
   bot_fasting:'لفحوصات الصيام (السكر، الدهون) لا تأكل لمدة 8–12 ساعة، والماء مسموح. ولتسهيل ذلك، حجوزات الصيام متاحة صباحاً فقط حتى {t}. الفحوصات التي تحتاج صياماً:',
