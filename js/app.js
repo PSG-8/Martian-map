@@ -1835,7 +1835,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 34;
+const APP_V = 35;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -2150,7 +2150,7 @@ function heroSlides(){
 }
 function heroHtml(compact){
   const sl = heroSlides(); const D = S.lang === 'ar' ? 'r' : 'd'; /* desktop pictures: 'r' has the scene on the left for Arabic */
-  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=34" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=34" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=34"><img ${a}src="img/hero/h${n}${D}.jpg?v=34" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=35" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=35" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=35"><img ${a}src="img/hero/h${n}${D}.jpg?v=35" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
     <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
       <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
     <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
@@ -2359,7 +2359,7 @@ Object.assign(I18N.ar, { nw34a:'حماية أقوى لبياناتك', nw34ad:'�
   nw32c:'ثلاث أفلام جديدة', nw32cd:'فكرة آي لاب@هوم، وطريقة التسجيل واستخدام البرنامج، وفلم قصير: يوم مع آي لاب@هوم.',
   nw32d:'أسرع وأسلس', nw32dd:'فحصنا كل زر على الجوال والكمبيوتر، وصلّحنا زر الطبيب بعد النتائج وقائمة المزيد، وما عادت صفحة بطيئة تأخّر اللي بعدها.' });
 /* v32: three films, each with one job: the idea (story), how to sign up and use the app (how, real screens), a day with iLab@home (film) */
-const VIDS = { story: ['media/iLabAtHome_Explainer.mp4', 'media/explainer_poster.jpg', 'new_vid3', 'new_sub3', '1:41'], how: ['media/iLabAtHome_Guide.mp4', 'media/guide_poster.jpg', 'vid_how', 'vid_how_s', '1:28'], film: ['media/iLabAtHome_Film.mp4', 'media/film_poster.jpg', 'vid_film', 'vid_film_s', '2:16'] };
+const VIDS = { story: ['media/iLabAtHome_Explainer.mp4', 'media/explainer_poster.jpg', 'new_vid3', 'new_sub3', '1:41'], how: ['media/iLabAtHome_Guide.mp4', 'media/guide_poster.jpg', 'vid_how', 'vid_how_s', '1:28'], film: ['media/iLabAtHome_Film.mp4', 'media/film_poster.jpg', 'vid_film', 'vid_film_s', '2:11'] };
 Object.assign(I18N.en, { vid_how:'How to sign up and use the app', vid_how_s:'Real app screens, step by step · English voice, Arabic subtitles', vid_film:'A day with iLab@home (film)', vid_film_s:'From the first light to the report: male and female nurses, the lab, a dentist and a doctor online · Arabic subtitles',
   new_vid3:'The idea of iLab@home, in 100 seconds' });
 Object.assign(I18N.ar, { vid_how:'طريقة التسجيل واستخدام البرنامج', vid_how_s:'شاشات البرنامج الحقيقية خطوة بخطوة · صوت إنجليزي مع ترجمة عربية', vid_film:'يوم مع آي لاب@هوم (فلم)', vid_film_s:'من أول الصبح لين التقرير: الممرض والممرضة والمختبر وطبيبة الأسنان والطبيب أونلاين · ترجمة عربية',
