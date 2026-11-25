@@ -2184,13 +2184,13 @@ Object.assign(I18N.ar, { ig_follow:'تابعنا على إنستغرام', ig_sc
 const MEDIA = 'https://ufykiqxsegyuyablrjsq.supabase.co/storage/v1/object/public/media/';
 const HOW_READY = true;
 const NEWS = [['steth','nw28a','v28'],['flask','nw28b','v28'],['ring','nw28c','v28'],['spark','nw28d','v28'],['phone','nw25','v25'],['users','nw25b','v25'],['spark','nw18','v18'],['check','nw17a','v17'],['steth','nw17b','v17'],['hosp','nw17c','v17'],['flask','nw17d','v17'],['lock','nw17e','v17']];
-const VIDS = { how: ['media/iLabAtHome_HowItWorks.mp4', 'media/how_poster.jpg', 'new_vid', 'new_sub', '1:04'], cast: ['media/iLabAtHome_Characters.mp4', 'media/cast_poster.jpg', 'new_vid2', 'new_sub2', '0:55'] };
+const VIDS = { story: ['media/iLabAtHome_Explainer.mp4', 'media/explainer_poster.jpg', 'new_vid3', 'new_sub3', '1:41'], how: ['media/iLabAtHome_HowItWorks.mp4', 'media/how_poster.jpg', 'new_vid', 'new_sub', '1:04'], cast: ['media/iLabAtHome_Characters.mp4', 'media/cast_poster.jpg', 'new_vid2', 'new_sub2', '0:55'] };
 function vidCard(k){ const [src, poster, tt, st, dur] = VIDS[k]; return `<div class="card pad-lg vid-card"><div class="row between wrap" style="gap:8px;margin-bottom:12px"><div><h3 style="margin:0">${t(tt)}</h3><div class="small muted">${t(st)}</div></div><span class="chip teal">${ic('play',14)} ${dur}</span></div>
   <video class="vid" controls playsinline preload="none" poster="${poster}"><source src="${src}" type="video/mp4"></video></div>`; }
 function newBlock(short){
   const items = short ? NEWS.slice(0, 4) : NEWS;
   return `<div class="stack-lg"><div class="row between wrap" style="gap:8px"><h2 class="hm-h" style="margin:0">${t('m_new')}</h2>${short ? `<a class="b small" href="#/new">${t('see_all')}</a>` : ''}</div>
-    <div class="grid g2 collapse">${HOW_READY ? vidCard('how') : ''}${vidCard('cast')}</div>
+    ${vidCard('story')}<div class="grid g2 collapse">${HOW_READY ? vidCard('how') : ''}${vidCard('cast')}</div>
     <div class="stack" style="--g:10px">${items.map(([i, k, v]) => `<div class="card row" style="gap:14px;align-items:flex-start"><span class="qi" style="color:var(--blue);background:#eaf2ff;flex:none">${ic(i, 24, 2)}</span><div class="grow"><div class="row between"><b>${t(k)}</b><span class="chip gray">${v}</span></div><div class="small muted">${t(k + 'd')}</div></div></div>`).join('')}</div></div>`;
 }
 Object.assign(I18N.en, { new_vid:'How iLab@home works, and how to sign up', new_sub:'English narration with Arabic subtitles', new_vid2:'Meet the iLab@home family', new_sub2:'Eleven people, one journey · Arabic subtitles',
@@ -2328,6 +2328,7 @@ Object.assign(I18N.en, { specialty:'Specialty', sp_family:'Family medicine', sp_
 Object.assign(I18N.ar, { specialty:'التخصص', sp_family:'طب الأسرة', sp_internal:'الطب الباطني', sp_peds:'طب الأطفال', sp_dent:'طب الأسنان',
   cs_vcall:'مكالمة فيديو', cs_acall:'مكالمة صوتية', cs_call_tip:'المكالمة تفتح في صفحة جديدة (Jitsi Meet). اسمح بالكاميرا أو المايك لما يطلب.', cs_chat_t:'الرسائل', cs_chat_empty:'ما في رسائل إلى الآن. اكتب لطبيبك هنا.', cs_chat_ph:'اكتب رسالة…', send:'إرسال' });
 Object.assign(I18N.en, {
+  new_vid3:'iLab@home in 100 seconds (new)', new_sub3:'Everything new: home visits, self-test kits, online doctor, loyalty card and more · English voice, Arabic subtitles',
   mg_services:'Services', mg_account:'My account', m_more:'More', m_selfkit:'Self-test kits', m_expat:'Workers & companies', m_loyalty:'Loyalty card', m_privacy:'Privacy & my data', m_sources:'Sources & references', m_camps:'Camp visits', m_safety:'Safety & privacy', m_coupons:'Offers & coupons',
   cat_selfkit:'Self-kits (no nurse)', cat_expat:'Workers', col_self:'No nurse needed', col_device:'Measured at home', col_nurse:'Nurse visit',
   kit_fee:'Kit delivery & pickup', kit_mode_t:'No nurse needed for this order', kit_mode_p:'A courier brings the kit, you take the sample yourself with the simple steps, and the courier takes it back to the lab.', b2_kit:'Kit',
@@ -2353,6 +2354,7 @@ Object.assign(I18N.en, {
   hm_loy:'Loyalty card', hm_selfkit_t:'New: self-test kits', hm_selfkit_p:'Urine, stool and swabs without a nurse visit. Delivery from {x} OMR.', hm_expat_t:'Workers & domestic staff', hm_expat_p:'Pre-checks and yearly checks at home or at the camp.'
 });
 Object.assign(I18N.ar, {
+  new_vid3:'آي لاب@هوم في 100 ثانية (جديد)', new_sub3:'كل الجديد: الزيارة المنزلية، عُدد الفحص الذاتي، الطبيب أونلاين، بطاقة الولاء وأكثر · صوت إنجليزي مع ترجمة عربية',
   mg_services:'الخدمات', mg_account:'حسابي', m_more:'المزيد', m_selfkit:'عُدد الفحص الذاتي', m_expat:'العمالة والشركات', m_loyalty:'بطاقة الولاء', m_privacy:'الخصوصية وبياناتي', m_sources:'المصادر والمراجع', m_camps:'زيارات سكن العمال', m_safety:'السلامة والخصوصية', m_coupons:'العروض والكوبونات',
   cat_selfkit:'فحوصات ذاتية (بدون ممرض)', cat_expat:'العمالة', col_self:'بدون ممرض', col_device:'قياس في البيت', col_nurse:'زيارة ممرض',
   kit_fee:'توصيل واستلام العدة', kit_mode_t:'هذا الطلب ما يحتاج ممرض', kit_mode_p:'المندوب يوصل لك العدة، تاخذ العينة بنفسك بخطوات بسيطة، والمندوب يرجع ياخذها للمختبر.', b2_kit:'العدة',
@@ -2385,12 +2387,41 @@ const WISE_OK = [
   { ar:'إِنَّ لِجَسَدِكَ عَلَيْكَ حَقًّا', sa:'حديث شريف · رواه البخاري', en:'“Your body has a right over you.”', se:'Hadith · Sahih al-Bukhari' },
   { ar:'سَلُوا اللَّهَ الْعَفْوَ وَالْعَافِيَةَ، فَإِنَّ أَحَدًا لَمْ يُعْطَ بَعْدَ الْيَقِينِ خَيْرًا مِنَ الْعَافِيَةِ', sa:'حديث شريف · رواه الترمذي وأحمد', en:'“Ask Allah for pardon and well-being: after certainty of faith, no one is given anything better than well-being.”', se:'Hadith · at-Tirmidhi, Ahmad' },
   { ar:'الصحة تاج على رؤوس الأصحاء، لا يراه إلا المرضى', sa:'حكمة', en:'“Health is a crown on the heads of the healthy that only the sick can see.”', se:'Proverb' },
-  { ar:'صحتك أغلى ما تملك، فحافظ عليها', sa:'حكمة', en:'Your health is the richest thing you own: look after it.', se:'Wisdom' }
+  { ar:'صحتك أغلى ما تملك، فحافظ عليها', sa:'حكمة', en:'Your health is the richest thing you own: look after it.', se:'Wisdom' },
+  { ar:'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', sa:'سورة الفاتحة · الآية 2', en:'“All praise is for Allah, Lord of the worlds.”', se:'Qur’an 1:2' },
+  { ar:'لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ', sa:'سورة إبراهيم · الآية 7', en:'“If you are grateful, I will surely give you more.”', se:'Qur’an 14:7' },
+  { ar:'وَإِن تَعُدُّوا نِعْمَةَ اللَّهِ لَا تُحْصُوهَا', sa:'سورة إبراهيم · الآية 34', en:'“If you tried to count Allah’s blessings, you could never number them.”', se:'Qur’an 14:34' },
+  { ar:'فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ', sa:'سورة البقرة · الآية 152', en:'“Remember Me and I will remember you; be grateful to Me.”', se:'Qur’an 2:152' },
+  { ar:'وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ', sa:'سورة الضحى · الآية 11', en:'“And speak of the blessings of your Lord.”', se:'Qur’an 93:11' },
+  { ar:'وَقَلِيلٌ مِّنْ عِبَادِيَ الشَّكُورُ', sa:'سورة سبأ · الآية 13', en:'“Few of My servants are truly grateful.”', se:'Qur’an 34:13' },
+  { ar:'وَمَن يَشْكُرْ فَإِنَّمَا يَشْكُرُ لِنَفْسِهِ', sa:'سورة لقمان · الآية 12', en:'“Whoever is grateful is grateful for his own good.”', se:'Qur’an 31:12' },
+  { ar:'أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ', sa:'سورة الرعد · الآية 28', en:'“Surely, in the remembrance of Allah hearts find rest.”', se:'Qur’an 13:28' },
+  { ar:'وَآخِرُ دَعْوَاهُمْ أَنِ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', sa:'سورة يونس · الآية 10', en:'“And their final prayer: all praise is for Allah, Lord of the worlds.”', se:'Qur’an 10:10' },
+  { ar:'الطُّهُورُ شَطْرُ الْإِيمَانِ، وَالْحَمْدُ لِلَّهِ تَمْلَأُ الْمِيزَانَ', sa:'حديث شريف · رواه مسلم', en:'“Purity is half of faith, and ‘al-hamdu lillah’ fills the scale.”', se:'Hadith · Sahih Muslim' },
+  { ar:'إِنَّ اللَّهَ لَيَرْضَى عَنِ الْعَبْدِ أَنْ يَأْكُلَ الْأَكْلَةَ فَيَحْمَدَهُ عَلَيْهَا، أَوْ يَشْرَبَ الشَّرْبَةَ فَيَحْمَدَهُ عَلَيْهَا', sa:'حديث شريف · رواه مسلم', en:'“Allah is pleased with a servant who eats a meal and praises Him for it, or drinks a drink and praises Him for it.”', se:'Hadith · Sahih Muslim' },
+  { ar:'مَنْ لَا يَشْكُرُ النَّاسَ لَا يَشْكُرُ اللَّهَ', sa:'حديث شريف · رواه أبو داود والترمذي', en:'“Whoever does not thank people does not thank Allah.”', se:'Hadith · Abu Dawud, at-Tirmidhi' },
+  { ar:'الْمُؤْمِنُ الْقَوِيُّ خَيْرٌ وَأَحَبُّ إِلَى اللَّهِ مِنَ الْمُؤْمِنِ الضَّعِيفِ، وَفِي كُلٍّ خَيْرٌ', sa:'حديث شريف · رواه مسلم', en:'“The strong believer is better and more beloved to Allah than the weak believer, and in both there is good.”', se:'Hadith · Sahih Muslim' },
+  { ar:'اغْتَنِمْ خَمْسًا قَبْلَ خَمْسٍ … وَصِحَّتَكَ قَبْلَ سَقَمِكَ', sa:'حديث شريف · رواه الحاكم', en:'“Take advantage of five before five… your health before your illness.”', se:'Hadith · al-Hakim' },
+  { ar:'مَا مَلَأَ آدَمِيٌّ وِعَاءً شَرًّا مِنْ بَطْنٍ', sa:'حديث شريف · رواه الترمذي', en:'“No human fills a vessel worse than his stomach.”', se:'Hadith · at-Tirmidhi' },
+  { ar:'الشكر قَيْدُ النِّعَم', sa:'قول مأثور', en:'Gratitude is what keeps blessings with you.', se:'Saying' },
+  { ar:'العقل السليم في الجسم السليم', sa:'حكمة', en:'A sound mind lives in a sound body.', se:'Proverb' },
+  { ar:'درهم وقاية خير من قنطار علاج', sa:'مثل عربي', en:'An ounce of prevention is worth a pound of cure.', se:'Arabic proverb' },
+  { ar:'الحمد لله على نعمة العافية، فهي تاج لا يُرى إلا بالشكر', sa:'حكمة', en:'Praise Allah for good health: a crown best seen through gratitude.', se:'Wisdom' }
 ];
 const WISE_CARE = [
   { ar:'وَإِذَا مَرِضْتُ فَهُوَ يَشْفِينِ', sa:'سورة الشعراء · الآية 80', en:'“And when I am ill, it is He who cures me.”', se:'Qur’an 26:80' },
   { ar:'مَا أَنْزَلَ اللَّهُ دَاءً إِلَّا أَنْزَلَ لَهُ شِفَاءً', sa:'حديث شريف · رواه البخاري', en:'“Allah has not sent down a disease without sending down a cure for it.”', se:'Hadith · Sahih al-Bukhari' },
-  { ar:'الوقاية خير من العلاج، والاكتشاف المبكر نصف العلاج', sa:'حكمة', en:'Prevention is better than cure, and finding it early is half the cure.', se:'Wisdom' }
+  { ar:'الوقاية خير من العلاج، والاكتشاف المبكر نصف العلاج', sa:'حكمة', en:'Prevention is better than cure, and finding it early is half the cure.', se:'Wisdom' },
+  { ar:'فَإِنَّ مَعَ الْعُسْرِ يُسْرًا', sa:'سورة الشرح · الآية 5', en:'“Truly, with hardship comes ease.”', se:'Qur’an 94:5' },
+  { ar:'وَبَشِّرِ الصَّابِرِينَ', sa:'سورة البقرة · الآية 155', en:'“And give good news to those who are patient.”', se:'Qur’an 2:155' },
+  { ar:'وَلَا تَيْأَسُوا مِن رَّوْحِ اللَّهِ', sa:'سورة يوسف · الآية 87', en:'“Never lose hope in the mercy of Allah.”', se:'Qur’an 12:87' },
+  { ar:'وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ', sa:'سورة الإسراء · الآية 82', en:'“We send down in the Qur’an what is healing and mercy for the believers.”', se:'Qur’an 17:82' },
+  { ar:'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ', sa:'سورة آل عمران · الآية 173', en:'“Allah is sufficient for us, and He is the best guardian.”', se:'Qur’an 3:173' },
+  { ar:'لِكُلِّ دَاءٍ دَوَاءٌ، فَإِذَا أُصِيبَ دَوَاءُ الدَّاءِ بَرَأَ بِإِذْنِ اللَّهِ', sa:'حديث شريف · رواه مسلم', en:'“For every disease there is a cure; when the right cure is found, it heals by Allah’s permission.”', se:'Hadith · Sahih Muslim' },
+  { ar:'عَجَبًا لِأَمْرِ الْمُؤْمِنِ، إِنَّ أَمْرَهُ كُلَّهُ خَيْرٌ … إِنْ أَصَابَتْهُ سَرَّاءُ شَكَرَ فَكَانَ خَيْرًا لَهُ، وَإِنْ أَصَابَتْهُ ضَرَّاءُ صَبَرَ فَكَانَ خَيْرًا لَهُ', sa:'حديث شريف · رواه مسلم', en:'“How wonderful is the affair of the believer: all of it is good… in good times he is grateful, in hard times he is patient, and both are good for him.”', se:'Hadith · Sahih Muslim' },
+  { ar:'مَا يُصِيبُ الْمُسْلِمَ مِنْ نَصَبٍ وَلَا وَصَبٍ … إِلَّا كَفَّرَ اللَّهُ بِهَا مِنْ خَطَايَاهُ', sa:'حديث شريف · رواه البخاري', en:'“No tiredness or illness befalls a Muslim… but Allah removes some of his sins by it.”', se:'Hadith · Sahih al-Bukhari' },
+  { ar:'اللَّهُمَّ رَبَّ النَّاسِ، أَذْهِبِ الْبَأْسَ، اشْفِ أَنْتَ الشَّافِي، لَا شِفَاءَ إِلَّا شِفَاؤُكَ، شِفَاءً لَا يُغَادِرُ سَقَمًا', sa:'دعاء نبوي · رواه البخاري ومسلم', en:'“O Allah, Lord of people, remove the harm and heal; You are the Healer, there is no healing but Yours, a healing that leaves no illness.”', se:'Prophetic supplication · al-Bukhari, Muslim' },
+  { ar:'الصبر مفتاح الفرج', sa:'مثل عربي', en:'Patience is the key to relief.', se:'Arabic proverb' }
 ];
 /* the business numbers are only for the team leader's account and the demo admin */
 function canBiz(){ return !!(S.user && S.user.role === 'admin'); }
@@ -2724,7 +2755,17 @@ const SOURCES = [
     ['Sahih al-Bukhari 6412 · «نعمتان مغبون فيهما…»', 'https://sunnah.com/bukhari:6412'],
     ['Sahih al-Bukhari 5678 · «ما أنزل الله داء إلا أنزل له شفاء»', 'https://sunnah.com/bukhari:5678'],
     ['Sahih al-Bukhari 1975 · «إن لجسدك عليك حقا»', 'https://sunnah.com/bukhari:1975'],
-    ['Jami at-Tirmidhi 2346 · «من أصبح منكم آمنا في سربه…»', 'https://sunnah.com/tirmidhi:2346'] ] }
+    ['Jami at-Tirmidhi 2346 · «من أصبح منكم آمنا في سربه…»', 'https://sunnah.com/tirmidhi:2346'],
+    ['Qur’an 14:7 · «لئن شكرتم لأزيدنكم» (and 1:2, 2:152, 2:155, 3:173, 10:10, 12:87, 13:28, 14:34, 17:82, 31:12, 34:13, 93:11, 94:5)', 'https://quran.com/14/7'],
+    ['Sahih Muslim 2999 · «عجبا لأمر المؤمن…»', 'https://sunnah.com/muslim:2999'],
+    ['Sahih Muslim 223 · «الطهور شطر الإيمان والحمد لله تملأ الميزان»', 'https://sunnah.com/muslim:223'],
+    ['Sahih Muslim 2734 · «إن الله ليرضى عن العبد أن يأكل الأكلة فيحمده عليها»', 'https://sunnah.com/muslim:2734'],
+    ['Sahih Muslim 2664 · «المؤمن القوي خير…»', 'https://sunnah.com/muslim:2664'],
+    ['Sahih Muslim 2204 · «لكل داء دواء»', 'https://sunnah.com/muslim:2204'],
+    ['Sahih al-Bukhari 5641 · «ما يصيب المسلم من نصب ولا وصب…»', 'https://sunnah.com/bukhari:5641'],
+    ['Sahih al-Bukhari 5743 · «اللهم رب الناس أذهب البأس…»', 'https://sunnah.com/bukhari:5743'],
+    ['Sunan Abi Dawud 4811 · «من لا يشكر الناس لا يشكر الله»', 'https://sunnah.com/abudawud:4811'],
+    ['Jami at-Tirmidhi 2380 · «ما ملأ آدمي وعاء شرا من بطن»', 'https://sunnah.com/tirmidhi:2380'] ] }
 ];
 async function viewSources(){
   const ar = S.lang === 'ar';
