@@ -1,6 +1,12 @@
 # Project status — last updated 2026-11-25
 
-## v33 (READY, NOT DEPLOYED — waiting for the owner's go)
+## v34 (LIVE since 2026-11-25, deployment dpl_5DtHHLQzkVPm67nbhx9rHtzpryKb; live-checked phone + desktop)
+- Tidy layout: banner text on its own glass panel; Noor waits until the banner is out from under her and stands beside the app side bar; help-bot button hidden on sign-in screens; phone tests page no longer scrolls sideways; banner prices fill in after the catalog loads. New automatic check `overlap.js` (scratch harness): every screen, phone + desktop, AR + EN, every role — text on pictures/characters/other text = 0.
+- Presentation fixed on phones and laptops (the slide drifted off-screen below 1600 px); compact controls.
+- Film: hadith recited by a calm male Arabic voice (Chatterbox multilingual, MIT, generated locally; take chosen because Arabic transcription is word-perfect clean and compressed), English meaning on screen, music lowered under it.
+- Staff passwords were reset and handed to the owner in chat (never stored in the repo).
+
+## v33 (LIVE since 2026-11-25, deployment dpl_FLykxRZdqv2w2AqGCkVjKK5herEL; v33_security.sql and v32_b_nurse_gender.sql applied)
 - **Nurse rule (owner)**: a male nurse visits men; a female nurse visits women and children under 12. Booking asks for female nurses for children and explains the rule; texts no longer say "your nurse (female)" for everyone. Database part: `project-knowledge/sql/v32_b_nurse_gender.sql` (dry-run tested and rolled back; apply right after deploying the front end).
 - **Sample guarantee** `#/guarantee`: free home re-collection or a full refund plus an apology gift when anything goes wrong on our side; who is responsible (we are, then we settle with partners by contract and insurance); steps and timelines; what we do not cover; cancellations. Linked from the menu, footer, FAQ, payment step and the order's cold-chain card. (Admin one-click "re-collect / refund" is not built yet: use the refund in payments and a 100% coupon.)
 - **Sign-in screens**: the van keeps driving (scenery scrolls, tap it to honk), rotating sayings instead of "your nurse is on the way", a thinking person on Forgot password (looks at the field while you type, lightbulb + envelope when the link is sent), the brand name in Outfit with a letter-by-letter animation.
