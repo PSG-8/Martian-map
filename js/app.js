@@ -228,7 +228,7 @@ async function afterLogin(r){
   API.setToken(r.token); S.user = r.user; S.unread = 0;
   if ('Notification' in window && Notification.permission === 'granted' && localStorage.getItem('lah_push') === '1') setTimeout(() => pushEnable(true).catch(() => {}), 1500);
   const back = sessionStorage.getItem('lah_after'); sessionStorage.removeItem('lah_after');
-  go(back || (S.user.role === 'patient' && cartCount() ? 'app/book' : 'app'));
+  go(back || (canUse(S.user) && cartCount() ? 'app/book' : 'app'));
 }
 function viewLogin(){
   const D = x => x + '@demo.labathome.om';
@@ -315,6 +315,9 @@ function viewRegister(role){
   draw();
 }
 /* ---------- app shell ---------- */
+/* v39: the owner (non-demo admin) can also use every user service himself */
+const ownerU = u => !!(u && u.role === 'admin' && !u.is_demo);
+const canUse = u => !!(u && (u.role === 'patient' || ownerU(u)));
 function navFor(role){
   const m = {
     patient: [['app','home','m_home'],['app/tests','flask','m_tests'],['app/cart','cart','m_cart'],['app/orders','list','m_orders'],['app/loyalty','star','m_loyalty'],['app/consult','steth','m_consult'],['dental','tooth','m_dental'],['app/profile','user','m_profile']],
@@ -1156,7 +1159,7 @@ async function viewProfile(){
       <label class="field"><span>${t('phone')}</span><input class="input" name="phone" value="${esc(u.phone || '')}" inputmode="tel"></label>
       ${['patient','nurse','courier'].includes(u.role) ? `<label class="field"><span>${ic('idcard',15)} ${t('civil_id')}</span><input class="input ltr" name="civil_id" inputmode="numeric" maxlength="10" value="${esc(u.civil_id || '')}" placeholder="${t('civil_ph')}" ${u.is_demo ? 'readonly' : ''}><div class="hint">${t(u.is_demo ? 'civil_demo' : 'civil_hint')}</div></label>` : ''}
       <label class="field"><span>${t('wilayat')}</span><select class="input" name="wilayat">${W.map(w => `<option value="${esc(w)}" ${u.wilayat === w ? 'selected' : ''}>${esc(wN(w))}</option>`).join('')}</select></label>
-      ${u.role === 'patient' ? `<label class="field"><span>${t('address')}</span><input class="input" name="address" value="${esc(u.address || '')}"></label>
+      ${canUse(u) ? `<label class="field"><span>${t('address')}</span><input class="input" name="address" value="${esc(u.address || '')}"></label>
       <h4 style="margin-top:8px">${t('medical')}</h4><div class="grid g3"><label class="field"><span>${t('blood')}</span><select class="input" name="blood">${['','A+','A-','B+','B-','AB+','AB-','O+','O-'].map(b => `<option ${m.blood === b ? 'selected' : ''}>${b}</option>`).join('')}</select></label>
       <label class="field"><span>${t('gender')}</span><select class="input" name="gender"><option value="male">${t('male')}</option><option value="female" ${m.gender === 'female' ? 'selected' : ''}>${t('female')}</option></select></label><label class="field"><span>${t('dob')}</span><input class="input" type="date" name="dob" value="${esc(m.dob || '')}"></label></div>
       <label class="field"><span>${t('allergies')}</span><input class="input" name="allergies" value="${esc(m.allergies || '')}"></label><label class="field"><span>${t('chronic')}</span><input class="input" name="chronic" value="${esc(m.chronic || '')}"></label>` : ''}
@@ -1212,6 +1215,7 @@ function menuItems(){
   } else {
     navFor(r).forEach(([h2, i, k]) => { ac += it(h2, i, t(k)); });
     if (r === 'admin') ac += it('app/admin/tickets', 'chat', t('m_tickets'));
+    if (ownerU(u)) { sv += it('app/tests', 'flask', t('q_book')); sv += it('app/tests?c=selfkit', 'box', t('m_selfkit')); sv += it('app/cart', 'cart', t('m_cart'), n ? `<span class="chip red">${n}</span>` : ''); sv += it('app/consult/new?kind=pre', 'steth', t('m_consult')); sv += it('dental', 'tooth', t('m_dental')); sv += it('app/loyalty', 'star', t('m_loyalty')); }
     ac += it('app/privacy', 'shield', t('m_privacy'));
   }
   co += it('how', 'globe', t('nav_how')); co += it('new', 'play', t('m_new'));
@@ -1732,7 +1736,7 @@ async function renderNow(){
       else if (sub === 'kit' && r === 'nurse') await viewNurseKit();
       else if (sub === 'tests') await viewAppTests();
       else if (sub === 'cart') await viewCart();
-      else if (sub === 'consult' && seg[2] === 'new' && r === 'patient') await viewConsultNew();
+      else if (sub === 'consult' && seg[2] === 'new' && canUse(S.user)) await viewConsultNew();
       else if (sub === 'consult' && seg[2]) await viewConsult(seg[2]);
       else if (sub === 'consult') await viewConsults();
       else if (sub === 'book') await viewBook();
@@ -1742,7 +1746,7 @@ async function renderNow(){
       else if (sub === 'profile') await viewProfile();
       else if (sub === 'notifs') await viewNotifs();
       else if (sub === 'programs') await viewCompanyHome();
-      else if (sub === 'loyalty' && r === 'patient') await viewLoyalty();
+      else if (sub === 'loyalty' && canUse(S.user)) await viewLoyalty();
       else if (sub === 'privacy') await viewPrivacy();
       else if (sub === 'camps' && r === 'company') await viewCamps();
       else if (sub === 'admin' && (r === 'admin' || r === 'staff')) await ((r === 'admin' ? { users: viewAdminUsers, catalog: viewAdminCatalog, tickets: viewAdminTickets, payments: viewAdminPayments, contracts: viewAdminContracts, settings: viewAdminSettings, kit: viewAdminKit, safety: viewAdminSafety, coupons: viewAdminCoupons, camps: viewAdminCamps } : { users: viewAdminUsers, tickets: viewAdminTickets, contracts: viewAdminContracts, settings: viewAdminSettings, kit: viewAdminKit, safety: viewAdminSafety, camps: viewAdminCamps })[seg[2]] || viewAdminHome)();
@@ -1835,7 +1839,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 38;
+const APP_V = 39;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -2150,7 +2154,7 @@ function heroSlides(){
 }
 function heroHtml(compact){
   const sl = heroSlides(); const D = S.lang === 'ar' ? 'r' : 'd'; /* desktop pictures: 'r' has the scene on the left for Arabic */
-  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=38" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=38" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=38"><img ${a}src="img/hero/h${n}${D}.jpg?v=38" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=39" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=39" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=39"><img ${a}src="img/hero/h${n}${D}.jpg?v=39" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
     <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
       <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
     <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
@@ -2627,7 +2631,7 @@ function docCard(d, sel){ const ar = S.lang === 'ar';
     <span class="row wrap" style="gap:6px;margin-top:6px"><span class="chip ${d.gender === 'female' ? 'red' : ''}">${t(d.gender === 'female' ? 'cs_female_dr' : 'cs_male_dr')}</span><span class="chip amber">★ ${d.rating || '—'}</span>${d.license ? `<span class="chip gray ltr">${esc(d.license)}</span>` : ''}</span></span>${sel ? `<span class="doc-tick">${ic('check',18,2.6)}</span>` : ''}</button>`; }
 function csKinds(){ return [['pre','steth','cs_pre','consult_fee'],['post','file','cs_post','consult_post_fee'],['dental','tooth','cs_dental','consult_fee'],['dental_home','home','cs_dental_home','dental_home_fee']]; }
 function csFee(kind, order, B){ if (kind === 'post' && order && ['review','urgent'].includes(order.severity)) return 0; return Number(B[{ pre:'consult_fee', post:'consult_post_fee', dental:'consult_fee', dental_home:'dental_home_fee' }[kind]]); }
-function csGoBook(kind, orderId){ const h = 'app/consult/new?kind=' + kind + (orderId ? '&order=' + orderId : ''); if (S.user && S.user.role === 'patient') go(h); else if (S.user) toast(t('e_ONLY_PATIENTS')); else { sessionStorage.setItem('lah_after', h); go('register'); } }
+function csGoBook(kind, orderId){ const h = 'app/consult/new?kind=' + kind + (orderId ? '&order=' + orderId : ''); if (canUse(S.user)) go(h); else if (S.user) toast(t('e_ONLY_PATIENTS')); else { sessionStorage.setItem('lah_after', h); go('register'); } }
 function csStatus(c){ const m = { booked:'blue', live:'teal', done:'teal', cancelled:'gray' }; return `<span class="chip ${m[c.status] || ''}">${t('cs_st_' + c.status)}</span>`; }
 function csWhen(c){ return `${fmtDate(c.slot_date)} · ${esc(c.slot_time)}`; }
 function csJoinOpen(c){ const now = muscatNow(); if (c.status === 'live') return true; if (c.slot_date !== now.date) return false; const [h, m] = c.slot_time.split(':').map(Number); return now.mins >= h * 60 + m - 10 && now.mins <= h * 60 + m + 60; }
@@ -2774,7 +2778,7 @@ async function viewConsult(id){
   if ($('[data-addsug]')) $('[data-addsug]').onclick = async () => { await loadCatalog().catch(() => {}); sug.forEach(([ty, x]) => { const k = ty === 'package' ? 'packages' : 'tests'; if (!S.cart[k].includes(x) && S.catalog && (ty === 'package' ? S.catalog.P[x] : S.catalog.T[x])) S.cart[k].push(x); }); saveCart(); toast(t('cs_added')); go('app/cart'); };
   $$('[data-cstar]').forEach(s => s.onclick = async () => { if (await act(null, 'rate', { rating: +s.dataset.cstar })) { toast(t('thanks_rating')); viewConsult(id); } });
 }
-function csPostCta(o){ return S.user && S.user.role === 'patient' ? `<div class="card row cs-cta" style="gap:12px;align-items:center">${docPic('Dr. Aisha Al Balushi', 'female', 52)}<div class="grow"><b>${t('cs_post_cta_t')}</b><div class="small muted">${t('cs_post_cta_p')}${['review','urgent'].includes(o.severity) ? ' <b class="teal-t">' + t('cs_free') + '</b>' : ''}</div></div><button class="btn sm" data-cspost="${o.id}">${ic('video',16)} ${t('cs_post_cta')}</button></div>` : ''; }
+function csPostCta(o){ return canUse(S.user) ? `<div class="card row cs-cta" style="gap:12px;align-items:center">${docPic('Dr. Aisha Al Balushi', 'female', 52)}<div class="grow"><b>${t('cs_post_cta_t')}</b><div class="small muted">${t('cs_post_cta_p')}${['review','urgent'].includes(o.severity) ? ' <b class="teal-t">' + t('cs_free') + '</b>' : ''}</div></div><button class="btn sm" data-cspost="${o.id}">${ic('video',16)} ${t('cs_post_cta')}</button></div>` : ''; }
 
 /* business page (#/business) */
 async function viewBusiness(){
