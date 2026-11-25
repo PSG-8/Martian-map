@@ -36,3 +36,9 @@
 - Hero: `heroSlides()` items carry `a` = picture / clip / 3D scene number; `js/hero3d.js` BUILD has 9 scenes (5 self-kit, 6 loyalty, 7 doctor online, 8 companies) and mirrors the camera offset for `dir=rtl`. Pictures: `img/hero/h{n}d|r|m.(webp|jpg)`, phone loops `clip{n}.mp4`.
 - Home extras: `journeyBlock()`, `featBlock()`, `faqBlock()`, `ctaBlock()`, `bindHomeFx()`; `placeMenu()` positions the desktop dropdown; `copyText()`; `holoWake()/holoCalm()` rest the logo animation.
 - Videos: `VIDS` = story (idea), how (guide), film.
+## v33 additions (security)
+- `public._demo_ok(viewer, owner_id)`: a demo viewer may only see rows that belong to demo users. Used by `_can_see` (orders), `orders_list`, the consult RPCs and every admin list (users, overview, payments, tickets, safety, camps, nurses, privacy). Staff alerts go to demo admins only when the person is a demo user.
+- `_can_see` also requires partners (nurse, courier, lab, doctor) to be `active`; `settings.auto_approve_minutes` is null, so partners wait for the owner.
+- `profile_update` takes only an allow-list of `meta` keys (blood, gender, dob, allergies, chronic, needs_profile, langs, languages, bio, bio_ar, hours); partners keep their gender. `auth_register` drops system keys (fleet_admin, manual, *_seed, bonus_stamps, ref_code, referred_by, google, consult...).
+- Rate limits: guest tickets (3/hour per contact, 20 per 10 min overall), signed-in tickets 6/hour, waitlist (1/day per phone), chat 20 messages/min per consult, sign-ups 60 per 10 min.
+- `vercel.json`: Content-Security-Policy (self + Supabase + unpkg Leaflet + Google Fonts + Google sign-in + OSM tiles), X-Frame-Options DENY / frame-ancestors none, HSTS, nosniff, Permissions-Policy.

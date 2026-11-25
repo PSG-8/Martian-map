@@ -28,3 +28,7 @@
 - **Nurse gender rule** (v33, owner): male nurse → men; female nurse → women and children under 12. Enforced in the booking screen and in the database (trigger, order_create, auto-assign).
 - **The customer never pays for our mistakes** (v33): damaged/lost samples → free re-collection or full refund + apology gift; iLab@home is the single responsible party and settles with partners afterwards. What we do not cover is written plainly on `#/guarantee`.
 - **Spoken names use phonemes** (v33): English TTS mispronounces Arabic names (Noor→"Nor", Maryam→"Merry-am"), so names are fed as IPA and checked by transcription.
+- **Demo accounts see demo data only** (v33 security): the demo password is public, so a demo admin/doctor/nurse/courier/lab must never reach a real person's data. Enforced in the database (`_demo_ok`), not in the screens.
+- **Partners are approved by a person** (v33): automatic approval after 2 minutes was a risk (a stranger could sign up as a nurse and receive home addresses). Testers use the demo partner accounts.
+- **Self-service profile fields are a short allow-list** (v33): everything else in `meta` (fleet manager, stamps, referral, manual mode, gender for partners) is set by the system or the owner.
+- **Hadith and Qur'an are spoken by a calm male Arabic voice** (v33, owner): English narration introduces it, the Arabic is recited, the English meaning is written. HeyGen's free voice allowance was used up, so the voice is generated locally (open-source model) and checked by Arabic transcription.

@@ -32,3 +32,8 @@ No internet from the shell (only GitHub), so rendering was done through GitHub A
 - Banner pictures and phone loops come from the 3D scenes: `hb/snap32.mjs` (SETS m / d / r) and `hb/clips32.mjs` (780×1200, 7 s, 30 fps), then WebP/JPEG via Pillow.
 - Guide video: TTS clips first (`vid32w/tts.py`), the screen recording uses their lengths as time budgets (`record.js`, Chrome screencast at 2× with `--force-device-scale-factor=2`), then `compose.py` (ffmpeg overlays + music + loudnorm).
 - Film: `vid32f/` — `script.json` → `tts.py` → `film.js` (GSAP timeline, letterbox, grain, vignette) → `render.js` frames → `music.py` → ffmpeg.
+## v33 security notes
+- Database changes: write them as `CREATE OR REPLACE` / exact text replacements that fail loudly, try them first in one query that ends with `raise exception 'DRYRUN_OK …'` (everything rolls back, the message carries the checks), then apply with a migration.
+- Demo isolation: any new screen that lists people's data must filter with `public._demo_ok(viewer, owner_user_id)` (a demo viewer sees demo owners only). New internal helpers: `revoke all on function … from public, anon, authenticated`.
+- Headers: `vercel.json` has the Content-Security-Policy. A new outside service (script, font, image, API) must be added there, then run `cspsweep.js` (scratch harness: every screen with the production CSP, reports violations).
+- Partners are approved by the owner (Admin → Users → approve). `settings.auto_approve_minutes` is JSON null on purpose.

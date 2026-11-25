@@ -6,6 +6,7 @@ create or replace function public._nurse_gender_for(p_person jsonb, p_gender tex
 returns text language sql stable set search_path to 'public' as $$
   select case when public._order_age(p_person) is not null and public._order_age(p_person) < 12 then 'female' else p_gender end
 $$;
+revoke all on function public._nurse_gender_for(jsonb, text) from public, anon, authenticated;
 
 do $mig$
 declare

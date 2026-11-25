@@ -15,7 +15,7 @@ const S = {
 };
 
 /* ---------- helpers ---------- */
-function t(k, v){ let s = (I18N[S.lang]||{})[k]; if (s == null) s = I18N.en[k]; if (s == null) return k; if (v) for (const x in v) s = s.split('{'+x+'}').join(v[x]); return s; }
+function t(k, v){ let s = (I18N[S.lang]||{})[k]; if (s == null) s = I18N.en[k]; if (s == null) return esc(k); if (v) for (const x in v) s = s.split('{'+x+'}').join(v[x]); return s; }
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 const omr = n => Number(n||0).toFixed(3);
 const LN = (o, base) => o ? (S.lang === 'ar' ? (o[base+'_ar'] || o[base+'_en']) : o[base+'_en']) : '';
@@ -581,7 +581,7 @@ function icsDownload(o){
 function partyRow(kind, p, state){
   const col = kind === 'nurse' ? (p && p.gender === 'female' ? '#e8466f' : '#2563eb') : kind === 'courier' ? '#f59e0b' : '#0fae9b';
   if (!p) return `<div class="party wait"><span class="pav" style="background:#e6ecf6;color:#8a97b0">${ic(kind === 'nurse' ? 'syringe' : kind === 'courier' ? 'van' : 'flask', 22)}</span><div class="grow"><div class="xs muted b">${t('pt_' + kind)}</div><b class="muted">${t('pt_wait_' + kind)}</b></div><span class="pulse"></span></div>`;
-  const sub = kind === 'nurse' ? `${p.rating ? '★ ' + p.rating + ' · ' : ''}${t('visits',{n:p.visits})}${p.years ? ' · ' + t('years_exp',{n:p.years}) : ''}`
+  const sub = kind === 'nurse' ? `${p.rating ? '★ ' + p.rating + ' · ' : ''}${t('visits',{n:p.visits})}${p.years ? ' · ' + t('years_exp',{n:esc(p.years)}) : ''}`
     : kind === 'courier' ? `${esc(p.company || '')}${p.vehicle ? ' · ' + esc(p.vehicle) : ''}`
     : `${esc(p.accreditation || '')}${p.wilayat ? ' · ' + esc(wN(p.wilayat)) : ''}`;
   return `<button type="button" class="party" data-party="${kind}"><span class="pav" style="background:${col}">${kind === 'lab' ? ic('flask', 22) : esc(initials(p.name))}</span>
@@ -593,7 +593,7 @@ async function partyModal(kind, o){
     const col = n.gender === 'female' ? '#e8466f' : '#2563eb';
     return modal(`<div class="pm-head"><span class="pav xl" style="background:${col}">${esc(initials(n.name))}</span><div><h3 style="margin:0">${esc(n.name)}</h3><div class="small muted">${t('r_nurse')} · ${t(n.gender === 'female' ? 'female' : 'male')} · ${esc(wN(n.wilayat))}</div>
       <div class="row wrap" style="gap:6px;margin-top:8px"><span class="chip teal">${ic('shield',12)} ${t('verified')}</span>${n.rating ? `<span class="chip amber">★ ${n.rating} · ${t('reviews_n',{n:n.reviews || 0})}</span>` : ''}</div></div></div>
-      <div class="pm-stats"><div><b>${n.visits}</b><span>${t('visits_l')}</span></div><div><b>${n.years || '—'}</b><span>${t('years')}</span></div><div><b>${esc(n.since || '—')}</b><span>${t('since')}</span></div></div>
+      <div class="pm-stats"><div><b>${n.visits}</b><span>${t('visits_l')}</span></div><div><b>${esc(n.years || '—')}</b><span>${t('years')}</span></div><div><b>${esc(n.since || '—')}</b><span>${t('since')}</span></div></div>
       ${n.bio ? `<p style="margin:12px 0 0">${esc(n.bio)}</p>` : ''}
       <div class="vline"><span class="muted">${t('licence')}</span><b class="ltr">${esc(n.license || '—')}</b></div>
       <div class="vline"><span class="muted">${t('langs')}</span><b>${(n.languages || []).map(esc).join(' · ')}</b></div>
@@ -1350,7 +1350,7 @@ function nearestWilayat(lat, lng){ let best = null, bd = 1e9; for (const [w, ll]
 function nurseCardHtml(n, sel){
   const col = n.gender === 'female' ? '#e8466f' : '#1257d6';
   return `<button type="button" class="ncard ${sel ? 'on' : ''}" data-nurse="${n.id}"><span class="avatar" style="background:${col}">${esc(initials(n.name))}</span>
-    <span class="grow" style="text-align:start"><b>${esc(n.name)}</b><span class="xs muted" style="display:block">${n.rating ? '★ ' + n.rating + ' · ' : ''}${t('visits',{n:n.visits})}${n.years ? ' · ' + t('years_exp',{n:n.years}) : ''}</span>
+    <span class="grow" style="text-align:start"><b>${esc(n.name)}</b><span class="xs muted" style="display:block">${n.rating ? '★ ' + n.rating + ' · ' : ''}${t('visits',{n:n.visits})}${n.years ? ' · ' + t('years_exp',{n:esc(n.years)}) : ''}</span>
     ${n.bio ? `<span class="small" style="display:block;margin-top:4px;color:#3b4a66">${esc(n.bio)}</span>` : ''}
     <span class="row wrap" style="gap:4px;margin-top:6px"><span class="chip teal">${ic('check',12,3)} ${t('today_t')}</span>${(n.languages || []).map(l => `<span class="chip gray">${esc(l)}</span>`).join('')}</span></span>
     <span class="np-link" data-np="${n.id}" role="button" tabindex="0">${ic('eye',13)} ${t('view_profile')}</span></span>
@@ -1371,7 +1371,7 @@ async function viewSupport(){
         <label class="field"><span>${t('sup_msg')}</span><textarea class="input" name="msg" rows="4" required></textarea></label>
         <div class="err" id="se"></div><button class="btn block">${ic('chat',18)} ${t('sup_send')}</button></form>
       <div class="stack"><h3>${t('sup_quick')}</h3>${[1,2,3,4,5,6].map(i => `<details class="faq"><summary>${t('q'+i)}</summary><p>${t('a'+i)}</p></details>`).join('')}</div></div>
-    ${u && mine.length ? `<div class="card"><h3>${t('sup_mine')}</h3>${mine.map(x => `<div class="vline" style="display:block"><div class="row between"><b>#${x.id} · ${t('tp_'+x.topic)}</b><span class="chip ${x.status === 'answered' ? 'teal' : 'amber'}">${t(x.status === 'answered' ? 'sup_answered' : 'sup_open')}</span></div><div class="small">${esc(x.message)}</div>${x.reply ? `<div class="banner teal small" style="margin-top:8px">${ic('chat',18)}<div><b>${t('sup_reply')}:</b> ${esc(x.reply)}</div></div>` : ''}<div class="xs muted">${ago(x.created_at)}</div></div>`).join('')}</div>` : ''}</div>`;
+    ${u && mine.length ? `<div class="card"><h3>${t('sup_mine')}</h3>${mine.map(x => `<div class="vline" style="display:block"><div class="row between"><b>#${x.id} · ${esc(t('tp_'+x.topic))}</b><span class="chip ${x.status === 'answered' ? 'teal' : 'amber'}">${t(x.status === 'answered' ? 'sup_answered' : 'sup_open')}</span></div><div class="small">${esc(x.message)}</div>${x.reply ? `<div class="banner teal small" style="margin-top:8px">${ic('chat',18)}<div><b>${t('sup_reply')}:</b> ${esc(x.reply)}</div></div>` : ''}<div class="xs muted">${ago(x.created_at)}</div></div>`).join('')}</div>` : ''}</div>`;
   app.innerHTML = u ? shell(t('m_support'), body) : `${topbar()}<section class="section" style="padding-top:28px"><div class="wrap-w">${body}</div></section>${footer()}`;
   $('#sf').onsubmit = async e => { e.preventDefault(); const f = e.target; $('#se').textContent = '';
     const p = { topic: $('input[name=topic]:checked', f).value, order_code: f.order.value, message: f.msg.value, name: f.name ? f.name.value : '', contact: f.contact ? f.contact.value : '' };
@@ -1408,7 +1408,7 @@ async function viewAbout(){
 async function viewAdminTickets(){
   loading(t('m_tickets'));
   const list = await API.adminTickets();
-  app.innerHTML = shell(t('m_tickets'), list.length ? `<div class="stack">${list.map(x => `<div class="card"><div class="row between wrap"><b>#${x.id} · ${t('tp_'+x.topic)} ${x.order_code ? '· ' + esc(x.order_code) : ''}</b><span class="chip ${x.status === 'answered' ? 'teal' : 'amber'}">${t(x.status === 'answered' ? 'sup_answered' : 'sup_open')}</span></div>
+  app.innerHTML = shell(t('m_tickets'), list.length ? `<div class="stack">${list.map(x => `<div class="card"><div class="row between wrap"><b>#${x.id} · ${esc(t('tp_'+x.topic))} ${x.order_code ? '· ' + esc(x.order_code) : ''}</b><span class="chip ${x.status === 'answered' ? 'teal' : 'amber'}">${t(x.status === 'answered' ? 'sup_answered' : 'sup_open')}</span></div>
     <div class="xs muted">${esc(x.name || '')} ${x.contact ? '· <span class="ltr">' + esc(x.contact) + '</span>' : ''} · ${ago(x.created_at)}</div><p style="margin:10px 0">${esc(x.message)}</p>
     ${x.reply ? `<div class="banner teal small">${ic('chat',18)}<span>${esc(x.reply)}</span></div>` : `<div class="row"><input class="input grow" placeholder="${t('sup_reply')}…" data-rp="${x.id}"><button class="btn sm" data-send="${x.id}">${t('sup_send')}</button></div>`}</div>`).join('')}</div>` : emptyBox(t('none_yet')));
   $$('[data-send]').forEach(b => b.onclick = async () => { const v = $(`[data-rp="${b.dataset.send}"]`).value; try { await busy(b, () => API.adminReply(+b.dataset.send, v)); toast(t('saved')); viewAdminTickets(); } catch(e) {} });
@@ -1645,7 +1645,7 @@ function emailBanner(){
     <button class="btn sm soft" data-mail-send>${t('mail_resend')}</button><button class="icon-btn sm" data-mail-x aria-label="${t('close')}">${ic('x',16)}</button></div>`;
 }
 async function mailSend(btn, quiet){
-  try { const r = await (btn ? busy(btn, () => API.emailSendVerify()) : API.emailSendVerify()); toast(t('mail_sent',{e:r.email})); return true; }
+  try { const r = await (btn ? busy(btn, () => API.emailSendVerify()) : API.emailSendVerify()); toast(t('mail_sent',{e:esc(r.email)})); return true; }
   catch(e) { if (!quiet) toast(e.code === 'NO_MAIL' ? t('mail_not_ready') : e.code === 'TOO_SOON' ? t('mail_too_soon') : errMsg(e), true); return false; }
 }
 function bindMail(){
@@ -2620,7 +2620,7 @@ function docArt(g, size){ const s = size || 64; const f = g === 'female';
   <circle cx="28" cy="31" r="1.3" fill="#0d1628"/><circle cx="36" cy="31" r="1.3" fill="#0d1628"/><path d="M29 36c2 1.5 4 1.5 6 0" stroke="#a0522d" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>`; }
 function docCard(d, sel){ const ar = S.lang === 'ar';
   return `<button type="button" class="doc-card ${sel ? 'on' : ''}" data-doc="${d.id}">${docPic(d.name, d.gender, 64)}<span class="grow" style="text-align:start"><b>${esc(d.name)}</b>
-    <span class="xs muted" style="display:block">${esc(ar ? (d.specialty_ar || d.specialty) : d.specialty)} · ${t('cs_years',{n:d.years || '—'})}</span>
+    <span class="xs muted" style="display:block">${esc(ar ? (d.specialty_ar || d.specialty) : d.specialty)} · ${t('cs_years',{n:esc(d.years || '—')})}</span>
     <span class="small" style="display:block;margin-top:4px">${esc(ar ? (d.bio_ar || d.bio || '') : (d.bio || ''))}</span>
     <span class="row wrap" style="gap:6px;margin-top:6px"><span class="chip ${d.gender === 'female' ? 'red' : ''}">${t(d.gender === 'female' ? 'cs_female_dr' : 'cs_male_dr')}</span><span class="chip amber">★ ${d.rating || '—'}</span>${d.license ? `<span class="chip gray ltr">${esc(d.license)}</span>` : ''}</span></span>${sel ? `<span class="doc-tick">${ic('check',18,2.6)}</span>` : ''}</button>`; }
 function csKinds(){ return [['pre','steth','cs_pre','consult_fee'],['post','file','cs_post','consult_post_fee'],['dental','tooth','cs_dental','consult_fee'],['dental_home','home','cs_dental_home','dental_home_fee']]; }
@@ -2935,7 +2935,7 @@ async function viewPrivacy(){
   let d; try { d = await API.privacy(); } catch(e) { app.innerHTML = shell(t('m_privacy'), emptyBox(errMsg(e))); return; }
   const u = S.user; const isP = u.role === 'patient';
   const roleName = r => ({ share: t('role_share'), lab: t('role_lab'), doctor: t('role_doctor'), admin: t('role_admin'), staff: t('role_admin') })[r] || t('r_' + r);
-  const reqKind = k => ({ export: t('pv_exp'), delete: t('pv_del'), correct: t('pv_fix') })[k] || k;
+  const reqKind = k => ({ export: t('pv_exp'), delete: t('pv_del'), correct: t('pv_fix') })[k] || esc(k);
   app.innerHTML = shell(t('m_privacy'), `<div class="stack-lg">
     <div class="card pv-head"><div class="row" style="gap:14px;align-items:flex-start"><span class="pv-ic">${ic('shield',30)}</span><div class="grow"><h2 style="margin:0">${t('pv_t')}</h2><p class="small muted" style="margin:6px 0 0">${t('pv_p')}</p>${d.consent_at ? `<div class="xs" style="margin-top:8px;color:var(--teal);font-weight:600">${ic('check',13)} ${t('pv_consent', { d: fmtDate(d.consent_at) })}</div>` : ''}</div></div></div>
     ${isP ? `<div class="card"><h3>${ic('eye',20)} ${t('pv_views')}</h3><p class="xs muted">${t('pv_views_p')}</p>${d.views.length ? `<div class="stack" style="--g:6px">${d.views.map(v => `<div class="vline"><div><b>${esc(v.who || roleName(v.role))}</b><div class="xs muted">${roleName(v.role)} · <span class="ltr">${esc(v.code)}</span></div></div><span class="xs muted">${fmtDT(v.at)}</span></div>`).join('')}</div>` : `<p class="small muted" style="margin:0">${t('pv_none')}</p>`}</div>
@@ -3090,7 +3090,7 @@ async function viewCamps(){
 async function viewAdminSafety(){
   loading(t('m_safety'));
   const [sf, pv] = await Promise.all([API.adminSafety(), API.adminPrivacy()]); const ro = S.user.is_demo;
-  const reqKind = k => ({ export: t('pv_exp'), delete: t('pv_del'), correct: t('pv_fix') })[k] || k;
+  const reqKind = k => ({ export: t('pv_exp'), delete: t('pv_del'), correct: t('pv_fix') })[k] || esc(k);
   app.innerHTML = shell(t('m_safety'), `<div class="stack-lg">
     <div class="card"><h3>🚨 ${t('adm_sos')}</h3>${sf.sos.length ? sf.sos.map(x => `<div class="vline ${x.resolved_at ? '' : 'sos-open'}"><div><b>${esc(x.who)}</b> <span class="chip gray">${t('r_' + x.role)}</span><div class="xs muted">${fmtDT(x.at)}${x.order ? ' · ' + esc(x.order) : ''}${x.note ? ' · ' + esc(x.note) : ''}</div>
       <div class="row wrap" style="gap:6px;margin-top:6px">${x.lat ? `<a class="btn sm soft" target="_blank" rel="noopener" href="https://maps.google.com/?q=${x.lat},${x.lng}">${ic('pin',14)} Map</a>` : ''}${x.phone ? `<a class="btn sm soft ltr" href="tel:${esc(x.phone)}">${ic('phone',14)} ${esc(x.phone)}</a>` : ''}</div></div>
