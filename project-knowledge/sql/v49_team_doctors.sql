@@ -20,3 +20,7 @@ begin
   return res;
 end $$;
 grant execute on function public.doctors_list(text, text) to anon, authenticated;
+
+-- v49b (2026-11-26, owner's request): new consultant doctor account doctor.huda@labathome.om (Dr. Huda Al Mahrouqi,
+-- consultant family medicine, real/non-demo, takes consultations and result reviews). Created directly in the database;
+-- its password was given to the owner in chat only (never stored in the repo).

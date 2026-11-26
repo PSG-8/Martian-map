@@ -1,5 +1,8 @@
 # Project status — last updated 2026-11-26
 
+## v48 (2026-11-26)
+- Portraits (same 3D style, full hijab) for Dr. Salma, Tasnim and a new consultant, Dr. Huda Al Mahrouqi (doctor.huda@labathome.om, real account, consultations + result reviews). Images in img/doctors.
+
 ## v47 site + v49 database (LIVE 2026-11-26, dpl_H42gmknVRkWDdQ3J1gdieDZkTP4L): `sql/v49_team_doctors.sql`
 - Owner's request (pilot): the team doctor accounts with private passwords, Dr. Salma (doctor.team@labathome.om) and Tasnim (tasnim@labathome.om), are no longer demo: they get real users' consultations and result reviews (fake licence removed). Guests and real users see only them; demo visitors see the demo doctors. No real dentist yet: a clear WhatsApp message instead of an empty list. Live-checked.
 
