@@ -1,0 +1,73 @@
+// Local stand-in for the Supabase RPC API, used only for visual checks of the UI.
+const T = (id,cat,en,ar,price,fast,tube,an)=>({id,cat,name_en:en,name_ar:ar,desc_en:en+' – short description for preview.',desc_ar:'وصف مختصر للفحص '+ar,price:price.toFixed(3),fasting_hours:fast,tube,tat_hours:24,analytes:an,active:true});
+const a=(c,n,na,u,lo,hi)=>({c,n,na,u,lo,hi});
+const tests=[
+ T('vitd','vitamins','Vitamin D (25-OH)','فيتامين د',12,0,'Gold (SST)',[a('VITD','25-OH Vitamin D','فيتامين د','ng/mL',30,100)]),
+ T('b12','vitamins','Vitamin B12','فيتامين B12',8,0,'Gold (SST)',[a('B12','Vitamin B12','فيتامين B12','pg/mL',200,900)]),
+ T('ferritin','vitamins','Ferritin (iron stores)','الفيريتين',8,0,'Gold (SST)',[a('FERR','Ferritin','الفيريتين','ng/mL',30,300)]),
+ T('cbc','blood','Complete Blood Count (CBC)','صورة الدم الكاملة',5,0,'Lavender (EDTA)',[a('HGB','Haemoglobin','الهيموجلوبين','g/dL',12,17.5),a('WBC','White blood cells','كريات بيضاء','×10⁹/L',4,11),a('PLT','Platelets','الصفائح','×10⁹/L',150,400)]),
+ T('fbs','diabetes','Fasting Blood Glucose','سكر الدم الصائم',3,8,'Grey (Fluoride)',[a('GLU','Fasting glucose','سكر صائم','mmol/L',3.9,5.6)]),
+ T('hba1c','diabetes','HbA1c (3-month sugar)','السكر التراكمي',6,0,'Lavender (EDTA)',[a('A1C','HbA1c','السكر التراكمي','%',4,5.6)]),
+ T('lipid','heart','Lipid Profile','الدهون',8,10,'Gold (SST)',[a('CHOL','Total cholesterol','الكوليسترول','mmol/L',null,5.2),a('HDL','HDL','HDL','mmol/L',1,null)]),
+ T('tsh','thyroid','TSH','هرمون TSH',7,0,'Gold (SST)',[a('TSH','TSH','TSH','mIU/L',0.4,4)]),
+ T('lft','organs','Liver Function Tests','وظائف الكبد',9,0,'Gold (SST)',[a('ALT','ALT','ALT','U/L',null,41)]),
+ T('kft','organs','Kidney Function Tests','وظائف الكلى',8,0,'Gold (SST)',[a('CREA','Creatinine','الكرياتينين','µmol/L',50,110)])];
+const P=(id,en,ar,ids,price,badge)=>({id,name_en:en,name_ar:ar,desc_en:'Package description for preview.',desc_ar:'وصف الباقة',test_ids:ids,price:price.toFixed(3),badge,active:true});
+const packages=[P('basic','Basic Health Check','الفحص الأساسي',['cbc','fbs','lipid','kft','lft'],25,'popular'),P('vitamins','Vitamin Screening','فحص الفيتامينات',['vitd','b12','ferritin'],22,null),P('annual','Annual Check-up','الفحص السنوي',['cbc','fbs','hba1c','lipid','tsh','lft','kft','vitd','b12'],49,'best')];
+const W=["Ibra","Al Mudhaybi","Bidiyah","Al Qabil","Wadi Bani Khalid","Dima Wa At Taiyyin","Sinaw"];
+const users={
+ patient:{id:'u1',role:'patient',full_name:'Salim Al Rashdi',email:'patient@demo.labathome.om',phone:'+96890000001',status:'active',wilayat:'Ibra',address:'House 14, near Ibra souq',lat:22.69,lng:58.53,meta:{gender:'male',dob:'1988-04-12'},is_demo:true,available:true},
+ nurse:{id:'u2',role:'nurse',full_name:'Fatima Al Harthy',status:'active',wilayat:'Ibra',meta:{license:'OMSB-RN-48213',gender:'female',coverage:['Ibra','Al Mudhaybi']},is_demo:true,available:true,phone:'+96890000002'},
+ courier:{id:'u3',role:'courier',full_name:'Salim Al Hinai',status:'active',wilayat:'Ibra',meta:{},is_demo:true,available:true},
+ lab:{id:'u4',role:'lab',full_name:'Al Sharqiyah Diagnostics Lab',status:'active',wilayat:'Ibra',meta:{lab_name:'Al Sharqiyah Diagnostics Lab (demo)'},is_demo:true,available:true},
+ company:{id:'u5',role:'company',full_name:'Sharqiyah Energy Co.',status:'active',wilayat:'Ibra',meta:{company_name:'Sharqiyah Energy Co. (demo)'},is_demo:true,available:true},
+ admin:{id:'u6',role:'admin',full_name:'Operations (demo)',status:'active',wilayat:'Ibra',meta:{},is_demo:true,available:true},
+ leader:{id:'u7',role:'admin',full_name:'Bilarab Al Musallami',status:'active',wilayat:'Ibra',meta:{title:'Founder'},is_demo:false,available:true},
+ staff:{id:'u8',role:'staff',full_name:'Jokha Al Rawahi',status:'active',wilayat:'Ibra',meta:{title:'Customer service'},is_demo:false,available:true}};
+const ST=['booked','assigned','on_the_way','arrived','collected','in_transit','at_lab','processing','completed'];
+const now=Date.now(); const iso=m=>new Date(now-m*60000).toISOString();
+function mkOrder(id,code,status,ids,results){ const idx=ST.indexOf(status); return {id,code,status,test_ids:ids,items:[{type:'package',id:'vitamins',name_en:'Vitamin Screening',name_ar:'فحص الفيتامينات',price:22}],subtotal:'22.000',home_fee:'5.000',discount:'0.000',total:'27.000',payment_method:'card',paid_at:iso(600),slot_date:new Date(now+86400000).toISOString().slice(0,10),slot_time:'10:00',wilayat:'Ibra',address:'House 14, near Ibra souq',lat:22.6906,lng:58.5334,notes:'Blue gate',sample_temp:idx>=5?4.2:null,results,published_at:status==='completed'?iso(5):null,verified_by:'Dr. Maryam Al Siyabi (demo)',created_at:iso(900),updated_at:iso(1),
+ patient:{name:'Ahmed Al Rashdi',phone:'+96890000001',gender:'male',dob:'1988-04-12',relation:'self'},nurse:idx>=1?{id:'u2',name:'Fatima Al Harthy',gender:'female',phone:'+96890000002',license:'OMSB-RN-48213',rating:4.9,visits:132,years:8,languages:['Arabic','English'],wilayat:'Ibra'}:null,courier:idx>=5?{name:'Salim Al Hinai',company:'Sharqiyah Cold Chain Logistics',vehicle:'Van · 2–8 °C box',plate:'31452 AB',coverage:['Ibra','Al Mudhaybi']}:null,lab:{name:'Al Sharqiyah Diagnostics Lab (demo)',license:'MOH-LAB-2026-031'},
+ tests:tests.filter(t=>ids.includes(t.id)),events:ST.slice(0,idx+1).map((s,i)=>({status:s,at:iso(900-i*90),by:['Salim Al Rashdi','Fatima Al Harthy','Fatima Al Harthy','Fatima Al Harthy','Fatima Al Harthy','Salim Al Hinai','Salim Al Hinai','Al Sharqiyah Diagnostics Lab','Al Sharqiyah Diagnostics Lab'][i]})),rating:null}; }
+let orders=[mkOrder('o1','LAH-10241','completed',['vitd','b12','ferritin','tsh'],{VITD:{v:24.6,f:'L'},B12:{v:667,f:'N'},FERR:{v:128,f:'N'},TSH:{v:1.98,f:'N'}}),mkOrder('o2','LAH-10242','on_the_way',['cbc','fbs','lipid'],null),mkOrder('o3','LAH-10243','processing',['cbc','vitd'],{HGB:{v:14.1,f:'N'}})];
+let current='patient';
+const brief=o=>({id:o.id,code:o.code,status:o.status,slot_date:o.slot_date,slot_time:o.slot_time,wilayat:o.wilayat,total:o.total,items:o.items,tests_count:o.test_ids.length,person:o.patient.name,nurse:o.nurse&&o.nurse.name,fasting:8,created_at:o.created_at,updated_at:o.updated_at});
+const H={
+ catalog:()=>({tests,packages,home_fee:'5.000',wilayats:W,slots:["07:00","08:00","09:00","10:00","11:00","16:00","17:00","18:00","19:00"],fasting_last_slot:'10:00',stats:{nurses_f:10,nurses_m:8,labs:3,couriers:3}}),
+ auth_login:b=>{ const r=Object.keys(users).find(k=>b.p_login.startsWith(k))||'patient'; current=r; return {token:'tok-'+r,user:users[r]}; },
+ auth_register:b=>{ current=b.p.role; users[current]={...users[current],full_name:b.p.full_name,status:b.p.role==='patient'?'active':'pending',is_demo:false}; return {token:'tok-'+current,user:users[current]}; },
+ auth_me:b=>{ current=(b.p_token||'').replace('tok-','')||'patient'; return {user:users[current],unread:3}; },
+ auth_logout:()=>null,
+ orders_list:b=>{ if(current==='nurse'&&b.p_scope==='available') return [brief({...orders[1],status:'booked',nurse:null})]; if(current==='lab') return orders.map(brief); return orders.map(brief); },
+ order_get:b=>orders.find(o=>o.id===b.p_id),
+ order_action:b=>orders.find(o=>o.id===b.p_id),
+ demo_advance:b=>{ const o=orders.find(x=>x.id===b.p_id); const i=ST.indexOf(o.status); o.status=ST[Math.min(i+1,8)]; o.events.push({status:o.status,at:new Date().toISOString()}); if(o.status==='completed') o.results={HGB:{v:14.2,f:'N'},WBC:{v:6.1,f:'N'},PLT:{v:250,f:'N'},GLU:{v:6.3,f:'H'},CHOL:{v:4.6,f:'N'},HDL:{v:1.3,f:'N'}}; o.published_at=new Date().toISOString(); return o; },
+ my_stats:()=>({today:true,active:1,collected:132,month:18,earnings:660,fee:5,rating:4.9,available:1,waiting:2,in_transit:1,delivered:88,avg_temp:4.3,incoming:3,processing:2,published:410,avg_tat_h:21.5,abnormal:37,total:3,reports:1}),
+ programs_mine:()=>[{id:'p1',name:'Employee Wellness 2026',code:'SEC-WELL26',seats:50,used:18,package:{name_en:'Annual Check-up',name_ar:'الفحص السنوي',price:49},booked:18,completed:11,value:972,wilayats:{Ibra:10,'Al Mudhaybi':5,Sinaw:3}}],
+ program_lookup:()=>({name:'Employee Wellness 2026',company:'Sharqiyah Energy Co.',package_id:'annual',seats_left:32}),
+ order_create:b=>{ const o=mkOrder('o9','LAH-10250','booked',['vitd','b12'],null); orders.unshift(o); return o; },
+ notif_list:()=>[{id:1,title_en:'Nurse on the way · LAH-10242',title_ar:'الممرض في الطريق · LAH-10242',body_en:'Your nurse is heading to your location.',body_ar:'الممرض في طريقه إلى موقعك.',read:false,created_at:iso(4),order_id:'o2'},{id:2,title_en:'Results ready · LAH-10241',title_ar:'النتائج جاهزة · LAH-10241',body_en:'Your verified report is ready.',body_ar:'تقريرك المعتمد جاهز.',read:true,created_at:iso(200),order_id:'o1'}],
+ notif_read:()=>null, profile_update:b=>({...users[current],...b.p}), waitlist_join:()=>null,
+ admin_overview:()=>({orders:184,today:12,active:23,completed:149,revenue:4877,avg_tat_h:22.4,rating:4.82,by_status:{booked:6,assigned:4,on_the_way:2,collected:3,in_transit:2,processing:6,completed:149,cancelled:12},by_wilayat:{Ibra:88,'Al Mudhaybi':31,Bidiyah:20,Sinaw:17,'Al Qabil':14},users:{},pending:2,top_tests:[{id:'vitd',n:96},{id:'cbc',n:80},{id:'b12',n:71},{id:'hba1c',n:44}],daily:Array.from({length:14},(_, i)=>({d:new Date(now-(13-i)*86400000).toISOString().slice(0,10),n:[4,6,5,9,7,8,12,10,9,13,11,14,15,12][i]})),waitlist:47}),
+ admin_users:()=>[{id:'x1',role:'nurse',full_name:'Aisha Al Maskari',email:'aisha@mail.om',phone:'+96891234567',status:'pending',wilayat:'Sinaw',meta:{license:'OMSB-RN-51022'}},{id:'x2',role:'lab',full_name:'Bidiyah Medical Lab',status:'pending',wilayat:'Bidiyah',meta:{lab_name:'Bidiyah Medical Lab',license:'MOH-LAB-2026-044'}}],
+ admin_nurses:()=>[{id:'u2',name:'Yousuf Al Siyabi',wilayat:'Ibra',today:true}],
+ nurses_today:b=>(b.p_gender==='female'?[{id:'n1',name:'Jokha Al Rawahi',gender:'female',rating:4.9,visits:214,years:7,languages:['العربية','English'],bio:'Paediatric-friendly, gentle draws. Ibra & Al Mudhaybi.'},{id:'n2',name:'Ansam Al Noumani',gender:'female',rating:4.8,visits:167,years:5,languages:['العربية'],bio:'Elderly & diabetic care.'}]:[{id:'n3',name:'Yousuf Al Siyabi',gender:'male',rating:4.8,visits:121,years:6,languages:['العربية','English'],bio:'Cold-chain certified.'},{id:'n4',name:'Khalid Al Hinai',gender:'male',rating:4.7,visits:88,years:4,languages:['العربية'],bio:'Sinaw & Ibra.'}]),
+ partners_public:()=>({labs:[{name:'Al Sharqiyah Diagnostics Lab',wilayat:'Ibra',accreditation:'ISO 15189',hours:'Sat–Thu 07:00–21:00'},{name:'Al Mudhaybi Medical Laboratory',wilayat:'Al Mudhaybi',accreditation:'CAP',hours:'07:00–20:00'},{name:'Sinaw Clinical Diagnostics',wilayat:'Sinaw',accreditation:'ISO 15189',hours:'07:00–19:00'}],logistics:[{company:'Oman MedExpress',drivers:1,coverage:['Sinaw','Al Mudhaybi']},{company:'Sharqiyah Cold Chain Logistics',drivers:2,coverage:['Ibra','Bidiyah','Al Qabil']}],nurses:{female:10,male:8}}),
+ nurse_profile:()=>({id:'u2',name:'Fatima Al Harthy',gender:'female',wilayat:'Ibra',license:'OMSB-RN-48213',years:8,rating:4.9,reviews:57,visits:132,since:'2026-03',languages:['Arabic','English'],specialties:['Paediatric draws','Elderly care'],coverage:['Ibra','Al Mudhaybi'],bio:'Gentle, quick draws. 8 years at Ibra Hospital.',recent:[{rating:5,review:'Very gentle with my mother, on time.',at:iso(2000)}]}),
+ fleet_overview:()=>({company:'Sharqiyah Cold Chain Logistics',drivers:[{name:'Salim Al Hinai',vehicle:'Van',plate:'31452 AB',coverage:['Ibra'],in_transit:1,delivered:40,avg_temp:4.2}]}),
+ admin_payments:()=>({gross:812.5,refunded:27,sponsored:972,nurse_payout:440,by_method:{card:690.5,applepay:122},list:[{id:'o1',code:'LAH-10241',patient:'Ahmed Al Rashdi',total:'27.000',method:'card',at:iso(800),paid:true,refunded:null,status:'completed'},{id:'o2',code:'LAH-10242',patient:'Ahmed Al Rashdi',total:'30.000',method:'applepay',at:iso(300),paid:true,refunded:null,status:'on_the_way'}]}),
+ admin_settings:()=>({auto_mode:true,auto_step_minutes:2,auto_accept_minutes:3,home_fee:5,nurse_fee:5,fasting_last_slot:'10:00',owner:true}),
+ support_create:()=>({id:12}),
+ support_mine:()=>[{id:11,topic:'results',message:'When will my vitamin D result be ready?',status:'answered',reply:'Your report is published — open Results.',created_at:iso(300)}],
+ admin_tickets:()=>[{id:11,topic:'results',message:'When will my vitamin D result be ready?',status:'open',name:'Salim Al Rashdi',contact:'+96890000001',order_code:'LAH-10241',created_at:iso(30)}]
+};
+users.doctor={id:'u9',role:'doctor',full_name:'Dr. Aisha Al Balushi',status:'active',wilayat:'Ibra',meta:{specialty:'Family Medicine',specialty_ar:'طب الأسرة',license:'OMSB-MD-31207'},is_demo:true,available:true};
+tests.find(x=>x.id==='fbs').analytes[0].clo=2.8; tests.find(x=>x.id==='fbs').analytes[0].chi=20;
+orders.push(Object.assign(mkOrder('o7','LAH-10254','completed',['fbs','cbc','vitd'],{GLU:{v:23.4,f:'H',c:true},HGB:{v:11.2,f:'L'},WBC:{v:6.4,f:'N'},PLT:{v:240,f:'N'},VITD:{v:18.2,f:'L'}}),{severity:'urgent'}));
+orders.push(Object.assign(mkOrder('o8','LAH-10255','completed',['vitd','b12'],{VITD:{v:22.1,f:'L'},B12:{v:540,f:'N'}}),{severity:'review',doctor_note:{name:'Dr. Aisha Al Balushi',at:iso(60),note:'Your vitamin D is low, which is very common in Oman. Take 15 minutes of morning sun and start the supplement your health centre gives you.',plan:['dp_diet','dp_retest3m','dp_visit']}}));
+H.kit_mine=()=>({items:[['tubes','Blood tubes','أنابيب الدم',12,20],['needles','Needles & holders','الإبر وحاملاتها',30,15],['gloves','Gloves (pairs)','قفازات (زوج)',80,30],['swabs','Alcohol swabs','مناديل الكحول',22,30],['gauze','Gauze & plasters','شاش ولاصق',40,20],['tourniquet','Tourniquet','الرباط الضاغط',2,2],['labels','Barcode labels','ملصقات الباركود',70,30],['sharps','Sharps box','صندوق الإبر المستعملة',1,1],['cooler','Cold box & ice packs','صندوق التبريد وأكياس الثلج',1,1],['bp','BP monitor & oximeter','جهاز الضغط والأكسجين',1,1]].map(([id,en,ar,q,m])=>({id,name_en:en,name_ar:ar,qty:q,min:m,low:q<m})),requests:[{id:1,status:'done',created_at:iso(3000)}],visits:40,rating:4.9,ratings:20});
+H.kit_request=()=>H.kit_mine();
+H.admin_kit=()=>({nurses:[{id:'u2',name:'Fatima Al Harthy',wilayat:'Ibra',low:2},{id:'u3',name:'Yousuf Al Siyabi',wilayat:'Sinaw',low:0}],requests:[{id:3,nurse:'Fatima Al Harthy',items:{tubes:40,swabs:60},created_at:iso(20)}]});
+H.doctor_note_save=b=>{ const o=orders.find(x=>x.id===b.p_id); o.doctor_note={name:'Dr. Aisha Al Balushi',at:new Date().toISOString(),note:b.p_note,plan:b.p_plan}; return o; };
+const _ol=H.orders_list; H.orders_list=b=>current==='doctor'?orders.filter(o=>o.severity).map(o=>({...brief(o),severity:o.severity,reviewed:!!o.doctor_note})):_ol(b);
+module.exports={handle:(fn,body)=>H[fn]?H[fn](body||{}):null};

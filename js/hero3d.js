@@ -217,7 +217,7 @@ function sceneKit(){
   s.add(new THREE.HemisphereLight('#ffffff', '#9bb0d6', 1.1)); const key = new THREE.DirectionalLight('#ffffff', 2.6); key.position.set(4, 8, 6); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5 }); key.shadow.normalBias = .03; s.add(key);
   const rim = new THREE.DirectionalLight('#9cc2ff', 1.6); rim.position.set(-6, 4, -4); s.add(rim);
   const ped = mesh(new THREE.CylinderGeometry(2.6, 2.75, .4, 64), phys('#ffffff', { roughness: .25, clearcoat: 1 }), [0, -.2, 0]); s.add(ped);
-  s.add(mesh(new THREE.TorusGeometry(2.62, .035, 8, 90), phys('#2563eb', { roughness: .3, emissive: '#1d4ed8', emissiveIntensity: .4 }), [0, 0, 0], false)); s.children.at(-1).rotation.x = Math.PI / 2;
+  s.add(mesh(new THREE.TorusGeometry(2.62, .035, 8, 90), phys('#2563eb', { roughness: .3, emissive: '#1d4ed8', emissiveIntensity: .4 }), [0, 0, 0], false)); s.children[s.children.length - 1].rotation.x = Math.PI / 2;
   const bag = kitBag(); s.add(bag);
   const caps = [['#7a5af8', '#a21d2d'], ['#f2a516', '#b0242f'], ['#8a94a6', '#9d1d28'], ['#e2474f', '#a8202b'], ['#0fae9b', '#a3212c']];
   const tubes = caps.map(([c, f], i) => { const tb = tube(c, f); s.add(tb); return tb; });

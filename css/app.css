@@ -330,6 +330,9 @@ html[dir=rtl] .flip{display:inline-flex;transform:scaleX(-1)}
 .flip{display:inline-flex}
 
 footer.site .stack a{display:block}
+/* v42: phones — bigger tap area for small text links (footer, "see all", "forgot password") without changing the look */
+@media (pointer:coarse){footer.site .stack a{padding-block:6px}footer.site .stack>*+*{margin-top:2px}
+  a.small.b,a.b.small,a.xs.b{display:inline-block;padding-block:6px;margin-block:-6px}}
 .pkg .ti{margin-bottom:4px}
 @media(max-width:520px){.rb-col{display:none}.rtable{font-size:.86rem}.report .rh,.report .rb{padding:16px}}
 /* ---------- v2: drawer, start, gender, nurses, cart, about ---------- */
@@ -377,6 +380,7 @@ html[dir=rtl] .switch input:checked+i:before{transform:translateX(-24px)}
 .ic-round.sm{width:40px;height:40px;border-radius:12px;margin:0}
 .avatar.xl{width:84px;height:84px;font-size:1.6rem;margin:0 auto;box-shadow:0 10px 24px rgba(16,40,90,.18)}
 .team h4{margin-bottom:8px}
+.topic.on{background:var(--sky);color:var(--blue)}
 .topic:has(input:checked){background:var(--sky);color:var(--blue)}
 #toast a{font-weight:700}
 .team .chip{white-space:normal;height:auto;line-height:1.3;padding:4px 10px;text-align:center}
@@ -522,6 +526,7 @@ html[dir=rtl] .switch input:checked+i:before{transform:translateX(-24px)}
 .lead-card{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:16px 18px;border-radius:18px;background:#eef4ff;border:1px solid #d6e3fb}
 .lead-card.owner{background:var(--hex) 0 0/56px 64px,linear-gradient(120deg,#0d1628,#1d4ed8);color:#fff;border:0}
 .lead-card.owner .ic-round{background:rgba(255,255,255,.14);color:#fff}.lead-card.owner .btn{background:#fff;color:var(--blue)}
+.lead-card>.grow{flex:1 1 210px;min-width:0} /* v42: on phones the button drops under the text instead of squeezing it into a one-word column */
 .icon-btn.sm{width:34px;height:34px;min-height:34px;border-radius:10px;display:inline-grid;place-items:center;vertical-align:middle;margin-inline-start:4px}
 .icon-btn.danger{color:#d64550}.icon-btn.danger:hover{background:#fff1f1}
 .code-sm{font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em}
@@ -529,6 +534,7 @@ html[dir=rtl] .switch input:checked+i:before{transform:translateX(-24px)}
 .bot-code{font-weight:800;color:var(--blue);direction:ltr;unicode-bidi:embed}
 .push-banner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border-radius:16px;margin-bottom:16px;background:linear-gradient(120deg,#eaf2ff,#f3f8ff);border:1px solid #cfe0fb}
 .push-banner .pb-ic{width:42px;height:42px;border-radius:13px;background:var(--blue);color:#fff;display:grid;place-items:center;flex:none}
+.push-banner>.grow{flex:1 1 190px;min-width:0} /* v42: text wraps above the buttons instead of one word per line */
 /* draggable assistant button */
 #bot{position:static}
 .bot-fab{position:fixed;z-index:61;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;left:auto;top:auto}
@@ -543,7 +549,7 @@ html[dir=rtl] .switch input:checked+i:before{transform:translateX(-24px)}
 .rep-actions{margin-bottom:14px;flex-wrap:wrap;gap:10px}.rep-actions .btn{min-width:150px}
 
 /* ---------- v12: native-app feel on phones ---------- */
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation;color-scheme:light only}
 body{overflow-x:clip;min-height:100vh;min-height:100dvh}
 *{-webkit-tap-highlight-color:transparent}
 a,button,.btn,.tabbar,.side-nav,.chip,.icon-btn,label.check,.oitem,.pkg,.tc,img,svg{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
@@ -608,7 +614,7 @@ button.link{min-height:44px;display:inline-flex;align-items:center;gap:6px}
 .ohead::after{z-index:0}
 .ohead>*{position:relative;z-index:1}
 /* ---------- install page ---------- */
-.ins{padding-top:22px;padding-bottom:40px;display:grid;gap:16px;max-width:880px}
+.ins{padding-top:22px;padding-bottom:40px;display:grid;grid-template-columns:minmax(0,1fr);gap:16px;max-width:880px}
 .ins-hero{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;margin-bottom:6px}
 .ins-hero h1{font-size:clamp(1.6rem,4.5vw,2.4rem);margin:10px 0 8px;line-height:1.2}
 .ins-hero .lead{margin:0 0 14px}
@@ -635,7 +641,7 @@ button.link{min-height:44px;display:inline-flex;align-items:center;gap:6px}
 .ins-tabs{margin-bottom:14px}
 .ins-tabs button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px}
 .ins-tabs button.on{background:#fff;color:var(--navy);box-shadow:0 2px 8px rgba(16,40,90,.1)}
-.isteps{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.isteps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
 .ist{display:flex;gap:14px;align-items:flex-start}
 .ist-n{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:#fff;font-weight:800}
 .ist b{display:block;margin-top:4px}
@@ -1076,6 +1082,7 @@ html.offline .app-top::after{content:"";position:absolute;inset:auto 0 0 0;heigh
 #nurse{position:fixed;z-index:57;inset-inline-start:14px;bottom:14px;width:96px;transform:translateX(150%);transition:transform 1.4s cubic-bezier(.25,.8,.3,1);-webkit-tap-highlight-color:transparent;outline:none}
 #nurse:not(.rtl){transform:translateX(-150%)}
 #nurse.in{transform:none}
+#nurse.away{opacity:0;pointer-events:none;transition:opacity .3s}#nurse.away *{pointer-events:none}
 #nurse.out{transition-duration:1.3s;transition-timing-function:ease-in}
 #nurse .ns-body{cursor:pointer;transform:perspective(420px) rotateY(calc(var(--hx,0) * 16deg)) rotateX(calc(var(--hy,0) * -6deg));transition:transform .35s ease;filter:drop-shadow(0 10px 14px rgba(11,35,80,.18))}
 #nurse .ns-svg{display:block;width:100%;height:auto;overflow:visible}
@@ -1260,10 +1267,51 @@ a.nudge{display:inline-block;animation:nudge .7s ease 2;color:var(--blue)}
 @media (max-width:899px){.h3-s{padding:14px 16px 16px;margin-inline-start:-16px;border-radius:20px}}
 /* v34: no floating help button on the sign-in / sign-up / password screens (it covered buttons on phones); pages leave room for it */
 body:has(#app .auth) #bot{display:none}
-@media (max-width:899px){#app{padding-bottom:76px}}
+@media (max-width:899px){#app{padding-bottom:76px;padding-bottom:calc(var(--tbh,64px) + 14px)}} /* v42: always the real height of the bottom bar (its labels wrap to two lines on small phones) */
 #nurse.beside,#nurse.beside:not(.rtl){transform:translateY(40px);opacity:0;transition:transform .8s cubic-bezier(.25,.8,.3,1),opacity .6s}
 #nurse.beside.in{transform:none;opacity:1}
 /* trial-version notices (student project pilot) */
 .pilot{display:flex;gap:8px;align-items:flex-start;margin:12px 0;padding:10px 14px;border-radius:12px;background:#fff7e6;color:#7a4b00;font-size:.88rem;line-height:1.55;border:1px solid #ffe0a3}
 .pilot svg{flex:none;margin-top:3px}.pilot.strong{font-weight:600;font-size:.95rem}
 @media print{.pilot{border:1px solid #c98a00}}
+
+/* ---------- v42: every phone width — 320px Samsung (S9+/S8 with display zoom), iPhone SE, Fold/Flip covers, large text ---------- */
+.btn{max-width:100%}
+.pkg .foot{flex-wrap:wrap;row-gap:8px}
+.ig-qr{flex-wrap:wrap}.ig-qr>div:last-child{flex:1 1 150px;min-width:0}
+@media (max-width:420px){
+  .btn{white-space:normal;text-align:center;line-height:1.25}
+  .chip{white-space:normal;max-width:100%}
+}
+@media (pointer:coarse),(max-width:760px){footer.site .stack a{padding-block:6px}footer.site .stack>*+*{margin-top:2px}}
+@media (max-width:400px){
+  .topbar .wrap-w{padding:0 12px}.topbar .in{gap:6px}.topbar .brand{gap:6px}
+  .topbar .brand>svg:first-child{width:32px;height:32px}.topbar .brand .wm{font-size:1.1rem}
+  .topbar .btn.sm{padding:8px 11px;font-size:.84rem}.topbar .menu-btn{padding:9px 11px}
+}
+@media (max-width:340px){.topbar .brand .wm{font-size:1rem}.topbar .btn.sm{padding:8px 9px}}
+@media (max-width:310px){.topbar .brand .bw{display:none}}
+.cs-kind .row.between{flex-wrap:wrap;gap:6px}
+/* v42: laptops (1366x768, 1280x720): the owner's side menu is taller than the screen. It now scrolls, and gets more compact
+   on short screens, so "More" and the account card at the bottom can always be reached. */
+.side-nav{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+@media (min-width:900px) and (max-height:940px){.side-nav{padding:14px 12px;gap:2px}.side-nav .brand{padding-bottom:10px}.side-nav a{padding:8px 12px}.side-nav a svg{width:20px;height:20px}.side-nav .me{padding:9px 12px}}
+@media (min-width:900px) and (max-height:780px){.side-nav a{padding:6px 12px;font-size:.93rem}.side-nav .brand{padding-bottom:6px}}
+
+.gcard summary{flex-wrap:wrap}.gcard summary>.grow{flex:1 1 120px;min-width:0} /* v42: test name never squeezed under its value on 320px phones */
+.icon-btn{flex-shrink:0}
+/* v42: cards with sentences never squeeze their text into a one-word column (found by tools/qa squeeze scan on 320-430 px phones) */
+.tcard{flex-wrap:wrap}.tcard>.grow{flex:1 1 140px}
+@media (max-width:600px){.promos{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:430px){
+  .cs-kinds,.soon,.goals{grid-template-columns:minmax(0,1fr)}
+  .tcard>.grow{flex-basis:calc(100% - 70px)}
+  .tcard>div:last-child{flex:1 1 100%;flex-direction:row!important;justify-content:space-between;align-items:center!important}
+}
+@media (max-width:380px){
+  .roles,.team,.gu-not .grid.g2{grid-template-columns:minmax(0,1fr)}
+  .split-rows .sr{flex-wrap:wrap}.split-rows .sr>.grow{flex:1 1 150px}
+}
+@media (max-width:380px){.feats{grid-template-columns:minmax(0,1fr)}.thinker svg{width:128px}}
+@media (min-width:641px){table.table.mcards td.xs{min-width:150px}} /* tablet portrait: long licence/lab text no longer one word per line (the table scrolls sideways inside its card instead) */
+@media (pointer:coarse){table a.b{display:inline-block;padding-block:5px}} /* order codes in tables: easier to tap */

@@ -10,7 +10,8 @@ const ACTIVE = s => !['completed','cancelled'].includes(s);
 const S = {
   lang: localStorage.getItem('lah_lang') || ((navigator.language||'').startsWith('ar') ? 'ar' : 'en'),
   user: null, unread: 0, catalog: null, timers: [], installEvt: null,
-  cart: JSON.parse(localStorage.getItem('lah_cart') || '{"packages":[],"tests":[]}'),
+  /* v42: a damaged or old-format saved cart used to throw here and leave the whole app blank */
+  cart: (() => { try { const c = JSON.parse(localStorage.getItem('lah_cart') || 'null'); if (c && Array.isArray(c.packages) && Array.isArray(c.tests)) return { packages: c.packages.filter(x => typeof x === 'string'), tests: c.tests.filter(x => typeof x === 'string') }; } catch(e) {} return { packages: [], tests: [] }; })(),
   bk: null
 };
 
@@ -39,7 +40,31 @@ function copyText(txt, okKey){
   Promise.race([navigator.clipboard.writeText(txt).then(() => true), new Promise(r => setTimeout(() => r(null), 1200))]).then(ok => done(ok === true ? true : old())).catch(() => done(old()));
 }
 function go(h){ if (location.hash === '#/' + h) render(); else location.hash = '#/' + h; }
-function saveCart(){ localStorage.setItem('lah_cart', JSON.stringify(S.cart)); }
+/* v42: redirects (signed-in user on #/login, no access, after login, session ended) replace the history entry instead of adding one.
+   Before, the phone's Back button landed on the redirecting page again and bounced forward: Back looked dead. */
+function redir(h){ const c = (location.hash.slice(2) || '').split('#')[0]; if (NAV[NAV.length - 1] === c) NAV.pop();
+  if (location.hash === '#/' + h) render(); else { navIn = !!(history.state && history.state.lahIn); location.replace('#/' + h); } }
+/* v42: the app's own Back. It remembers the screens visited in this tab, never returns to the sign-in screens,
+   never leaves the site (a link from WhatsApp/Instagram has no in-app history), and falls back to the logical parent. */
+const NAV = [];
+/* every history entry is stamped once: lahIn = there is an earlier screen of this app behind it in this tab.
+   A redirect keeps the stamp of the entry it replaced. The app's Back uses the real browser history when it can,
+   so the app's Back and the phone's Back always agree. */
+let navIn = null, navFirst = true;
+function stampNav(){ try { if (!history.state || history.state.lahIn === undefined) history.replaceState(Object.assign({}, history.state || {}, { lahIn: navIn !== null ? navIn : !navFirst }), ''); } catch(e) {} navIn = null; navFirst = false; }
+function appBack(){ if (history.state && history.state.lahIn) history.back(); else go(backTarget()); }
+function trackNav(){ stampNav(); const h = (location.hash.slice(2) || '').split('#')[0]; if (/^(login|register|forgot|reset|verify)/.test(h)) return; if (NAV[NAV.length - 1] !== h) NAV.push(h); if (NAV.length > 60) NAV.shift(); }
+function backTarget(){
+  const cur = (location.hash.slice(2) || '').split('#')[0];
+  while (NAV.length && NAV[NAV.length - 1] === cur) NAV.pop();
+  if (NAV.length) return NAV.pop();
+  const seg = cur.split('?')[0].split('/');
+  if (seg[0] !== 'app') return '';
+  if (seg[1] === 'order' || seg[1] === 'report' || seg[1] === 'book') return 'app/orders';
+  if (seg[1] === 'consult' && seg[2]) return 'app/consult';
+  return 'app';
+}
+function saveCart(){ try { localStorage.setItem('lah_cart', JSON.stringify(S.cart)); } catch(e) {} }
 function clearTimers(){ S.timers.forEach(x => clearInterval(x)); S.timers = []; }
 function stChip(s){ const cls = s === 'completed' ? 'teal' : s === 'cancelled' ? 'gray' : s === 'recollect' ? 'red' : ['booked'].includes(s) ? 'amber' : ''; return `<span class="chip ${cls}">${esc(t('st_'+s))}</span>`; }
 async function busy(btn, fn){ if (btn) { btn.disabled = true; btn._h = btn.innerHTML; btn.innerHTML = '<span class="spin" style="width:18px;height:18px;border-width:2.5px;border-color:rgba(255,255,255,.4);border-top-color:#fff"></span>'; }
@@ -70,7 +95,7 @@ async function loadCatalog(force){
   if (force) { try { localStorage.removeItem(CAT_KEY); } catch(e) {} S.catalog = null; return fetchCatalog(); }
   if (S.catalog) return S.catalog;
   let cached = null; try { cached = JSON.parse(localStorage.getItem(CAT_KEY) || 'null'); } catch(e) {}
-  if (cached && Array.isArray(cached.tests)) { setCatalog(cached); if (!CAT_FRESH) { CAT_FRESH = true; fetchCatalog().catch(() => {}); } return S.catalog; }
+  if (cached && Array.isArray(cached.tests) && Array.isArray(cached.packages)) { setCatalog(cached); if (!CAT_FRESH) { CAT_FRESH = true; fetchCatalog().catch(() => {}); } return S.catalog; }
   return fetchCatalog();
 }
 /* a cart with only self-collection tests is a courier visit (lower fee); anything else needs a nurse */
@@ -228,7 +253,7 @@ async function afterLogin(r){
   API.setToken(r.token); S.user = r.user; S.unread = 0;
   if ('Notification' in window && Notification.permission === 'granted' && localStorage.getItem('lah_push') === '1') setTimeout(() => pushEnable(true).catch(() => {}), 1500);
   const back = sessionStorage.getItem('lah_after'); sessionStorage.removeItem('lah_after');
-  go(back || (canUse(S.user) && cartCount() ? 'app/book' : 'app'));
+  redir(back || (canUse(S.user) && cartCount() ? 'app/book' : 'app'));
 }
 function viewLogin(){
   const D = x => x + '@demo.labathome.om';
@@ -416,7 +441,7 @@ async function viewBook(){
   const dStamp = !b.program && L.free_next ? fee() : 0;
   const dCoupon = !b.program && b.coupon ? Math.min(Number(b.coupon.amount) || 0, subNow) : 0;
   const dRef = !b.program && L.referred_by && !L.orders && !(L.history || []).length ? Math.min(Number(L.reward || 1), Math.max(subNow - dCoupon, 0)) : 0;
-  if (!b.program && !c.items.length) { app.innerHTML = shell(t('q_book'), emptyBox(t('cart_empty'), `<a class="btn" href="#/app/tests">${t('explore_tests')}</a>`)); return; }
+  if (!b.program && !c.items.length) { app.innerHTML = shell(t('q_book'), emptyBox(t('cart_empty'), `<a class="btn" href="#/app/tests">${t('explore_tests')}</a>`), { back: true }); return; }
   const stepNames = ['b2_who','b2_loc', kit ? 'b2_kit' : 'b2_nurse','b2_time','b2_pay'];
   const head = `<div class="stepper">${stepNames.map((s, i) => `<i class="${i < b.step ? 'on' : ''}"></i>`).join('')}</div><div class="steplabels">${stepNames.map((s, i) => `<span class="${i + 1 === b.step ? 'on' : ''}">${i + 1}. ${t(s)}</span>`).join('')}</div>`;
   const items = b.program ? [{ name: LN(C.P[b.program.package_id],'name'), price: Number(C.P[b.program.package_id].price) }] : c.items;
@@ -557,7 +582,7 @@ function bookedScreen(o){
 async function viewOrder(id){
   clearTimers();
   let o;
-  try { o = await API.order(id); } catch(e) { app.innerHTML = shell('', emptyBox(errMsg(e))); return; }
+  try { o = await API.order(id); } catch(e) { app.innerHTML = shell('', emptyBox(errMsg(e)), { back: true }); return; }
   drawOrder(o);
   if (ACTIVE(o.status)) S.timers.push(setInterval(async () => { if (!location.hash.includes('/order/' + id) || document.hidden) return; const ae = document.activeElement; if (ae && ae.matches && ae.matches('input,textarea,select')) return; try { const n = await API.order(id); if (n.updated_at !== o.updated_at && !$('.modal-bg') && !$('#results-form')) { o = n; const y = window.scrollY; drawOrder(o); window.scrollTo(0, y); } } catch(e) {} }, 8000));
 }
@@ -821,7 +846,7 @@ const INSIGHT = {
   TSH:{ H:['High TSH can mean an underactive thyroid.','ارتفاع TSH قد يعني خمول الغدة الدرقية.'], L:['Low TSH can mean an overactive thyroid.','انخفاض TSH قد يعني فرط نشاط الغدة الدرقية.'] }
 };
 async function viewReport(id){
-  let o; try { o = await API.order(id); } catch(e) { app.innerHTML = shell('', emptyBox(errMsg(e))); return; }
+  let o; try { o = await API.order(id); } catch(e) { app.innerHTML = shell('', emptyBox(errMsg(e)), { back: true }); return; }
   if (o.status !== 'completed') return go('app/order/' + id);
   const res = o.results || {}; const p = o.patient || {};
   let flags = 0; const notes = []; const r0 = a => prA(a, p);
@@ -1067,7 +1092,7 @@ async function viewAdminUsers(){
   const role = new URLSearchParams(location.hash.split('?')[1] || '').get('role') || '';
   const list = await API.adminUsers(role || null, null);
   app.innerHTML = shell(t('m_users'), `<div class="row between wrap" style="margin-bottom:12px;gap:10px"><div class="cats" style="margin:0">${['','patient','nurse','courier','lab','company','staff','admin'].map(r => `<button class="${r === role ? 'on' : ''}" data-r="${r}">${r ? t('r_'+r) : t('cat_all')}</button>`).join('')}</div>
-    <div class="row" style="gap:8px"><input class="input" id="uq" placeholder="${t('search')}…" style="min-height:42px;width:200px">${isOwner() ? `<button class="btn" id="uadd">${ic('plus',18)} ${t('add_user')}</button>` : ''}</div></div>
+    <div class="row wrap" style="gap:8px;flex:1 1 260px;justify-content:flex-end;min-width:0"><input class="input" id="uq" placeholder="${t('search')}…" style="min-height:42px;flex:1 1 160px;min-width:0;max-width:260px">${isOwner() ? `<button class="btn" id="uadd">${ic('plus',18)} ${t('add_user')}</button>` : ''}</div></div>
     ${!isOwner() ? `<div class="banner blue small" style="margin-bottom:12px">${ic('eye',18)}<span>${t('readonly_note')}</span></div>` : ''}
     <div class="card" id="ut">${userTable(list)}</div>`);
   $$('[data-r]').forEach(b => b.onclick = () => go('app/admin/users' + (b.dataset.r ? '?role=' + b.dataset.r : '')));
@@ -1377,6 +1402,8 @@ async function viewSupport(){
       <div class="stack"><h3>${t('sup_quick')}</h3>${[1,2,3,4,5,6].map(i => `<details class="faq"><summary>${t('q'+i)}</summary><p>${t('a'+i)}</p></details>`).join('')}</div></div>
     ${u && mine.length ? `<div class="card"><h3>${t('sup_mine')}</h3>${mine.map(x => `<div class="vline" style="display:block"><div class="row between"><b>#${x.id} · ${esc(t('tp_'+x.topic))}</b><span class="chip ${x.status === 'answered' ? 'teal' : 'amber'}">${t(x.status === 'answered' ? 'sup_answered' : 'sup_open')}</span></div><div class="small">${esc(x.message)}</div>${x.reply ? `<div class="banner teal small" style="margin-top:8px">${ic('chat',18)}<div><b>${t('sup_reply')}:</b> ${esc(x.reply)}</div></div>` : ''}<div class="xs muted">${ago(x.created_at)}</div></div>`).join('')}</div>` : ''}</div>`;
   app.innerHTML = u ? shell(t('m_support'), body) : `${topbar()}<section class="section" style="padding-top:28px"><div class="wrap-w">${body}</div></section>${footer()}`;
+  /* v42: older phone browsers (Huawei, old Android WebView) have no CSS :has(), so mark the chosen topic with a class too */
+  const tpOn = () => $$('#sf .topic').forEach(l => l.classList.toggle('on', !!$('input', l).checked)); $$('#sf .topic input').forEach(i => i.addEventListener('change', tpOn)); tpOn();
   $('#sf').onsubmit = async e => { e.preventDefault(); const f = e.target; $('#se').textContent = '';
     const p = { topic: $('input[name=topic]:checked', f).value, order_code: f.order.value, message: f.msg.value, name: f.name ? f.name.value : '', contact: f.contact ? f.contact.value : '' };
     try { const r = await busy($('button.btn', f), () => API.supportCreate(p)); toast(t('sup_sent',{n:r.id})); viewSupport(); } catch(err) { $('#se').textContent = errMsg(err); } };
@@ -1683,7 +1710,7 @@ function bindGo(){ $$('[data-go]').forEach(b => b.onclick = () => { const g = b.
 function bindGlobal(){
   $$('[data-lang]').forEach(b => b.onclick = () => { setLang(S.lang === 'ar' ? 'en' : 'ar'); render(); if (S.user && localStorage.getItem('lah_push') === '1') pushEnable(true).catch(() => {}); });
   $$('[data-logout]').forEach(b => b.onclick = doLogout);
-  $$('[data-goback]').forEach(b => b.onclick = () => history.length > 1 ? history.back() : go('app'));
+  $$('[data-goback]').forEach(b => b.onclick = appBack);
   $$('[data-menu]').forEach(b => b.onclick = e => { e.preventDefault(); openMenu(b); });
   if ($('.van-strip.v32')) bindVan();
   /* v32: "Talk to a doctor" under a report / finished order (it had no handler before) */
@@ -1691,6 +1718,9 @@ function bindGlobal(){
   bindGo();
 }
 let rendering = false, rerender = false, lastRoute = null;
+/* v42: the page leaves exactly the bottom bar's height free at the end, so the last button is never under the bar */
+function fitTabbar(){ const tb = document.querySelector('.tabbar'); const h = tb && getComputedStyle(tb).display !== 'none' ? tb.offsetHeight : 0; document.documentElement.style.setProperty('--tbh', h + 'px'); }
+addEventListener('resize', () => { clearTimeout(fitTabbar._t); fitTabbar._t = setTimeout(fitTabbar, 150); });
 function saveUser(){ try { if (S.user) localStorage.setItem('lah_user', JSON.stringify(S.user)); else localStorage.removeItem('lah_user'); } catch(e) {} }
 /* thin progress line at the top: shows at once that a tap was received while the next screen loads */
 function navBar(on){ let b = document.getElementById('navbar'); if (!b) { b = document.createElement('div'); b.id = 'navbar'; document.body.appendChild(b); } clearTimeout(b._t); if (on) { b._t = setTimeout(() => b.classList.add('on'), 120); } else { b.classList.remove('on'); } }
@@ -1701,7 +1731,7 @@ async function render(){
   if (rerender) render(); else navBar(false);
 }
 async function renderNow(){
-  clearTimers(); saveUser();
+  clearTimers(); saveUser(); trackNav();
   const route = location.hash.split('?')[0];
   if (route !== lastRoute) { lastRoute = route; app.classList.remove('pg'); void app.offsetWidth; app.classList.add('pg'); $$('#modal-root .modal-bg, #modal-root .drawer-bg, #modal-root .dd-bg').forEach(m => m._close ? m._close() : m.remove()); document.body.classList.remove('lock', 'kb'); }
   const h = (location.hash.slice(2) || '').split('#')[0];
@@ -1711,8 +1741,8 @@ async function renderNow(){
     if (seg[0] === 'start') { viewStart(); return; }
     if (seg[0] === 'verify' && seg[1]) { await viewVerify(seg[1]); return; }
     if (seg[0] === 'reset' && seg[1]) { viewReset(seg[1]); return; }
-    if (seg[0] === 'forgot') { if (S.user) return go('app'); viewForgot(); return; }
-    if (seg[0] === '' && !S.user && !localStorage.getItem('lah_seen') && (innerWidth < 760 || standalone)) { location.replace('#/start'); return; }
+    if (seg[0] === 'forgot') { if (S.user) return redir('app'); viewForgot(); return; }
+    if (seg[0] === '' && !S.user && !localStorage.getItem('lah_seen') && (innerWidth < 760 || standalone)) { redir('start'); return; }
     if (seg[0] === 'install') await viewInstall();
     else if (seg[0] === 'contact') await viewContact();
     else if (seg[0] === 'support') await viewSupport();
@@ -1725,14 +1755,14 @@ async function renderNow(){
     else if (seg[0] === 'expat') await viewExpat();
     else if (seg[0] === 'r' && seg[1]) await viewShared(seg[1]);
     else if (seg[0] === 'dental') await viewConsultPublic(true);
-    else if (seg[0] === 'business') { if (canBiz()) await viewBusiness(); else go(''); }
+    else if (seg[0] === 'business') { if (canBiz()) await viewBusiness(); else return redir(''); }
     else if (seg[0] !== 'app') {
-      if (seg[0] === 'login') { if (S.user) return go('app'); viewLogin(); }
-      else if (seg[0] === 'register') { if (S.user) return go('app'); await loadCatalog().catch(() => {}); viewRegister(seg[1]); }
+      if (seg[0] === 'login') { if (S.user) return redir('app'); viewLogin(); }
+      else if (seg[0] === 'register') { if (S.user) return redir('app'); await loadCatalog().catch(() => {}); viewRegister(seg[1]); }
       else if (seg[0] === 'tests') await viewTestsPublic();
       else await viewLanding();
     } else {
-      if (!S.user) { sessionStorage.setItem('lah_after', path); return go('login'); }
+      if (!S.user) { sessionStorage.setItem('lah_after', path); return redir('login'); }
       const r = S.user.role; const sub = seg[1] || '';
       if (sub === '') await ({ patient: viewPatientHome, nurse: viewNurseHome, courier: (S.user.meta || {}).fleet_admin ? viewFleetHome : viewCourierHome, lab: viewLabHome, company: viewCompanyHome, admin: viewAdminHome, staff: viewAdminHome, doctor: viewDoctorHome }[r] || viewPatientHome)();
       else if (sub === 'kit' && r === 'nurse') await viewNurseKit();
@@ -1752,20 +1782,20 @@ async function renderNow(){
       else if (sub === 'privacy') await viewPrivacy();
       else if (sub === 'camps' && r === 'company') await viewCamps();
       else if (sub === 'admin' && (r === 'admin' || r === 'staff')) await ((r === 'admin' ? { users: viewAdminUsers, catalog: viewAdminCatalog, tickets: viewAdminTickets, payments: viewAdminPayments, contracts: viewAdminContracts, settings: viewAdminSettings, kit: viewAdminKit, safety: viewAdminSafety, coupons: viewAdminCoupons, camps: viewAdminCamps } : { users: viewAdminUsers, tickets: viewAdminTickets, contracts: viewAdminContracts, settings: viewAdminSettings, kit: viewAdminKit, safety: viewAdminSafety, camps: viewAdminCamps })[seg[2]] || viewAdminHome)();
-      else go('app');
+      else return redir('app');
     }
   } catch(e) {
     console.error(e);
-    if (e && e.code === 'AUTH_REQUIRED') { S.user = null; return go('login'); }
+    if (e && e.code === 'AUTH_REQUIRED') { S.user = null; return redir('login'); }
     app.innerHTML = (S.user ? shell('', '') : topbar());
-    const c = $('.content') || app; c.insertAdjacentHTML('beforeend', `<div class="card empty" style="margin:20px">${A.emptyArt}<p>${errMsg(e)}</p><button class="btn" onclick="location.reload()">${t('retry')}</button></div>`);
+    const c = $('.content') || app; c.insertAdjacentHTML('beforeend', `<div class="card empty" style="margin:20px">${A.emptyArt}<p>${errMsg(e)}</p><div class="row" style="justify-content:center;gap:8px;flex-wrap:wrap">${S.user && location.hash.startsWith('#/app/') ? `<button class="btn ghost" data-goback>${t('back')}</button>` : ''}<button class="btn" onclick="location.reload()">${t('retry')}</button></div></div>`);
   }
-  bindGlobal(); botMount(); bindPush(); bindMail(); holoWake(); mascotSync();
+  bindGlobal(); botMount(); bindPush(); bindMail(); holoWake(); mascotSync(); fitTabbar();
   if (window.FX) FX.scan(app);
   if (window.LAH_OFFLINE) toast(t('offline_t'));
   if (!location.hash.includes('#', 1)) window.scrollTo(0, 0); else { const el = document.getElementById(location.hash.split('#')[2]); if (el) setTimeout(() => el.scrollIntoView({ behavior:'smooth', block:'start' }), 120); }
 }
-async function poll(){ if (!S.user || document.hidden) return; try { const r = await API.me(); const before = S.unread; S.user = r.user; S.unread = r.unread; if (r.unread !== before) { $$('[data-go="app/notifs"] .dot').forEach(d => d.textContent = r.unread); if (r.unread > before) { const b = $('[data-go="app/notifs"]'); if (b && !$('.dot', b)) b.insertAdjacentHTML('beforeend', `<span class="dot">${r.unread}</span>`); } } } catch(e) { if (e.code === 'AUTH_REQUIRED') { S.user = null; go('login'); } } }
+async function poll(){ if (!S.user || document.hidden) return; try { const r = await API.me(); const before = S.unread; S.user = r.user; S.unread = r.unread; if (r.unread !== before) { $$('[data-go="app/notifs"] .dot').forEach(d => d.textContent = r.unread); if (r.unread > before) { const b = $('[data-go="app/notifs"]'); if (b && !$('.dot', b)) b.insertAdjacentHTML('beforeend', `<span class="dot">${r.unread}</span>`); } } } catch(e) { if (e.code === 'AUTH_REQUIRED') { S.user = null; redir('login'); } } }
 
 /* ---------- contact ---------- */
 const CONTACT = { phone: '+968 9434 2557', tel: '+96894342557', wa: '96894342557', email: 'labathome.oman@gmail.com', ig: 'https://www.instagram.com/ilabathome', igh: '@ilabathome' };
@@ -1841,7 +1871,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 41;
+const APP_V = 42;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -2156,7 +2186,7 @@ function heroSlides(){
 }
 function heroHtml(compact){
   const sl = heroSlides(); const D = S.lang === 'ar' ? 'r' : 'd'; /* desktop pictures: 'r' has the scene on the left for Arabic */
-  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=41" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=41" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=41"><img ${a}src="img/hero/h${n}${D}.jpg?v=41" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=42" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=42" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=42"><img ${a}src="img/hero/h${n}${D}.jpg?v=42" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
     <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
       <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
     <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
@@ -2662,7 +2692,7 @@ async function viewConsultNew(){
   const kind = ['pre','post','dental','dental_home'].includes(q.get('kind')) ? q.get('kind') : 'pre';
   if (!S.cb || S.cb.kind !== kind || (q.get('order') && S.cb.order !== q.get('order'))) S.cb = { kind, step: 1, doctor: null, gf: 'any', mode: kind === 'dental_home' ? 'home' : 'video', date: null, time: null, reason: '', order: q.get('order') || null, pay: 'card', address: (S.user && S.user.address) || '' };
   const b = S.cb; const B = await bizLoad();
-  if (!b.docs) { loading(t('cs_book_t')); try { b.docs = await API.doctors(/dental/.test(kind) ? 'dental' : 'pre'); } catch(e) { app.innerHTML = shell(t('cs_book_t'), emptyBox(errMsg(e))); return; } }
+  if (!b.docs) { loading(t('cs_book_t')); try { b.docs = await API.doctors(/dental/.test(kind) ? 'dental' : 'pre'); } catch(e) { app.innerHTML = shell(t('cs_book_t'), emptyBox(errMsg(e)), { back: true }); return; } }
   if (kind === 'post' && !b.orders) { try { b.orders = (await API.orders('mine')).filter(o => o.status === 'completed'); } catch(e) { b.orders = []; } }
   const order = kind === 'post' && b.orders ? b.orders.find(o => o.id === b.order) : null;
   const fee = csFee(kind, order, B); const steps = ['cs_s1','cs_s2','cs_s3','cs_s4','cs_s5'];
@@ -2741,7 +2771,7 @@ async function viewConsults(){
 
 /* one consultation (#/app/consult/<id>) */
 async function viewConsult(id){
-  let c; try { c = await API.consult(id); } catch(e) { app.innerHTML = shell('', emptyBox(errMsg(e))); return; }
+  let c; try { c = await API.consult(id); } catch(e) { app.innerHTML = shell('', emptyBox(errMsg(e)), { back: true }); return; }
   const u = S.user; const doc = u.role === 'doctor' && c.doctor && c.doctor.id === u.id; const n = c.note;
   if (doc) await loadCatalog().catch(() => {});
   const room = c.room ? 'https://meet.jit.si/' + c.room : null; const open = ['booked','live'].includes(c.status) && c.mode !== 'home';
@@ -3056,7 +3086,7 @@ async function viewExpat(){
     <svg class="ex-art" viewBox="0 0 320 220" data-draw aria-hidden="true"><rect x="20" y="90" width="120" height="100" rx="10" fill="none" stroke="#1257d6" stroke-width="4"/><path d="M20 110h120M50 90V60h60v30" fill="none" stroke="#1257d6" stroke-width="4" stroke-linejoin="round"/><rect x="40" y="128" width="22" height="22" rx="4" fill="none" stroke="#18b5d8" stroke-width="3"/><rect x="98" y="128" width="22" height="22" rx="4" fill="none" stroke="#18b5d8" stroke-width="3"/><rect x="170" y="70" width="130" height="120" rx="14" fill="none" stroke="#0fae9b" stroke-width="4"/><path d="M205 70V52a30 30 0 0 1 60 0v18" fill="none" stroke="#0fae9b" stroke-width="4"/><path d="M235 105v40M215 125h40" stroke="#0fae9b" stroke-width="7" stroke-linecap="round"/><path d="M10 196h300" stroke="#c9d8f5" stroke-width="4" stroke-linecap="round"/></svg></div></div></section>
     <section class="section" style="padding-top:8px"><div class="wrap-w stack-lg">
       <div class="banner amber">${ic('shield',22)}<div><b>${t('ex_note_t')}</b><div class="small">${t('ex_note')}</div></div></div>
-      <div class="grid g2"><div class="card feat"><h3>${ic('building',20)} ${t('ex_co_t')}</h3><p class="small muted">${t('ex_co_p')}</p><div class="row wrap" style="gap:8px">${coBtn}</div></div>
+      <div class="grid g2 feats"><div class="card feat"><h3>${ic('building',20)} ${t('ex_co_t')}</h3><p class="small muted">${t('ex_co_p')}</p><div class="row wrap" style="gap:8px">${coBtn}</div></div>
         <div class="card feat"><h3>${ic('home',20)} ${t('ex_home_t')}</h3><p class="small muted">${t('ex_home_p')}</p><a class="btn soft" href="#/${u ? 'app/tests' : 'tests'}?c=expat">${t('q_book')}</a></div></div>
       <div class="grid g3" id="expk">${pk('expat_pre')}${pk('housemaid')}</div>
       <div class="card"><h3>${t('ex_off_t')}</h3><ol class="small" style="margin:0;padding-inline-start:20px;line-height:1.9"><li>${t('ex_off_1')}</li><li>${t('ex_off_2')}</li><li>${t('ex_off_3')}</li></ol><a class="xs b" href="#/sources#oman" style="display:inline-block;margin-top:8px">${t('src_link')} ›</a></div>
@@ -3152,7 +3182,7 @@ async function boot(){
   if (API.hasToken()) {
     let cu = null; try { cu = JSON.parse(localStorage.getItem('lah_user') || 'null'); } catch(e) {}
     const check = API.me().then(r => { S.user = r.user; S.unread = r.unread; saveUser(); return true; }).catch(e => { if (e.code === 'AUTH_REQUIRED') { S.user = null; saveUser(); return false; } return null; });
-    if (cu && cu.id) { S.user = cu; check.then(ok => { if (ok === false && location.hash.startsWith('#/app')) go('login'); }); }
+    if (cu && cu.id) { S.user = cu; check.then(ok => { if (ok === false && location.hash.startsWith('#/app')) redir('login'); }); }
     else await check;
   }
   window.addEventListener('hashchange', render);

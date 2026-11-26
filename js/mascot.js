@@ -52,6 +52,8 @@ function build(){
   el = document.createElement('div'); el.id = 'nurse'; el.setAttribute('role', 'button'); el.setAttribute('tabindex', '0'); el.setAttribute('aria-label', st.lang === 'ar' ? 'نور، ممرضة آي لاب@هوم' : 'Noor, the iLab@home nurse');
   el.innerHTML = `<div class="ns-bub" role="status" aria-live="polite"></div><div class="ns-body">${SVG}</div>`;
   document.body.appendChild(el); bub = el.querySelector('.ns-bub');
+  /* v42: at the bottom of the page Noor steps aside, so she never stands on the footer links (tablets, open Fold, laptops) */
+  let ft = 0; addEventListener('scroll', () => { if (ft) return; ft = requestAnimationFrame(() => { ft = 0; if (!el) return; const f = document.querySelector('footer.site'); const away = !!(f && f.getBoundingClientRect().top < innerHeight - 30); el.classList.toggle('away', away); if (away && bub) bub.classList.remove('on'); }); }, { passive: true });
   const tap = e => { if (e.target.closest('.ns-bub')) return; e.preventDefault(); jump(); if (bub.classList.contains('on')) tipNext(); else say(true); };
   el.querySelector('.ns-body').addEventListener('click', tap);
   el.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === el) { e.preventDefault(); jump(); say(true); } });
