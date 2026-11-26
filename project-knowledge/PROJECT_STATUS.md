@@ -1,5 +1,9 @@
 # Project status — last updated 2026-11-26
 
+## v54 + DB v53 (2026-11-26)
+- Booking checked in the database: real and demo patients book fine; doctor/nurse/staff accounts get ONLY_PATIENTS by design. That error had no text (showed a generic error at the last step); now a clear message, and the booking screen says it up front for those accounts.
+- 8 more experienced pilot nurses with bios and specialties (women: Aisha Al Habsi 18 y, Khawla Al Mamari 15, Shamsa Al Kharusi 21, Zainab Al Ghafri 12, Hind Al Saadi 16; men: Hamad Al Mukhaini 17, Nasser Al Jabri 14, Ali Al Wahaibi 11); bios added to the 4 earlier ones. Nurse cards show pilot nurses as available today. Real nurses now 9 women, 5 men.
+
 ## v53 (2026-11-26)
 - Noor round 2: a real somersault (jump, over, land), falls and gets up ("وابوي طحت!"), gets dizzy ("حبابي جاني دوار"), a full dance with arms and legs (no "see my dance" line), more welcomes ("يا هلا بالطش والرش"…), motivation and info lines, "حبوتي", many more hearts; "I need help" points down at the help button only; before leaving she asks "أخدمك بشي ولا أروح أكمل شغلي مع المستخدمين الثانيين؟".
 

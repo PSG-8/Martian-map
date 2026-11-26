@@ -1,0 +1,3 @@
+-- v53 (applied 2026-11-26 as migration v53_more_nurses): 8 experienced pilot nurses (5 women, 3 men) with bios and
+-- specialties, bios for the 4 earlier pilot nurses, and _nurse_card shows pilot nurses as available today.
+-- Passwords were given to the owner in chat only (never stored in the repo).
