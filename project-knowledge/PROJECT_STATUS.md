@@ -1,5 +1,8 @@
 # Project status — last updated 2026-11-26
 
+## v51 database (LIVE 2026-11-26): `sql/v51_consult_auto_by_test.sql`
+- The automatic consultation message is now a warm letter like a doctor's note: "عزيزي/عزيزتي {name} ❤️", a thank-you specific to the test (premarital, screening, sugar, lipids, thyroid, vitamins, kidney, liver, blood count, urine/stool, allergy, flu/TB, full check-up), the out-of-range results by name/value/unit said calmly ("no need to worry, the doctor will check the cause"), a test-specific wish, signed "فريق آي لاب@هوم ❤️ (رسالة تلقائية)". No order: topic line (children, fever, teeth ...). Emergencies still first. Tested on real orders in rolled-back transactions.
+
 ## v50 site + v50 database (LIVE 2026-11-26): `sql/v50_consult_auto_reply.sql`
 - If nobody (doctor) answers a consultation within 2 minutes of booking or of the patient's last message, the patient gets one warm automatic message matched to the topic (diabetes, pressure, pregnancy, children, fever, teeth, anaemia/vitamins, heart, thyroid, kidney/liver, pain, results, general) with 🤍 and a prayer; chest pain / breathing / fainting / bleeding -> call 9999. Labelled "automatic message from the iLab@home team" in the chat (never as the doctor), no diagnosis, max 3 per consultation, 24 h window. pg_cron job `consult-auto-reply` every minute. Live-checked with a demo consultation (then cancelled).
 
