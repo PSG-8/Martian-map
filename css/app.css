@@ -1334,3 +1334,4 @@ body:has(#app .auth) #bot{display:none}
 .push-banner>[data-push-x],.push-banner>[data-mail-x]{position:absolute;top:8px;inset-inline-end:8px;width:32px;height:32px;min-height:32px;border-radius:10px;background:transparent;box-shadow:none;color:#56657f}
 .push-banner b{display:block;font-size:1rem;margin-bottom:2px}
 @media (max-width:600px){.push-banner{align-items:flex-start;padding:14px;padding-inline-end:44px}.push-banner>.grow{flex:1 1 calc(100% - 60px)}.push-banner>.btn{flex:1 1 100%;min-height:44px;margin-inline-end:-30px}}
+.msg.auto .bub{background:linear-gradient(135deg,#f3f8ff,#eefaf7);border:1px solid #d6e6fb;color:#0f1b33;white-space:pre-line} /* v50: warm automatic message in consultations */

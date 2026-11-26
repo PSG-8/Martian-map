@@ -1925,7 +1925,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 49;
+const APP_V = 50;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -2240,7 +2240,7 @@ function heroSlides(){
 }
 function heroHtml(compact){
   const sl = heroSlides(); const D = S.lang === 'ar' ? 'r' : 'd'; /* desktop pictures: 'r' has the scene on the left for Arabic */
-  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=49" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=49" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=49"><img ${a}src="img/hero/h${n}${D}.jpg?v=49" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=50" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=50" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=50"><img ${a}src="img/hero/h${n}${D}.jpg?v=50" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
     <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
       <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
     <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
@@ -2852,7 +2852,7 @@ async function viewConsult(id){
   if (!S.catalog && n && sug.length) loadCatalog().then(() => { if (location.hash.includes(id)) viewConsult(id); }).catch(() => {});
   /* messages: load, then check for new ones every 4 seconds while this page is open */
   let lastId = 0; const chl = $('#chl');
-  const addMsgs = list => { if (!chl || !list.length) return; if (!lastId) chl.innerHTML = ''; list.forEach(m => { lastId = Math.max(lastId, m.id); chl.insertAdjacentHTML('beforeend', `<div class="msg ${m.mine ? 'me' : ''}"><div class="bub">${esc(m.body)}</div><div class="xs muted">${m.mine ? '' : esc(m.who === 'doctor' ? (c.doctor && c.doctor.name || '') : (c.patient && c.patient.name || '')) + ' · '}${fmtTime(m.at)}</div></div>`); }); chl.scrollTop = chl.scrollHeight; };
+  const addMsgs = list => { if (!chl || !list.length) return; if (!lastId) chl.innerHTML = ''; list.forEach(m => { lastId = Math.max(lastId, m.id); chl.insertAdjacentHTML('beforeend', `<div class="msg ${m.mine ? 'me' : ''}${m.who === 'auto' ? ' auto' : ''}"><div class="bub">${esc(m.body)}</div><div class="xs muted">${m.mine ? '' : (m.who === 'auto' ? t('cs_auto') : esc(m.who === 'doctor' ? (c.doctor && c.doctor.name || '') : (c.patient && c.patient.name || ''))) + ' · '}${fmtTime(m.at)}</div></div>`); }); chl.scrollTop = chl.scrollHeight; };
   const pull = async () => { if (!chl || !chl.isConnected || document.hidden) return; try { addMsgs(await API.consultMsgs(c.id, lastId)); } catch(e) {} };
   if (chl) { pull(); S.timers.push(setInterval(pull, 4000)); }
   if ($('#chf')) $('#chf').onsubmit = async e => { e.preventDefault(); const i = $('#chi'); const v = i.value.trim(); if (!v) return; i.value = ''; try { const m = await API.consultSend(c.id, v); addMsgs([m]); } catch(err) { i.value = v; toast(errMsg(err), true); } };
