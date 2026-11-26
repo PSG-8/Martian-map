@@ -1,5 +1,8 @@
 # Project status — last updated 2026-11-26
 
+## v50 site + v50 database (LIVE 2026-11-26): `sql/v50_consult_auto_reply.sql`
+- If nobody (doctor) answers a consultation within 2 minutes of booking or of the patient's last message, the patient gets one warm automatic message matched to the topic (diabetes, pressure, pregnancy, children, fever, teeth, anaemia/vitamins, heart, thyroid, kidney/liver, pain, results, general) with 🤍 and a prayer; chest pain / breathing / fainting / bleeding -> call 9999. Labelled "automatic message from the iLab@home team" in the chat (never as the doctor), no diagnosis, max 3 per consultation, 24 h window. pg_cron job `consult-auto-reply` every minute. Live-checked with a demo consultation (then cancelled).
+
 ## v48 (2026-11-26)
 - Portraits (same 3D style, full hijab) for Dr. Salma, Dr. Amal Al Hinai (the account tasnim@labathome.om, renamed by the owner in v49) and a new consultant, Dr. Huda Al Mahrouqi (doctor.huda@labathome.om, real account, consultations + result reviews). Images in img/doctors.
 
