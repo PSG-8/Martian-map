@@ -1,5 +1,8 @@
 # Project status — last updated 2026-11-26
 
+## v48 database (applied 2026-11-26): `sql/v48_review_notify.sql`
+- "Result to review" went to every doctor, also demo doctors for real patients' orders, which they cannot open ("Not found" in Dr. Aisha's demo account). Now doctors are notified only for orders they can open; real patients' results notify the owner. Old such notifications marked read (they still list real order codes in public demo accounts: owner to decide whether to delete). Tested in rolled-back transactions.
+
 ## v47 database (applied 2026-11-26): `sql/v47_owner_notify.sql`
 - The owner gets a notification (and phone push if turned on) for every REAL new booking, consultation and patient sign-up (demo accounts never trigger it). Tested in a rolled-back transaction: 2 notifications for 1 user + 1 consultation.
 - Open gap: no real licensed doctor account exists (all consult=true doctors are demo), so real users' consultations go to demo doctors nobody monitors. Needs the owner's decision.
