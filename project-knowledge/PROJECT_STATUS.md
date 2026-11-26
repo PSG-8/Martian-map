@@ -1,5 +1,8 @@
 # Project status — last updated 2026-11-26
 
+## v47 site + v49 database (LIVE 2026-11-26, dpl_H42gmknVRkWDdQ3J1gdieDZkTP4L): `sql/v49_team_doctors.sql`
+- Owner's request (pilot): the team doctor accounts with private passwords, Dr. Salma (doctor.team@labathome.om) and Tasnim (tasnim@labathome.om), are no longer demo: they get real users' consultations and result reviews (fake licence removed). Guests and real users see only them; demo visitors see the demo doctors. No real dentist yet: a clear WhatsApp message instead of an empty list. Live-checked.
+
 ## v48 database (applied 2026-11-26): `sql/v48_review_notify.sql`
 - "Result to review" went to every doctor, also demo doctors for real patients' orders, which they cannot open ("Not found" in Dr. Aisha's demo account). Now doctors are notified only for orders they can open; real patients' results notify the owner. Old such notifications marked read (they still list real order codes in public demo accounts: owner to decide whether to delete). Tested in rolled-back transactions.
 
