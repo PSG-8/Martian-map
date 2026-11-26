@@ -101,7 +101,7 @@ window.API = {
   resetRequest: async (login) => { let r; try { r = await fetch('api/mail', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ action:'reset', login }) }); } catch(e) { throw new ApiError('NETWORK'); } const j = await r.json().catch(() => ({})); if (!r.ok) throw new ApiError(j.error || 'GENERIC'); return j; },
   demoAdvance: (id) => rpc('demo_advance', { p_token: tok(), p_id:id }),
   business: () => rpc('business_public'),
-  doctors: (k) => rpc('doctors_list', { p_kind: k || 'pre' }),
+  doctors: (k) => rpc('doctors_list', { p_kind: k || 'pre', p_token: tok() || '' }),  // v49: real users see the team doctors, demo visitors the demo doctors
   consultCreate: (p) => rpc('consult_create', { p_token: tok(), p }),
   consults: () => rpc('consult_list', { p_token: tok() }),
   consult: (id) => rpc('consult_get', { p_token: tok(), p_id: id }),
