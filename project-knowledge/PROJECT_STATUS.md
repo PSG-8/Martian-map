@@ -1,5 +1,9 @@
 # Project status — last updated 2026-11-26
 
+## v47 database (applied 2026-11-26): `sql/v47_owner_notify.sql`
+- The owner gets a notification (and phone push if turned on) for every REAL new booking, consultation and patient sign-up (demo accounts never trigger it). Tested in a rolled-back transaction: 2 notifications for 1 user + 1 consultation.
+- Open gap: no real licensed doctor account exists (all consult=true doctors are demo), so real users' consultations go to demo doctors nobody monitors. Needs the owner's decision.
+
 ## v44–v45 (LIVE since 2026-11-26, dpl_DjD4WP2g71CgpswaCBpTsGG1SueX; live-checked: 140 screens of every demo account on Samsung 384 px + iPhone SE 320 px, 0 problems) — live check of every demo account (real data, Samsung 384 px + iPhone SE 320 px, 140 screens)
 - A long email (no spaces) pushed the profile card off 320 px screens (male nurse, fleet); long names were squeezed beside badges in phone list-cards (owner: accounts, catalog); a fleet table cell was one word per line. Fixed; re-checked against the live data.
 
