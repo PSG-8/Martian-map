@@ -1315,3 +1315,8 @@ body:has(#app .auth) #bot{display:none}
 @media (max-width:380px){.feats{grid-template-columns:minmax(0,1fr)}.thinker svg{width:128px}}
 @media (min-width:641px){table.table.mcards td.xs{min-width:150px}} /* tablet portrait: long licence/lab text no longer one word per line (the table scrolls sideways inside its card instead) */
 @media (pointer:coarse){table a.b{display:inline-block;padding-block:5px}} /* order codes in tables: easier to tap */
+/* v43 live check with real data: a long email has no spaces, so it pushed the profile card off a 320 px screen;
+   names in phone list-cards were squeezed beside badges; a fleet table cell was one word per line */
+.card.row>div{min-width:0}.card .ltr{overflow-wrap:anywhere}
+@media(max-width:640px){table.table.mcards td{flex-wrap:wrap;row-gap:4px}table.table.mcards td>b{min-width:0;overflow-wrap:anywhere}}
+.rtable td.small{min-width:120px}

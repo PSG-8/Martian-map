@@ -1,5 +1,5 @@
-const V = 'lah-v43';
-const CORE = ['./', 'index.html', 'css/app.css?v=43', 'js/store.js?v=43', 'js/i18n.js?v=43', 'js/art.js?v=43', 'js/api.js?v=43', 'js/qr.js?v=43', 'js/pdf.js?v=43', 'js/guide.js?v=43', 'js/motion.js?v=43', 'js/app.js?v=43', 'icons/icon.svg', 'manifest.webmanifest', "img/hero/h0d.webp?v=43", "img/hero/h0m.webp?v=43"];
+const V = 'lah-v44';
+const CORE = ['./', 'index.html', 'css/app.css?v=44', 'js/store.js?v=44', 'js/i18n.js?v=44', 'js/art.js?v=44', 'js/api.js?v=44', 'js/qr.js?v=44', 'js/pdf.js?v=44', 'js/guide.js?v=44', 'js/motion.js?v=44', 'js/app.js?v=44', 'icons/icon.svg', 'manifest.webmanifest', "img/hero/h0d.webp?v=44", "img/hero/h0m.webp?v=44"];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {

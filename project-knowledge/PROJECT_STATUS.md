@@ -1,5 +1,8 @@
 # Project status — last updated 2026-11-26
 
+## v44 (2026-11-26) — live check of every demo account (real data, Samsung 384 px + iPhone SE 320 px, 140 screens)
+- A long email (no spaces) pushed the profile card off 320 px screens (male nurse, fleet); long names were squeezed beside badges in phone list-cards (owner: accounts, catalog); a fleet table cell was one word per line. Fixed; re-checked against the live data.
+
 ## v43 (2026-11-26) — live check of v42 with real data
 - On the live site the demo patient's "My orders" cards stretched to 583 px on phones (a real order lists several tests on one line; the fake data had one). The order list and every other grid used as a list now have a shrinkable column. The checker's fake data now has a real-length test list.
 
