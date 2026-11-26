@@ -12,6 +12,38 @@ const T = {
   ar: { m: 'صباح الخير', e: 'مساء الخير', h: 'أهلاً', me: 'أنا نور، ممرضة آي لاب@هوم.', ask: 'كيف أقدر أساعدك اليوم؟', book: 'احجز فحص', kit: 'عُدّة ذاتية', doc: 'كلّم طبيب', news: 'الجديد', close: 'إغلاق', cheer: 'اختيار موفّق! صار في سلتك.',
     tips: ['اشرب ماي قبل سحب الدم، يسهّل السحب.', 'فحص السكر الصائم والدهون يحتاج صيام 8 إلى 12 ساعة، والماي مسموح.', 'عينتك تنتقل في صندوق تبريد ٢–٨ °م لين المختبر.', 'كل زيارة خامسة مجاناً مع بطاقة الأختام.', 'نتائجك توصل جوالك مع نصائح واضحة وملف PDF.'], more: 'نصيحة ثانية', hi: 'هلا' }
 };
+/* v52: warm welcomes, funny reactions and "show me where" guides */
+const X = {
+  ar: { wel: ['حيّ الله من زارنا 🌸', 'يا هلا ويا مرحبا، توّه ما نوّر البرنامج ✨', 'نوّرت آي لاب@هوم {n}🤍', 'مرحبا ملايين، حيّاك في بيتك الثاني 🏠', 'يا أهلاً وسهلاً، الدار دارك 💙', 'هلا والله! البرنامج صار أحلى بوجودك 🌟'],
+    fun: ['لا تدغدغني! أنا في الدوام 😂', 'أوووه! كنت بطيّح الإبرة من يدي 😅', 'تبي سر؟ حتى أنا أخاف من الإبر… بس لا تقول لأحد 🤫', 'أنا أسرع من سيارة الإسعاف… تقريباً 🚑😄', 'شوف رقصتي الجديدة! 💃', 'خمس دقايق وتخلص الحجز… أراهنك 😎', 'اشرب ماي! هذي نصيحتي ونصيحة جدتي 💧😄', 'إذا ضغطتني مرة ثانية بلف لفّة 🌀'],
+    g: { where: 'وريني وين', book: 'وين أحجز؟', res: 'وين نتايجي؟', doc: 'أكلم دكتور', help: 'أبي مساعدة', here: 'هني!', none: 'هالشي مب في هالصفحة، بوديك له 😉' } },
+  en: { wel: ['Look who is here! Welcome 🌸', 'The app just got brighter, welcome ✨', 'Welcome to iLab@home {n}🤍', 'Hello and welcome, make yourself at home 🏠', 'So happy to see you 💙', 'Hey there! The app is better with you here 🌟'],
+    fun: ['Hey, no tickling, I am on duty! 😂', 'Oops! I almost dropped my needle 😅', 'Secret? Even I am a bit scared of needles… shh 🤫', 'I am faster than an ambulance… almost 🚑😄', 'Check out my new dance! 💃', 'Five minutes to book, I bet you 😎', 'Drink water! My advice and my grandma\'s 💧😄', 'Tap me again and I will spin 🌀'],
+    g: { where: 'Show me', book: 'Where do I book?', res: 'My results?', doc: 'Talk to a doctor', help: 'I need help', here: 'Right here!', none: 'Not on this page, taking you there 😉' } }
+};
+const XL = () => X[st.lang] || X.en;
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const GUIDE = { book: ['.qt[href*="tests"]', 'a[href="#/app/tests"]', 'a[href="#/tests"]', '[data-go="app/tests"]', '[data-go="tests"]'],
+  res: ['.tabbar a[href*="orders"]', 'a[href*="app/orders"]', '.qt[href*="orders"]'], doc: ['.qt[href*="consult"]', 'a[href*="consult"]'], help: ['#bot .bot-fab'] };
+const GO = { book: () => st.links.book, res: () => (st.user ? 'app/orders?r=1' : 'login'), doc: () => st.links.doc, help: () => 'support' };
+function spot(kind){
+  const vis = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden' && !e.closest('#nurse'); };
+  let t = null; for (const sel of GUIDE[kind] || []) { t = [...document.querySelectorAll(sel)].find(vis); if (t) break; }
+  if (!t) { bub.innerHTML = bubHtml(XL().g.none); later(() => { location.hash = '#/' + GO[kind](); }, 900); return; }
+  t.scrollIntoView({ block: 'center', behavior: RM ? 'auto' : 'smooth' });
+  later(() => { t.classList.remove('ns-spot'); void t.offsetWidth; t.classList.add('ns-spot'); later(() => t.classList.remove('ns-spot'), 2600); }, RM ? 0 : 450);
+  later(() => { if (!el || !bub) return; const up = t.getBoundingClientRect().top < el.getBoundingClientRect().top; bub.innerHTML = bubHtml(XL().g.here + (up ? ' 👆' : ' 👇')); }, RM ? 0 : 500); cls('point', 1200);
+}
+function hearts(){ if (RM || !el) return; for (let i = 0; i < 4; i++) { const h = document.createElement('span'); h.className = 'ns-heart'; h.textContent = pick(['🤍', '💙', '✨', '💚']); h.style.setProperty('--dx', (Math.random() * 60 - 30).toFixed(0) + 'px'); h.style.animationDelay = (i * 120) + 'ms'; el.appendChild(h); later(() => h.remove(), 1700); } }
+let funI = -1;
+function funny(){ const l = XL(); funI = (funI + 1) % l.fun.length; const line = l.fun[funI];
+  const move = funI % 4 === 0 ? 'dance' : funI % 4 === 1 ? 'spin' : funI % 4 === 2 ? 'wiggle' : 'jump';
+  cls(move, move === 'dance' ? 1600 : 900); hearts();
+  bub.innerHTML = bubHtml(line, guideChips()); bub.classList.add('on'); }
+function guideChips(){ const g = XL().g; return `<button data-nsg="book">${g.book}</button><button data-nsg="res">${g.res}</button><button data-nsg="doc">${g.doc}</button><button data-nsg="help">${g.help}</button>`; }
+function idle(){ if (!el || el.style.display === 'none' || !el.classList.contains('in') || document.hidden) return later(idle, 30000);
+  if (!bub.classList.contains('on') && !RM) cls(pick(['wave', 'wiggle', 'jump', 'peek']), 1400);
+  later(idle, 25000 + Math.random() * 20000); }
 const SVG = `<svg class="ns-svg" viewBox="0 0 120 172" aria-hidden="true">
 <defs>
  <radialGradient id="nsHj" cx="38%" cy="28%" r="80%"><stop offset="0" stop-color="#5677b6"/><stop offset=".55" stop-color="#2f4d82"/><stop offset="1" stop-color="#1b3260"/></radialGradient>
@@ -54,10 +86,10 @@ function build(){
   document.body.appendChild(el); bub = el.querySelector('.ns-bub');
   /* v42: at the bottom of the page Noor steps aside, so she never stands on the footer links (tablets, open Fold, laptops) */
   let ft = 0; addEventListener('scroll', () => { if (ft) return; ft = requestAnimationFrame(() => { ft = 0; if (!el) return; const f = document.querySelector('footer.site'); const away = !!(f && f.getBoundingClientRect().top < innerHeight - 30); el.classList.toggle('away', away); if (away && bub) bub.classList.remove('on'); }); }, { passive: true });
-  const tap = e => { if (e.target.closest('.ns-bub')) return; e.preventDefault(); jump(); if (bub.classList.contains('on')) tipNext(); else say(true); };
+  const tap = e => { if (e.target.closest('.ns-bub')) return; e.preventDefault(); if (bub.classList.contains('on')) funny(); else { jump(); say(true); } };
   el.querySelector('.ns-body').addEventListener('click', tap);
   el.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === el) { e.preventDefault(); jump(); say(true); } });
-  bub.addEventListener('click', e => { const x = e.target.closest('[data-nsx]'); if (x) { e.preventDefault(); hideBub(); return; } const m = e.target.closest('[data-nsm]'); if (m) { e.preventDefault(); tipNext(); return; } if (e.target.closest('a')) hideBub(); });
+  bub.addEventListener('click', e => { const x = e.target.closest('[data-nsx]'); if (x) { e.preventDefault(); hideBub(); return; } const m = e.target.closest('[data-nsm]'); if (m) { e.preventDefault(); tipNext(); return; } const g = e.target.closest('[data-nsg]'); if (g) { e.preventDefault(); if (g.dataset.nsg === 'where') { bub.innerHTML = bubHtml(XL().g.where + ' 👀', guideChips()); } else spot(g.dataset.nsg); return; } if (e.target.closest('a')) hideBub(); });
   if (FINE) addEventListener('pointermove', look, { passive: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden) clearT(); });
 }
@@ -71,10 +103,11 @@ const wave = () => cls('wave', 1700), jump = () => cls('jump', 650), blink = () 
 function bubHtml(inner, chips){ return `<button class="ns-x" data-nsx aria-label="${L().close}">×</button><div class="ns-t">${inner}</div>${chips ? `<div class="ns-chips">${chips}</div>` : ''}`; }
 function say(full){
   const l = L(), k = st.links; const name = st.user && st.user.full_name ? esc(st.user.full_name.split(' ')[0]) : '';
-  const head = `<b>${greetWord()}${name ? (st.lang === 'ar' ? ' يا ' : ', ') + name : ''}!</b> ${l.me}<br>${l.ask}`;
+  const wel = pick(XL().wel).replace('{n}', name ? (st.lang === 'ar' ? 'يا ' + name + ' ' : name + ' ') : '');
+  const head = `<b>${greetWord()}${name ? (st.lang === 'ar' ? ' يا ' : ', ') + name : ''}!</b> ${wel}<br>${l.me} ${l.ask}`;
   const small = !FINE || innerWidth < 900;
-  const chips = `<a href="#/${k.book}">${l.book}</a><a href="#/${k.kit}">${l.kit}</a><a href="#/${k.doc}">${l.doc}</a>${small ? '' : `<a href="#/new">${l.news}</a>`}<button data-nsm>${l.more}</button>`;
-  bub.innerHTML = bubHtml(head, full ? chips : ''); bub.classList.add('on'); wave();
+  const chips = `<a href="#/${k.book}">${l.book}</a><a href="#/${k.kit}">${l.kit}</a><a href="#/${k.doc}">${l.doc}</a>${small ? '' : `<a href="#/new">${l.news}</a>`}<button data-nsm>${l.more}</button><button data-nsg="where">${XL().g.where} 👀</button>`;
+  bub.innerHTML = bubHtml(head, full ? chips : ''); hearts(); bub.classList.add('on'); wave();
 }
 function tipNext(){ const l = L(); st.tip = (st.tip + 1) % l.tips.length; bub.innerHTML = bubHtml(`<span class="ns-tip">💡</span> ${l.tips[st.tip]}`, `<button data-nsm>${l.more}</button><a href="#/${st.links.book}">${l.book}</a>`); bub.classList.add('on'); }
 function hideBub(){ if (bub) bub.classList.remove('on'); if (!FINE || innerWidth < 900) leave(); }
@@ -103,7 +136,7 @@ window.LAHMascot = {
     // v34: Noor never stands on top of the home banner: she walks in once the banner has scrolled out from under her
     const clear = () => { const h = document.querySelector('.h3'); if (!h || !h.isConnected) return true; return h.getBoundingClientRect().bottom < innerHeight - (small ? 250 : 300); };
     const enter = () => { if (!el || el.style.display === 'none') return;
-      el.classList.add('walk', 'in'); later(() => { el.classList.remove('walk'); if (first) say(true); else wave(); blink(); }, 1450);
+      el.classList.add('walk', 'in'); later(() => { el.classList.remove('walk'); if (first) say(true); else wave(); blink(); }, 1450); later(idle, 20000);
       if (first) later(() => { if (el && bub && bub.classList.contains('on') && !el.matches(':hover')) { if (small) hideBub(); else bub.classList.remove('on'); } }, small ? 9000 : 14000); };
     if (st.wait) { removeEventListener('scroll', st.wait); st.wait = null; }
     if (clear()) later(enter, first ? 1600 : 500);

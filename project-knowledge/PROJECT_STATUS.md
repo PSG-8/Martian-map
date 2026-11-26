@@ -1,5 +1,8 @@
 # Project status — last updated 2026-11-26
 
+## v52 (2026-11-26)
+- Noor (js/mascot.js) is more fun: random warm welcomes ("حيّ الله من زارنا"، "توّه ما نوّر البرنامج"…), each extra tap a funny line with a move (dance, spin, wiggle, jump) and floating hearts, idle moves every ~30 s, and "show me where" buttons (book, my results, doctor, help) that scroll to the button on the page and light it up (or take you there). Reduced-motion respected.
+
 ## v51 site + v52 database (2026-11-26): `sql/v52_staff_and_nurses.sql`
 - New real (pilot) staff with portraits: Dr. Khalid Al Harthi (family), Dr. Saif Al Rawahi (consultant internal medicine), Dr. Maryam Al Siyabi (paediatrics), dentists Dr. Faisal Al Busaidi and Dr. Shatha Al Maskari; nurses Salim Al Amri and Yousef Al Hajri (male), Fatma Al Hashmi and Muna Al Shukaili (female). Passwords in chat only.
 - Fixed: real users saw demo nurses (always "available") and could book one nobody works from; real nurses only showed if they ticked "available today" (pilot nurses now always count); new bookings only notify nurses of the same world. Real men had no male nurse before.

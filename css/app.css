@@ -1335,3 +1335,18 @@ body:has(#app .auth) #bot{display:none}
 .push-banner b{display:block;font-size:1rem;margin-bottom:2px}
 @media (max-width:600px){.push-banner{align-items:flex-start;padding:14px;padding-inline-end:44px}.push-banner>.grow{flex:1 1 calc(100% - 60px)}.push-banner>.btn{flex:1 1 100%;min-height:44px;margin-inline-end:-30px}}
 .msg.auto .bub{background:linear-gradient(135deg,#f3f8ff,#eefaf7);border:1px solid #d6e6fb;color:#0f1b33;white-space:pre-line} /* v50: warm automatic message in consultations */
+/* v52: Noor's fun moves, hearts and "show me where" spotlight */
+#nurse.spin .ns-svg{animation:nsSpin .9s cubic-bezier(.4,1.4,.5,1)}
+#nurse.dance .ns-svg{animation:nsDance 1.6s ease-in-out}
+#nurse.wiggle .ns-svg{animation:nsWiggle .9s ease-in-out}
+#nurse.peek .ns-head{animation:nsPeek 1.4s ease-in-out}
+#nurse.point .ns-ar{animation:nsWave 1.2s ease-in-out}
+@keyframes nsSpin{0%{transform:rotateY(0)}100%{transform:rotateY(360deg)}}
+@keyframes nsDance{0%,100%{transform:translateX(0) rotate(0)}20%{transform:translateX(-6px) rotate(-7deg)}40%{transform:translateX(6px) rotate(7deg) translateY(-5px)}60%{transform:translateX(-6px) rotate(-7deg)}80%{transform:translateX(6px) rotate(7deg) translateY(-5px)}}
+@keyframes nsWiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg) scale(1.03)}50%{transform:rotate(6deg)}75%{transform:rotate(-3deg)}}
+@keyframes nsPeek{0%,100%{transform:rotate(0)}30%{transform:rotate(-12deg) translateX(-2px)}65%{transform:rotate(10deg) translateX(2px)}}
+.ns-heart{position:absolute;left:50%;top:18px;font-size:18px;pointer-events:none;opacity:0;animation:nsHeart 1.5s ease-out forwards}
+@keyframes nsHeart{0%{opacity:0;transform:translate(-50%,10px) scale(.5)}20%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx,0px)),-70px) scale(1.15)}}
+.ns-spot{position:relative;z-index:5;animation:nsSpot 1.3s ease-in-out 2;border-radius:16px}
+@keyframes nsSpot{0%,100%{box-shadow:0 0 0 0 rgba(18,87,214,0)}50%{box-shadow:0 0 0 6px rgba(18,87,214,.35),0 0 24px 6px rgba(15,174,155,.35)}}
+@media (prefers-reduced-motion: reduce){.ns-heart{display:none}.ns-spot{animation:none;outline:3px solid #1257d6;outline-offset:3px}}
