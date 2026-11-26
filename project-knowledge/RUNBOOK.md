@@ -5,6 +5,7 @@ Any static server from the repo root, e.g. `npx serve .` then open http://localh
 Local test harness with a mocked API: branch `project-tools` → `tools/test/harness.mjs` (set the site path inside; uses Playwright + Chrome).
 **Checker (v42, in this branch):** `tools/qa/run-all.sh` (quick, ~6 min) or `tools/qa/run-all.sh full` (every screen x every account x 20 devices, ~45 min).
 Serves the repo on :5055 with a fake database and drives Chromium; reports in `tools/qa/out/`. Run it before every deploy. `tools/` is not deployed.
+**Automatic daily check (v46):** a scheduled task "iLab@home daily auto-check & fix" (trig_01FaVZ4VgA3YxDgtJyKqC7qf) runs every day at 03:17 Oman time: `tools/qa/live-flows.js` + `tools/qa/live-accounts.js` on the live site; if something is broken it fixes only clear bugs (no design/text/database changes), runs `run-all.sh`, bumps the version, pushes and deploys. It has no Vercel connector yet: add one to the task (claude.ai → scheduled tasks) so it can publish; until then it pushes and reports.
 
 ## Deploy (what was done every release)
 1. Bump the version N everywhere: `?v=N` in `index.html` and `sw.js`, `const V = 'lah-vN'` in `sw.js`, `const APP_V = N;` in `js/app.js`. (`project-tools/tools/deploy.sh N "message"` does this.)
