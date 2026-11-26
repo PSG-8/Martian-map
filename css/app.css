@@ -1320,3 +1320,17 @@ body:has(#app .auth) #bot{display:none}
 .card.row>div{min-width:0}.card .ltr{overflow-wrap:anywhere}
 @media(max-width:640px){table.table.mcards td{flex-wrap:wrap;row-gap:4px}table.table.mcards td>b{min-width:0;overflow-wrap:anywhere}}
 .rtable td.small{min-width:175px}
+
+/* v46: add-to-cart animation (3D cart) */
+.sr-only{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#cartfx{position:fixed;z-index:70;width:100px;height:84px;display:block;perspective:320px;-webkit-tap-highlight-color:transparent}
+#cartfx .c3{display:block;transform-style:preserve-3d;filter:drop-shadow(0 10px 14px rgba(18,87,214,.28))}
+#cartfx .c3-svg{display:block;transform:rotateY(-16deg) rotateX(8deg)}
+#cartfx .c3-plus{position:absolute;left:50%;top:-6px;transform:translate(-50%,0);opacity:0;background:#0fae9b;color:#fff;font-weight:800;font-size:.85rem;padding:3px 9px;border-radius:999px;box-shadow:0 6px 14px rgba(15,174,155,.35)}
+.c3-item{position:fixed;left:0;top:0;z-index:71;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#1257d6);color:#fff;display:grid;place-items:center;box-shadow:0 8px 18px rgba(18,87,214,.4);pointer-events:none;will-change:transform}
+.c3-item svg{width:18px;height:18px}
+/* v46: notification / email cards: close button in the corner, text full width, action button under it on phones */
+.push-banner{position:relative;padding-inline-end:46px;row-gap:12px}
+.push-banner>[data-push-x],.push-banner>[data-mail-x]{position:absolute;top:8px;inset-inline-end:8px;width:32px;height:32px;min-height:32px;border-radius:10px;background:transparent;box-shadow:none;color:#56657f}
+.push-banner b{display:block;font-size:1rem;margin-bottom:2px}
+@media (max-width:600px){.push-banner{align-items:flex-start;padding:14px;padding-inline-end:44px}.push-banner>.grow{flex:1 1 calc(100% - 60px)}.push-banner>.btn{flex:1 1 100%;min-height:44px;margin-inline-end:-30px}}

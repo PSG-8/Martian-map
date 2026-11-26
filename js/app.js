@@ -155,7 +155,7 @@ function catalogBlock(cat, limit){
 function bindCatalog(root, rerender){
   $$('[data-cat]', root).forEach(b => b.onclick = () => rerender(b.dataset.cat));
   $$('[data-add]', root).forEach(b => b.onclick = () => { const [ty, id] = b.dataset.add.split(':'); const k = ty === 'package' ? 'packages' : 'tests'; const was = S.cart[k].includes(id);
-    const rect = b.getBoundingClientRect(); toggleCart(ty, id); rerender(); refreshCartBadges(); if (!was) { toastCart(); if (window.FX) FX.flyToCart(rect); if (window.LAHMascot) LAHMascot.cheer(); } });
+    const rect = b.getBoundingClientRect(); toggleCart(ty, id); rerender(); refreshCartBadges(); if (!was) { cartFx(rect); if (window.LAHMascot) LAHMascot.cheer(); } });
 }
 function cartBar(){
   const n = cartCount(); if (!n || !S.catalog) return '';
@@ -1208,6 +1208,60 @@ async function viewNotifs(){
   if ($('#mr')) $('#mr').onclick = () => viewNotifs();
 }
 
+/* v46: add to cart: the test jumps in an arc into a small 3D cart that bounces, then the cart rolls to the cart icon.
+   Tap the cart to open it. Reduced-motion users (and very old browsers) get the old short message instead. */
+const CART3D = `<svg class="c3-svg" viewBox="0 0 124 104" width="100" height="84" aria-hidden="true"><defs>
+<linearGradient id="c3f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b95ff"/><stop offset="1" stop-color="#1257d6"/></linearGradient>
+<linearGradient id="c3s" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0b3a94"/><stop offset="1" stop-color="#1a5fe0"/></linearGradient>
+<linearGradient id="c3i" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8f0ff"/><stop offset="1" stop-color="#b9d0ff"/></linearGradient></defs>
+<ellipse cx="66" cy="98" rx="42" ry="5" fill="rgba(11,35,80,.2)"/>
+<path d="M30 18h88l-8 10H24z" fill="url(#c3i)"/>
+<path d="M24 28h86l-10 42H36z" fill="url(#c3f)"/>
+<path d="M24 28l-6-6 10 46 8 2z" fill="url(#c3s)"/>
+<path d="M45 30l3 38M66 30v38M87 30l-3 38M28 42h79M32 56h72" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+<path d="M4 12h13l7 16" fill="none" stroke="#0b2350" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M36 70l-4 9h74" fill="none" stroke="#0b2350" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="44" cy="89" r="8" fill="#0b2350"/><circle cx="44" cy="89" r="3" fill="#9fc0ff"/>
+<circle cx="96" cy="89" r="8" fill="#0b2350"/><circle cx="96" cy="89" r="3" fill="#9fc0ff"/>
+<path d="M30 21h84" stroke="#fff" stroke-opacity=".8" stroke-width="2" stroke-linecap="round"/></svg>`;
+function cartFx(from){
+  const live = document.getElementById('cartlive') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'cartlive', className: 'sr-only' }));
+  live.setAttribute('aria-live', 'polite'); live.textContent = ''; setTimeout(() => { live.textContent = t('added_cart'); }, 50);
+  if (!from || !document.body.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return toastCart();
+  const old = document.getElementById('cartfx'); if (old) old.remove();
+  const vis = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.top < innerHeight && r.bottom > 0 && getComputedStyle(e).visibility !== 'hidden'; };
+  const tgt = [...document.querySelectorAll('.tabbar a[href*="cart"], .topbar a[href*="cart"], .side-nav a[href*="cart"], .cart-bar')].find(vis);
+  const ti = tgt ? (tgt.querySelector('svg') || tgt) : null; const tr = ti ? ti.getBoundingClientRect() : null;
+  const W = 100, H = 84;
+  let cx = tr ? tr.left + tr.width / 2 : innerWidth / 2; cx = Math.min(Math.max(cx, W / 2 + 10), innerWidth - W / 2 - 10);
+  let cy = tr ? (tr.top > innerHeight / 2 ? tr.top - H / 2 - 18 : tr.bottom + H / 2 + 18) : innerHeight - 150;
+  cy = Math.min(Math.max(cy, H / 2 + 10), innerHeight - H / 2 - 10);
+  const box = document.createElement('a'); box.id = 'cartfx'; box.href = '#/' + (S.user ? 'app/cart' : 'register'); box.setAttribute('aria-label', t('view_cart'));
+  box.style.left = (cx - W / 2) + 'px'; box.style.top = (cy - H / 2) + 'px';
+  box.innerHTML = `<span class="c3">${CART3D}</span><span class="c3-plus">+1</span>`;
+  const item = document.createElement('span'); item.className = 'c3-item'; item.innerHTML = ic('flask', 18);
+  document.body.appendChild(box); document.body.appendChild(item);
+  const c3 = box.querySelector('.c3'), plus = box.querySelector('.c3-plus');
+  const clean = () => { box.remove(); item.remove(); };
+  box.addEventListener('click', clean);
+  c3.animate([{ transform: 'translateY(34px) scale(.3) rotateX(50deg)', opacity: 0 }, { transform: 'translateY(-6px) scale(1.08) rotateX(0deg)', opacity: 1, offset: .7 }, { transform: 'none', opacity: 1 }], { duration: 380, easing: 'cubic-bezier(.2,.9,.3,1.25)', fill: 'both' });
+  const x0 = from.left + from.width / 2, y0 = from.top + from.height / 2, x1 = cx + 6, y1 = cy - H / 2 + 22;
+  const h = Math.max(110, Math.abs(y1 - y0) * .35), frames = [];
+  for (let i = 0; i <= 14; i++) { const k = i / 14; const x = x0 + (x1 - x0) * k, y = y0 + (y1 - y0) * k - 4 * h * k * (1 - k);
+    frames.push({ transform: `translate(${(x - 17).toFixed(1)}px,${(y - 17).toFixed(1)}px) rotate(${Math.round(k * 300)}deg) scale(${(1 - k * .45).toFixed(2)})`, opacity: k > .95 ? 0 : 1 }); }
+  const fly = item.animate(frames, { duration: 640, delay: 160, easing: 'cubic-bezier(.35,0,.65,1)', fill: 'both' });
+  fly.onfinish = () => {
+    item.remove();
+    c3.animate([{ transform: 'none' }, { transform: 'translateY(7px) rotateZ(-9deg) scale(1.04,.94)' }, { transform: 'translateY(-10px) rotateZ(7deg)' }, { transform: 'translateY(2px) rotateZ(-3deg)' }, { transform: 'none' }], { duration: 560, easing: 'ease-out' });
+    plus.animate([{ transform: 'translate(-50%,6px) scale(.6)', opacity: 0 }, { transform: 'translate(-50%,-14px) scale(1)', opacity: 1, offset: .35 }, { transform: 'translate(-50%,-34px) scale(1)', opacity: 0 }], { duration: 900, easing: 'ease-out', fill: 'both' });
+    if (tgt) (tgt.querySelector('.dot') || ti).animate([{ transform: 'scale(1)' }, { transform: 'scale(1.35)' }, { transform: 'scale(1)' }], { duration: 360, delay: 380, easing: 'ease-out' });
+    setTimeout(() => { if (!box.isConnected) return;
+      const dx = tr ? tr.left + tr.width / 2 - cx : 0, dy = tr ? tr.top + tr.height / 2 - cy : 40;
+      const out = box.animate([{ transform: 'none', opacity: 1 }, { transform: `translate(${dx}px,${dy}px) scale(.25)`, opacity: 0 }], { duration: 460, easing: 'cubic-bezier(.5,0,.75,0)', fill: 'both' });
+      out.onfinish = clean; }, 1050);
+  };
+  setTimeout(clean, 4000);
+}
 function toastCart(){
   const el = $('#toast'); el.innerHTML = `${esc(t('added_cart'))} · <a href="#/${S.user ? 'app/cart' : 'register'}" style="color:#9fd0ff;text-decoration:underline">${esc(t('view_cart'))}</a>`;
   el.className = 'show'; el.style.pointerEvents = 'auto'; clearTimeout(el._t); el._t = setTimeout(() => { el.className = ''; el.style.pointerEvents = 'none'; }, 3200);
@@ -1871,7 +1925,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 45;
+const APP_V = 46;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -2186,7 +2240,7 @@ function heroSlides(){
 }
 function heroHtml(compact){
   const sl = heroSlides(); const D = S.lang === 'ar' ? 'r' : 'd'; /* desktop pictures: 'r' has the scene on the left for Arabic */
-  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=45" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=45" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=45"><img ${a}src="img/hero/h${n}${D}.jpg?v=45" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=46" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=46" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=46"><img ${a}src="img/hero/h${n}${D}.jpg?v=46" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
     <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
       <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
     <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
@@ -2344,7 +2398,7 @@ async function viewLanding(){
   ${footer()}${cartBar()}`;
   bindHero(); bindHomeFx();
   const lp = $('#lp'); if (lp) { const rer = () => { lp.innerHTML = C.packages.map(p => pkgCard(p, S.cart.packages.includes(p.id))).join(''); bind(); refreshCartBadges(); const cb = $('.cart-bar'); const nb = cartBar(); if (cb) cb.outerHTML = nb || '<span></span>'; else if (nb) app.insertAdjacentHTML('beforeend', nb); bindGo(); };
-    const bind = () => $$('[data-add]', lp).forEach(b => b.onclick = () => { const [ty, id] = b.dataset.add.split(':'); const was = S.cart.packages.includes(id); toggleCart(ty, id); rer(); if (!was) toastCart(); }); bind(); }
+    const bind = () => $$('[data-add]', lp).forEach(b => b.onclick = () => { const [ty, id] = b.dataset.add.split(':'); const was = S.cart.packages.includes(id); const rect = b.getBoundingClientRect(); toggleCart(ty, id); rer(); if (!was) cartFx(rect); }); bind(); }
   try { if (window.LAHQR && $('#hqr')) $('#hqr').innerHTML = window.LAHQR.svg({ size: 132 }); } catch(e) {}
   const hash = location.hash.split('#')[2]; if (hash) setTimeout(() => { const el = document.getElementById(hash); if (el) el.scrollIntoView({ behavior:'smooth' }); }, 80);
 }
@@ -3091,7 +3145,7 @@ async function viewExpat(){
       <div class="grid g3" id="expk">${pk('expat_pre')}${pk('housemaid')}</div>
       <div class="card"><h3>${t('ex_off_t')}</h3><ol class="small" style="margin:0;padding-inline-start:20px;line-height:1.9"><li>${t('ex_off_1')}</li><li>${t('ex_off_2')}</li><li>${t('ex_off_3')}</li></ol><a class="xs b" href="#/sources#oman" style="display:inline-block;margin-top:8px">${t('src_link')} ›</a></div>
     </div><div id="cbar"></div></section>${footer()}`;
-  $$('#expk [data-add]').forEach(b => b.onclick = () => { const [ty, id] = b.dataset.add.split(':'); const was = S.cart.packages.includes(id); const rect = b.getBoundingClientRect(); toggleCart(ty, id); viewExpat().then(() => { if (!was && window.FX) { toastCart(); FX.flyToCart(rect); } }); });
+  $$('#expk [data-add]').forEach(b => b.onclick = () => { const [ty, id] = b.dataset.add.split(':'); const was = S.cart.packages.includes(id); const rect = b.getBoundingClientRect(); toggleCart(ty, id); viewExpat().then(() => { if (!was) cartFx(rect); }); });
   if ($('#cbar')) { $('#cbar').innerHTML = cartBar(); bindGo(); }
 }
 function parseWorkers(txt){
