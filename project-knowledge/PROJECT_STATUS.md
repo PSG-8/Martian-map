@@ -1,6 +1,9 @@
 # Project status — last updated 2026-11-26
 
-## v42 (built 2026-11-26) — every phone, every account (owner's request after a Samsung user reported layout errors and dead buttons)
+## v43 (2026-11-26) — live check of v42 with real data
+- On the live site the demo patient's "My orders" cards stretched to 583 px on phones (a real order lists several tests on one line; the fake data had one). The order list and every other grid used as a list now have a shrinkable column. The checker's fake data now has a real-length test list.
+
+## v42 (deployed 2026-11-26, dpl_5ccvTwRWWPcpRm3UXpC9hmibLpU9) — every phone, every account (owner's request after a Samsung user reported layout errors and dead buttons)
 A checker now lives in the repo: `tools/qa/` (see its README; `tools/qa/run-all.sh` quick, `run-all.sh full` = every screen x every account x 20 devices). Found and fixed:
 - **Back button**: redirects (signed-in user opening sign-in, a page an account cannot open, after sign-in, session ended) added a history entry, so the phone's Back landed on the redirect again and bounced forward: Back looked dead. Redirects now replace the entry; the app's Back uses the real history when there is one and the logical parent otherwise (never leaves the site from a WhatsApp/Instagram link). Error and empty screens have a Back too. The previous version failed 11 back-button checks; this one passes all 23.
 - **Blank site on some phones**: browsers that block storage (Instagram/WhatsApp in-app browsers, strict private modes) threw on start and showed a white page; a damaged/old saved cart did the same. `js/store.js` (loaded first) gives an in-memory stand-in; the cart and cached catalog are validated.
