@@ -1,6 +1,6 @@
 # Project status — last updated 2026-11-26
 
-## v44–v45 (2026-11-26) — live check of every demo account (real data, Samsung 384 px + iPhone SE 320 px, 140 screens)
+## v44–v45 (LIVE since 2026-11-26, dpl_DjD4WP2g71CgpswaCBpTsGG1SueX; live-checked: 140 screens of every demo account on Samsung 384 px + iPhone SE 320 px, 0 problems) — live check of every demo account (real data, Samsung 384 px + iPhone SE 320 px, 140 screens)
 - A long email (no spaces) pushed the profile card off 320 px screens (male nurse, fleet); long names were squeezed beside badges in phone list-cards (owner: accounts, catalog); a fleet table cell was one word per line. Fixed; re-checked against the live data.
 
 ## v43 (2026-11-26) — live check of v42 with real data
