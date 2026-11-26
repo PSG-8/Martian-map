@@ -1,5 +1,8 @@
 # Project status — last updated 2026-11-26
 
+## v53 (2026-11-26)
+- Noor round 2: a real somersault (jump, over, land), falls and gets up ("وابوي طحت!"), gets dizzy ("حبابي جاني دوار"), a full dance with arms and legs (no "see my dance" line), more welcomes ("يا هلا بالطش والرش"…), motivation and info lines, "حبوتي", many more hearts; "I need help" points down at the help button only; before leaving she asks "أخدمك بشي ولا أروح أكمل شغلي مع المستخدمين الثانيين؟".
+
 ## v52 (2026-11-26)
 - Noor (js/mascot.js) is more fun: random warm welcomes ("حيّ الله من زارنا"، "توّه ما نوّر البرنامج"…), each extra tap a funny line with a move (dance, spin, wiggle, jump) and floating hearts, idle moves every ~30 s, and "show me where" buttons (book, my results, doctor, help) that scroll to the button on the page and light it up (or take you there). Reduced-motion respected.
 

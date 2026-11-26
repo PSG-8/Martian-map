@@ -14,12 +14,24 @@ const T = {
 };
 /* v52: warm welcomes, funny reactions and "show me where" guides */
 const X = {
-  ar: { wel: ['حيّ الله من زارنا 🌸', 'يا هلا ويا مرحبا، توّه ما نوّر البرنامج ✨', 'نوّرت آي لاب@هوم {n}🤍', 'مرحبا ملايين، حيّاك في بيتك الثاني 🏠', 'يا أهلاً وسهلاً، الدار دارك 💙', 'هلا والله! البرنامج صار أحلى بوجودك 🌟'],
-    fun: ['لا تدغدغني! أنا في الدوام 😂', 'أوووه! كنت بطيّح الإبرة من يدي 😅', 'تبي سر؟ حتى أنا أخاف من الإبر… بس لا تقول لأحد 🤫', 'أنا أسرع من سيارة الإسعاف… تقريباً 🚑😄', 'شوف رقصتي الجديدة! 💃', 'خمس دقايق وتخلص الحجز… أراهنك 😎', 'اشرب ماي! هذي نصيحتي ونصيحة جدتي 💧😄', 'إذا ضغطتني مرة ثانية بلف لفّة 🌀'],
-    g: { where: 'وريني وين', book: 'وين أحجز؟', res: 'وين نتايجي؟', doc: 'أكلم دكتور', help: 'أبي مساعدة', here: 'هني!', none: 'هالشي مب في هالصفحة، بوديك له 😉' } },
-  en: { wel: ['Look who is here! Welcome 🌸', 'The app just got brighter, welcome ✨', 'Welcome to iLab@home {n}🤍', 'Hello and welcome, make yourself at home 🏠', 'So happy to see you 💙', 'Hey there! The app is better with you here 🌟'],
-    fun: ['Hey, no tickling, I am on duty! 😂', 'Oops! I almost dropped my needle 😅', 'Secret? Even I am a bit scared of needles… shh 🤫', 'I am faster than an ambulance… almost 🚑😄', 'Check out my new dance! 💃', 'Five minutes to book, I bet you 😎', 'Drink water! My advice and my grandma\'s 💧😄', 'Tap me again and I will spin 🌀'],
-    g: { where: 'Show me', book: 'Where do I book?', res: 'My results?', doc: 'Talk to a doctor', help: 'I need help', here: 'Right here!', none: 'Not on this page, taking you there 😉' } }
+  ar: { wel: ['حيّ الله من زارنا 🌸', 'يا هلا بالطش والرش 🌧️💙', 'يا مرحبا عدد ما هلّ المطر 🌧️', 'هلا وغلا، توّه ما نوّر البرنامج ✨', 'نوّرت آي لاب@هوم {n}🤍', 'مرحبا ملايين، حيّاك في بيتك الثاني 🏠', 'يا هلا بالزين 🌹', 'يا أهلاً وسهلاً، الدار دارك 💙', 'هلا والله! البرنامج صار أحلى بوجودك 🌟'],
+    fun: [['لا تدغدغني! أنا في الدوام 😂', 'wiggle'], ['هوب! 🤸‍♀️ رياضة الصبح ولا بلاش', 'flip'], ['وابوي طحت! 🤕 … لا لا، أنا بخير 😅', 'fall'],
+      ['حبابي جاني دوار 😵‍💫 لحظة بس…', 'dizzy'], ['تبي سر؟ حتى أنا أخاف من الإبر… بس لا تقول لأحد 🤫', 'peek'], ['اشرب ماي! هذي نصيحتي ونصيحة حبوتي 💧😄', 'jump'],
+      ['ما أقدر أوقف! فرحانة إنك هني 🎶💃', 'dance'], ['صحتك تاج على راسك، وأنت أدرى بقيمته 👑🤍', 'wave'], ['كل فحص تسويه خطوة لصحة أحسن، فخورة فيك 💪', 'jump'],
+      ['تعرف؟ الممرض يجيك لين البيت، وعيّنتك تنحفظ مبرّدة لين المختبر 🧊', 'peek'], ['أنا أسرع من سيارة الإسعاف… تقريباً 🚑😄', 'flip'], ['أنت قدها، وإحنا معك خطوة بخطوة 🤍', 'wave'],
+      ['تعرف؟ كل زيارة خامسة مجاناً مع بطاقة الأختام 🎁', 'jump'], ['اللي يهتم بصحته اليوم يرتاح بكرة 🌿', 'dance'], ['تعبك أجر ورفعة إن شاء الله، الله يشفي كل مريض 🤍', 'wave'],
+      ['نصيحة: نام زين الليلة قبل الفحص، جسمك يشكرك 😴', 'peek'], ['تعرف؟ تقدر تكلم طبيب أو طبيبة أونلاين وأنت في بيتك 🩺', 'jump']],
+    bye: 'أخدمك بشي، ولا أروح أكمل شغلي مع المستخدمين الثانيين؟ 🤍', byeYes: 'إيه، ساعديني', byeNo: 'روحي الله يحفظك 👋', byeOk: 'الله يحفظك ويعافيك، إذا احتجتني اضغط عليّ 🤍',
+    g: { where: 'وريني وين', book: 'وين أحجز؟', res: 'وين نتايجي؟', doc: 'أكلم دكتور', help: 'أبي مساعدة', here: 'هني!', helpHere: 'خانة المساعدة تحت 👇 اضغطها والمساعد يرد عليك على طول', none: 'هالشي مب في هالصفحة، بوديك له 😉' } },
+  en: { wel: ['Look who is here! Welcome 🌸', 'Welcome, welcome, a thousand times 🌧️💙', 'The app just got brighter ✨', 'Welcome to iLab@home {n}🤍', 'Hello and welcome, make yourself at home 🏠', 'So happy to see you 💙', 'Hey there! The app is better with you here 🌟'],
+    fun: [['Hey, no tickling, I am on duty! 😂', 'wiggle'], ['Hop! 🤸‍♀️ morning exercise', 'flip'], ['Oops, I fell! 🤕 … no no, I am fine 😅', 'fall'],
+      ['Whoa, I am dizzy 😵‍💫 one second…', 'dizzy'], ['Secret? Even I am a bit scared of needles… shh 🤫', 'peek'], ['Drink water! My advice and my grandma\'s 💧😄', 'jump'],
+      ['I cannot stop, I am happy you are here 🎶💃', 'dance'], ['Your health is a crown, and you know its worth 👑🤍', 'wave'], ['Every test you do is a step to better health, proud of you 💪', 'jump'],
+      ['Did you know? The nurse comes to your home and your sample stays cold all the way 🧊', 'peek'], ['I am faster than an ambulance… almost 🚑😄', 'flip'], ['You can do it, and we are with you every step 🤍', 'wave'],
+      ['Did you know? Every 5th home visit is free with the stamp card 🎁', 'jump'], ['Caring for your health today means an easier tomorrow 🌿', 'dance'], ['Wishing every patient a quick recovery 🤍', 'wave'],
+      ['Tip: sleep well the night before your test 😴', 'peek'], ['Did you know? You can talk to a doctor online from home 🩺', 'jump']],
+    bye: 'Can I help you with anything, or shall I go back to helping other users? 🤍', byeYes: 'Yes, help me', byeNo: 'Go ahead, thank you 👋', byeOk: 'Take care! Tap me whenever you need me 🤍',
+    g: { where: 'Show me', book: 'Where do I book?', res: 'My results?', doc: 'Talk to a doctor', help: 'I need help', here: 'Right here!', helpHere: 'The help button is down here 👇 tap it and the assistant replies right away', none: 'Not on this page, taking you there 😉' } }
 };
 const XL = () => X[st.lang] || X.en;
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -29,17 +41,20 @@ const GO = { book: () => st.links.book, res: () => (st.user ? 'app/orders?r=1' :
 function spot(kind){
   const vis = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden' && !e.closest('#nurse'); };
   let t = null; for (const sel of GUIDE[kind] || []) { t = [...document.querySelectorAll(sel)].find(vis); if (t) break; }
+  if (kind === 'help' && t) { t.classList.remove('ns-spot'); void t.offsetWidth; t.classList.add('ns-spot'); later(() => t.classList.remove('ns-spot'), 3200); bub.innerHTML = bubHtml(XL().g.helpHere); cls('pointdown', 1600); hearts(4); return; }
   if (!t) { bub.innerHTML = bubHtml(XL().g.none); later(() => { location.hash = '#/' + GO[kind](); }, 900); return; }
   t.scrollIntoView({ block: 'center', behavior: RM ? 'auto' : 'smooth' });
   later(() => { t.classList.remove('ns-spot'); void t.offsetWidth; t.classList.add('ns-spot'); later(() => t.classList.remove('ns-spot'), 2600); }, RM ? 0 : 450);
   later(() => { if (!el || !bub) return; const up = t.getBoundingClientRect().top < el.getBoundingClientRect().top; bub.innerHTML = bubHtml(XL().g.here + (up ? ' 👆' : ' 👇')); }, RM ? 0 : 500); cls('point', 1200);
 }
-function hearts(){ if (RM || !el) return; for (let i = 0; i < 4; i++) { const h = document.createElement('span'); h.className = 'ns-heart'; h.textContent = pick(['🤍', '💙', '✨', '💚']); h.style.setProperty('--dx', (Math.random() * 60 - 30).toFixed(0) + 'px'); h.style.animationDelay = (i * 120) + 'ms'; el.appendChild(h); later(() => h.remove(), 1700); } }
+function hearts(n){ if (RM || !el) return; for (let i = 0; i < (n || 8); i++) { const h = document.createElement('span'); h.className = 'ns-heart'; h.textContent = pick(['🤍', '💙', '💚', '💜', '❤️', '✨', '🩷']); h.style.setProperty('--dx', (Math.random() * 60 - 30).toFixed(0) + 'px'); h.style.animationDelay = (i * 90) + 'ms'; h.style.fontSize = (14 + Math.random() * 10).toFixed(0) + 'px'; el.appendChild(h); later(() => h.remove(), 1700); } }
 let funI = -1;
-function funny(){ const l = XL(); funI = (funI + 1) % l.fun.length; const line = l.fun[funI];
-  const move = funI % 4 === 0 ? 'dance' : funI % 4 === 1 ? 'spin' : funI % 4 === 2 ? 'wiggle' : 'jump';
-  cls(move, move === 'dance' ? 1600 : 900); hearts();
+function funny(){ const l = XL(); funI = (funI + 1) % l.fun.length; const [line, move] = l.fun[funI];
+  const ms = { flip: 1100, fall: 2200, dizzy: 1800, dance: 2200, wiggle: 900, peek: 1400, jump: 650, wave: 1700 }[move] || 1000;
+  cls(move, ms); hearts(move === 'dance' || move === 'flip' ? 10 : 6);
   bub.innerHTML = bubHtml(line, guideChips()); bub.classList.add('on'); }
+function askBye(){ if (!bub) return; const l = XL(); st.asked = true;
+  bub.innerHTML = bubHtml(l.bye, `<button data-nsb="yes">${l.byeYes}</button><button data-nsb="no">${l.byeNo}</button>`); bub.classList.add('on'); wave(); }
 function guideChips(){ const g = XL().g; return `<button data-nsg="book">${g.book}</button><button data-nsg="res">${g.res}</button><button data-nsg="doc">${g.doc}</button><button data-nsg="help">${g.help}</button>`; }
 function idle(){ if (!el || el.style.display === 'none' || !el.classList.contains('in') || document.hidden) return later(idle, 30000);
   if (!bub.classList.contains('on') && !RM) cls(pick(['wave', 'wiggle', 'jump', 'peek']), 1400);
@@ -89,7 +104,8 @@ function build(){
   const tap = e => { if (e.target.closest('.ns-bub')) return; e.preventDefault(); if (bub.classList.contains('on')) funny(); else { jump(); say(true); } };
   el.querySelector('.ns-body').addEventListener('click', tap);
   el.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === el) { e.preventDefault(); jump(); say(true); } });
-  bub.addEventListener('click', e => { const x = e.target.closest('[data-nsx]'); if (x) { e.preventDefault(); hideBub(); return; } const m = e.target.closest('[data-nsm]'); if (m) { e.preventDefault(); tipNext(); return; } const g = e.target.closest('[data-nsg]'); if (g) { e.preventDefault(); if (g.dataset.nsg === 'where') { bub.innerHTML = bubHtml(XL().g.where + ' 👀', guideChips()); } else spot(g.dataset.nsg); return; } if (e.target.closest('a')) hideBub(); });
+  bub.addEventListener('click', e => { const x = e.target.closest('[data-nsx]'); if (x) { e.preventDefault(); if (!st.asked) askBye(); else hideBub(); return; }
+    const by = e.target.closest('[data-nsb]'); if (by) { e.preventDefault(); if (by.dataset.nsb === 'yes') { bub.innerHTML = bubHtml(XL().g.where + ' 👀', guideChips()); hearts(5); } else { bub.innerHTML = bubHtml(XL().byeOk); hearts(10); wave(); later(hideBub, 1800); } return; } const m = e.target.closest('[data-nsm]'); if (m) { e.preventDefault(); tipNext(); return; } const g = e.target.closest('[data-nsg]'); if (g) { e.preventDefault(); if (g.dataset.nsg === 'where') { bub.innerHTML = bubHtml(XL().g.where + ' 👀', guideChips()); } else spot(g.dataset.nsg); return; } if (e.target.closest('a')) hideBub(); });
   if (FINE) addEventListener('pointermove', look, { passive: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden) clearT(); });
 }
@@ -101,7 +117,7 @@ function look(e){ if (!el || !el.classList.contains('in') || RM) return; aimX = 
 function cls(c, ms){ if (!el || RM) return; el.classList.remove(c); void el.offsetWidth; el.classList.add(c); later(() => el && el.classList.remove(c), ms); }
 const wave = () => cls('wave', 1700), jump = () => cls('jump', 650), blink = () => { cls('blink', 160); later(blink, 3200 + Math.random() * 3000); };
 function bubHtml(inner, chips){ return `<button class="ns-x" data-nsx aria-label="${L().close}">×</button><div class="ns-t">${inner}</div>${chips ? `<div class="ns-chips">${chips}</div>` : ''}`; }
-function say(full){
+function say(full){ st.asked = false;
   const l = L(), k = st.links; const name = st.user && st.user.full_name ? esc(st.user.full_name.split(' ')[0]) : '';
   const wel = pick(XL().wel).replace('{n}', name ? (st.lang === 'ar' ? 'يا ' + name + ' ' : name + ' ') : '');
   const head = `<b>${greetWord()}${name ? (st.lang === 'ar' ? ' يا ' : ', ') + name : ''}!</b> ${wel}<br>${l.me} ${l.ask}`;
@@ -137,7 +153,7 @@ window.LAHMascot = {
     const clear = () => { const h = document.querySelector('.h3'); if (!h || !h.isConnected) return true; return h.getBoundingClientRect().bottom < innerHeight - (small ? 250 : 300); };
     const enter = () => { if (!el || el.style.display === 'none') return;
       el.classList.add('walk', 'in'); later(() => { el.classList.remove('walk'); if (first) say(true); else wave(); blink(); }, 1450); later(idle, 20000);
-      if (first) later(() => { if (el && bub && bub.classList.contains('on') && !el.matches(':hover')) { if (small) hideBub(); else bub.classList.remove('on'); } }, small ? 9000 : 14000); };
+      if (first) later(() => { if (el && bub && bub.classList.contains('on') && !el.matches(':hover')) { askBye(); later(() => { if (bub && bub.classList.contains('on') && el && !el.matches(':hover')) { if (small) hideBub(); else bub.classList.remove('on'); } }, 9000); } }, small ? 9000 : 14000); };
     if (st.wait) { removeEventListener('scroll', st.wait); st.wait = null; }
     if (clear()) later(enter, first ? 1600 : 500);
     else { st.wait = () => { if (!el || el.style.display === 'none') { removeEventListener('scroll', st.wait); st.wait = null; return; } if (clear()) { removeEventListener('scroll', st.wait); st.wait = null; later(enter, 250); } }; addEventListener('scroll', st.wait, { passive: true }); }
