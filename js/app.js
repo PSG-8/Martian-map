@@ -1925,7 +1925,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 50;
+const APP_V = 51;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -1955,7 +1955,7 @@ Object.assign(I18N.en, {
   lv_urgent_t:'One result needs urgent medical care today', lv_urgent_p:'Please contact a doctor today. If you feel very unwell (chest pain, fainting, trouble breathing, confusion), call 9999 or go to the nearest emergency now.',
   call_999:'Call 9999', g_eat:'Eat more', g_avoid:'Avoid', g_do:'What to do now', g_see:'Get help at once if', g_crit:'Critical', g_until:'Until your doctor’s advice', g_general:'Drink water, sleep well, stay active and keep your follow-up appointment.',
   g_note:'General guidance only. It is not a diagnosis and does not replace your doctor.',
-  doc_wait_t:'A doctor is reviewing your results', doc_wait_p:'{n} usually replies within 24 hours. You will get a notification.',
+  doc_wait_t:'A doctor is reviewing your results', doc_wait_p:'You usually get a reply from {n} within 24 hours, with a notification.',
   doc_note_t:'Doctor’s advice', doc_plan_t:'My commitments', doc_plan_p:'Tick each one when done. Saved on this phone.', doc_retest:'Add retest reminder',
   hosp_t:'Nearest hospitals & health centres', hosp_p:'North Al Sharqiyah. Distances are straight-line.', hosp_open24:'Emergency open 24 h', hosp_hc:'Health centre · usually Sun–Thu 7:30–14:30', hosp_check:'Call before going', hosp_dir:'Directions', hosp_near:'Use my location', hosp_km:'{n} km',
   hosp_open_now:'Likely open now', hosp_closed_now:'Likely closed now',
@@ -1979,7 +1979,7 @@ Object.assign(I18N.ar, {
   lv_urgent_t:'نتيجة تحتاج رعاية طبية عاجلة اليوم', lv_urgent_p:'تواصل مع طبيب اليوم. إذا تشعر بتعب شديد (ألم في الصدر، إغماء، ضيق تنفس، تشوّش) اتصل بـ 9999 أو توجّه لأقرب طوارئ فوراً.',
   call_999:'اتصل 9999', g_eat:'كُل أكثر', g_avoid:'تجنّب', g_do:'ماذا تفعل الآن', g_see:'اطلب المساعدة فوراً إذا', g_crit:'حرجة', g_until:'إلى أن تصلك توصية الطبيب', g_general:'اشرب ماء، نم جيداً، تحرّك، والتزم بموعد المتابعة.',
   g_note:'إرشادات عامة فقط، وليست تشخيصاً ولا تغني عن الطبيب.',
-  doc_wait_t:'طبيب يراجع نتائجك الآن', doc_wait_p:'عادةً ترد {n} خلال 24 ساعة، وبيوصلك إشعار.',
+  doc_wait_t:'طبيب يراجع نتائجك الآن', doc_wait_p:'عادةً يوصلك رد من {n} خلال 24 ساعة، وبيجيك إشعار.',
   doc_note_t:'توصية الطبيب', doc_plan_t:'التزاماتي', doc_plan_p:'علّم على كل التزام بعد ما تنجزه. يُحفظ على هذا الجهاز.', doc_retest:'أضف تذكير إعادة الفحص',
   hosp_t:'أقرب المستشفيات والمراكز الصحية', hosp_p:'محافظة شمال الشرقية. المسافات خط مستقيم.', hosp_open24:'الطوارئ مفتوحة 24 ساعة', hosp_hc:'مركز صحي · عادةً الأحد–الخميس 7:30–2:30', hosp_check:'اتصل قبل الذهاب', hosp_dir:'الاتجاهات', hosp_near:'استخدم موقعي', hosp_km:'{n} كم',
   hosp_open_now:'غالباً مفتوح الآن', hosp_closed_now:'غالباً مغلق الآن',
@@ -2066,7 +2066,7 @@ function careBlock(o){
       ${plan.length ? `<h4 style="margin:16px 0 2px">${t('doc_plan_t')}</h4><div class="xs muted" style="margin-bottom:8px">${r === 'patient' ? t('doc_plan_p') : ''}</div><div class="stack" style="--g:6px">${plan.map((k, i) => `<label class="check plan"><input type="checkbox" data-plan="${i}" ${done[i] ? 'checked' : ''} ${r === 'patient' ? '' : 'disabled'}> <span>${esc(PLAN_KEYS.includes(k) ? t(k) : k)}</span></label>`).join('')}</div>` : ''}
       ${r === 'patient' && plan.some(k => /retest/.test(k)) ? `<button class="btn soft sm" style="margin-top:12px" data-retest="${plan.includes('dp_retest2w') ? 14 : 90}">${ic('cal',16)} ${t('doc_retest')}</button>` : ''}</div>`;
   } else if (lv !== 'normal' && r === 'patient') {
-    h += `<div class="card row" style="gap:12px;align-items:flex-start">${A.roleIcon('doctor', 46)}<div class="grow"><b>${t('doc_wait_t')}</b><div class="small muted">${t('doc_wait_p',{n: S.lang === 'ar' ? 'د. عائشة البلوشية' : 'Dr. Aisha Al Balushi'})}</div><span class="live" style="margin-top:8px"><i></i>${t('doc_pending')}</span></div></div>`;
+    h += `<div class="card row" style="gap:12px;align-items:flex-start">${A.roleIcon('doctor', 46)}<div class="grow"><b>${t('doc_wait_t')}</b><div class="small muted">${t('doc_wait_p',{n: S.user && S.user.is_demo ? (S.lang === 'ar' ? 'د. عائشة البلوشية' : 'Dr. Aisha Al Balushi') : (S.lang === 'ar' ? 'أطباء الفريق' : 'our team doctors')})}</div><span class="live" style="margin-top:8px"><i></i>${t('doc_pending')}</span></div></div>`;
   }
   if (g.flagged.length) h += `<div class="card"><h3 style="margin-bottom:4px">${t(lv === 'normal' ? 'g_tips' : 'g_until')}</h3><div class="xs muted" style="margin-bottom:10px">${t('g_note')}</div><div class="stack" style="--g:8px">${guideHtml(g.flagged)}</div></div>`;
   if (r === 'doctor') h += doctorForm(o, g);
@@ -2240,7 +2240,7 @@ function heroSlides(){
 }
 function heroHtml(compact){
   const sl = heroSlides(); const D = S.lang === 'ar' ? 'r' : 'd'; /* desktop pictures: 'r' has the scene on the left for Arabic */
-  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=50" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=50" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=50"><img ${a}src="img/hero/h${n}${D}.jpg?v=50" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=51" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=51" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=51"><img ${a}src="img/hero/h${n}${D}.jpg?v=51" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
     <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
       <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
     <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
@@ -2982,7 +2982,7 @@ function teamCard([en, ar, role, face, badge, lbl]){
     : `<div class="card center pad-lg"><span class="avatar xl" style="background:${c}">${esc(initials(en.replace('Dr. ', '')))}</span><h4 style="margin-top:12px">${esc(S.lang === 'ar' ? ar : en)}</h4><span class="chip ${role === 'adv' ? 'teal' : ''}">${t(role === 'adv' ? 'supervisor' : 'member')}</span></div>`;
 }
 /* doctors: Pixar-style portraits (fall back to the drawn avatar) */
-const DOC_PIC = { 'Dr. Aisha Al Balushi':'aisha', 'Dr. Hilal Al Harthy':'hilal', 'Dr. Rahma Al Shukaili':'rahma', 'Dr. Talal Al Riyami':'talal', 'Dr. Salma Al Kindi':'salma', 'Dr. Amal Al Hinai':'amal', 'Dr. Huda Al Mahrouqi':'huda' };
+const DOC_PIC = { 'Dr. Aisha Al Balushi':'aisha', 'Dr. Hilal Al Harthy':'hilal', 'Dr. Rahma Al Shukaili':'rahma', 'Dr. Talal Al Riyami':'talal', 'Dr. Salma Al Kindi':'salma', 'Dr. Amal Al Hinai':'amal', 'Dr. Huda Al Mahrouqi':'huda', 'Dr. Khalid Al Harthi':'khalid', 'Dr. Saif Al Rawahi':'saif', 'Dr. Maryam Al Siyabi':'maryam', 'Dr. Faisal Al Busaidi':'faisal', 'Dr. Shatha Al Maskari':'shatha' };
 function docPic(name, gender, size){ const k = DOC_PIC[name]; return k ? `<img class="doc-pic" src="img/doctors/${k}.webp" alt="" width="${size}" height="${size}" loading="lazy" decoding="async">` : docArt(gender, size); }
 
 

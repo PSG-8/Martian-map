@@ -1,5 +1,11 @@
 # Project status — last updated 2026-11-26
 
+## v51 site + v52 database (2026-11-26): `sql/v52_staff_and_nurses.sql`
+- New real (pilot) staff with portraits: Dr. Khalid Al Harthi (family), Dr. Saif Al Rawahi (consultant internal medicine), Dr. Maryam Al Siyabi (paediatrics), dentists Dr. Faisal Al Busaidi and Dr. Shatha Al Maskari; nurses Salim Al Amri and Yousef Al Hajri (male), Fatma Al Hashmi and Muna Al Shukaili (female). Passwords in chat only.
+- Fixed: real users saw demo nurses (always "available") and could book one nobody works from; real nurses only showed if they ticked "available today" (pilot nurses now always count); new bookings only notify nurses of the same world. Real men had no male nurse before.
+- Privacy: a database guard stops any notification about a real order reaching a demo account (40 old ones removed). Demo nurses that carried team members' names renamed (Nawal Al Rashdi, Khadija Al Abri). Patient waiting text no longer names the demo doctor for real users.
+- Still open: no real lab or courier accounts; real orders are advanced by the owner (manual mode).
+
 ## v51 database (LIVE 2026-11-26): `sql/v51_consult_auto_by_test.sql`
 - The automatic consultation message is now a warm letter like a doctor's note: "عزيزي/عزيزتي {name} ❤️", a thank-you specific to the test (premarital, screening, sugar, lipids, thyroid, vitamins, kidney, liver, blood count, urine/stool, allergy, flu/TB, full check-up), the out-of-range results by name/value/unit said calmly ("no need to worry, the doctor will check the cause"), a test-specific wish, signed "فريق آي لاب@هوم ❤️ (رسالة تلقائية)". No order: topic line (children, fever, teeth ...). Emergencies still first. Tested on real orders in rolled-back transactions.
 
