@@ -44,5 +44,12 @@ const fail = []; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m)
       else ok(mf === 0 || pw === 1, tag + ' ' + role + ': email form (if shown) asks for password');
       ok(errors.length === 0, tag + ' ' + role + ': no JS errors ' + errors.join(' / ').slice(0, 200)); await b.close(); }
   }
+  // owner can move a real visit on; the demo admin cannot
+  for (const role of ['leader', 'admin']) { const { b, p, errors } = await H.open({ ctxOpts: devices['Galaxy S24'], role, lang: 'ar' });
+    await p.goto(B + '#/app/order/o2'); await p.waitForTimeout(1800);
+    const n = await p.locator('[data-act="owner_next"]').count();
+    ok(role === 'leader' ? n === 1 : n === 0, role + ': owner step button ' + (role === 'leader' ? 'shown' : 'hidden') + ' (' + n + ')');
+    if (n) { await p.locator('[data-act="owner_next"]').click(); await p.waitForTimeout(900); }
+    ok(errors.length === 0, role + ' order screen: no JS errors ' + errors.join(' / ').slice(0, 200)); await b.close(); }
   console.log(fail.length ? '\n' + fail.length + ' FAILED' : '\nALL PASSED'); process.exit(fail.length ? 1 : 0);
 })();

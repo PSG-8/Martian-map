@@ -2,6 +2,7 @@
 
 ## v56 + DB v55/v55b — security hardening (2026-11-27), full report: `SECURITY_AUDIT.md`
 - Fixed: Google sign-in could enter any existing account with the same email (team/owner accounts on labathome.om) → now patients only; tables closed to direct access; owner by internal id, protected from delete/demote/suspend, no second real admin; email change for team/staff/owner needs the current password; "log out of all devices"; audit log + owner-only security card on Safety & privacy (failed sign-ins, sessions).
+- Owner (leader) has every power (`sql/v56_owner_all_powers.sql`): on top of admin, booking, consultations and doctor notes, the owner can move a real visit step by step ("المالك: انقل إلى …" on the order), receive at the lab, enter and publish results, and use nurse/company/fleet screens. Nobody else gained anything.
 - Waiting for the owner: real owner email, backups, two-step sign-in, separate production database, own domain (see the report).
 
 ## v55 + DB v54 (2026-11-27)

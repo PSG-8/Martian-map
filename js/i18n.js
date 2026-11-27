@@ -460,6 +460,7 @@ Object.assign(window.I18N.en, {
   sec_f24:'Failed sign-ins', sec_sess:'Open sessions', sec_mine:'Your sessions', sec_f7:'Failed sign-ins, last 7 days', sec_audit:'Activity log',
   sa_user_created:'Account created', sa_user_deleted:'Account deleted', sa_user_changed:'Account changed', sa_logout_all_devices:'Logged out of all devices',
   sa_setting:'Setting changed', sa_coupon:'Coupon changed', sa_secret_config:'Protected setting changed',
+  own_next:'Owner: move to “{s}”',
   sd_role:'Role', sd_status:'Status', sd_demo:'Demo', sd_email:'Email', sd_phone:'Phone', sd_password:'Password'
 });
 Object.assign(window.I18N.ar, {
@@ -472,5 +473,6 @@ Object.assign(window.I18N.ar, {
   sec_f24:'محاولات فاشلة', sec_sess:'جلسات مفتوحة', sec_mine:'جلساتك', sec_f7:'محاولات الدخول الفاشلة آخر 7 أيام', sec_audit:'سجل العمليات',
   sa_user_created:'إنشاء حساب', sa_user_deleted:'حذف حساب', sa_user_changed:'تعديل حساب', sa_logout_all_devices:'خروج من كل الأجهزة',
   sa_setting:'تعديل إعداد', sa_coupon:'تعديل كوبون', sa_secret_config:'تعديل إعداد محمي',
+  own_next:'المالك: انقل إلى «{s}»',
   sd_role:'الدور', sd_status:'الحالة', sd_demo:'تجريبي', sd_email:'البريد', sd_phone:'الهاتف', sd_password:'كلمة المرور'
 });

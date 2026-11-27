@@ -26,6 +26,11 @@ Already in place and re-checked: bcrypt password hashes, sign-in rate limit (`lo
 staff signed out after 30 minutes idle, password change needs the old password, user management is owner-only and cannot touch admin accounts,
 demo accounts read-only and kept apart from real data (v52 guard), secrets only in Vercel env vars, security headers (CSP, HSTS, frame block, nosniff).
 
+## Owner powers (owner's request, `sql/v56_owner_all_powers.sql`)
+The owner account can do everything every role can (each check got "or the owner"; nobody else gained anything):
+run a real visit step by step, receive at the lab, enter/publish results, nurse kit and incident screens, company programmes and camps, fleet view.
+Dry run on a real order (rolled back): assigned → on the way → arrived → collected → in transit → at lab → processing; publish with no values → `MISSING_RESULTS`; with values → completed.
+
 ## Tests (run on the live database inside a transaction that was rolled back; no data changed)
 Owner delete / demote / suspend → `OWNER_PROTECTED`; editing the owner's name → allowed; demo admin made real or new admin → `ADMIN_LOCKED`;
 doctor email change without password → `REAUTH_REQUIRED`, wrong password → `BAD_LOGIN`, right password → saved and logged with the doctor as actor;

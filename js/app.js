@@ -768,6 +768,12 @@ function actionPanel(o){
     if (s === 'processing') h = resultsForm(o) + `<button class="btn ghost sm" data-act="reject" style="align-self:flex-start">${t('reject_btn')}</button>`;
   }
   if ((r === 'admin' || r === 'staff') && ['booked','recollect','assigned'].includes(s) && !u.is_demo) h = `<div class="row"><button class="btn sm" data-act="assign">${ic('syringe',16)} ${t('assign')}</button>${isOwner() ? `<button class="btn ghost sm" data-act="admincancel">${t('cancel_req')}</button>` : ''}</div>`;
+  if (r === 'admin' && !u.is_demo) { /* v56: the owner can run a real visit end to end (no real lab/courier accounts yet) */
+    const nx = { assigned: 'on_the_way', on_the_way: 'arrived', arrived: 'collected', collected: 'in_transit', in_transit: 'at_lab' }[s];
+    if (nx) h += `<button class="btn soft block" style="margin-top:8px" data-act="owner_next">${ic('check',18)} ${t('own_next', { s: t('st_' + nx) })}</button>`;
+    if (s === 'at_lab') h += `<div class="row" style="margin-top:8px"><button class="btn teal grow" data-act="receive">${ic('check',18)} ${t('receive_btn')}</button><button class="btn ghost" data-act="reject">${t('reject_btn')}</button></div>`;
+    if (s === 'processing') h += resultsForm(o) + `<button class="btn ghost sm" data-act="reject" style="align-self:flex-start">${t('reject_btn')}</button>`;
+  }
   return h;
 }
 function resultsForm(o){
@@ -813,7 +819,7 @@ function bindActions(o){
         <label class="field"><span>${t('inc_note')}</span><textarea class="input" id="in" rows="3" maxlength="1500"></textarea></label><div class="err" id="ie"></div><button class="btn red block" id="iok">${ic('send',18)} ${t('send')}</button></div>`, (el, close) => {
         $('#iok', el).onclick = async () => { const note = $('#in', el).value.trim(); if (!note) { $('#ie', el).textContent = t('inc_note'); return; }
           try { await busy($('#iok', el), () => API.incident(o.id, $('#ik', el).value, note)); close(); toast(t('inc_sent')); } catch(e) { $('#ie', el).textContent = errMsg(e); } }; });
-    if (['start','arrive','deliver','receive'].includes(a)) return run(b, a);
+    if (['start','arrive','deliver','receive','owner_next'].includes(a)) return run(b, a);
     if (a === 'collect') return modal(`<h3>${t('checklist_t')}</h3><div class="stack" style="margin-top:12px">
         <label class="check"><input type="checkbox" id="c1"> ${t('ck_id')}</label><label class="check"><input type="checkbox" id="c2"> ${t('ck_label')}</label><label class="check"><input type="checkbox" id="c3"> ${t('ck_consent')}</label>
         ${(o.tests || []).some(x => x.fasting_hours) ? `<label class="check"><input type="checkbox" id="c5"> ${t('ck_fasting')}</label>` : ''}
