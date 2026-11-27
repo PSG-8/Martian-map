@@ -1,0 +1,2 @@
+-- v54 (applied 2026-11-26, migration v54_nurse_visits_doctor_bios): owner's request (pilot) — visit counts on the pilot
+-- nurses' profiles (visits_seed from years of experience) and Arabic/English bios for the real doctors.

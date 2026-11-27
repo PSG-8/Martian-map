@@ -3,7 +3,7 @@ window.I18N = {
 en: {
   brand_sub:'Healthcare testing at your doorstep', nav_how:'How it works', nav_tests:'Tests & packages', nav_partners:'Partners', nav_coverage:'Coverage', nav_faq:'FAQ',
   login:'Log in', signup:'Create account', logout:'Log out', lang:'العربية', book_now:'Book a home test', explore_tests:'Explore tests',
-  cs_auto:'iLab@home team · automatic message',
+  cs_auto:'iLab@home team · automatic message', doc_profile:'Profile', doc_cons:'Consultations', doc_rate:'Rating',
   e_ONLY_PATIENTS:'Booking tests and consultations is for user accounts. Doctor, nurse and staff accounts cannot book: please sign in with a user account.',
   cs_none:'No doctor is available for this consultation yet during the pilot. Message us on WhatsApp and we will arrange it.',
   hero_t1:'Lab tests at home,', hero_t2:'results on your phone.',
@@ -120,7 +120,7 @@ en: {
 ar: {
   brand_sub:'فحوصاتك الطبية عند باب بيتك', nav_how:'كيف تعمل', nav_tests:'الفحوصات والباقات', nav_partners:'الشركاء', nav_coverage:'التغطية', nav_faq:'الأسئلة',
   login:'تسجيل الدخول', signup:'إنشاء حساب', logout:'تسجيل الخروج', lang:'English', book_now:'احجز فحصاً منزلياً', explore_tests:'تصفح الفحوصات',
-  cs_auto:'فريق آي لاب@هوم · رسالة تلقائية',
+  cs_auto:'فريق آي لاب@هوم · رسالة تلقائية', doc_profile:'الملف التعريفي', doc_cons:'استشارة', doc_rate:'التقييم',
   e_ONLY_PATIENTS:'حجز الفحوصات والاستشارات لحسابات المستخدمين. حسابات الأطباء والممرضين والموظفين ما تقدر تحجز، سجّل دخول بحساب مستخدم.',
   cs_none:'ما فيه طبيب متاح لهالنوع من الاستشارات حالياً في الفترة التجريبية. راسلنا على الواتساب ونرتب لك.',
   hero_t1:'فحوصاتك المخبرية في البيت،', hero_t2:'ونتائجك على جوالك.',

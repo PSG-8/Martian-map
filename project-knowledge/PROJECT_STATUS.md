@@ -1,4 +1,8 @@
-# Project status — last updated 2026-11-26
+# Project status — last updated 2026-11-27
+
+## v55 + DB v54 (2026-11-27)
+- Doctor profile: "الملف التعريفي ›" on every doctor card opens a profile sheet (photo, specialty, years, consultations, rating, languages, bio). Real doctors got bios; pilot nurses got visit counts (owner's request).
+- Noor: "واشيبي طحت، جاني دوار"; after she leaves (phones), her head peeks from the corner saying "أرجع لك؟" and one tap brings her back without a refresh.
 
 ## v54 + DB v53 (2026-11-26)
 - Booking checked in the database: real and demo patients book fine; doctor/nurse/staff accounts get ONLY_PATIENTS by design. That error had no text (showed a generic error at the last step); now a clear message, and the booking screen says it up front for those accounts.

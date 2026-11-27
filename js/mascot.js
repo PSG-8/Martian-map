@@ -16,7 +16,7 @@ const T = {
 const X = {
   ar: { wel: ['حيّ الله من زارنا 🌸', 'يا هلا بالطش والرش 🌧️💙', 'يا مرحبا عدد ما هلّ المطر 🌧️', 'هلا وغلا، توّه ما نوّر البرنامج ✨', 'نوّرت آي لاب@هوم {n}🤍', 'مرحبا ملايين، حيّاك في بيتك الثاني 🏠', 'يا هلا بالزين 🌹', 'يا أهلاً وسهلاً، الدار دارك 💙', 'هلا والله! البرنامج صار أحلى بوجودك 🌟'],
     fun: [['لا تدغدغني! أنا في الدوام 😂', 'wiggle'], ['هوب! 🤸‍♀️ رياضة الصبح ولا بلاش', 'flip'], ['وابوي طحت! 🤕 … لا لا، أنا بخير 😅', 'fall'],
-      ['حبابي جاني دوار 😵‍💫 لحظة بس…', 'dizzy'], ['تبي سر؟ حتى أنا أخاف من الإبر… بس لا تقول لأحد 🤫', 'peek'], ['اشرب ماي! هذي نصيحتي ونصيحة حبوتي 💧😄', 'jump'],
+      ['واشيبي طحت، جاني دوار 😵‍💫 لحظة بس…', 'dizzy'], ['تبي سر؟ حتى أنا أخاف من الإبر… بس لا تقول لأحد 🤫', 'peek'], ['اشرب ماي! هذي نصيحتي ونصيحة حبوتي 💧😄', 'jump'],
       ['ما أقدر أوقف! فرحانة إنك هني 🎶💃', 'dance'], ['صحتك تاج على راسك، وأنت أدرى بقيمته 👑🤍', 'wave'], ['كل فحص تسويه خطوة لصحة أحسن، فخورة فيك 💪', 'jump'],
       ['تعرف؟ الممرض يجيك لين البيت، وعيّنتك تنحفظ مبرّدة لين المختبر 🧊', 'peek'], ['أنا أسرع من سيارة الإسعاف… تقريباً 🚑😄', 'flip'], ['أنت قدها، وإحنا معك خطوة بخطوة 🤍', 'wave'],
       ['تعرف؟ كل زيارة خامسة مجاناً مع بطاقة الأختام 🎁', 'jump'], ['اللي يهتم بصحته اليوم يرتاح بكرة 🌿', 'dance'], ['تعبك أجر ورفعة إن شاء الله، الله يشفي كل مريض 🤍', 'wave'],
@@ -34,6 +34,14 @@ const X = {
     g: { where: 'Show me', book: 'Where do I book?', res: 'My results?', doc: 'Talk to a doctor', help: 'I need help', here: 'Right here!', helpHere: 'The help button is down here 👇 tap it and the assistant replies right away', none: 'Not on this page, taking you there 😉' } }
 };
 const XL = () => X[st.lang] || X.en;
+/* her way back: a little head peeking from the corner; tap it and Noor comes back (no refresh needed) */
+let peek = null;
+function peekShow(){ if (peek || !st.links) return; peek = document.createElement('button'); peek.className = 'ns-peek'; peek.type = 'button';
+  peek.setAttribute('aria-label', st.lang === 'ar' ? 'رجّعي نور' : 'Bring Noor back');
+  peek.innerHTML = `<span class="np-head">${SVG.replace('viewBox="0 0 120 172"', 'viewBox="22 22 76 78"').replace(/id="ns/g, 'id="np').replace(/url\(#ns/g, 'url(#np')}</span><span class="np-say">${st.lang === 'ar' ? 'أرجع لك؟ 👋' : 'Shall I come back? 👋'}</span>`;
+  peek.onclick = () => { try { sessionStorage.removeItem('lah_noor'); } catch(e) {} peekHide(); if (window.LAHMascot) LAHMascot.show({ lang: st.lang, user: st.user, links: st.links }); };
+  document.body.appendChild(peek); requestAnimationFrame(() => peek && peek.classList.add('on')); }
+function peekHide(){ if (peek) { peek.remove(); peek = null; } }
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const GUIDE = { book: ['.qt[href*="tests"]', 'a[href="#/app/tests"]', 'a[href="#/tests"]', '[data-go="app/tests"]', '[data-go="tests"]'],
   res: ['.tabbar a[href*="orders"]', 'a[href*="app/orders"]', '.qt[href*="orders"]'], doc: ['.qt[href*="consult"]', 'a[href*="consult"]'], help: ['#bot .bot-fab'] };
@@ -127,7 +135,7 @@ function say(full){ st.asked = false;
 }
 function tipNext(){ const l = L(); st.tip = (st.tip + 1) % l.tips.length; bub.innerHTML = bubHtml(`<span class="ns-tip">💡</span> ${l.tips[st.tip]}`, `<button data-nsm>${l.more}</button><a href="#/${st.links.book}">${l.book}</a>`); bub.classList.add('on'); }
 function hideBub(){ if (bub) bub.classList.remove('on'); if (!FINE || innerWidth < 900) leave(); }
-function leave(){ if (!el) return; clearT(); el.classList.remove('in'); el.classList.add('walk', 'out'); later(() => { if (el) { el.classList.remove('walk'); el.style.display = 'none'; } }, 1500); try { sessionStorage.setItem('lah_noor', 'bye'); } catch(e) {} }
+function leave(){ if (!el) return; clearT(); later(peekShow, 1600); el.classList.remove('in'); el.classList.add('walk', 'out'); later(() => { if (el) { el.classList.remove('walk'); el.style.display = 'none'; } }, 1500); try { sessionStorage.setItem('lah_noor', 'bye'); } catch(e) {} }
 function place(){ if (!el) return; const tab = document.querySelector('.tabbar'); const cart = document.querySelector('.cart-bar');
   const vis = x => { if (!x) return 0; const r = x.getBoundingClientRect(); return r.height > 0 && r.top < innerHeight && getComputedStyle(x).display !== 'none' ? r.height : 0; };
   let b = 14; const th = vis(tab), ch = vis(cart); if (th) b = th + 10; if (ch) b += ch + 8;
@@ -142,7 +150,8 @@ window.LAHMascot = {
     st.lang = o.lang === 'en' ? 'en' : 'ar'; st.user = o.user || null; st.links = o.links || { book: 'tests', kit: 'tests?c=selfkit', doc: 'consult' };
     let bye = null; try { bye = sessionStorage.getItem('lah_noor'); } catch(e) {}
     const small = !FINE || innerWidth < 900;
-    if (bye === 'bye' && small) { this.hide(); return; }
+    if (bye === 'bye' && small) { this.hide(); peekShow(); return; }
+    peekHide();
     if (!el) build(); clearT(); el.style.display = ''; el.classList.toggle('rtl', st.lang === 'ar'); place();
     if (el.classList.contains('in')) { if (bub.classList.contains('on')) say(true); return; }
     el.classList.remove('out', 'in'); bub.classList.remove('on');
@@ -158,7 +167,7 @@ window.LAHMascot = {
     if (clear()) later(enter, first ? 1600 : 500);
     else { st.wait = () => { if (!el || el.style.display === 'none') { removeEventListener('scroll', st.wait); st.wait = null; return; } if (clear()) { removeEventListener('scroll', st.wait); st.wait = null; later(enter, 250); } }; addEventListener('scroll', st.wait, { passive: true }); }
   },
-  hide(){ clearT(); if (st.wait) { removeEventListener('scroll', st.wait); st.wait = null; } if (el) { el.classList.remove('in', 'walk'); el.style.display = 'none'; if (bub) bub.classList.remove('on'); } },
+  hide(){ peekHide(); clearT(); if (st.wait) { removeEventListener('scroll', st.wait); st.wait = null; } if (el) { el.classList.remove('in', 'walk'); el.style.display = 'none'; if (bub) bub.classList.remove('on'); } },
   cheer(){ if (!el || el.style.display === 'none' || !el.classList.contains('in')) return; jump(); bub.innerHTML = bubHtml(L().cheer, `<a href="#/${st.links.cart || 'app/cart'}">🛒</a>`); bub.classList.add('on'); later(() => bub && bub.classList.remove('on'), 3200); },
   place
 };

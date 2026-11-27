@@ -1926,7 +1926,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 54;
+const APP_V = 55;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -2241,7 +2241,7 @@ function heroSlides(){
 }
 function heroHtml(compact){
   const sl = heroSlides(); const D = S.lang === 'ar' ? 'r' : 'd'; /* desktop pictures: 'r' has the scene on the left for Arabic */
-  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=54" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=54" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=54"><img ${a}src="img/hero/h${n}${D}.jpg?v=54" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
+  return `<section class="h3 ${compact ? 'compact' : ''}" id="h3" data-i="0"><div class="h3-bg"></div><div class="h3-imgs" aria-hidden="true">${sl.map((x, i) => { const a = i ? 'data-' : '', n = x.a; return `<picture class="h3-im ${i ? '' : 'on'}" data-a="${n}"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.webp?v=55" type="image/webp"><source ${a}srcset="img/hero/h${n}${D}.webp?v=55" type="image/webp"><source media="(max-width:760px)" ${a}srcset="img/hero/h${n}m.jpg?v=55"><img ${a}src="img/hero/h${n}${D}.jpg?v=55" alt="" ${i ? '' : 'fetchpriority="high"'} decoding="async"></picture>`; }).join('')}</div><canvas class="h3-c" aria-hidden="true"></canvas><div class="h3-scrim"></div>
     <div class="h3-in ${compact ? '' : 'wrap-w'}">${sl.map((x, i) => `<div class="h3-s ${x.tone} ${i ? '' : 'on'}" data-s="${i}" ${i ? 'aria-hidden="true"' : ''}><span class="h3-e">${t(x.e)}</span><h2>${t(x.t)}</h2><p>${esc(x.p)}</p>
       <div class="h3-cta"><a class="btn" href="#/${x.c[1]}">${t(x.c[0])} <span class="flip">${ic('arrow',18)}</span></a>${x.c2 ? `<a class="btn ghost" href="#/${x.c2[1]}">${t(x.c2[0])}</a>` : ''}</div></div>`).join('')}</div>
     <div class="h3-nav ${compact ? '' : 'wrap-w'}"><div class="h3-dots">${sl.map((_, i) => `<button class="${i ? '' : 'on'}" data-d="${i}" aria-label="${i + 1}"><i></i></button>`).join('')}</div>
@@ -2711,11 +2711,22 @@ function docArt(g, size){ const s = size || 64; const f = g === 'female';
   ${f ? '<path d="M15 34c0-12 8-20 17-20s17 8 17 20c0 6-2 10-5 12H20c-3-2-5-6-5-12z" fill="#0d1628"/>' : ''}
   <circle cx="32" cy="30" r="11" fill="#e8b48f"/>${f ? '<path d="M21 28c1-8 6-12 11-12s10 4 11 12c-4-3-7-6-11-6s-7 3-11 6z" fill="#0d1628"/>' : '<path d="M21 27c0-7 5-11 11-11s11 4 11 11c-3-3-6-4-11-4s-8 1-11 4z" fill="#3a2a20"/>'}
   <circle cx="28" cy="31" r="1.3" fill="#0d1628"/><circle cx="36" cy="31" r="1.3" fill="#0d1628"/><path d="M29 36c2 1.5 4 1.5 6 0" stroke="#a0522d" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>`; }
-function docCard(d, sel){ const ar = S.lang === 'ar';
+const DOCS = {};
+function docCard(d, sel){ const ar = S.lang === 'ar'; DOCS[d.id] = d;
   return `<button type="button" class="doc-card ${sel ? 'on' : ''}" data-doc="${d.id}">${docPic(d.name, d.gender, 64)}<span class="grow" style="text-align:start"><b>${esc(d.name)}</b>
     <span class="xs muted" style="display:block">${esc(ar ? (d.specialty_ar || d.specialty) : d.specialty)} · ${t('cs_years',{n:esc(d.years || '—')})}</span>
     <span class="small" style="display:block;margin-top:4px">${esc(ar ? (d.bio_ar || d.bio || '') : (d.bio || ''))}</span>
-    <span class="row wrap" style="gap:6px;margin-top:6px"><span class="chip ${d.gender === 'female' ? 'red' : ''}">${t(d.gender === 'female' ? 'cs_female_dr' : 'cs_male_dr')}</span><span class="chip amber">★ ${d.rating || '—'}</span>${d.license ? `<span class="chip gray ltr">${esc(d.license)}</span>` : ''}</span></span>${sel ? `<span class="doc-tick">${ic('check',18,2.6)}</span>` : ''}</button>`; }
+    <span class="row wrap" style="gap:6px;margin-top:6px"><span class="chip ${d.gender === 'female' ? 'red' : ''}">${t(d.gender === 'female' ? 'cs_female_dr' : 'cs_male_dr')}</span><span class="chip amber">★ ${d.rating || '—'}</span>${d.license ? `<span class="chip gray ltr">${esc(d.license)}</span>` : ''}</span><span class="xs b doc-more" role="button" tabindex="0" data-docinfo="${d.id}">${t('doc_profile')} ›</span></span>${sel ? `<span class="doc-tick">${ic('check',18,2.6)}</span>` : ''}</button>`; }
+function docModal(d){ const ar = S.lang === 'ar'; const langs = (d.langs || []).map(x => ({ ar: ar ? 'العربية' : 'Arabic', en: ar ? 'الإنجليزية' : 'English' })[String(x).toLowerCase().slice(0, 2)] || x);
+  return modal(`<div class="pm-head">${docPic(d.name, d.gender, 76)}<div><h3 style="margin:0">${esc(d.name)}</h3><div class="small muted">${esc(ar ? (d.specialty_ar || d.specialty) : d.specialty)}</div>
+    <div class="row wrap" style="gap:6px;margin-top:8px"><span class="chip ${d.gender === 'female' ? 'red' : ''}">${t(d.gender === 'female' ? 'cs_female_dr' : 'cs_male_dr')}</span>${d.rating ? `<span class="chip amber">★ ${d.rating}</span>` : ''}</div></div></div>
+    <div class="pm-stats"><div><b>${d.done || 0}</b><span>${t('doc_cons')}</span></div><div><b>${esc(d.years || '—')}</b><span>${t('years')}</span></div><div><b>${d.rating || '—'}</b><span>${t('doc_rate')}</span></div></div>
+    ${(ar ? (d.bio_ar || d.bio) : d.bio) ? `<p style="margin:12px 0 0">${esc(ar ? (d.bio_ar || d.bio) : d.bio)}</p>` : ''}
+    ${langs.length ? `<div class="vline"><span class="muted">${t('langs')}</span><b>${langs.map(esc).join(' · ')}</b></div>` : ''}
+    ${d.license ? `<div class="vline"><span class="muted">${t('licence')}</span><b class="ltr">${esc(d.license)}</b></div>` : ''}
+    <div class="row" style="margin-top:14px"><button class="btn block" data-x>${t('close')}</button></div>`); }
+document.addEventListener('click', e => { const el = e.target.closest('[data-docinfo]'); if (!el) return; e.preventDefault(); e.stopPropagation(); const d = DOCS[el.dataset.docinfo]; if (d) docModal(d); }, true);
+document.addEventListener('keydown', e => { const el = e.target.closest && e.target.closest('[data-docinfo]'); if (el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.stopPropagation(); const d = DOCS[el.dataset.docinfo]; if (d) docModal(d); } }, true);
 function csKinds(){ return [['pre','steth','cs_pre','consult_fee'],['post','file','cs_post','consult_post_fee'],['dental','tooth','cs_dental','consult_fee'],['dental_home','home','cs_dental_home','dental_home_fee']]; }
 function csFee(kind, order, B){ if (kind === 'post' && order && ['review','urgent'].includes(order.severity)) return 0; return Number(B[{ pre:'consult_fee', post:'consult_post_fee', dental:'consult_fee', dental_home:'dental_home_fee' }[kind]]); }
 function csGoBook(kind, orderId){ const h = 'app/consult/new?kind=' + kind + (orderId ? '&order=' + orderId : ''); if (canUse(S.user)) go(h); else if (S.user) toast(t('e_ONLY_PATIENTS')); else { sessionStorage.setItem('lah_after', h); go('register'); } }

@@ -1370,3 +1370,12 @@ body:has(#app .auth) #bot{display:none}
 #nurse.pointdown .ns-ar{animation:nsPointDown 1.6s ease-in-out}
 @keyframes nsPointDown{0%,100%{transform:rotate(0)}25%,80%{transform:rotate(-35deg)}}
 @media (prefers-reduced-motion: reduce){#nurse .ns-svg,#nurse .ns-head,#nurse .ns-ar,#nurse .ns-al,#nurse .ns-ll,#nurse .ns-lr{animation:none!important}}
+/* v55: Noor's way back — her head peeks from the corner, tap to bring her back */
+.ns-peek{position:fixed;z-index:56;inset-inline-start:0;bottom:calc(var(--tbh,0px) + 14px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:6px;border:0;background:none;padding:0;cursor:pointer;transform:translateX(-110%);transition:transform .6s cubic-bezier(.3,1.4,.5,1);-webkit-tap-highlight-color:transparent}
+[dir=rtl] .ns-peek{transform:translateX(110%)}
+.ns-peek.on{transform:translateX(-14px)}[dir=rtl] .ns-peek.on{transform:translateX(14px)}
+.ns-peek .np-head{width:58px;height:58px;border-radius:50%;background:#eaf2ff;box-shadow:0 8px 20px rgba(11,35,80,.18);overflow:hidden;display:grid;place-items:center;animation:npTilt 2.4s ease-in-out infinite}
+.ns-peek .np-head svg{width:64px;height:64px;display:block}
+.ns-peek .np-say{background:#fff;color:#0b2350;font-weight:700;font-size:.8rem;padding:6px 10px;border-radius:14px;box-shadow:0 6px 16px rgba(11,35,80,.14);white-space:nowrap}
+@keyframes npTilt{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+@media (prefers-reduced-motion: reduce){.ns-peek .np-head{animation:none}}
