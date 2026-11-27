@@ -449,3 +449,28 @@ Object.assign(window.I18N.ar, {
   mail_ok:'موثّق — التحديثات توصلك على الإيميل أيضاً.', mail_pending:'لم يتم التوثيق بعد. افتح الرابط اللي أرسلناه لك.', mail_done_t:'تم توثيق بريدك ✅', mail_done_p:'تم تأكيد {e}. ستصلك تحديثات طلباتك ونتائجك على الإيميل.',
   mail_fail_t:'الرابط غير صالح', mail_expired:'انتهت صلاحية الرابط. سجّل دخولك وأرسل رابطاً جديداً من ملفك.', mail_bad:'الرابط غير صالح أو تم استبداله برابط أحدث.', e_BAD_EMAIL:'أدخل بريداً إلكترونياً صحيحاً.', e_ALREADY_VERIFIED:'هذا البريد موثّق مسبقاً.', e_NEED_EMAIL:'أضف بريداً إلكترونياً أولاً.'
 });
+/* v56 security strings */
+Object.assign(window.I18N.en, {
+  e_USE_PASSWORD:'This account signs in with its email and password, not with Google.', e_REAUTH_REQUIRED:'For your security, enter your current password to change the email.',
+  e_OWNER_PROTECTED:'The owner account is protected and cannot be changed this way.', e_ADMIN_LOCKED:'A new full admin cannot be added. Use a staff account instead.',
+  mail_pw_hint:'Team accounts: enter your current password to change the email.',
+  logout_all:'Log out of all devices', logout_all_p:'This signs your account out on every phone and computer, including this one, and stops notifications to them. Use it if you lost a device or think someone else used your account.',
+  logout_all_ok:'Log out everywhere', logout_all_done:'Signed out of all devices.',
+  sec_t:'Security (owner only)', sec_p:'Who changed what, failed sign-ins (last 24 hours) and open sessions. Only you can see this section.',
+  sec_f24:'Failed sign-ins', sec_sess:'Open sessions', sec_mine:'Your sessions', sec_f7:'Failed sign-ins, last 7 days', sec_audit:'Activity log',
+  sa_user_created:'Account created', sa_user_deleted:'Account deleted', sa_user_changed:'Account changed', sa_logout_all_devices:'Logged out of all devices',
+  sa_setting:'Setting changed', sa_coupon:'Coupon changed', sa_secret_config:'Protected setting changed',
+  sd_role:'Role', sd_status:'Status', sd_demo:'Demo', sd_email:'Email', sd_phone:'Phone', sd_password:'Password'
+});
+Object.assign(window.I18N.ar, {
+  e_USE_PASSWORD:'هذا الحساب يسجّل الدخول بالبريد وكلمة المرور، وليس عبر Google.', e_REAUTH_REQUIRED:'لحمايتك، أدخل كلمة المرور الحالية لتغيير البريد.',
+  e_OWNER_PROTECTED:'حساب المالك محمي ولا يمكن تغييره بهذه الطريقة.', e_ADMIN_LOCKED:'لا يمكن إضافة مدير كامل جديد. استخدم حساب موظف بدلاً منه.',
+  mail_pw_hint:'حسابات الفريق: أدخل كلمة المرور الحالية لتغيير البريد.',
+  logout_all:'تسجيل الخروج من كل الأجهزة', logout_all_p:'يسجّل خروج حسابك من كل الجوالات والأجهزة، ومنها هذا الجهاز، ويوقف الإشعارات عنها. استخدمه إذا ضاع جهازك أو تشك أن أحداً دخل حسابك.',
+  logout_all_ok:'خروج من كل الأجهزة', logout_all_done:'تم تسجيل الخروج من كل الأجهزة.',
+  sec_t:'الأمان (للمالك فقط)', sec_p:'من غيّر ماذا، ومحاولات الدخول الفاشلة (آخر 24 ساعة)، والجلسات المفتوحة. هذا القسم يظهر لك أنت فقط.',
+  sec_f24:'محاولات فاشلة', sec_sess:'جلسات مفتوحة', sec_mine:'جلساتك', sec_f7:'محاولات الدخول الفاشلة آخر 7 أيام', sec_audit:'سجل العمليات',
+  sa_user_created:'إنشاء حساب', sa_user_deleted:'حذف حساب', sa_user_changed:'تعديل حساب', sa_logout_all_devices:'خروج من كل الأجهزة',
+  sa_setting:'تعديل إعداد', sa_coupon:'تعديل كوبون', sa_secret_config:'تعديل إعداد محمي',
+  sd_role:'الدور', sd_status:'الحالة', sd_demo:'تجريبي', sd_email:'البريد', sd_phone:'الهاتف', sd_password:'كلمة المرور'
+});

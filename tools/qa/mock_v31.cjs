@@ -46,6 +46,12 @@ const X = {
   sos_raise: () => ({ id: 9, at: new Date().toISOString() }), incident_report: () => ({ id: 4 }),
   admin_safety: () => ({ sos: [{ id: 9, who: 'Fatima Al Harthy', role: 'nurse', phone: null, lat: 22.69, lng: 58.53, note: null, at: iso(12), resolved_at: null, order: 'LAH-10242' }], incidents: [{ id: 4, who: 'Fatima Al Harthy', role: 'nurse', kind: 'needle', note: 'Small needle-stick, washed and reported.', status: 'open', at: iso(300), order: 'LAH-10242' }] }),
   admin_safety_close: () => X.admin_safety(),
+  /* v56 security */
+  admin_security: () => ({ failed_24h: 2, sessions_active: 14, my_sessions: 2, failed: [{ login: 'adm***', n: 3, last: iso(40) }, { login: '968***', n: 1, last: iso(400) }],
+    audit: [{ at: iso(5), action: 'user_changed', actor: 'Bilarab Al Musallami', target: 'Dr. Huda Al Mahrouqi', detail: { role: ['doctor', 'staff'], password: 'changed' } }, { at: iso(60), action: 'user_created', actor: 'Bilarab Al Musallami', target: 'Salim Al Hinai', detail: { role: 'nurse', demo: false } },
+      { at: iso(90), action: 'setting_update', actor: 'Bilarab Al Musallami', target: '', detail: { key: 'home_fee' } }, { at: iso(200), action: 'logout_all_devices', actor: 'Bilarab Al Musallami', target: 'Bilarab Al Musallami', detail: {} }] }),
+  auth_logout_all: () => null,
+  email_set: b => { const u = base.handle('auth_me', { p_token: b.p_token }).user; if (u.role !== 'patient' && !b.p_password) throw Object.assign(new Error('REAUTH_REQUIRED'), { code: 'REAUTH_REQUIRED' }); return Object.assign({}, u, { email: b.p_email, email_verified: false }); },
   admin_privacy: () => [{ id: 2, kind: 'delete', note: 'Please remove my account', status: 'open', created_at: iso(100), user: 'Demo patient' }, { id: 1, kind: 'export', status: 'done', reply: 'Sent', created_at: iso(5000), user: 'Demo patient' }],
   admin_privacy_done: () => X.admin_privacy(),
   admin_coupons: () => coupons, admin_coupon_save: b => { coupons.unshift(Object.assign({ used: 0 }, b.p)); return coupons; },

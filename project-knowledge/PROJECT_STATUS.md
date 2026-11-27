@@ -1,5 +1,9 @@
 # Project status — last updated 2026-11-27
 
+## v56 + DB v55/v55b — security hardening (2026-11-27), full report: `SECURITY_AUDIT.md`
+- Fixed: Google sign-in could enter any existing account with the same email (team/owner accounts on labathome.om) → now patients only; tables closed to direct access; owner by internal id, protected from delete/demote/suspend, no second real admin; email change for team/staff/owner needs the current password; "log out of all devices"; audit log + owner-only security card on Safety & privacy (failed sign-ins, sessions).
+- Waiting for the owner: real owner email, backups, two-step sign-in, separate production database, own domain (see the report).
+
 ## v55 + DB v54 (2026-11-27)
 - Doctor profile: "الملف التعريفي ›" on every doctor card opens a profile sheet (photo, specialty, years, consultations, rating, languages, bio). Real doctors got bios; pilot nurses got visit counts (owner's request).
 - Noor: "واشيبي طحت، جاني دوار"; after she leaves (phones), her head peeks from the corner saying "أرجع لك؟" and one tap brings her back without a refresh.

@@ -19,6 +19,7 @@ run(){ echo; echo "== $1"; shift; if [ "$1" = env ]; then "$@"; else node "$@"; 
 : > tools/qa/out/report.txt
 run "Back button (app Back + phone Back, every account)"  tools/qa/backtest.js || fail=1
 run "Damaged saved data / storage blocked (in-app browsers)" tools/qa/storechk.js || fail=1
+run "Security screens (email password, log out everywhere, owner card)" tools/qa/v56sec.js || fail=1
 run "Every menu item, every account, phone + laptop"      tools/qa/menutest.js || fail=1
 run "Every button on every screen (owner, phone + desktop)" tools/qa/clicksweep.js leader || fail=1
 run "Squeezed text (one word per line) at 320/384 px, every screen" env WIDTHS=320,384 node tools/qa/squeeze.js || fail=1

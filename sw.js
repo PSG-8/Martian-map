@@ -1,4 +1,4 @@
-const V = 'lah-v55';
+const V = 'lah-v56';
 const CORE = ['./', 'index.html', 'css/app.css?v=55', 'js/store.js?v=55', 'js/i18n.js?v=55', 'js/art.js?v=55', 'js/api.js?v=55', 'js/qr.js?v=55', 'js/pdf.js?v=55', 'js/guide.js?v=55', 'js/motion.js?v=55', 'js/app.js?v=55', 'icons/icon.svg', 'manifest.webmanifest', "img/hero/h0d.webp?v=55", "img/hero/h0m.webp?v=55"];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

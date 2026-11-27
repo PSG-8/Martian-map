@@ -1193,8 +1193,8 @@ async function viewProfile(){
     <div class="stack"><form class="card stack" id="pw"><h3>${t('change_pw')}</h3>${pwField('old', t('old_pw'))}${pwField('new1', t('new_pw'), t('pass_rule'))}<button class="btn ghost">${t('change_pw')}</button></form>
       ${mailCard()}${pushCard()}<div class="card"><h3>${t('install_t')}</h3><p class="muted small">${t('install_p')}</p><a class="btn" href="#/install">${ic('download',18)} ${t('ins_cta')}</a></div>
       <div class="card row between"><span class="b">${S.lang === 'ar' ? 'اللغة' : 'Language'}</span><button class="lang" data-lang>${t('lang')}</button></div>
-      <button class="btn ghost block" data-logout>${ic('logout',18)} ${t('logout')}</button></div></div>`);
-  bindPw(app);
+      <button class="btn ghost block" data-logout>${ic('logout',18)} ${t('logout')}</button><button class="link small" style="align-self:center" data-logoutall>${t('logout_all')}</button></div></div>`);
+  bindPw(app); $$('[data-logoutall]').forEach(b => b.onclick = logoutAllAsk);
   $('#pf').onsubmit = async e => { e.preventDefault(); const f = e.target; const meta = {}; ['blood','gender','dob','allergies','chronic'].forEach(k => { if (f[k]) meta[k] = f[k].value; });
     const ll = WILAYAT_LL[f.wilayat.value] || [];
     try { S.user = await busy($('button', f), () => API.profile({ full_name: f.full_name.value, phone: f.phone.value, wilayat: f.wilayat.value, address: f.address ? f.address.value : undefined, lat: u.lat || ll[0], lng: u.lng || ll[1], meta, civil_id: f.civil_id && !u.is_demo && f.civil_id.value.trim() ? f.civil_id.value.replace(/\D/g, '') : undefined })); toast(t('saved')); } catch(err) {} };
@@ -1739,13 +1739,15 @@ async function mailSend(btn, quiet){
 function bindMail(){
   $$('[data-mail-send]').forEach(b => b.onclick = () => mailSend(b));
   $$('[data-mail-x]').forEach(b => b.onclick = () => { sessionStorage.setItem('lah_mail_x', '1'); const el = $('#mailb'); if (el) el.remove(); });
-  const f = $('#mailf'); if (f) f.onsubmit = async e => { e.preventDefault(); const v = f.em.value.trim(); if (!v) return;
-    try { S.user = await busy($('button', f), () => API.emailSet(v)); toast(t('saved')); if (!S.user.email_verified) await mailSend(null); render(); } catch(err) {} };
+  const f = $('#mailf'); if (f) f.onsubmit = async e => { e.preventDefault(); const v = f.em.value.trim(); if (!v) return; const pw = f.pw ? f.pw.value : '';
+    if (f.pw && !pw) { toast(t('e_REAUTH_REQUIRED'), true); f.pw.focus(); return; }
+    try { S.user = await busy($('button', f), () => API.emailSet(v, pw)); if (f.pw) f.pw.value = ''; toast(t('saved')); if (!S.user.email_verified) await mailSend(null); render(); } catch(err) {} };
 }
 function mailCard(){
   const u = S.user; if (u.is_demo) return '';
   return `<div class="card"><h3>${ic('send',20)} ${t('mail_card')}</h3><p class="muted small">${t('mail_card_p')}</p>
-    <form id="mailf" class="row" style="gap:8px"><input class="input grow ltr" type="email" name="em" value="${esc(u.email || '')}" placeholder="name@email.com"><button class="btn soft sm">${t('save_changes')}</button></form>
+    ${u.role === 'patient' ? `<form id="mailf" class="row" style="gap:8px"><input class="input grow ltr" type="email" name="em" value="${esc(u.email || '')}" placeholder="name@email.com" autocomplete="email"><button class="btn soft sm">${t('save_changes')}</button></form>`
+      : `<form id="mailf" class="row wrap" style="gap:8px"><input class="input ltr" style="flex:1 1 200px;min-width:0" type="email" name="em" value="${esc(u.email || '')}" placeholder="name@email.com" autocomplete="email"><input class="input ltr" style="flex:1 1 160px;min-width:0" type="password" name="pw" autocomplete="current-password" placeholder="${t('old_pw')}" aria-label="${t('old_pw')}"><button class="btn soft sm">${t('save_changes')}</button></form><div class="hint" style="margin-top:6px">${ic('shield',13)} ${t('mail_pw_hint')}</div>`}
     ${u.email ? (u.email_verified ? `<div class="banner teal small" style="margin-top:10px">${ic('check',18)}<span>${t('mail_ok')}</span></div>` : `<div class="banner amber small" style="margin-top:10px">${ic('clock',18)}<span class="grow">${t('mail_pending')}</span><button class="btn sm" data-mail-send>${t('mail_resend')}</button></div>`) : ''}</div>`;
 }
 async function viewVerify(code){
@@ -1761,10 +1763,14 @@ async function viewVerify(code){
 
 /* ---------- router ---------- */
 async function doLogout(){ try { if ('serviceWorker' in navigator) { const reg = await navigator.serviceWorker.getRegistration(); const sub = reg && reg.pushManager && await reg.pushManager.getSubscription(); if (sub) await API.pushUnsubscribe(sub.endpoint).catch(() => {}); } } catch(e) {} await API.logout(); API.setToken(null); S.user = null; S.bk = null; go(''); }
+/* v56: sign this account out on every device (sessions and push on all devices end; this device goes to the home page) */
+function logoutAllAsk(){ modal(`<h3>${t('logout_all')}</h3><p class="muted">${t('logout_all_p')}</p><div class="row" style="gap:8px;margin-top:14px"><button class="btn red grow" id="lao">${t('logout_all_ok')}</button><button class="btn ghost grow" data-close>${t('cancel')}</button></div>`, (el, close) => {
+  $('#lao', el).onclick = async () => { try { await busy($('#lao', el), () => API.logoutAll()); } catch(e) { return; } close(); API.setToken(null); S.user = null; S.bk = null; toast(t('logout_all_done')); go(''); }; }); }
 function bindGo(){ $$('[data-go]').forEach(b => b.onclick = () => { const g = b.dataset.go; if (g === 'register' && !S.user) sessionStorage.setItem('lah_after', 'app/book'); go(g); }); }
 function bindGlobal(){
   $$('[data-lang]').forEach(b => b.onclick = () => { setLang(S.lang === 'ar' ? 'en' : 'ar'); render(); if (S.user && localStorage.getItem('lah_push') === '1') pushEnable(true).catch(() => {}); });
   $$('[data-logout]').forEach(b => b.onclick = doLogout);
+  $$('[data-logoutall]').forEach(b => b.onclick = logoutAllAsk);
   $$('[data-goback]').forEach(b => b.onclick = appBack);
   $$('[data-menu]').forEach(b => b.onclick = e => { e.preventDefault(); openMenu(b); });
   if ($('.van-strip.v32')) bindVan();
@@ -1926,7 +1932,7 @@ async function viewInstall(){
 
 /* native-app behaviour on phones: no pinch/double-tap zoom of the page, hide bars while typing */
 function labelTables(root){ $$('table.table', root).forEach(tb => { const hs = $$('thead th', tb).map(th => th.textContent.trim()); $$('tbody tr', tb).forEach(tr => { [...tr.children].forEach((td, i) => { if (!td.hasAttribute('data-l')) td.setAttribute('data-l', hs[i] || ''); }); }); tb.classList.add('mcards'); }); }
-const APP_V = 55;
+const APP_V = 56;
 let updChecking = false;
 async function checkUpdate(){
   if (updChecking || location.protocol !== 'https:') return; updChecking = true;
@@ -3194,7 +3200,8 @@ async function viewCamps(){
 /* ---------- admin: safety & privacy, coupons, camps ---------- */
 async function viewAdminSafety(){
   loading(t('m_safety'));
-  const [sf, pv] = await Promise.all([API.adminSafety(), API.adminPrivacy()]); const ro = S.user.is_demo;
+  const own = S.user.role === 'admin' && !S.user.is_demo;
+  const [sf, pv, sec] = await Promise.all([API.adminSafety(), API.adminPrivacy(), own ? API.adminSecurity().catch(() => null) : null]); const ro = S.user.is_demo;
   const reqKind = k => ({ export: t('pv_exp'), delete: t('pv_del'), correct: t('pv_fix') })[k] || esc(k);
   app.innerHTML = shell(t('m_safety'), `<div class="stack-lg">
     <div class="card"><h3>🚨 ${t('adm_sos')}</h3>${sf.sos.length ? sf.sos.map(x => `<div class="vline ${x.resolved_at ? '' : 'sos-open'}"><div><b>${esc(x.who)}</b> <span class="chip gray">${t('r_' + x.role)}</span><div class="xs muted">${fmtDT(x.at)}${x.order ? ' · ' + esc(x.order) : ''}${x.note ? ' · ' + esc(x.note) : ''}</div>
@@ -3202,10 +3209,22 @@ async function viewAdminSafety(){
       ${x.resolved_at ? `<span class="chip teal">${t('adm_resolve')}</span>` : `<button class="btn sm red" data-close="sos:${x.id}" ${ro ? 'disabled' : ''}>${t('adm_resolve')}</button>`}</div>`).join('') : `<p class="small muted" style="margin:0">${t('nothing')}</p>`}</div>
     <div class="card"><h3>${ic('file',20)} ${t('adm_inc')}</h3>${sf.incidents.length ? sf.incidents.map(x => `<div class="vline"><div><b>${t('inc_' + x.kind)}</b> · ${esc(x.who)}<div class="xs muted">${fmtDT(x.at)}${x.order ? ' · ' + esc(x.order) : ''}</div><div class="small">${esc(x.note)}</div></div>${x.status === 'open' ? `<button class="btn sm ghost" data-close="incident:${x.id}" ${ro ? 'disabled' : ''}>${t('adm_close')}</button>` : `<span class="chip gray">${t('adm_close')}</span>`}</div>`).join('') : `<p class="small muted" style="margin:0">${t('nothing')}</p>`}</div>
     <div class="card"><h3>${ic('shield',20)} ${t('adm_pv')}</h3>${pv.length ? pv.map(r => `<div class="vline"><div><b>${reqKind(r.kind)}</b> · ${esc(r.user)}<div class="xs muted">${fmtDT(r.created_at)}${r.note ? ' · ' + esc(r.note) : ''}${r.reply ? ' · ↳ ' + esc(r.reply) : ''}</div></div>${r.status === 'open' ? `<div class="row" style="gap:6px"><button class="btn sm" data-pv="${r.id}:done" ${ro ? 'disabled' : ''}>${t('adm_done')}</button><button class="btn sm ghost" data-pv="${r.id}:rejected" ${ro ? 'disabled' : ''}>${t('adm_reject')}</button></div>` : `<span class="chip gray">${esc(r.status)}</span>`}</div>`).join('') : `<p class="small muted" style="margin:0">${t('nothing')}</p>`}</div>
+    ${secCard(sec)}
   </div>`);
+  $$('[data-logoutall]').forEach(b => b.onclick = logoutAllAsk);
   $$('[data-close]').forEach(b => b.onclick = async () => { const [k, id] = b.dataset.close.split(':'); try { await busy(b, () => API.adminSafetyClose(k, +id)); viewAdminSafety(); } catch(e) { toast(errMsg(e), true); } });
   $$('[data-pv]').forEach(b => b.onclick = () => { const [id, st] = b.dataset.pv.split(':'); modal(`<h3>${t('adm_reply')}</h3><textarea class="input" id="pvr" rows="3"></textarea><button class="btn block" style="margin-top:10px" id="pvok">${t('send')}</button>`, (el, close) => {
     $('#pvok', el).onclick = async () => { try { await busy($('#pvok', el), () => API.adminPrivacyDone(+id, st, $('#pvr', el).value)); close(); viewAdminSafety(); } catch(e) { toast(errMsg(e), true); } }; }); });
+}
+function secCard(s){ if (!s) return '';
+  const lab = a => { const k = 'sa_' + String(a).replace(/^(setting|coupon|secret_config)_.*/, '$1'); return (I18N[S.lang][k] || I18N.en[k]) ? t(k) : esc(a); };
+  const det = x => { const d = x.detail || {}; if (x.action === 'user_changed') return Object.keys(d).map(k => { const n = (I18N[S.lang]['sd_' + k] || I18N.en['sd_' + k]) ? t('sd_' + k) : esc(k); return Array.isArray(d[k]) ? `${n}: ${esc(String(d[k][0]))} → ${esc(String(d[k][1]))}` : n; }).join(S.lang === 'ar' ? '، ' : ', ');
+    if (x.action === 'user_created') return d.role ? esc(t('r_' + d.role)) : ''; if (d.key) return `<span class="ltr">${esc(d.key)}</span>`; if (d.code) return `<span class="ltr">${esc(d.code)}</span>`; return ''; };
+  return `<div class="card"><h3>${ic('shield',20)} ${t('sec_t')}</h3><p class="small muted" style="margin-top:0">${t('sec_p')}</p>
+    <div class="pm-stats"><div><b>${s.failed_24h || 0}</b><span>${t('sec_f24')}</span></div><div><b>${s.sessions_active || 0}</b><span>${t('sec_sess')}</span></div><div><b>${s.my_sessions || 0}</b><span>${t('sec_mine')}</span></div></div>
+    <button class="btn sm ghost" style="margin-top:12px" data-logoutall>${t('logout_all')}</button>
+    <details style="margin-top:14px"><summary class="small b">${t('sec_f7')} (${(s.failed || []).length})</summary>${(s.failed || []).length ? s.failed.map(f => `<div class="vline"><span class="ltr b">${esc(f.login)}</span><span class="xs muted">${+f.n || 0}× · ${fmtDT(f.last)}</span></div>`).join('') : `<p class="small muted">${t('nothing')}</p>`}</details>
+    <details style="margin-top:10px"><summary class="small b">${t('sec_audit')} (${(s.audit || []).length})</summary>${(s.audit || []).length ? s.audit.map(x => { const dd = det(x); return `<div class="vline"><div><b>${lab(x.action)}</b>${x.target ? ' · ' + esc(x.target) : ''}<div class="xs muted">${fmtDT(x.at)} · ${esc(x.actor)}${dd ? ' · ' + dd : ''}</div></div></div>`; }).join('') : `<p class="small muted">${t('nothing')}</p>`}</details></div>`;
 }
 async function viewAdminCoupons(){
   loading(t('m_coupons'));
